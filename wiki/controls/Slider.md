@@ -1,0 +1,84 @@
+# Slider
+
+> 在线示例:[/#/slider](/#/slider) · 演示页源码:[demo/pages/SliderPage.vue](../../demo/pages/SliderPage.vue)
+
+## 概述
+
+Slider(滑块)让用户通过沿轨道移动拇指(Thumb)从一段取值范围中选择数值。当你希望用户设置**有定义的连续值**(如音量、亮度)或**一段离散档位值**(如屏幕分辨率设置)时使用。
+
+组件按 WinUI `TargetType="Slider"` 的 ControlTemplate 复刻:轨道(4px,`SliderTrackFill`)+ 已选段(强调色,`SliderTrackValueFill`)+ 拇指(8×24、圆角 4、`SliderThumbBackground`)+ 可选刻度(`SliderTickBarFill`);PointerOver / Pressed / Disabled / Focus 视觉状态与颜色全部来自 `--wui-slider-*` token,浅/深主题自动跟随。
+
+官方文档:
+
+- [Slider - API(WinUI)](https://learn.microsoft.com/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.controls.slider)
+- [Slider 设计指南](https://learn.microsoft.com/windows/apps/design/controls/slider)
+
+## 属性
+
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `value` | `number`(`v-model:value`) | `0` | 当前值,双向绑定;拖动/键盘时实时更新 |
+| `minimum` | `number` | `0` | 最小值 |
+| `maximum` | `number` | `100` | 最大值(小于 `minimum` 时收敛为 `minimum`,与源实现一致) |
+| `stepFrequency` | `number` | `1` | 步长;`<= 0` 时按 `1` 处理 |
+| `snapsTo` | `'StepValues' \| 'Ticks' \| 'None'` | `'StepValues'` | 吸附方式:`StepValues` 按 `stepFrequency` 吸附,`Ticks` 按 `tickFrequency` 吸附;`'None'` 为 Web 扩展(仅钳制到范围,连续取值) |
+| `tickPlacement` | `'None' \| 'TopLeft' \| 'BottomRight' \| 'Outside' \| 'Inline'` | `'None'` | 刻度位置(上方 / 下方 / 上下两侧 / 轨道上) |
+| `tickFrequency` | `number` | `0` | 刻度间距;`<= 0` 不绘制刻度 |
+| `header` | `string` | `''` | 标题文本(WinUI `Header`) |
+| `disabled` | `boolean` | `false` | 禁用(Web 侧对应 WinUI `Control.IsEnabled`) |
+
+## 事件
+
+| 事件 | 参数 | 触发时机 |
+| --- | --- | --- |
+| `valueChanged` | `{ oldValue: number; newValue: number }` | 值变化时触发;**拖动过程中持续触发**(与 WinUI `ValueChanged` 一致),取值范围/吸附方式变更导致值被钳制重算时同样触发 |
+| `update:value` | `(value: number) => void` | `v-model:value` 双向绑定事件 |
+
+模板中监听写法:`@value-changed="onValueChanged"`。
+
+## 基础用法
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import Slider from '@/components/Slider.vue'
+
+const value = ref(50)
+
+function onValueChanged(e: { oldValue: number; newValue: number }): void {
+  console.log(`值从 ${e.oldValue} 变为 ${e.newValue}`)
+}
+</script>
+
+<template>
+  <Slider v-model:value="value" header="音量" @value-changed="onValueChanged" />
+
+  <!-- 刻度 + 刻度吸附 -->
+  <Slider v-model:value="value" tick-placement="Outside" :tick-frequency="20" snaps-to="Ticks" />
+</template>
+```
+
+## 交互行为
+
+- **拖动**:按住轨道任意位置或拇指拖动,值实时更新并连续触发 `valueChanged`;按住期间保持 Pressed 视觉(拇指放大 + Pressed 色),即使指针移出控件(与 WinUI 指针捕获一致)。
+- **方向键**:`←`/`↓` 减一步、`→`/`↑` 加一步,步长为 `stepFrequency`(`snapsTo="Ticks"` 时为 `tickFrequency`);`Home`/`End` 跳到最小/最大值。
+- **PointerOver**:轨道变浅(`SliderTrackFillPointerOver`)、拇指变色并放大 1.4 倍。
+- **Focus**:键盘聚焦(`:focus-visible`)时拇指外围显示 accent 色轮廓。
+
+## 与 WinUI 的差异
+
+1. **`snapsTo` 增加 `'None'`**:WinUI `SliderSnapsTo` 枚举只有 `StepValues` / `Ticks`;Web 版追加 `'None'` 表示不吸附、连续取值(此时方向键仍按 `stepFrequency` 步进)。
+2. **拇指缩放**:源模板(generic.xaml 的 PointerOver/Pressed 状态)只改变颜色;拇指悬停/按住时 `scale(1.4)` 的放大为 Web 适配增强,取自 WinUI 11 交付版滑块的拇指交互观感,颜色值仍严格对照 `SliderThumbBackground*` token。
+3. **轨道高度**:源快照(generic.xaml 三个主题字典 Default/HighContrast/Light)的 `SliderTrackThemeHeight` 均为 2,实现取 4px 系 Windows 11 观感选择。
+4. **焦点视觉**:WinUI 为控件外围系统焦点框(双线),Web 实现为拇指外围 2px accent 轮廓(`--wui-system-accent-color`,未定义时回退 `--wui-hyperlink-foreground-theme`)。
+5. **方向键步长**:WinUI 方向键按 `SmallChange`、翻页键按 `LargeChange` 步进;本实现方向键固定按 `stepFrequency`/`tickFrequency` 步进,未暴露 `SmallChange`/`LargeChange`。
+6. **仅水平方向**:WinUI 支持 `Orientation="Vertical"`,本实现暂未提供垂直模式。
+7. **状态切换动效**:WinUI 视觉状态颜色为瞬时切换(`DiscreteObjectKeyFrame`);Web 版为 167ms 过渡(`--wui-duration-fast` + `--wui-easing-standard`,token 未引入时回退内置值)。
+8. **无 token 的源尺寸常量**(在组件内按源值实现):`SliderHorizontalHeight=32`(容器高)、拇指 8×24 / `CornerRadius=4`、`SliderOutsideTickBarThemeHeight=4` + 刻度与轨道间距 4、`SliderTopHeaderMargin=0,0,0,4`、刻度线宽 1px。
+
+## 在 WinUI 中的典型场景(对照官方示例)
+
+- 简单滑块:`<Slider Width="200" />`(默认 0–100、步长 1)
+- 范围与步长:`Minimum` / `Maximum` / `StepFrequency`
+- 刻度:`TickPlacement="Outside"` + `TickFrequency` + `SnapsTo="Ticks"`
+- 垂直方向:Web 版暂不支持(见差异 6)
