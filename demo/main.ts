@@ -1,5 +1,15 @@
+// 示例站入口:创建应用 → 注入 i18n(先于挂载,全树可 useI18n)→ 注册路由 → 挂载,
+// 并在此引入主题 token 样式表(明暗由 html[data-theme] 驱动,见 demo/composables/useThemeSetting.ts)。
 import { createApp } from 'vue'
 import App from './App.vue'
+import { createI18n, detectLocale, i18nKey } from './i18n'
 import router from './router'
+import '../src/styles/theme.css'
 
-createApp(App).use(router).mount('#app')
+const app = createApp(App)
+
+// 说明:i18n 模块的 provideI18n() 依赖组件 setup 上下文(其 README 亦注明“在根组件 setup 中提供”),
+// 入口处挂载前的等价官方 API 是应用级 provide():同样向全树提供实例,App.vue 内 useI18n() 正常取用。
+app.provide(i18nKey, createI18n(detectLocale()))
+app.use(router)
+app.mount('#app')
