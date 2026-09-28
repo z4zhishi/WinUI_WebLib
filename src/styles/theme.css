@@ -1,0 +1,1412 @@
+/*
+ * WinUI_WebLib — WinUI 主题 token(theme.css)
+ *
+ * 由 docs/temp/extract-tokens.mjs 自动生成,请勿手改;重生成: node docs/temp/extract-tokens.mjs
+ * 来源: CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml(MIT)内 ThemeDictionaries 的 Light 与 Default(深色)字典。
+ * 命名: --wui- + 去掉结尾一个 Brush 后的键名 kebab-case(如 TextFillColorPrimaryBrush → --wui-text-fill-color-primary)。
+ * 不含 prefers-color-scheme 媒体查询;系统跟随由 JS 设置 html[data-theme]。
+ *
+ * 单位: 字号/圆角以 px 表示(XAML DIP 与 CSS px 1:1);颜色 #AARRGGBB 转为 CSS #RRGGBBAA(不透明省略 alpha)。
+ * 字体: 'XamlAutoFontFamily' 为 WinUI "系统默认字体"占位,浏览器将回退到默认字体,可按需在应用层映射。
+ *
+ * 系统色钩子(Windows 由系统提供,本文件未定义,使用相关变量前请在应用层定义):
+ *   --wui-system-accent-color
+ *   --wui-system-accent-color-dark-1
+ *   --wui-system-accent-color-dark-2
+ *   --wui-system-accent-color-dark-3
+ *   --wui-system-accent-color-light-2
+ *   --wui-system-accent-color-light-3
+ *   --wui-system-color-highlight-color
+ *   --wui-system-color-highlight-text-color
+ */
+
+:root,
+:root[data-theme="light"] {
+
+  /* Content* */
+  --wui-content-control-theme-font-family: 'XamlAutoFontFamily';
+
+  /* MTC* */
+  --wui-mtc-media-font-family: 'XamlAutoFontFamily';
+
+  /* Phone* */
+  --wui-phone-font-family-normal: 'Segoe UI';
+  --wui-phone-font-family-semi-light: 'Segoe UI';
+
+  /* Pivot* */
+  --wui-pivot-header-item-font-family: 'XamlAutoFontFamily';
+  --wui-pivot-title-font-family: 'XamlAutoFontFamily';
+
+  /* Symbol* */
+  --wui-symbol-theme-font-family: 'Segoe Fluent Icons', 'Segoe MDL2 Assets';
+
+  /* Key* */
+  --wui-key-tip-font-family: 'XamlAutoFontFamily';
+
+  /* Combo* */
+  --wui-combo-box-arrow-theme-font-size: 21px;
+
+  /* Control* */
+  --wui-control-content-theme-font-size: 14px;
+
+  /* Content* */
+  --wui-content-control-font-size: 14px;
+
+  /* Hub* */
+  --wui-hub-header-theme-font-size: 34px;
+  --wui-hub-section-header-theme-font-size: 20px;
+  --wui-hub-section-header-see-more-theme-font-size: 14px;
+
+  /* MTC* */
+  --wui-mtc-media-font-size: 12px;
+
+  /* Pivot* */
+  --wui-pivot-header-item-font-size: 24px;
+  --wui-pivot-title-font-size: 14px;
+
+  /* Semantic* */
+  --wui-semantic-zoom-button-font-size: 4px;
+
+  /* Text* */
+  --wui-text-style-large-font-size: 18.14px;
+  --wui-text-style-extra-large-font-size: 25.5px;
+
+  /* Tool* */
+  --wui-tool-tip-content-theme-font-size: 12px;
+
+  /* List* */
+  --wui-list-view-header-item-theme-font-size: 20px;
+
+  /* Grid* */
+  --wui-grid-view-header-item-theme-font-size: 20px;
+
+  /* Key* */
+  --wui-key-tip-content-theme-font-size: 12px;
+
+  /* Hyperlink* */
+  --wui-hyperlink-focus-rect-corner-radius: 4px;
+
+  /* SystemControl* */
+  --wui-system-control-background-accent: var(--wui-system-accent-color);
+  --wui-system-control-background-alt-high: #ffffff;
+  --wui-system-control-background-alt-medium-high: #ffffffcc;
+  --wui-system-control-background-alt-medium: #ffffff99;
+  --wui-system-control-background-alt-medium-low: #ffffff66;
+  --wui-system-control-background-base-high: #000000;
+  --wui-system-control-background-base-low: #00000033;
+  --wui-system-control-background-base-medium: #00000099;
+  --wui-system-control-background-base-medium-high: #000000cc;
+  --wui-system-control-background-base-medium-low: #00000066;
+  --wui-system-control-background-chrome-black-high: #000000;
+  --wui-system-control-background-chrome-black-medium: #000000cc;
+  --wui-system-control-background-chrome-black-low: #00000033;
+  --wui-system-control-background-chrome-black-medium-low: #00000066;
+  --wui-system-control-background-chrome-medium: #e6e6e6;
+  --wui-system-control-background-chrome-medium-low: #f2f2f2;
+  --wui-system-control-background-chrome-white: #ffffff;
+  --wui-system-control-background-list-low: #00000019;
+  --wui-system-control-background-list-medium: #00000033;
+  --wui-system-control-disabled-accent: var(--wui-system-accent-color);
+  --wui-system-control-disabled-base-high: #000000;
+  --wui-system-control-disabled-base-low: #00000033;
+  --wui-system-control-disabled-base-medium-low: #00000066;
+  --wui-system-control-disabled-chrome-disabled-high: #cccccc;
+  --wui-system-control-disabled-chrome-disabled-low: #7a7a7a;
+  --wui-system-control-disabled-chrome-high: #cccccc;
+  --wui-system-control-disabled-chrome-medium-low: #f2f2f2;
+  --wui-system-control-disabled-list-medium: #00000033;
+  --wui-system-control-disabled-transparent: transparent;
+  --wui-system-control-focus-visual-primary: #000000;
+  --wui-system-control-focus-visual-secondary: #ffffff99;
+  --wui-system-control-reveal-focus-visual: var(--wui-system-accent-color);
+  --wui-system-control-foreground-accent: var(--wui-system-accent-color);
+  --wui-system-control-foreground-alt-high: #ffffff;
+  --wui-system-control-foreground-alt-medium-high: #ffffffcc;
+  --wui-system-control-foreground-base-high: #000000;
+  --wui-system-control-foreground-base-low: #00000033;
+  --wui-system-control-foreground-base-medium: #00000099;
+  --wui-system-control-foreground-base-medium-high: #000000cc;
+  --wui-system-control-foreground-base-medium-low: #00000066;
+  --wui-system-control-foreground-chrome-black-high: #000000;
+  --wui-system-control-foreground-chrome-high: #cccccc;
+  --wui-system-control-foreground-chrome-medium: #e6e6e6;
+  --wui-system-control-foreground-chrome-disabled-low: #7a7a7a;
+  --wui-system-control-foreground-chrome-white: #ffffff;
+  --wui-system-control-foreground-chrome-black-medium: #000000cc;
+  --wui-system-control-foreground-chrome-black-medium-low: #00000066;
+  --wui-system-control-foreground-chrome-gray: #767676;
+  --wui-system-control-foreground-list-low: #00000019;
+  --wui-system-control-foreground-list-medium: #00000033;
+  --wui-system-control-foreground-transparent: transparent;
+  --wui-system-control-highlight-accent: var(--wui-system-accent-color);
+  --wui-system-control-highlight-alt-accent: var(--wui-system-accent-color);
+  --wui-system-control-highlight-alt-alt-high: #ffffff;
+  --wui-system-control-highlight-alt-base-high: #000000;
+  --wui-system-control-highlight-alt-base-low: #00000033;
+  --wui-system-control-highlight-alt-base-medium: #00000099;
+  --wui-system-control-highlight-alt-base-medium-high: #000000cc;
+  --wui-system-control-highlight-alt-alt-medium-high: #ffffffcc;
+  --wui-system-control-highlight-alt-base-medium-low: #00000066;
+  --wui-system-control-highlight-alt-list-accent-high: var(--wui-system-accent-color);
+  --wui-system-control-highlight-alt-list-accent-low: var(--wui-system-accent-color);
+  --wui-system-control-highlight-alt-list-accent-medium: var(--wui-system-accent-color);
+  --wui-system-control-highlight-alt-chrome-white: #ffffff;
+  --wui-system-control-highlight-alt-transparent: transparent;
+  --wui-system-control-highlight-base-high: #000000;
+  --wui-system-control-highlight-base-low: #00000033;
+  --wui-system-control-highlight-base-medium: #00000099;
+  --wui-system-control-highlight-base-medium-high: #000000cc;
+  --wui-system-control-highlight-base-medium-low: #00000066;
+  --wui-system-control-highlight-chrome-alt-low: #171717;
+  --wui-system-control-highlight-chrome-high: #cccccc;
+  --wui-system-control-highlight-list-accent-high: var(--wui-system-accent-color);
+  --wui-system-control-highlight-list-accent-low: var(--wui-system-accent-color);
+  --wui-system-control-highlight-list-accent-medium: var(--wui-system-accent-color);
+  --wui-system-control-highlight-list-medium: #00000033;
+  --wui-system-control-highlight-list-low: #00000019;
+  --wui-system-control-highlight-chrome-white: #ffffff;
+  --wui-system-control-highlight-transparent: transparent;
+  --wui-system-control-hyperlink-text: var(--wui-system-accent-color);
+  --wui-system-control-hyperlink-base-high: #000000;
+  --wui-system-control-hyperlink-base-medium: #00000099;
+  --wui-system-control-hyperlink-base-medium-high: #000000cc;
+  --wui-system-control-page-background-alt-medium: #ffffff99;
+  --wui-system-control-page-background-alt-high: #ffffff;
+  --wui-system-control-page-background-medium-alt-medium: #ffffff99;
+  --wui-system-control-page-background-base-low: #00000033;
+  --wui-system-control-page-background-base-medium: #00000099;
+  --wui-system-control-page-background-list-low: #00000019;
+  --wui-system-control-page-background-chrome-low: #f2f2f2;
+  --wui-system-control-page-background-chrome-medium-low: #f2f2f2;
+  --wui-system-control-page-background-transparent: transparent;
+  --wui-system-control-page-text-base-high: #000000;
+  --wui-system-control-page-text-base-medium: #00000099;
+  --wui-system-control-page-text-chrome-black-medium-low: #00000066;
+  --wui-system-control-transparent: transparent;
+  --wui-system-control-error-text-foreground: #c50500;
+  --wui-system-control-transient-border: #000000;
+  --wui-system-control-transient-background: #f2f2f2;
+
+  /* Scroll* */
+  --wui-scroll-bar-track-fill: #e6e6e6;
+  --wui-scroll-bar-track-fill-pointer-over: #e6e6e6;
+  --wui-scroll-bar-thumb-background: #00000033;
+  --wui-scroll-bar-panning-thumb-background: #7a7a7a;
+  --wui-scroll-bar-button-arrow-icon-font-size: 8px;
+  --wui-scroll-viewer-scroll-bar-separator-background: #e6e6e6;
+
+  /* Text* */
+  --wui-text-control-highlighter-background: #ffff00;
+
+  /* App* */
+  --wui-app-bar-background-theme: #f0f0f0;
+  --wui-app-bar-border-theme: #f0f0f0;
+  --wui-app-bar-item-background-theme: transparent;
+  --wui-app-bar-item-disabled-foreground-theme: #00000066;
+  --wui-app-bar-item-foreground-theme: #000000;
+  --wui-app-bar-item-pointer-over-background-theme: #0000003d;
+  --wui-app-bar-item-pointer-over-foreground-theme: #000000;
+  --wui-app-bar-item-pressed-foreground-theme: #ffffff;
+  --wui-app-bar-separator-foreground-theme: #7b7b7b;
+
+  /* Auto* */
+  --wui-auto-suggest-background-theme: #ffffff;
+
+  /* Application* */
+  --wui-application-foreground-theme: #000000de;
+  --wui-application-header-foreground-theme: #000000;
+  --wui-application-page-background-theme: #ffffff;
+  --wui-application-pointer-over-foreground-theme: #000000cc;
+  --wui-application-pressed-foreground-theme: #00000066;
+  --wui-application-secondary-foreground-theme: #00000099;
+
+  /* Back* */
+  --wui-back-button-background-theme: transparent;
+  --wui-back-button-disabled-foreground-theme: #00000066;
+  --wui-back-button-foreground-theme: #000000;
+  --wui-back-button-pointer-over-background-theme: #0000003d;
+  --wui-back-button-pointer-over-foreground-theme: #000000;
+  --wui-back-button-pressed-foreground-theme: #ffffff;
+
+  /* Button* */
+  --wui-button-background-theme: #b6b6b6b3;
+  --wui-button-border-theme: #00000033;
+  --wui-button-disabled-background-theme: #cacaca66;
+  --wui-button-disabled-border-theme: #0000001a;
+  --wui-button-disabled-foreground-theme: #00000066;
+  --wui-button-foreground-theme: #000000;
+  --wui-button-pointer-over-background-theme: #cdcdcdd1;
+  --wui-button-pointer-over-foreground-theme: #000000;
+  --wui-button-pressed-background-theme: #000000;
+  --wui-button-pressed-foreground-theme: #ffffff;
+
+  /* Check* */
+  --wui-check-box-background-theme: #ffffffcc;
+  --wui-check-box-border-theme: #00000045;
+  --wui-check-box-content-disabled-foreground-theme: #00000066;
+  --wui-check-box-content-foreground-theme: #000000;
+  --wui-check-box-disabled-background-theme: #cacaca66;
+  --wui-check-box-disabled-border-theme: #00000026;
+  --wui-check-box-disabled-foreground-theme: #00000066;
+  --wui-check-box-foreground-theme: #000000;
+  --wui-check-box-pointer-over-background-theme: #ffffffde;
+  --wui-check-box-pointer-over-foreground-theme: #000000;
+  --wui-check-box-pointer-over-border-theme: #00000070;
+  --wui-check-box-pressed-background-theme: #000000;
+  --wui-check-box-pressed-border-theme: #000000;
+  --wui-check-box-pressed-foreground-theme: #ffffff;
+
+  /* Combo* */
+  --wui-combo-box-arrow-disabled-foreground-theme: #00000066;
+  --wui-combo-box-arrow-foreground-theme: #000000;
+  --wui-combo-box-arrow-pressed-foreground-theme: #000000;
+  --wui-combo-box-background-theme: #ffffffcc;
+  --wui-combo-box-border-theme: #00000045;
+  --wui-combo-box-disabled-background-theme: #cacaca66;
+  --wui-combo-box-disabled-border-theme: #00000026;
+  --wui-combo-box-disabled-foreground-theme: #00000066;
+  --wui-combo-box-focused-background-theme: white;
+  --wui-combo-box-focused-border-theme: #00000070;
+  --wui-combo-box-focused-foreground-theme: white;
+  --wui-combo-box-foreground-theme: #000000;
+  --wui-combo-box-header-foreground-theme: #000000;
+  --wui-combo-box-item-disabled-foreground-theme: #00000066;
+  --wui-combo-box-item-pointer-over-background-theme: #00000021;
+  --wui-combo-box-item-pointer-over-foreground-theme: #000000;
+  --wui-combo-box-item-pressed-background-theme: #d3d3d3;
+  --wui-combo-box-item-pressed-foreground-theme: #000000;
+  --wui-combo-box-item-selected-background-theme: #4617b4;
+  --wui-combo-box-item-selected-foreground-theme: white;
+  --wui-combo-box-item-selected-disabled-background-theme: #0000008c;
+  --wui-combo-box-item-selected-disabled-foreground-theme: #ffffff99;
+  --wui-combo-box-item-selected-pointer-over-background-theme: #5f37be;
+  --wui-combo-box-placeholder-text-foreground-theme: #00000088;
+  --wui-combo-box-pointer-over-background-theme: #ffffffde;
+  --wui-combo-box-pointer-over-border-theme: #00000070;
+  --wui-combo-box-popup-background-theme: #ffffff;
+  --wui-combo-box-popup-border-theme: #212121;
+  --wui-combo-box-popup-foreground-theme: #000000;
+  --wui-combo-box-pressed-background-theme: #ffffff;
+  --wui-combo-box-pressed-border-theme: #000000a3;
+  --wui-combo-box-pressed-highlight-theme: #d3d3d3;
+  --wui-combo-box-pressed-foreground-theme: #000000;
+  --wui-combo-box-selected-background-theme: #4617b4;
+  --wui-combo-box-selected-pointer-over-background-theme: #5f37be;
+
+  /* Content* */
+  --wui-content-dialog-background-theme: lightgray;
+  --wui-content-dialog-border-theme: var(--wui-system-accent-color);
+  --wui-content-dialog-content-foreground: black;
+  --wui-content-dialog-dimming-theme: #ffffff99;
+
+  /* Date* */
+  --wui-date-picker-header-foreground-theme: #000000;
+  --wui-date-picker-foreground-theme: #000000;
+
+  /* Default* */
+  --wui-default-text-foreground-theme: #000000;
+
+  /* Flip* */
+  --wui-flip-view-button-background-theme: #d5d5d559;
+  --wui-flip-view-button-border-theme: #d5d5d559;
+  --wui-flip-view-button-foreground-theme: #00000099;
+  --wui-flip-view-button-pointer-over-background-theme: #d7d7d7f0;
+  --wui-flip-view-button-pointer-over-border-theme: #c1c1c19e;
+  --wui-flip-view-button-pointer-over-foreground-theme: #000000;
+  --wui-flip-view-button-pressed-background-theme: #292929bd;
+  --wui-flip-view-button-pressed-border-theme: #292929bd;
+  --wui-flip-view-button-pressed-foreground-theme: #ffffff;
+
+  /* Flyout* */
+  --wui-flyout-background-theme: #ffffff;
+
+  /* Focus* */
+  --wui-focus-visual-black-stroke-theme: black;
+  --wui-focus-visual-white-stroke-theme: white;
+
+  /* Hyperlink* */
+  --wui-hyperlink-button-background-theme: transparent;
+  --wui-hyperlink-button-border-theme: transparent;
+  --wui-hyperlink-disabled-theme: #00000066;
+  --wui-hyperlink-foreground-theme: #4f1acb;
+  --wui-hyperlink-pointer-over-foreground-theme: #4f1acbcc;
+  --wui-hyperlink-pressed-foreground-theme: #4f1acb99;
+
+  /* Hub* */
+  --wui-hub-section-header-pointer-over-foreground-theme: #d1d1d1;
+  --wui-hub-section-header-pressed-foreground-theme: #777777;
+
+  /* IME* */
+  --wui-ime-candidate-background-theme: #ffffff;
+  --wui-ime-candidate-foreground-theme: #000000;
+  --wui-ime-candidate-pointer-over-background-theme: #00000021;
+  --wui-ime-candidate-pointer-over-foreground-theme: #000000;
+  --wui-ime-candidate-secondary-foreground-theme: #707070;
+  --wui-ime-candidate-selected-background-theme: #4617b4;
+  --wui-ime-candidate-selected-foreground-theme: #ffffff;
+  --wui-ime-candidate-list-background-theme: #ffffff;
+  --wui-ime-candidate-list-paging-button-background-theme: #d9d9d97f;
+  --wui-ime-candidate-list-paging-button-border-theme: #00000033;
+  --wui-ime-candidate-list-paging-button-foreground-theme: #0000007f;
+  --wui-ime-candidate-list-paging-button-pointer-over-background-theme: #d9d9d9;
+  --wui-ime-candidate-list-paging-button-pointer-over-foreground-theme: #000000;
+  --wui-ime-candidate-list-paging-button-pressed-background-theme: #000000;
+  --wui-ime-candidate-list-paging-button-pressed-foreground-theme: #ffffff;
+
+  /* List* */
+  --wui-list-picker-flyout-presenter-selected-item-foreground-theme: var(--wui-system-color-highlight-color);
+  --wui-list-picker-flyout-presenter-selected-item-background-theme: #ffffff00;
+  --wui-list-view-group-header-foreground-theme: #000000;
+  --wui-list-view-group-header-pointer-over-foreground-theme: #000000cc;
+  --wui-list-view-group-header-pressed-foreground-theme: #00000066;
+
+  /* Looping* */
+  --wui-looping-selector-foreground-theme: #00000040;
+  --wui-looping-selector-selection-background-theme: var(--wui-system-color-highlight-color);
+  --wui-looping-selector-selection-foreground-theme: #000000;
+
+  /* Media* */
+  --wui-media-button-foreground-theme: #ffffff;
+  --wui-media-button-background-theme: transparent;
+  --wui-media-button-pointer-over-foreground-theme: #ffffff;
+  --wui-media-button-pointer-over-background-theme: #ffffff21;
+  --wui-media-button-pressed-foreground-theme: #000000;
+  --wui-media-button-pressed-background-theme: #ffffff;
+  --wui-media-button-pressed-border-theme: #ffffff;
+  --wui-media-control-panel-video-theme: #000000;
+  --wui-media-control-panel-audio-theme: #000000;
+  --wui-media-download-progress-indicator-theme: #ffffff38;
+  --wui-media-error-background-theme: #000000;
+  --wui-media-text-theme: #ffffff;
+
+  /* Pivot* */
+  --wui-pivot-foreground-theme: #000000;
+  --wui-pivot-header-background-selected: transparent;
+  --wui-pivot-header-background-unselected: transparent;
+  --wui-pivot-header-foreground-selected: #000000;
+  --wui-pivot-header-foreground-unselected: #00000066;
+  --wui-pivot-nav-button-background-theme: #d5d5d559;
+  --wui-pivot-nav-button-border-theme: #d5d5d559;
+  --wui-pivot-nav-button-foreground-theme: #00000099;
+  --wui-pivot-nav-button-pointer-over-background-theme: #d7d7d7f0;
+  --wui-pivot-nav-button-pointer-over-border-theme: #c1c1c19e;
+  --wui-pivot-nav-button-pointer-over-foreground-theme: #000000;
+  --wui-pivot-nav-button-pressed-background-theme: #292929bd;
+  --wui-pivot-nav-button-pressed-border-theme: #292929bd;
+  --wui-pivot-nav-button-pressed-foreground-theme: #ffffff;
+
+  /* Radio* */
+  --wui-radio-button-background-theme: #ffffffcc;
+  --wui-radio-button-border-theme: #00000045;
+  --wui-radio-button-content-disabled-foreground-theme: #00000066;
+  --wui-radio-button-content-foreground-theme: #000000;
+  --wui-radio-button-content-pointer-over-foreground-theme: var(--wui-system-color-highlight-text-color);
+  --wui-radio-button-disabled-background-theme: #cacaca66;
+  --wui-radio-button-disabled-border-theme: #00000026;
+  --wui-radio-button-disabled-foreground-theme: #00000066;
+  --wui-radio-button-foreground-theme: #000000;
+  --wui-radio-button-pointer-over-background-theme: #ffffffde;
+  --wui-radio-button-pointer-over-border-theme: #00000070;
+  --wui-radio-button-pointer-over-foreground-theme: #000000;
+  --wui-radio-button-pressed-background-theme: #000000;
+  --wui-radio-button-pressed-border-theme: #000000;
+  --wui-radio-button-pressed-foreground-theme: #ffffff;
+
+  /* Repeat* */
+  --wui-repeat-button-border-theme: #00000033;
+  --wui-repeat-button-disabled-background-theme: #cacaca66;
+  --wui-repeat-button-disabled-border-theme: #0000001a;
+  --wui-repeat-button-disabled-foreground-theme: #00000066;
+  --wui-repeat-button-foreground-theme: #000000;
+  --wui-repeat-button-pointer-over-background-theme: #cdcdcdd1;
+  --wui-repeat-button-pointer-over-foreground-theme: #000000;
+  --wui-repeat-button-pressed-background-theme: #000000;
+  --wui-repeat-button-pressed-foreground-theme: #ffffff;
+
+  /* Scroll* */
+  --wui-scroll-bar-button-foreground-theme: #00000099;
+  --wui-scroll-bar-button-pointer-over-background-theme: #dadada;
+  --wui-scroll-bar-button-pointer-over-border-theme: #dadada;
+  --wui-scroll-bar-button-pointer-over-foreground-theme: #000000;
+  --wui-scroll-bar-button-pressed-background-theme: #00000099;
+  --wui-scroll-bar-button-pressed-border-theme: #00000099;
+  --wui-scroll-bar-button-pressed-foreground-theme: #ffffff;
+  --wui-scroll-bar-panning-background-theme: #cdcdcd;
+  --wui-scroll-bar-panning-border-theme: #9a9a9a7d;
+  --wui-scroll-bar-thumb-background-theme: #cdcdcd;
+  --wui-scroll-bar-thumb-border-theme: #5555553b;
+  --wui-scroll-bar-thumb-pointer-over-background-theme: #dadada;
+  --wui-scroll-bar-thumb-pointer-over-border-theme: #b7b7b76b;
+  --wui-scroll-bar-thumb-pressed-background-theme: #00000099;
+  --wui-scroll-bar-thumb-pressed-border-theme: #555555ed;
+  --wui-scroll-bar-track-background-theme: #d5d5d559;
+  --wui-scroll-bar-track-border-theme: #d5d5d559;
+
+  /* Semantic* */
+  --wui-semantic-zoom-button-background-theme: #d5d5d559;
+  --wui-semantic-zoom-button-border-theme: #d5d5d559;
+  --wui-semantic-zoom-button-foreground-theme: #00000099;
+  --wui-semantic-zoom-button-pointer-over-background-theme: #dadada;
+  --wui-semantic-zoom-button-pointer-over-border-theme: #dadada;
+  --wui-semantic-zoom-button-pointer-over-foreground-theme: #000000;
+  --wui-semantic-zoom-button-pressed-background-theme: #00000099;
+  --wui-semantic-zoom-button-pressed-border-theme: #00000099;
+  --wui-semantic-zoom-button-pressed-foreground-theme: #ffffff;
+
+  /* Slider* */
+  --wui-slider-border-theme: transparent;
+  --wui-slider-disabled-border-theme: transparent;
+  --wui-slider-thumb-background-theme: #000000;
+  --wui-slider-thumb-border-theme: #000000;
+  --wui-slider-thumb-disabled-background-theme: #929292;
+  --wui-slider-thumb-pointer-over-background-theme: #000000;
+  --wui-slider-thumb-pointer-over-border-theme: #000000;
+  --wui-slider-thumb-pressed-background-theme: #000000;
+  --wui-slider-thumb-pressed-border-theme: #000000;
+  --wui-slider-tick-mark-inline-background-theme: white;
+  --wui-slider-tick-mark-inline-disabled-foreground-theme: white;
+  --wui-slider-tickmark-outside-background-theme: #00000080;
+  --wui-slider-tick-mark-outside-disabled-foreground-theme: #00000080;
+  --wui-slider-track-background-theme: #0000001a;
+  --wui-slider-track-decrease-background-theme: #4617b4;
+  --wui-slider-track-decrease-disabled-background-theme: #0000001c;
+  --wui-slider-track-decrease-pointer-over-background-theme: #5f37be;
+  --wui-slider-track-decrease-pressed-background-theme: #7241e4;
+  --wui-slider-track-disabled-background-theme: #0000001a;
+  --wui-slider-track-pointer-over-background-theme: #00000026;
+  --wui-slider-track-pressed-background-theme: #00000033;
+  --wui-slider-header-foreground-theme: #000000;
+
+  /* Text* */
+  --wui-text-selection-highlight-color-theme: #4617b4;
+
+  /* Thumb* */
+  --wui-thumb-background-theme: #cdcdcd;
+  --wui-thumb-border-theme: #5555553b;
+  --wui-thumb-pointer-over-background-theme: #dadada;
+  --wui-thumb-pointer-over-border-theme: #b7b7b76b;
+  --wui-thumb-pressed-background-theme: #00000099;
+  --wui-thumb-pressed-border-theme: #555555ed;
+
+  /* Time* */
+  --wui-time-picker-foreground-theme: #000000;
+  --wui-time-picker-header-foreground-theme: #000000;
+
+  /* Toggle* */
+  --wui-toggle-button-background-theme: transparent;
+  --wui-toggle-button-border-theme: #000000;
+  --wui-toggle-button-checked-background-theme: #000000;
+  --wui-toggle-button-checked-border-theme: #000000;
+  --wui-toggle-button-checked-disabled-background-theme: #00000066;
+  --wui-toggle-button-checked-disabled-foreground-theme: #ffffff;
+  --wui-toggle-button-checked-foreground-theme: #ffffff;
+  --wui-toggle-button-checked-pointer-over-background-theme: #00000099;
+  --wui-toggle-button-checked-pointer-over-border-theme: #00000099;
+  --wui-toggle-button-checked-pressed-background-theme: transparent;
+  --wui-toggle-button-checked-pressed-border-theme: #000000;
+  --wui-toggle-button-checked-pressed-foreground-theme: #000000;
+  --wui-toggle-button-disabled-border-theme: #00000066;
+  --wui-toggle-button-disabled-foreground-theme: #00000066;
+  --wui-toggle-button-foreground-theme: #000000;
+  --wui-toggle-button-pointer-over-background-theme: #00000021;
+  --wui-toggle-button-pressed-background-theme: #000000;
+  --wui-toggle-button-pressed-foreground-theme: #ffffff;
+  --wui-toggle-switch-curtain-background-theme: #4617b4;
+  --wui-toggle-switch-curtain-disabled-background-theme: transparent;
+  --wui-toggle-switch-curtain-pointer-over-background-theme: #5f37be;
+  --wui-toggle-switch-curtain-pressed-background-theme: #7241e4;
+  --wui-toggle-switch-disabled-foreground-theme: #00000066;
+  --wui-toggle-switch-foreground-theme: #000000;
+  --wui-toggle-switch-header-disabled-foreground-theme: #00000066;
+  --wui-toggle-switch-header-foreground-theme: #000000;
+  --wui-toggle-switch-outer-border-border-theme: #00000059;
+  --wui-toggle-switch-outer-border-disabled-border-theme: #00000033;
+  --wui-toggle-switch-thumb-background-theme: #000000;
+  --wui-toggle-switch-thumb-border-theme: #000000;
+  --wui-toggle-switch-thumb-disabled-background-theme: #929292;
+  --wui-toggle-switch-thumb-disabled-border-theme: #929292;
+  --wui-toggle-switch-thumb-pointer-over-background-theme: #000000;
+  --wui-toggle-switch-thumb-pointer-over-border-theme: #000000;
+  --wui-toggle-switch-thumb-pressed-background-theme: #000000;
+  --wui-toggle-switch-thumb-pressed-foreground-theme: #000000;
+  --wui-toggle-switch-track-background-theme: #00000059;
+  --wui-toggle-switch-track-border-theme: transparent;
+  --wui-toggle-switch-track-disabled-background-theme: #0000001f;
+  --wui-toggle-switch-track-pointer-over-background-theme: #0000004a;
+  --wui-toggle-switch-track-pressed-background-theme: #00000042;
+
+  /* Tool* */
+  --wui-tool-tip-background-theme: #ffffff;
+  --wui-tool-tip-border-theme: #808080;
+  --wui-tool-tip-foreground-theme: #666666;
+
+  /* SystemControl* */
+  --wui-system-control-acrylic-window: #e6e6e6;
+  --wui-system-control-acrylic-element: #e6e6e6;
+  --wui-system-control-accent-acrylic-window-accent-medium-high: var(--wui-system-accent-color);
+  --wui-system-control-accent-acrylic-element-accent-medium-high: var(--wui-system-accent-color);
+  --wui-system-control-accent-dark-1-acrylic-window-accent-dark-1: var(--wui-system-accent-color-dark-1);
+  --wui-system-control-accent-dark-1-acrylic-element-accent-dark-1: var(--wui-system-accent-color-dark-1);
+  --wui-system-control-accent-dark-2-acrylic-window-accent-dark-2-medium-high: var(--wui-system-accent-color-dark-2);
+  --wui-system-control-accent-dark-2-acrylic-element-accent-dark-2-medium-high: var(--wui-system-accent-color-dark-2);
+  --wui-system-control-acrylic-window-medium-high: #e6e6e6;
+  --wui-system-control-acrylic-element-medium-high: #e6e6e6;
+  --wui-system-control-chrome-medium-low-acrylic-window-medium: #f2f2f2;
+  --wui-system-control-chrome-medium-low-acrylic-element-medium: #f2f2f2;
+  --wui-system-control-base-high-acrylic-window: #000000;
+  --wui-system-control-base-high-acrylic-element: #000000;
+  --wui-system-control-base-high-acrylic-window-medium-high: #000000;
+  --wui-system-control-base-high-acrylic-element-medium-high: #000000;
+  --wui-system-control-base-high-acrylic-window-medium: #000000;
+  --wui-system-control-base-high-acrylic-element-medium: #000000;
+  --wui-system-control-chrome-low-acrylic-window: #f2f2f2;
+  --wui-system-control-chrome-low-acrylic-element: #f2f2f2;
+  --wui-system-control-chrome-medium-acrylic-window-medium: #e6e6e6;
+  --wui-system-control-chrome-medium-acrylic-element-medium: #e6e6e6;
+  --wui-system-control-chrome-high-acrylic-window-medium: #cccccc;
+  --wui-system-control-chrome-high-acrylic-element-medium: #cccccc;
+  --wui-system-control-base-low-acrylic-window: #00000033;
+  --wui-system-control-base-low-acrylic-element: #00000033;
+  --wui-system-control-base-medium-low-acrylic-window-medium: #00000066;
+  --wui-system-control-base-medium-low-acrylic-element-medium: #00000066;
+  --wui-system-control-alt-low-acrylic-window: #ffffff33;
+  --wui-system-control-alt-low-acrylic-element: #ffffff33;
+  --wui-system-control-alt-medium-low-acrylic-window-medium: #ffffff66;
+  --wui-system-control-alt-medium-low-acrylic-element-medium: #ffffff66;
+  --wui-system-control-alt-high-acrylic-window: #ffffff;
+  --wui-system-control-alt-high-acrylic-element: #ffffff;
+  --wui-system-control-background-accent-reveal-border: var(--wui-system-accent-color);
+  --wui-system-control-background-base-high-reveal-border: #000000;
+  --wui-system-control-background-base-low-reveal-border: #00000033;
+  --wui-system-control-background-base-medium-reveal-border: #00000099;
+  --wui-system-control-background-base-medium-high-reveal-border: #000000cc;
+  --wui-system-control-background-base-medium-low-reveal-border: #00000066;
+  --wui-system-control-background-chrome-black-high-reveal-border: #000000;
+  --wui-system-control-background-chrome-black-medium-reveal-chrome-border: #000000cc;
+  --wui-system-control-background-chrome-medium-reveal-border: #e6e6e6;
+  --wui-system-control-background-chrome-medium-low-reveal-border: #f2f2f2;
+  --wui-system-control-background-chrome-white-reveal-border: #ffffff;
+  --wui-system-control-background-list-low-reveal-border: #00000019;
+  --wui-system-control-background-list-medium-reveal-border: #00000033;
+  --wui-system-control-foreground-reveal-transparent-border: transparent;
+  --wui-system-control-highlight-accent-reveal-border: var(--wui-system-accent-color);
+  --wui-system-control-highlight-base-high-reveal-border: #000000;
+  --wui-system-control-highlight-base-low-reveal-border: #00000033;
+  --wui-system-control-highlight-base-medium-reveal-border: #00000099;
+  --wui-system-control-highlight-base-medium-high-reveal-border: #000000cc;
+  --wui-system-control-highlight-base-medium-low-reveal-accent-background: #00000066;
+  --wui-system-control-background-base-low-reveal-background: #00000033;
+  --wui-system-control-background-base-medium-low-reveal-base-low-background: #00000066;
+  --wui-system-control-highlight-alt-transparent-reveal-border: transparent;
+  --wui-system-control-highlight-base-medium-low-reveal-border: #00000066;
+  --wui-system-control-highlight-list-medium-reveal-background: #00000033;
+  --wui-system-control-transparent-reveal-list-low-border: transparent;
+  --wui-system-control-background-transparent-reveal-border: transparent;
+  --wui-system-control-highlight-transparent-reveal-border: transparent;
+  --wui-system-control-highlight-accent-reveal-background: var(--wui-system-accent-color);
+  --wui-system-control-transparent-reveal-background: transparent;
+  --wui-system-control-highlight-list-medium-reveal-list-low-background: #00000033;
+  --wui-system-control-highlight-list-low-reveal-background: #00000019;
+  --wui-system-control-highlight-accent-3-reveal-background: var(--wui-system-accent-color-light-3);
+  --wui-system-control-highlight-accent-3-reveal-accent-2-background: var(--wui-system-accent-color-light-3);
+  --wui-system-control-highlight-accent-2-reveal-background: var(--wui-system-accent-color-light-2);
+  --wui-system-control-transparent-reveal-border: transparent;
+
+  /* Menu* */
+  --wui-menu-flyout-item-focused-background-theme: #e5e5e5;
+  --wui-menu-flyout-item-focused-foreground-theme: #000000;
+  --wui-menu-flyout-item-disabled-foreground-theme: #00000066;
+  --wui-menu-flyout-item-pointer-over-background-theme: #e5e5e5;
+  --wui-menu-flyout-item-pointer-over-foreground-theme: #000000;
+  --wui-menu-flyout-item-pressed-background-theme: #000000;
+  --wui-menu-flyout-item-pressed-foreground-theme: #ffffff;
+  --wui-menu-flyout-separator-theme: #7a7a7a;
+
+  /* Navigation* */
+  --wui-navigation-view-expanded-pane-background: #e6e6e6;
+
+  /* Person* */
+  --wui-person-picture-foreground-theme: #ffffff;
+  --wui-person-picture-ellipse-badge-foreground-theme: #000000;
+  --wui-person-picture-ellipse-badge-fill-theme: #cccccc;
+  --wui-person-picture-ellipse-badge-stroke-theme: #00000033;
+  --wui-person-picture-ellipse-fill-theme: #00000099;
+
+  /* Refresh* */
+  --wui-refresh-container-foreground: black;
+  --wui-refresh-container-background: transparent;
+  --wui-refresh-visualizer-foreground: black;
+  --wui-refresh-visualizer-background: transparent;
+
+  /* App* */
+  --wui-app-bar-toggle-button-checked-background-theme: #000000;
+  --wui-app-bar-toggle-button-checked-border-theme: #000000;
+  --wui-app-bar-toggle-button-checked-disabled-background-theme: #00000066;
+  --wui-app-bar-toggle-button-checked-disabled-border-theme: transparent;
+  --wui-app-bar-toggle-button-checked-disabled-foreground-theme: #ffffff;
+  --wui-app-bar-toggle-button-checked-pointer-over-background-theme: #00000099;
+  --wui-app-bar-toggle-button-checked-pointer-over-border-theme: #00000099;
+  --wui-app-bar-toggle-button-checked-pressed-background-theme: transparent;
+  --wui-app-bar-toggle-button-checked-pressed-border-theme: #000000;
+  --wui-app-bar-toggle-button-checked-pressed-foreground-theme: #000000;
+  --wui-app-bar-toggle-button-checked-foreground-theme: #ffffff;
+  --wui-app-bar-toggle-button-pointer-over-background-theme: #0000003d;
+
+  /* List* */
+  --wui-list-box-background-theme: #ffffffcc;
+  --wui-list-box-border-theme: #00000045;
+  --wui-list-box-disabled-foreground-theme: #00000066;
+  --wui-list-box-focus-background-theme: #ffffff;
+  --wui-list-box-foreground-theme: #000000;
+  --wui-list-box-item-disabled-foreground-theme: #00000066;
+  --wui-list-box-item-pointer-over-background-theme: #00000021;
+  --wui-list-box-item-pointer-over-foreground-theme: #000000;
+  --wui-list-box-item-pressed-background-theme: #d3d3d3;
+  --wui-list-box-item-pressed-foreground-theme: #000000;
+  --wui-list-box-item-selected-background-theme: #4617b4;
+  --wui-list-box-item-selected-disabled-background-theme: #0000008c;
+  --wui-list-box-item-selected-disabled-foreground-theme: #ffffff99;
+  --wui-list-box-item-selected-foreground-theme: white;
+  --wui-list-box-item-selected-pointer-over-background-theme: #5f37be;
+  --wui-list-view-item-check-hint-theme: #4617b4;
+  --wui-list-view-item-check-selecting-theme: #4617b4;
+  --wui-list-view-item-check-theme: #ffffff;
+  --wui-list-view-item-drag-background-theme: #4617b499;
+  --wui-list-view-item-drag-foreground-theme: white;
+  --wui-list-view-item-focus-border-theme: #000000;
+  --wui-list-view-item-overlay-background-theme: #000000a6;
+  --wui-list-view-item-overlay-secondary-foreground-theme: #ffffff99;
+  --wui-list-view-item-overlay-foreground-theme: #ffffff;
+  --wui-list-view-item-placeholder-background-theme: #3d3d3d;
+  --wui-list-view-item-pointer-over-background-theme: #0000004d;
+  --wui-list-view-item-selected-background-theme: #4617b4;
+  --wui-list-view-item-selected-foreground-theme: #000000;
+  --wui-list-view-item-selected-pointer-over-background-theme: #5f37be;
+  --wui-list-view-item-selected-pointer-over-border-theme: #5f37be;
+
+  /* Text* */
+  --wui-text-box-foreground-header-theme: #000000;
+  --wui-text-box-placeholder-text-theme: #000000ab;
+  --wui-text-box-background-theme: #ffffff;
+  --wui-text-box-border-theme: #000000a3;
+  --wui-text-box-button-background-theme: transparent;
+  --wui-text-box-button-border-theme: transparent;
+  --wui-text-box-button-foreground-theme: #00000099;
+  --wui-text-box-button-pointer-over-background-theme: #dedede;
+  --wui-text-box-button-pointer-over-border-theme: transparent;
+  --wui-text-box-button-pointer-over-foreground-theme: black;
+  --wui-text-box-button-pressed-background-theme: #000000;
+  --wui-text-box-button-pressed-border-theme: transparent;
+  --wui-text-box-button-pressed-foreground-theme: #ffffff;
+  --wui-text-box-disabled-background-theme: #cacaca66;
+  --wui-text-box-disabled-border-theme: #00000026;
+  --wui-text-box-disabled-foreground-theme: #666666;
+  --wui-text-box-foreground-theme: #000000;
+
+  /* Auto* */
+  --wui-auto-suggest-box-icon-font-size: 12px;
+
+  /* Window* */
+  --wui-window-caption-button-background: transparent;
+
+  /* Close* */
+  --wui-close-button-background-pointer-over: #e81123;
+  --wui-close-button-stroke-pointer-over: white;
+  --wui-close-button-background-pressed: #f1707a;
+  --wui-close-button-stroke-pressed: black;
+}
+
+:root[data-theme="dark"] {
+
+  /* Content* */
+  --wui-content-control-theme-font-family: 'XamlAutoFontFamily';
+
+  /* MTC* */
+  --wui-mtc-media-font-family: 'XamlAutoFontFamily';
+
+  /* Phone* */
+  --wui-phone-font-family-normal: 'Segoe UI';
+  --wui-phone-font-family-semi-light: 'Segoe UI';
+
+  /* Pivot* */
+  --wui-pivot-header-item-font-family: 'XamlAutoFontFamily';
+  --wui-pivot-title-font-family: 'XamlAutoFontFamily';
+
+  /* Symbol* */
+  --wui-symbol-theme-font-family: 'Segoe Fluent Icons', 'Segoe MDL2 Assets';
+
+  /* Key* */
+  --wui-key-tip-font-family: 'XamlAutoFontFamily';
+
+  /* Combo* */
+  --wui-combo-box-arrow-theme-font-size: 21px;
+
+  /* Control* */
+  --wui-control-content-theme-font-size: 14px;
+
+  /* Content* */
+  --wui-content-control-font-size: 14px;
+
+  /* Hub* */
+  --wui-hub-header-theme-font-size: 34px;
+  --wui-hub-section-header-theme-font-size: 20px;
+  --wui-hub-section-header-see-more-theme-font-size: 14px;
+
+  /* MTC* */
+  --wui-mtc-media-font-size: 12px;
+
+  /* Pivot* */
+  --wui-pivot-header-item-font-size: 24px;
+  --wui-pivot-title-font-size: 14px;
+
+  /* Semantic* */
+  --wui-semantic-zoom-button-font-size: 4px;
+
+  /* Text* */
+  --wui-text-style-large-font-size: 18.14px;
+  --wui-text-style-extra-large-font-size: 25.5px;
+
+  /* Tool* */
+  --wui-tool-tip-content-theme-font-size: 12px;
+
+  /* List* */
+  --wui-list-view-header-item-theme-font-size: 20px;
+
+  /* Grid* */
+  --wui-grid-view-header-item-theme-font-size: 20px;
+
+  /* Key* */
+  --wui-key-tip-content-theme-font-size: 12px;
+
+  /* Hyperlink* */
+  --wui-hyperlink-focus-rect-corner-radius: 4px;
+
+  /* SystemControl* */
+  --wui-system-control-background-accent: var(--wui-system-accent-color);
+  --wui-system-control-background-alt-high: #000000;
+  --wui-system-control-background-alt-medium-high: #000000cc;
+  --wui-system-control-background-alt-medium: #00000099;
+  --wui-system-control-background-alt-medium-low: #00000066;
+  --wui-system-control-background-base-high: #ffffff;
+  --wui-system-control-background-base-low: #ffffff33;
+  --wui-system-control-background-base-medium: #ffffff99;
+  --wui-system-control-background-base-medium-high: #ffffffcc;
+  --wui-system-control-background-base-medium-low: #ffffff66;
+  --wui-system-control-background-chrome-black-high: #000000;
+  --wui-system-control-background-chrome-black-medium: #000000cc;
+  --wui-system-control-background-chrome-black-low: #00000033;
+  --wui-system-control-background-chrome-black-medium-low: #00000066;
+  --wui-system-control-background-chrome-medium: #1f1f1f;
+  --wui-system-control-background-chrome-medium-low: #2b2b2b;
+  --wui-system-control-background-chrome-white: #ffffff;
+  --wui-system-control-background-list-low: #ffffff19;
+  --wui-system-control-background-list-medium: #ffffff33;
+  --wui-system-control-disabled-accent: var(--wui-system-accent-color);
+  --wui-system-control-disabled-base-high: #ffffff;
+  --wui-system-control-disabled-base-low: #ffffff33;
+  --wui-system-control-disabled-base-medium-low: #ffffff66;
+  --wui-system-control-disabled-chrome-disabled-high: #333333;
+  --wui-system-control-disabled-chrome-disabled-low: #858585;
+  --wui-system-control-disabled-chrome-high: #767676;
+  --wui-system-control-disabled-chrome-medium-low: #2b2b2b;
+  --wui-system-control-disabled-list-medium: #ffffff33;
+  --wui-system-control-disabled-transparent: transparent;
+  --wui-system-control-focus-visual-primary: #ffffff;
+  --wui-system-control-focus-visual-secondary: #00000099;
+  --wui-system-control-reveal-focus-visual: var(--wui-system-accent-color);
+  --wui-system-control-foreground-accent: var(--wui-system-accent-color);
+  --wui-system-control-foreground-alt-high: #000000;
+  --wui-system-control-foreground-alt-medium-high: #000000cc;
+  --wui-system-control-foreground-base-high: #ffffff;
+  --wui-system-control-foreground-base-low: #ffffff33;
+  --wui-system-control-foreground-base-medium: #ffffff99;
+  --wui-system-control-foreground-base-medium-high: #ffffffcc;
+  --wui-system-control-foreground-base-medium-low: #ffffff66;
+  --wui-system-control-foreground-chrome-black-high: #000000;
+  --wui-system-control-foreground-chrome-high: #767676;
+  --wui-system-control-foreground-chrome-medium: #1f1f1f;
+  --wui-system-control-foreground-chrome-white: #ffffff;
+  --wui-system-control-foreground-chrome-disabled-low: #858585;
+  --wui-system-control-foreground-chrome-gray: #767676;
+  --wui-system-control-foreground-list-low: #ffffff19;
+  --wui-system-control-foreground-list-medium: #ffffff33;
+  --wui-system-control-foreground-transparent: transparent;
+  --wui-system-control-foreground-chrome-black-medium: #000000cc;
+  --wui-system-control-foreground-chrome-black-medium-low: #00000066;
+  --wui-system-control-highlight-accent: var(--wui-system-accent-color);
+  --wui-system-control-highlight-alt-accent: var(--wui-system-accent-color);
+  --wui-system-control-highlight-alt-alt-high: #000000;
+  --wui-system-control-highlight-alt-base-high: #ffffff;
+  --wui-system-control-highlight-alt-base-low: #ffffff33;
+  --wui-system-control-highlight-alt-base-medium: #ffffff99;
+  --wui-system-control-highlight-alt-base-medium-high: #ffffffcc;
+  --wui-system-control-highlight-alt-alt-medium-high: #000000cc;
+  --wui-system-control-highlight-alt-base-medium-low: #ffffff66;
+  --wui-system-control-highlight-alt-list-accent-high: var(--wui-system-accent-color);
+  --wui-system-control-highlight-alt-list-accent-low: var(--wui-system-accent-color);
+  --wui-system-control-highlight-alt-list-accent-medium: var(--wui-system-accent-color);
+  --wui-system-control-highlight-alt-chrome-white: #ffffff;
+  --wui-system-control-highlight-alt-transparent: transparent;
+  --wui-system-control-highlight-base-high: #ffffff;
+  --wui-system-control-highlight-base-low: #ffffff33;
+  --wui-system-control-highlight-base-medium: #ffffff99;
+  --wui-system-control-highlight-base-medium-high: #ffffffcc;
+  --wui-system-control-highlight-base-medium-low: #ffffff66;
+  --wui-system-control-highlight-chrome-alt-low: #f2f2f2;
+  --wui-system-control-highlight-chrome-high: #767676;
+  --wui-system-control-highlight-list-accent-high: var(--wui-system-accent-color);
+  --wui-system-control-highlight-list-accent-low: var(--wui-system-accent-color);
+  --wui-system-control-highlight-list-accent-medium: var(--wui-system-accent-color);
+  --wui-system-control-highlight-list-medium: #ffffff33;
+  --wui-system-control-highlight-list-low: #ffffff19;
+  --wui-system-control-highlight-chrome-white: #ffffff;
+  --wui-system-control-highlight-transparent: transparent;
+  --wui-system-control-hyperlink-text: var(--wui-system-accent-color);
+  --wui-system-control-hyperlink-base-high: #ffffff;
+  --wui-system-control-hyperlink-base-medium: #ffffff99;
+  --wui-system-control-hyperlink-base-medium-high: #ffffffcc;
+  --wui-system-control-page-background-alt-medium: #00000099;
+  --wui-system-control-page-background-alt-high: #000000;
+  --wui-system-control-page-background-medium-alt-medium: #00000099;
+  --wui-system-control-page-background-base-low: #ffffff33;
+  --wui-system-control-page-background-base-medium: #ffffff99;
+  --wui-system-control-page-background-list-low: #ffffff19;
+  --wui-system-control-page-background-chrome-low: #171717;
+  --wui-system-control-page-background-chrome-medium-low: #2b2b2b;
+  --wui-system-control-page-background-transparent: transparent;
+  --wui-system-control-page-text-base-high: #ffffff;
+  --wui-system-control-page-text-base-medium: #ffffff99;
+  --wui-system-control-page-text-chrome-black-medium-low: #00000066;
+  --wui-system-control-transparent: transparent;
+  --wui-system-control-error-text-foreground: #fff000;
+  --wui-system-control-transient-border: #000000;
+  --wui-system-control-transient-background: #2b2b2b;
+
+  /* Scroll* */
+  --wui-scroll-bar-track-fill: #1f1f1f;
+  --wui-scroll-bar-track-fill-pointer-over: #1f1f1f;
+  --wui-scroll-bar-thumb-background: #ffffff33;
+  --wui-scroll-bar-panning-thumb-background: #858585;
+  --wui-scroll-bar-button-arrow-icon-font-size: 8px;
+  --wui-scroll-viewer-scroll-bar-separator-background: #1f1f1f;
+
+  /* Text* */
+  --wui-text-control-highlighter-background: #ffff00;
+
+  /* App* */
+  --wui-app-bar-background-theme: #000000;
+  --wui-app-bar-border-theme: #000000;
+  --wui-app-bar-item-background-theme: transparent;
+  --wui-app-bar-item-disabled-foreground-theme: #ffffff66;
+  --wui-app-bar-item-foreground-theme: #ffffff;
+  --wui-app-bar-item-pointer-over-background-theme: #ffffff21;
+  --wui-app-bar-item-pointer-over-foreground-theme: #ffffff;
+  --wui-app-bar-item-pressed-foreground-theme: #000000;
+  --wui-app-bar-separator-foreground-theme: #7b7b7b;
+
+  /* Application* */
+  --wui-application-foreground-theme: #ffffffde;
+  --wui-application-header-foreground-theme: #ffffff;
+  --wui-application-page-background-theme: #000000;
+  --wui-application-pointer-over-foreground-theme: #ffffffcc;
+  --wui-application-pressed-foreground-theme: #ffffff66;
+  --wui-application-secondary-foreground-theme: #ffffff99;
+
+  /* Auto* */
+  --wui-auto-suggest-background-theme: #ffffff;
+
+  /* Back* */
+  --wui-back-button-background-theme: transparent;
+  --wui-back-button-disabled-foreground-theme: #ffffff66;
+  --wui-back-button-foreground-theme: #ffffff;
+  --wui-back-button-pointer-over-background-theme: #ffffff21;
+  --wui-back-button-pointer-over-foreground-theme: #ffffff;
+  --wui-back-button-pressed-foreground-theme: #000000;
+
+  /* Button* */
+  --wui-button-background-theme: transparent;
+  --wui-button-border-theme: #ffffff;
+  --wui-button-disabled-background-theme: transparent;
+  --wui-button-disabled-border-theme: #ffffff66;
+  --wui-button-disabled-foreground-theme: #ffffff66;
+  --wui-button-foreground-theme: #ffffff;
+  --wui-button-pointer-over-background-theme: #ffffff21;
+  --wui-button-pointer-over-foreground-theme: #ffffff;
+  --wui-button-pressed-background-theme: #ffffff;
+  --wui-button-pressed-foreground-theme: #000000;
+
+  /* Check* */
+  --wui-check-box-background-theme: #ffffffcc;
+  --wui-check-box-border-theme: #ffffffcc;
+  --wui-check-box-content-disabled-foreground-theme: #ffffff66;
+  --wui-check-box-content-foreground-theme: #ffffff;
+  --wui-check-box-disabled-background-theme: #ffffff66;
+  --wui-check-box-disabled-border-theme: #ffffff66;
+  --wui-check-box-disabled-foreground-theme: #00000066;
+  --wui-check-box-foreground-theme: #000000;
+  --wui-check-box-pointer-over-background-theme: #ffffffde;
+  --wui-check-box-pointer-over-border-theme: #ffffffde;
+  --wui-check-box-pointer-over-foreground-theme: #000000;
+  --wui-check-box-pressed-background-theme: #ffffff;
+  --wui-check-box-pressed-border-theme: #ffffff;
+  --wui-check-box-pressed-foreground-theme: #000000;
+
+  /* Combo* */
+  --wui-combo-box-arrow-disabled-foreground-theme: #ffffff66;
+  --wui-combo-box-arrow-foreground-theme: #000000;
+  --wui-combo-box-arrow-pressed-foreground-theme: #000000;
+  --wui-combo-box-background-theme: #ffffffcc;
+  --wui-combo-box-border-theme: #ffffffcc;
+  --wui-combo-box-disabled-background-theme: transparent;
+  --wui-combo-box-disabled-border-theme: #ffffff66;
+  --wui-combo-box-disabled-foreground-theme: #ffffff66;
+  --wui-combo-box-focused-background-theme: white;
+  --wui-combo-box-focused-border-theme: white;
+  --wui-combo-box-focused-foreground-theme: white;
+  --wui-combo-box-foreground-theme: #000000;
+  --wui-combo-box-header-foreground-theme: #ffffff;
+  --wui-combo-box-item-disabled-foreground-theme: #00000066;
+  --wui-combo-box-item-pointer-over-background-theme: #00000021;
+  --wui-combo-box-item-pointer-over-foreground-theme: #000000;
+  --wui-combo-box-item-pressed-background-theme: #d3d3d3;
+  --wui-combo-box-item-pressed-foreground-theme: #000000;
+  --wui-combo-box-item-selected-background-theme: #4617b4;
+  --wui-combo-box-item-selected-disabled-background-theme: #0000008c;
+  --wui-combo-box-item-selected-disabled-foreground-theme: #ffffff99;
+  --wui-combo-box-item-selected-foreground-theme: white;
+  --wui-combo-box-item-selected-pointer-over-background-theme: #5f37be;
+  --wui-combo-box-placeholder-text-foreground-theme: #00000088;
+  --wui-combo-box-pointer-over-background-theme: #ffffffde;
+  --wui-combo-box-pointer-over-border-theme: #ffffffde;
+  --wui-combo-box-popup-background-theme: #ffffff;
+  --wui-combo-box-popup-border-theme: #212121;
+  --wui-combo-box-popup-foreground-theme: #000000;
+  --wui-combo-box-pressed-background-theme: #ffffff;
+  --wui-combo-box-pressed-border-theme: #ffffff;
+  --wui-combo-box-pressed-highlight-theme: #d3d3d3;
+  --wui-combo-box-pressed-foreground-theme: #000000;
+  --wui-combo-box-selected-background-theme: #4617b4;
+  --wui-combo-box-selected-pointer-over-background-theme: #5f37be;
+
+  /* Content* */
+  --wui-content-dialog-background-theme: lightgray;
+  --wui-content-dialog-border-theme: var(--wui-system-accent-color);
+  --wui-content-dialog-content-foreground: black;
+  --wui-content-dialog-dimming-theme: #ffffff99;
+
+  /* Date* */
+  --wui-date-picker-header-foreground-theme: #ffffff;
+  --wui-date-picker-foreground-theme: #000000;
+
+  /* Default* */
+  --wui-default-text-foreground-theme: #ffffff;
+
+  /* Flip* */
+  --wui-flip-view-button-background-theme: #d5d5d559;
+  --wui-flip-view-button-border-theme: #d5d5d559;
+  --wui-flip-view-button-foreground-theme: #00000099;
+  --wui-flip-view-button-pointer-over-background-theme: #d7d7d7f0;
+  --wui-flip-view-button-pointer-over-border-theme: #c1c1c19e;
+  --wui-flip-view-button-pointer-over-foreground-theme: #000000;
+  --wui-flip-view-button-pressed-background-theme: #292929bd;
+  --wui-flip-view-button-pressed-border-theme: #292929bd;
+  --wui-flip-view-button-pressed-foreground-theme: #ffffff;
+
+  /* Flyout* */
+  --wui-flyout-background-theme: #000000;
+
+  /* Focus* */
+  --wui-focus-visual-black-stroke-theme: black;
+  --wui-focus-visual-white-stroke-theme: white;
+
+  /* Hyperlink* */
+  --wui-hyperlink-button-background-theme: transparent;
+  --wui-hyperlink-button-border-theme: transparent;
+  --wui-hyperlink-disabled-theme: #ffffff66;
+  --wui-hyperlink-foreground-theme: #9c72ff;
+  --wui-hyperlink-pointer-over-foreground-theme: #9c72ffcc;
+  --wui-hyperlink-pressed-foreground-theme: #9c72ff99;
+
+  /* Hub* */
+  --wui-hub-section-header-pointer-over-foreground-theme: #d1d1d1;
+  --wui-hub-section-header-pressed-foreground-theme: #777777;
+
+  /* IME* */
+  --wui-ime-candidate-background-theme: #ffffff;
+  --wui-ime-candidate-foreground-theme: #000000;
+  --wui-ime-candidate-pointer-over-background-theme: #00000021;
+  --wui-ime-candidate-pointer-over-foreground-theme: #000000;
+  --wui-ime-candidate-secondary-foreground-theme: #707070;
+  --wui-ime-candidate-selected-background-theme: #4617b4;
+  --wui-ime-candidate-selected-foreground-theme: #ffffff;
+  --wui-ime-candidate-list-background-theme: #ffffff;
+  --wui-ime-candidate-list-paging-button-background-theme: #d9d9d97f;
+  --wui-ime-candidate-list-paging-button-border-theme: #ffffff;
+  --wui-ime-candidate-list-paging-button-foreground-theme: #0000007f;
+  --wui-ime-candidate-list-paging-button-pointer-over-background-theme: #d9d9d9;
+  --wui-ime-candidate-list-paging-button-pointer-over-foreground-theme: #000000;
+  --wui-ime-candidate-list-paging-button-pressed-background-theme: #ffffff;
+  --wui-ime-candidate-list-paging-button-pressed-foreground-theme: #000000;
+
+  /* List* */
+  --wui-list-picker-flyout-presenter-selected-item-foreground-theme: var(--wui-system-color-highlight-color);
+  --wui-list-picker-flyout-presenter-selected-item-background-theme: #00000000;
+  --wui-list-view-group-header-foreground-theme: #ffffff;
+  --wui-list-view-group-header-pointer-over-foreground-theme: #ffffffcc;
+  --wui-list-view-group-header-pressed-foreground-theme: #ffffff66;
+
+  /* Looping* */
+  --wui-looping-selector-foreground-theme: #ffffff73;
+  --wui-looping-selector-selection-background-theme: var(--wui-system-color-highlight-color);
+  --wui-looping-selector-selection-foreground-theme: #ffffff;
+
+  /* Media* */
+  --wui-media-button-foreground-theme: #ffffff;
+  --wui-media-button-background-theme: transparent;
+  --wui-media-button-pointer-over-foreground-theme: #ffffff;
+  --wui-media-button-pointer-over-background-theme: #ffffff21;
+  --wui-media-button-pressed-foreground-theme: #000000;
+  --wui-media-button-pressed-background-theme: #ffffff;
+  --wui-media-button-pressed-border-theme: #ffffff;
+  --wui-media-control-panel-video-theme: #000000;
+  --wui-media-control-panel-audio-theme: #000000;
+  --wui-media-download-progress-indicator-theme: #ffffff38;
+  --wui-media-error-background-theme: #000000;
+  --wui-media-text-theme: #ffffff;
+
+  /* Pivot* */
+  --wui-pivot-foreground-theme: #ffffff;
+  --wui-pivot-header-background-selected: transparent;
+  --wui-pivot-header-background-unselected: transparent;
+  --wui-pivot-header-foreground-selected: #ffffff;
+  --wui-pivot-header-foreground-unselected: #ffffff66;
+  --wui-pivot-nav-button-background-theme: #d5d5d559;
+  --wui-pivot-nav-button-border-theme: #d5d5d559;
+  --wui-pivot-nav-button-foreground-theme: #00000099;
+  --wui-pivot-nav-button-pointer-over-background-theme: #d7d7d7f0;
+  --wui-pivot-nav-button-pointer-over-border-theme: #c1c1c19e;
+  --wui-pivot-nav-button-pointer-over-foreground-theme: #000000;
+  --wui-pivot-nav-button-pressed-background-theme: #292929bd;
+  --wui-pivot-nav-button-pressed-border-theme: #292929bd;
+  --wui-pivot-nav-button-pressed-foreground-theme: #ffffff;
+
+  /* Radio* */
+  --wui-radio-button-background-theme: #ffffffcc;
+  --wui-radio-button-border-theme: #ffffffcc;
+  --wui-radio-button-content-disabled-foreground-theme: #ffffff66;
+  --wui-radio-button-content-foreground-theme: #ffffff;
+  --wui-radio-button-content-pointer-over-foreground-theme: var(--wui-system-color-highlight-text-color);
+  --wui-radio-button-disabled-background-theme: #ffffff66;
+  --wui-radio-button-disabled-border-theme: #ffffff66;
+  --wui-radio-button-disabled-foreground-theme: #00000066;
+  --wui-radio-button-foreground-theme: #000000;
+  --wui-radio-button-pointer-over-background-theme: #ffffffde;
+  --wui-radio-button-pointer-over-border-theme: #ffffffde;
+  --wui-radio-button-pointer-over-foreground-theme: #000000;
+  --wui-radio-button-pressed-background-theme: #ffffff;
+  --wui-radio-button-pressed-border-theme: #ffffff;
+  --wui-radio-button-pressed-foreground-theme: #000000;
+
+  /* Repeat* */
+  --wui-repeat-button-border-theme: #ffffff;
+  --wui-repeat-button-disabled-background-theme: transparent;
+  --wui-repeat-button-disabled-border-theme: #ffffff66;
+  --wui-repeat-button-disabled-foreground-theme: #ffffff66;
+  --wui-repeat-button-foreground-theme: #ffffff;
+  --wui-repeat-button-pointer-over-background-theme: #ffffff21;
+  --wui-repeat-button-pointer-over-foreground-theme: #ffffff;
+  --wui-repeat-button-pressed-background-theme: #ffffff;
+  --wui-repeat-button-pressed-foreground-theme: #000000;
+
+  /* Scroll* */
+  --wui-scroll-bar-button-foreground-theme: #00000099;
+  --wui-scroll-bar-button-pointer-over-background-theme: #dadada;
+  --wui-scroll-bar-button-pointer-over-border-theme: #dadada;
+  --wui-scroll-bar-button-pointer-over-foreground-theme: #000000;
+  --wui-scroll-bar-button-pressed-background-theme: #00000099;
+  --wui-scroll-bar-button-pressed-border-theme: #00000099;
+  --wui-scroll-bar-button-pressed-foreground-theme: #ffffff;
+  --wui-scroll-bar-panning-background-theme: #cdcdcd;
+  --wui-scroll-bar-panning-border-theme: #9a9a9a7d;
+  --wui-scroll-bar-thumb-background-theme: #cdcdcd;
+  --wui-scroll-bar-thumb-border-theme: #5555553b;
+  --wui-scroll-bar-thumb-pointer-over-background-theme: #dadada;
+  --wui-scroll-bar-thumb-pointer-over-border-theme: #b7b7b76b;
+  --wui-scroll-bar-thumb-pressed-background-theme: #00000099;
+  --wui-scroll-bar-thumb-pressed-border-theme: #555555ed;
+  --wui-scroll-bar-track-background-theme: #d5d5d559;
+  --wui-scroll-bar-track-border-theme: #d5d5d559;
+
+  /* Semantic* */
+  --wui-semantic-zoom-button-background-theme: #d5d5d559;
+  --wui-semantic-zoom-button-border-theme: #d5d5d559;
+  --wui-semantic-zoom-button-foreground-theme: #00000099;
+  --wui-semantic-zoom-button-pointer-over-background-theme: #dadada;
+  --wui-semantic-zoom-button-pointer-over-border-theme: #dadada;
+  --wui-semantic-zoom-button-pointer-over-foreground-theme: #000000;
+  --wui-semantic-zoom-button-pressed-background-theme: #00000099;
+  --wui-semantic-zoom-button-pressed-border-theme: #00000099;
+  --wui-semantic-zoom-button-pressed-foreground-theme: #ffffff;
+
+  /* Slider* */
+  --wui-slider-border-theme: transparent;
+  --wui-slider-disabled-border-theme: transparent;
+  --wui-slider-thumb-background-theme: #ffffff;
+  --wui-slider-thumb-border-theme: #ffffff;
+  --wui-slider-thumb-disabled-background-theme: #7e7e7e;
+  --wui-slider-thumb-pointer-over-background-theme: #ffffff;
+  --wui-slider-thumb-pointer-over-border-theme: #ffffff;
+  --wui-slider-thumb-pressed-background-theme: #ffffff;
+  --wui-slider-thumb-pressed-border-theme: #ffffff;
+  --wui-slider-tick-mark-inline-background-theme: black;
+  --wui-slider-tick-mark-inline-disabled-foreground-theme: black;
+  --wui-slider-tickmark-outside-background-theme: #ffffff80;
+  --wui-slider-tick-mark-outside-disabled-foreground-theme: #ffffff80;
+  --wui-slider-track-background-theme: #ffffff29;
+  --wui-slider-track-decrease-background-theme: #5b2ec5;
+  --wui-slider-track-decrease-disabled-background-theme: #ffffff1f;
+  --wui-slider-track-decrease-pointer-over-background-theme: #724bcd;
+  --wui-slider-track-decrease-pressed-background-theme: #8152ef;
+  --wui-slider-track-disabled-background-theme: #ffffff29;
+  --wui-slider-track-pointer-over-background-theme: #ffffff46;
+  --wui-slider-track-pressed-background-theme: #ffffff59;
+  --wui-slider-header-foreground-theme: #ffffff;
+
+  /* Text* */
+  --wui-text-selection-highlight-color-theme: #4617b4;
+
+  /* Thumb* */
+  --wui-thumb-background-theme: #cdcdcd;
+  --wui-thumb-border-theme: #5555553b;
+  --wui-thumb-pointer-over-background-theme: #dadada;
+  --wui-thumb-pointer-over-border-theme: #b7b7b76b;
+  --wui-thumb-pressed-background-theme: #00000099;
+  --wui-thumb-pressed-border-theme: #555555ed;
+
+  /* Time* */
+  --wui-time-picker-header-foreground-theme: #ffffff;
+  --wui-time-picker-foreground-theme: #000000;
+
+  /* Toggle* */
+  --wui-toggle-button-background-theme: transparent;
+  --wui-toggle-button-border-theme: #ffffff;
+  --wui-toggle-button-checked-background-theme: #ffffff;
+  --wui-toggle-button-checked-border-theme: #ffffff;
+  --wui-toggle-button-checked-disabled-background-theme: #ffffff66;
+  --wui-toggle-button-checked-disabled-foreground-theme: #000000;
+  --wui-toggle-button-checked-foreground-theme: #000000;
+  --wui-toggle-button-checked-pointer-over-background-theme: #ffffff99;
+  --wui-toggle-button-checked-pointer-over-border-theme: #ffffff99;
+  --wui-toggle-button-checked-pressed-background-theme: transparent;
+  --wui-toggle-button-checked-pressed-border-theme: #ffffff;
+  --wui-toggle-button-checked-pressed-foreground-theme: #ffffff;
+  --wui-toggle-button-disabled-border-theme: #ffffff66;
+  --wui-toggle-button-disabled-foreground-theme: #ffffff66;
+  --wui-toggle-button-foreground-theme: #ffffff;
+  --wui-toggle-button-pointer-over-background-theme: #ffffff21;
+  --wui-toggle-button-pressed-background-theme: #ffffff;
+  --wui-toggle-button-pressed-foreground-theme: #000000;
+  --wui-toggle-switch-curtain-background-theme: #5729c1;
+  --wui-toggle-switch-curtain-disabled-background-theme: transparent;
+  --wui-toggle-switch-curtain-pointer-over-background-theme: #6e46ca;
+  --wui-toggle-switch-curtain-pressed-background-theme: #7e4fec;
+  --wui-toggle-switch-disabled-foreground-theme: #ffffff66;
+  --wui-toggle-switch-foreground-theme: #ffffff;
+  --wui-toggle-switch-header-disabled-foreground-theme: #ffffff66;
+  --wui-toggle-switch-header-foreground-theme: #ffffff;
+  --wui-toggle-switch-outer-border-border-theme: #ffffff59;
+  --wui-toggle-switch-outer-border-disabled-border-theme: #ffffff33;
+  --wui-toggle-switch-thumb-background-theme: #ffffff;
+  --wui-toggle-switch-thumb-border-theme: #ffffff;
+  --wui-toggle-switch-thumb-disabled-background-theme: #7e7e7e;
+  --wui-toggle-switch-thumb-disabled-border-theme: #7e7e7e;
+  --wui-toggle-switch-thumb-pointer-over-background-theme: #ffffff;
+  --wui-toggle-switch-thumb-pointer-over-border-theme: #ffffff;
+  --wui-toggle-switch-thumb-pressed-background-theme: #ffffff;
+  --wui-toggle-switch-thumb-pressed-foreground-theme: #ffffff;
+  --wui-toggle-switch-track-background-theme: #ffffff42;
+  --wui-toggle-switch-track-border-theme: transparent;
+  --wui-toggle-switch-track-disabled-background-theme: #ffffff1f;
+  --wui-toggle-switch-track-pointer-over-background-theme: #ffffff4a;
+  --wui-toggle-switch-track-pressed-background-theme: #ffffff59;
+
+  /* Tool* */
+  --wui-tool-tip-background-theme: #ffffff;
+  --wui-tool-tip-border-theme: #808080;
+  --wui-tool-tip-foreground-theme: #666666;
+
+  /* SystemControl* */
+  --wui-system-control-acrylic-window: #1f1f1f;
+  --wui-system-control-acrylic-element: #1f1f1f;
+  --wui-system-control-accent-acrylic-window-accent-medium-high: var(--wui-system-accent-color);
+  --wui-system-control-accent-acrylic-element-accent-medium-high: var(--wui-system-accent-color);
+  --wui-system-control-accent-dark-1-acrylic-window-accent-dark-1: var(--wui-system-accent-color-dark-1);
+  --wui-system-control-accent-dark-1-acrylic-element-accent-dark-1: var(--wui-system-accent-color-dark-1);
+  --wui-system-control-accent-dark-2-acrylic-window-accent-dark-2-medium-high: var(--wui-system-accent-color-dark-2);
+  --wui-system-control-accent-dark-2-acrylic-element-accent-dark-2-medium-high: var(--wui-system-accent-color-dark-2);
+  --wui-system-control-acrylic-window-medium-high: #1f1f1f;
+  --wui-system-control-acrylic-element-medium-high: #1f1f1f;
+  --wui-system-control-chrome-medium-low-acrylic-window-medium: #2b2b2b;
+  --wui-system-control-chrome-medium-low-acrylic-element-medium: #2b2b2b;
+  --wui-system-control-base-high-acrylic-window: #ffffff;
+  --wui-system-control-base-high-acrylic-element: #ffffff;
+  --wui-system-control-base-high-acrylic-window-medium-high: #ffffff;
+  --wui-system-control-base-high-acrylic-element-medium-high: #ffffff;
+  --wui-system-control-base-high-acrylic-window-medium: #ffffff;
+  --wui-system-control-base-high-acrylic-element-medium: #ffffff;
+  --wui-system-control-chrome-low-acrylic-window: #171717;
+  --wui-system-control-chrome-low-acrylic-element: #171717;
+  --wui-system-control-chrome-medium-acrylic-window-medium: #1f1f1f;
+  --wui-system-control-chrome-medium-acrylic-element-medium: #1f1f1f;
+  --wui-system-control-chrome-high-acrylic-window-medium: #767676;
+  --wui-system-control-chrome-high-acrylic-element-medium: #767676;
+  --wui-system-control-base-low-acrylic-window: #ffffff33;
+  --wui-system-control-base-low-acrylic-element: #ffffff33;
+  --wui-system-control-base-medium-low-acrylic-window-medium: #ffffff66;
+  --wui-system-control-base-medium-low-acrylic-element-medium: #ffffff66;
+  --wui-system-control-alt-low-acrylic-window: #00000033;
+  --wui-system-control-alt-low-acrylic-element: #00000033;
+  --wui-system-control-alt-medium-low-acrylic-window-medium: #00000066;
+  --wui-system-control-alt-medium-low-acrylic-element-medium: #00000066;
+  --wui-system-control-alt-high-acrylic-window: #000000;
+  --wui-system-control-alt-high-acrylic-element: #000000;
+  --wui-system-control-background-accent-reveal-border: var(--wui-system-accent-color);
+  --wui-system-control-background-base-high-reveal-border: #ffffff;
+  --wui-system-control-background-base-low-reveal-border: #ffffff33;
+  --wui-system-control-background-base-medium-reveal-border: #ffffff99;
+  --wui-system-control-background-base-medium-high-reveal-border: #ffffffcc;
+  --wui-system-control-background-base-medium-low-reveal-border: #ffffff66;
+  --wui-system-control-background-chrome-black-high-reveal-border: #000000;
+  --wui-system-control-background-chrome-black-medium-reveal-chrome-border: #000000cc;
+  --wui-system-control-background-chrome-medium-reveal-border: #1f1f1f;
+  --wui-system-control-background-chrome-medium-low-reveal-border: #2b2b2b;
+  --wui-system-control-background-chrome-white-reveal-border: #ffffff;
+  --wui-system-control-background-list-low-reveal-border: #ffffff19;
+  --wui-system-control-background-list-medium-reveal-border: #ffffff33;
+  --wui-system-control-foreground-reveal-transparent-border: transparent;
+  --wui-system-control-highlight-accent-reveal-border: var(--wui-system-accent-color);
+  --wui-system-control-highlight-base-high-reveal-border: #ffffff;
+  --wui-system-control-highlight-base-low-reveal-border: #ffffff33;
+  --wui-system-control-highlight-base-medium-reveal-border: #ffffff99;
+  --wui-system-control-highlight-base-medium-high-reveal-border: #ffffffcc;
+  --wui-system-control-highlight-base-medium-low-reveal-accent-background: #ffffff66;
+  --wui-system-control-background-base-low-reveal-background: #ffffff33;
+  --wui-system-control-background-base-medium-low-reveal-base-low-background: #ffffff66;
+  --wui-system-control-highlight-alt-transparent-reveal-border: transparent;
+  --wui-system-control-highlight-base-medium-low-reveal-border: #ffffff66;
+  --wui-system-control-highlight-list-medium-reveal-background: #ffffff33;
+  --wui-system-control-transparent-reveal-list-low-border: transparent;
+  --wui-system-control-background-transparent-reveal-border: transparent;
+  --wui-system-control-highlight-transparent-reveal-border: transparent;
+  --wui-system-control-highlight-accent-reveal-background: var(--wui-system-accent-color);
+  --wui-system-control-transparent-reveal-background: transparent;
+  --wui-system-control-highlight-list-medium-reveal-list-low-background: #ffffff33;
+  --wui-system-control-highlight-list-low-reveal-background: #ffffff19;
+  --wui-system-control-highlight-accent-3-reveal-background: var(--wui-system-accent-color-dark-3);
+  --wui-system-control-highlight-accent-3-reveal-accent-2-background: var(--wui-system-accent-color-dark-3);
+  --wui-system-control-highlight-accent-2-reveal-background: var(--wui-system-accent-color-dark-2);
+  --wui-system-control-transparent-reveal-border: transparent;
+
+  /* Menu* */
+  --wui-menu-flyout-item-focused-background-theme: #212121;
+  --wui-menu-flyout-item-focused-foreground-theme: #ffffff;
+  --wui-menu-flyout-item-disabled-foreground-theme: #ffffff66;
+  --wui-menu-flyout-item-pointer-over-background-theme: #212121;
+  --wui-menu-flyout-item-pointer-over-foreground-theme: #ffffff;
+  --wui-menu-flyout-item-pressed-background-theme: #ffffff;
+  --wui-menu-flyout-item-pressed-foreground-theme: #000000;
+  --wui-menu-flyout-separator-theme: #7a7a7a;
+
+  /* Navigation* */
+  --wui-navigation-view-expanded-pane-background: #1f1f1f;
+
+  /* Person* */
+  --wui-person-picture-foreground-theme: #000000;
+  --wui-person-picture-ellipse-badge-foreground-theme: #ffffff;
+  --wui-person-picture-ellipse-badge-fill-theme: #333333;
+  --wui-person-picture-ellipse-badge-stroke-theme: #ffffff33;
+  --wui-person-picture-ellipse-fill-theme: #ffffff99;
+
+  /* Refresh* */
+  --wui-refresh-container-foreground: white;
+  --wui-refresh-container-background: transparent;
+  --wui-refresh-visualizer-foreground: white;
+  --wui-refresh-visualizer-background: transparent;
+
+  /* App* */
+  --wui-app-bar-toggle-button-checked-background-theme: #ffffff;
+  --wui-app-bar-toggle-button-checked-border-theme: #ffffff;
+  --wui-app-bar-toggle-button-checked-disabled-background-theme: #ffffff66;
+  --wui-app-bar-toggle-button-checked-disabled-border-theme: transparent;
+  --wui-app-bar-toggle-button-checked-disabled-foreground-theme: #000000;
+  --wui-app-bar-toggle-button-checked-foreground-theme: #000000;
+  --wui-app-bar-toggle-button-checked-pointer-over-background-theme: #ffffff99;
+  --wui-app-bar-toggle-button-checked-pointer-over-border-theme: #ffffff99;
+  --wui-app-bar-toggle-button-checked-pressed-background-theme: transparent;
+  --wui-app-bar-toggle-button-checked-pressed-border-theme: #ffffff;
+  --wui-app-bar-toggle-button-checked-pressed-foreground-theme: #ffffff;
+  --wui-app-bar-toggle-button-pointer-over-background-theme: #ffffff21;
+
+  /* List* */
+  --wui-list-box-background-theme: #ffffffcc;
+  --wui-list-box-border-theme: transparent;
+  --wui-list-box-disabled-foreground-theme: #ffffff66;
+  --wui-list-box-focus-background-theme: #ffffff;
+  --wui-list-box-foreground-theme: #000000;
+  --wui-list-box-item-disabled-foreground-theme: #ffffff66;
+  --wui-list-box-item-pointer-over-background-theme: #00000021;
+  --wui-list-box-item-pointer-over-foreground-theme: #000000;
+  --wui-list-box-item-pressed-background-theme: #d3d3d3;
+  --wui-list-box-item-pressed-foreground-theme: #000000;
+  --wui-list-box-item-selected-background-theme: #4617b4;
+  --wui-list-box-item-selected-disabled-background-theme: #ffffff66;
+  --wui-list-box-item-selected-disabled-foreground-theme: #00000099;
+  --wui-list-box-item-selected-foreground-theme: white;
+  --wui-list-box-item-selected-pointer-over-background-theme: #5f37be;
+  --wui-list-view-item-check-hint-theme: #ffffff;
+  --wui-list-view-item-check-selecting-theme: #ffffff;
+  --wui-list-view-item-check-theme: #ffffff;
+  --wui-list-view-item-drag-background-theme: #4617b499;
+  --wui-list-view-item-drag-foreground-theme: white;
+  --wui-list-view-item-focus-border-theme: #ffffff;
+  --wui-list-view-item-overlay-background-theme: #000000a6;
+  --wui-list-view-item-overlay-foreground-theme: #ffffff;
+  --wui-list-view-item-overlay-secondary-foreground-theme: #ffffff99;
+  --wui-list-view-item-placeholder-background-theme: #3d3d3d;
+  --wui-list-view-item-pointer-over-background-theme: #ffffff4d;
+  --wui-list-view-item-selected-background-theme: #4617b4;
+  --wui-list-view-item-selected-foreground-theme: #ffffff;
+  --wui-list-view-item-selected-pointer-over-background-theme: #5f37be;
+  --wui-list-view-item-selected-pointer-over-border-theme: #5f37be;
+
+  /* Text* */
+  --wui-text-box-foreground-header-theme: #ffffff;
+  --wui-text-box-placeholder-text-theme: #000000ab;
+  --wui-text-box-background-theme: #ffffff;
+  --wui-text-box-border-theme: #ffffff;
+  --wui-text-box-button-background-theme: transparent;
+  --wui-text-box-button-border-theme: transparent;
+  --wui-text-box-button-foreground-theme: #00000099;
+  --wui-text-box-button-pointer-over-background-theme: #dedede;
+  --wui-text-box-button-pointer-over-border-theme: transparent;
+  --wui-text-box-button-pointer-over-foreground-theme: #000000;
+  --wui-text-box-button-pressed-background-theme: #000000;
+  --wui-text-box-button-pressed-border-theme: transparent;
+  --wui-text-box-button-pressed-foreground-theme: #ffffff;
+  --wui-text-box-disabled-background-theme: transparent;
+  --wui-text-box-disabled-border-theme: #ffffff66;
+  --wui-text-box-disabled-foreground-theme: #666666;
+  --wui-text-box-foreground-theme: #000000;
+
+  /* Auto* */
+  --wui-auto-suggest-box-icon-font-size: 12px;
+
+  /* Window* */
+  --wui-window-caption-button-background: transparent;
+
+  /* Close* */
+  --wui-close-button-background-pointer-over: #e81123;
+  --wui-close-button-stroke-pointer-over: white;
+  --wui-close-button-background-pressed: #f1707a;
+  --wui-close-button-stroke-pressed: black;
+}
