@@ -1,0 +1,216 @@
+<script setup lang="ts">
+// WuiToggleButton —— WinUI ToggleButton(Primitives)的 Web 复刻。
+// 视觉规格:CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml
+//   <Style TargetType="ToggleButton">(L6171 起):外观同 Button(ButtonPadding 8,4,8,5、
+//   2px 边框、ControlCornerRadius 4),但 CommonStates 含 checked/indeterminate 分支的组合态
+//   —— Normal/PointerOver/Pressed/Disabled × Unchecked/Checked/Indeterminate,全部用
+//   DiscreteObjectKeyFrame 即时切换;颜色一律取 theme.css 的 --wui-toggle-button-* token。
+// 行为规格:ToggleButton_Partial.cpp —— OnClick() 先 OnToggleProtected()(切状态并触发
+//   Checked/Unchecked/Indeterminate)后 Click;OnToggleImpl(L249 起)的点击环:
+//   未勾选 → 勾选;勾选 →(IsThreeState 时)不确定,否则未勾选;不确定 → 未勾选。
+// 模型设计:checked 以 boolean | 'indeterminate' 哨兵值对应 WinUI IsChecked(Nullable<bool>),
+//   null → 'indeterminate';IsThreeState 仅约束用户点击是否经过不确定态。详见 wiki/controls/ToggleButton.md。
+import { computed } from 'vue'
+
+// class/style 等透传属性统一由根元素 v-bind="$attrs" 承接(避免落到 button 之外的继承位)。
+defineOptions({ name: 'WuiToggleButton', inheritAttrs: false })
+
+const props = withDefaults(
+  defineProps<{
+    /** 按钮文本内容(WinUI Content;默认 slot 兜底,slot 优先)。 */
+    content?: string
+    /** 三态:允许用户点击进入不确定态(WinUI IsThreeState)。 */
+    isThreeState?: boolean
+    /** 禁用(WinUI IsEnabled 的取反映射,便于沿用原生 disabled 语义)。 */
+    disabled?: boolean
+  }>(),
+  { content: '', isThreeState: false, disabled: false },
+)
+
+// 显式声明 emits(含 click):父级 @click 监听改走 emit 转发,防止原生 click 重复触发。
+const emit = defineEmits<{
+  /** 点击按钮时触发(转发原生 MouseEvent;Space/Enter 键同样触发;禁用时不触发)。 */
+  click: [event: MouseEvent]
+  /** 进入勾选态(WinUI Checked;仅用户交互触发)。 */
+  checked: []
+  /** 进入未勾选态(WinUI Unchecked;仅用户交互触发)。 */
+  unchecked: []
+  /** 进入不确定态(WinUI Indeterminate;仅用户交互触发)。 */
+  indeterminate: []
+  // 注:update:checked 的 emit 类型由下方 defineModel 提供,勿在此重复声明(会导致 vue-tsc 推断退化为 unknown)。
+}>()
+
+// 双向:checked —— boolean | 'indeterminate'('indeterminate' ↔ WinUI IsChecked = null)。
+const checked = defineModel<boolean | 'indeterminate'>('checked', { default: false })
+
+const isChecked = computed(() => checked.value === true)
+const isIndeterminate = computed(() => checked.value === 'indeterminate')
+
+// WAI-ARIA:开关按钮的第三态用 aria-pressed="mixed" 表达(对应 WinUI IsChecked = null)。
+const ariaPressed = computed(() =>
+  isIndeterminate.value ? 'mixed' : isChecked.value ? 'true' : 'false',
+)
+
+/**
+ * 点击环(对照 ToggleButton::OnToggleImpl,L249 起):
+ * 未勾选 → 勾选;勾选 →(isThreeState 时)不确定,否则未勾选;不确定 → 未勾选。
+ */
+function onToggle(event: MouseEvent): void {
+  if (props.disabled) return
+
+  const next: boolean | 'indeterminate' =
+    checked.value === true
+      ? props.isThreeState
+        ? 'indeterminate'
+        : false
+      : checked.value === 'indeterminate'
+        ? false
+        : true
+
+  // 官方 OnClick 次序(ToggleButton_Partial.cpp L178):先 OnToggleProtected() 切状态并
+  // 同步触发 Checked/Unchecked/Indeterminate,后由 ToggleButtonGenerated::OnClick() 触发 Click。
+  if (next !== checked.value) {
+    checked.value = next
+    if (next === true) emit('checked')
+    else if (next === false) emit('unchecked')
+    else emit('indeterminate')
+  }
+  emit('click', event)
+}
+</script>
+
+<template>
+  <!-- 原生 button 自带 Space/Enter 激活与 role="button" 语义,键盘可达性免费获得 -->
+  <button
+    type="button"
+    class="wui-toggle-button"
+    :class="{ 'is-checked': isChecked, 'is-indeterminate': isIndeterminate, 'is-disabled': disabled }"
+    :aria-pressed="ariaPressed"
+    :disabled="disabled"
+    v-bind="$attrs"
+    @click="onToggle"
+  >
+    <slot>{{ content }}</slot>
+  </button>
+</template>
+
+<style scoped>
+/* ======================================================================
+ * 组合态配色(CommonStates):根元素按三态 + 交互态写入中间变量并就地消费,
+ * 对应 generic.xaml 各 VisualState 的 ObjectAnimation(DiscreteObjectKeyFrame,
+ * 状态色即时切换、无过渡动画)。
+ * ====================================================================== */
+.wui-toggle-button {
+  /* Normal */
+  --tb-fg: var(--wui-toggle-button-foreground);
+  --tb-bg: var(--wui-toggle-button-background);
+  --tb-border: var(--wui-toggle-button-border);
+}
+
+/* PointerOver / CheckedPointerOver / IndeterminatePointerOver */
+.wui-toggle-button:not(.is-disabled):hover {
+  --tb-fg: var(--wui-toggle-button-foreground-pointer-over);
+  --tb-bg: var(--wui-toggle-button-background-pointer-over);
+  --tb-border: var(--wui-toggle-button-border-brush-pointer-over);
+}
+.wui-toggle-button.is-checked:not(.is-disabled):hover {
+  --tb-fg: var(--wui-toggle-button-foreground-checked-pointer-over);
+  --tb-bg: var(--wui-toggle-button-background-checked-pointer-over);
+  --tb-border: var(--wui-toggle-button-border-brush-checked-pointer-over);
+}
+.wui-toggle-button.is-indeterminate:not(.is-disabled):hover {
+  --tb-fg: var(--wui-toggle-button-foreground-indeterminate-pointer-over);
+  --tb-bg: var(--wui-toggle-button-background-indeterminate-pointer-over);
+  --tb-border: var(--wui-toggle-button-border-brush-indeterminate-pointer-over);
+}
+
+/* Pressed / CheckedPressed / IndeterminatePressed */
+.wui-toggle-button:not(.is-disabled):active {
+  --tb-fg: var(--wui-toggle-button-foreground-pressed);
+  --tb-bg: var(--wui-toggle-button-background-pressed);
+  --tb-border: var(--wui-toggle-button-border-brush-pressed);
+}
+.wui-toggle-button.is-checked:not(.is-disabled):active {
+  --tb-fg: var(--wui-toggle-button-foreground-checked-pressed);
+  --tb-bg: var(--wui-toggle-button-background-checked-pressed);
+  --tb-border: var(--wui-toggle-button-border-brush-checked-pressed);
+}
+.wui-toggle-button.is-indeterminate:not(.is-disabled):active {
+  --tb-fg: var(--wui-toggle-button-foreground-indeterminate-pressed);
+  --tb-bg: var(--wui-toggle-button-background-indeterminate-pressed);
+  --tb-border: var(--wui-toggle-button-border-brush-indeterminate-pressed);
+}
+
+/* Disabled / CheckedDisabled / IndeterminateDisabled */
+.wui-toggle-button.is-disabled {
+  --tb-fg: var(--wui-toggle-button-foreground-disabled);
+  --tb-bg: var(--wui-toggle-button-background-disabled);
+  --tb-border: var(--wui-toggle-button-border-brush-disabled);
+}
+.wui-toggle-button.is-disabled.is-checked {
+  --tb-fg: var(--wui-toggle-button-foreground-checked-disabled);
+  --tb-bg: var(--wui-toggle-button-background-checked-disabled);
+  --tb-border: var(--wui-toggle-button-border-brush-checked-disabled);
+}
+.wui-toggle-button.is-disabled.is-indeterminate {
+  --tb-fg: var(--wui-toggle-button-foreground-indeterminate-disabled);
+  --tb-bg: var(--wui-toggle-button-background-indeterminate-disabled);
+  --tb-border: var(--wui-toggle-button-border-brush-indeterminate-disabled);
+}
+
+/* CheckedNormal / IndeterminateNormal(须置于交互态之后,保证同优先级下三态色生效) */
+.wui-toggle-button.is-checked {
+  --tb-fg: var(--wui-toggle-button-foreground-checked);
+  --tb-bg: var(--wui-toggle-button-background-checked);
+  --tb-border: var(--wui-toggle-button-border-brush-checked);
+}
+.wui-toggle-button.is-indeterminate {
+  --tb-fg: var(--wui-toggle-button-foreground-indeterminate);
+  --tb-bg: var(--wui-toggle-button-background-indeterminate);
+  --tb-border: var(--wui-toggle-button-border-brush-indeterminate);
+}
+
+/* ======================================================================
+ * 布局(对照 ControlTemplate:ContentPresenter 承载 Background/BorderBrush/
+ * BorderThickness/CornerRadius/Padding):样式 Setter 同 Button ——
+ * Padding=ButtonPadding(8,4,8,5)、ToggleButtonBorderThemeThickness=2、
+ * HorizontalAlignment=Left、VerticalAlignment=Center。
+ * ====================================================================== */
+.wui-toggle-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  margin: 0;
+  /* ButtonPadding="8,4,8,5"(XAML Thickness 顺序:左,上,右,下) */
+  padding: 4px 8px 5px;
+  font-family: var(--wui-content-control-theme-font-family);
+  /* ControlContentThemeFontSize = 14px */
+  font-size: var(--wui-control-content-theme-font-size);
+  font-weight: 400;
+  line-height: normal;
+  color: var(--tb-fg);
+  background: var(--tb-bg);
+  border: 2px solid var(--tb-border);
+  /* WinUI 3 默认 ControlCornerRadius = 4;无同名 token,取最近似的圆角 token(见 wiki 差异节) */
+  border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);
+  text-align: center;
+  cursor: default;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.wui-toggle-button.is-disabled {
+  cursor: default;
+}
+
+/* 系统焦点视觉:WinUI 双环(FocusVisualPrimary 内环 + FocusVisualSecondary 外环,
+   FocusVisualMargin=-3)近似为 primary 色单环 outline */
+.wui-toggle-button:focus {
+  outline: none;
+}
+.wui-toggle-button:focus-visible {
+  outline: 2px solid var(--wui-system-control-focus-visual-primary);
+  outline-offset: 1px;
+}
+</style>
