@@ -1,0 +1,24 @@
+# 按《目录使用规范》(见 agent.md / claude.md)约定,以下目录不入库
+/docs/
+/CK/
+/.tools/
+
+# 根目录元文件不入库(仅本地保留)
+/README.md
+/agent.md
+/claude.md
+
+# 依赖与构建产物
+node_modules/
+dist/
+dist-ssr/
+coverage/
+*.local
+
+# SDD 过程工作区
+/.superpowers/
+
+# 日志与系统文件
+npm-debug.log*
+.DS_Store
+Thumbs.db
