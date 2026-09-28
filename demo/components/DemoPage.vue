@@ -18,9 +18,12 @@ const themePreviewLabel = useBilingual(i18n, LABEL_THEME_PREVIEW)
 
 // —— 浅/深主题预览切换 ——
 // theme.css 只在 :root[data-theme="light|dark"] 上定义 token,因此预览通过写 html[data-theme] 生效
-// (与 theme.css 头注「系统跟随由 JS 设置 html[data-theme]」的约定一致),影响范围为整个站点预览。
+// (与 theme.css 头注及站点壳 useThemeSetting 的写入约定一致),影响范围为整个站点预览;
+// 站点壳再次切换档位时会按其偏好覆写,属预期。
 type PreviewTheme = 'light' | 'dark'
-const previewTheme = ref<PreviewTheme>('light')
+const previewTheme = ref<PreviewTheme>(
+  document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light',
+)
 
 function applyPreview(theme: PreviewTheme): void {
   previewTheme.value = theme
