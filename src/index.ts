@@ -3,4 +3,5 @@
 export { default as Button } from './components/Button.vue'
 export { default as CheckBox } from './components/CheckBox.vue'
 export { default as Slider } from './components/Slider.vue'
+export { default as TextBox } from './components/TextBox.vue'
 export { default as TextBlock } from './components/TextBlock.vue'
