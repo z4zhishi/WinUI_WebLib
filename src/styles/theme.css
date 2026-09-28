@@ -7,7 +7,8 @@
  * 命名: --wui- + 去掉结尾一个 Brush 后的键名 kebab-case(如 TextFillColorPrimaryBrush → --wui-text-fill-color-primary)。
  * 不含 prefers-color-scheme 媒体查询;系统跟随由 JS 设置 html[data-theme]。
  *
- * 单位: 字号/圆角以 px 表示(XAML DIP 与 CSS px 1:1);颜色 #AARRGGBB 转为 CSS #RRGGBBAA(不透明省略 alpha)。
+ * 单位: 字号/圆角以 px 表示(XAML DIP 与 CSS px 1:1);颜色 #AARRGGBB 转 CSS #RRGGBBAA(不透明省略 alpha)。
+ * 透明度: SolidColorBrush 的 Opacity 属性与颜色自带 AA 通道相乘合成 alpha(F4);逐主题独立解析,系统色钩子带透明度时以 color-mix(in srgb, …, transparent) 表示。
  * 字体: 'XamlAutoFontFamily' 为 WinUI "系统默认字体"占位,浏览器将回退到默认字体,可按需在应用层映射。
  *
  * 系统色钩子(Windows 由系统提供,本文件未定义,使用相关变量前请在应用层定义):
@@ -148,9 +149,9 @@
   --wui-system-control-highlight-alt-base-medium-high: #000000cc;
   --wui-system-control-highlight-alt-alt-medium-high: #ffffffcc;
   --wui-system-control-highlight-alt-base-medium-low: #00000066;
-  --wui-system-control-highlight-alt-list-accent-high: var(--wui-system-accent-color);
-  --wui-system-control-highlight-alt-list-accent-low: var(--wui-system-accent-color);
-  --wui-system-control-highlight-alt-list-accent-medium: var(--wui-system-accent-color);
+  --wui-system-control-highlight-alt-list-accent-high: color-mix(in srgb, var(--wui-system-accent-color) 70%, transparent);
+  --wui-system-control-highlight-alt-list-accent-low: color-mix(in srgb, var(--wui-system-accent-color) 40%, transparent);
+  --wui-system-control-highlight-alt-list-accent-medium: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
   --wui-system-control-highlight-alt-chrome-white: #ffffff;
   --wui-system-control-highlight-alt-transparent: transparent;
   --wui-system-control-highlight-base-high: #000000;
@@ -160,9 +161,9 @@
   --wui-system-control-highlight-base-medium-low: #00000066;
   --wui-system-control-highlight-chrome-alt-low: #171717;
   --wui-system-control-highlight-chrome-high: #cccccc;
-  --wui-system-control-highlight-list-accent-high: var(--wui-system-accent-color);
-  --wui-system-control-highlight-list-accent-low: var(--wui-system-accent-color);
-  --wui-system-control-highlight-list-accent-medium: var(--wui-system-accent-color);
+  --wui-system-control-highlight-list-accent-high: color-mix(in srgb, var(--wui-system-accent-color) 70%, transparent);
+  --wui-system-control-highlight-list-accent-low: color-mix(in srgb, var(--wui-system-accent-color) 40%, transparent);
+  --wui-system-control-highlight-list-accent-medium: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
   --wui-system-control-highlight-list-medium: #00000033;
   --wui-system-control-highlight-list-low: #00000019;
   --wui-system-control-highlight-chrome-white: #ffffff;
@@ -185,7 +186,7 @@
   --wui-system-control-page-text-chrome-black-medium-low: #00000066;
   --wui-system-control-transparent: transparent;
   --wui-system-control-error-text-foreground: #c50500;
-  --wui-system-control-transient-border: #000000;
+  --wui-system-control-transient-border: #00000024;
   --wui-system-control-transient-background: #f2f2f2;
   --wui-system-control-description-text-foreground: #00000099;
 
@@ -384,11 +385,11 @@
   --wui-toggle-switch-stroke-off-pressed: #000000cc;
   --wui-toggle-switch-stroke-off-disabled: #00000066;
   --wui-toggle-switch-fill-on: var(--wui-system-accent-color);
-  --wui-toggle-switch-fill-on-pointer-over: var(--wui-system-accent-color);
+  --wui-toggle-switch-fill-on-pointer-over: color-mix(in srgb, var(--wui-system-accent-color) 70%, transparent);
   --wui-toggle-switch-fill-on-pressed: #00000099;
   --wui-toggle-switch-fill-on-disabled: #00000033;
   --wui-toggle-switch-stroke-on: #000000;
-  --wui-toggle-switch-stroke-on-pointer-over: var(--wui-system-accent-color);
+  --wui-toggle-switch-stroke-on-pointer-over: color-mix(in srgb, var(--wui-system-accent-color) 70%, transparent);
   --wui-toggle-switch-stroke-on-pressed: #00000099;
   --wui-toggle-switch-stroke-on-disabled: #00000066;
   --wui-toggle-switch-knob-fill-off: #000000cc;
@@ -470,8 +471,8 @@
   --wui-scroll-bar-thumb-fill-pointer-over: #00000066;
   --wui-scroll-bar-thumb-fill-pressed: #00000099;
   --wui-scroll-bar-thumb-fill-disabled: transparent;
-  --wui-scroll-bar-track-fill: #e6e6e6;
-  --wui-scroll-bar-track-fill-pointer-over: #e6e6e6;
+  --wui-scroll-bar-track-fill: #e6e6e6e6;
+  --wui-scroll-bar-track-fill-pointer-over: #e6e6e6e6;
   --wui-scroll-bar-track-fill-disabled: transparent;
   --wui-scroll-bar-track-stroke: transparent;
   --wui-scroll-bar-track-stroke-pointer-over: transparent;
@@ -480,7 +481,7 @@
   --wui-scroll-bar-thumb-background: #00000033;
   --wui-scroll-bar-panning-thumb-background: #7a7a7a;
   --wui-scroll-bar-button-arrow-icon-font-size: 8px;
-  --wui-scroll-viewer-scroll-bar-separator-background: #e6e6e6;
+  --wui-scroll-viewer-scroll-bar-separator-background: #e6e6e6e6;
 
   /* List* */
   --wui-list-view-header-item-background: transparent;
@@ -500,10 +501,10 @@
   --wui-combo-box-item-background-pressed: #00000033;
   --wui-combo-box-item-background-pointer-over: #00000019;
   --wui-combo-box-item-background-disabled: transparent;
-  --wui-combo-box-item-background-selected: var(--wui-system-accent-color);
-  --wui-combo-box-item-background-selected-unfocused: var(--wui-system-accent-color);
-  --wui-combo-box-item-background-selected-pressed: var(--wui-system-accent-color);
-  --wui-combo-box-item-background-selected-pointer-over: var(--wui-system-accent-color);
+  --wui-combo-box-item-background-selected: color-mix(in srgb, var(--wui-system-accent-color) 40%, transparent);
+  --wui-combo-box-item-background-selected-unfocused: color-mix(in srgb, var(--wui-system-accent-color) 40%, transparent);
+  --wui-combo-box-item-background-selected-pressed: color-mix(in srgb, var(--wui-system-accent-color) 70%, transparent);
+  --wui-combo-box-item-background-selected-pointer-over: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
   --wui-combo-box-item-background-selected-disabled: transparent;
   --wui-combo-box-item-border: transparent;
   --wui-combo-box-item-border-brush-pressed: transparent;
@@ -518,7 +519,7 @@
   --wui-combo-box-background-pointer-over: #ffffff99;
   --wui-combo-box-background-pressed: #00000033;
   --wui-combo-box-background-disabled: #00000033;
-  --wui-combo-box-background-unfocused: var(--wui-system-accent-color);
+  --wui-combo-box-background-unfocused: color-mix(in srgb, var(--wui-system-accent-color) 40%, transparent);
   --wui-combo-box-background-border-brush-focused: transparent;
   --wui-combo-box-background-border-brush-unfocused: #00000066;
   --wui-combo-box-foreground: #000000;
@@ -542,7 +543,7 @@
   --wui-combo-box-drop-down-glyph-foreground-focused-pressed: #000000cc;
   --wui-combo-box-drop-down-background: #f2f2f2;
   --wui-combo-box-drop-down-foreground: #000000;
-  --wui-combo-box-drop-down-border: #000000;
+  --wui-combo-box-drop-down-border: #00000024;
 
   /* App* */
   --wui-app-bar-separator-foreground: #00000066;
@@ -584,7 +585,7 @@
   /* Tool* */
   --wui-tool-tip-foreground: #000000;
   --wui-tool-tip-background: #f2f2f2;
-  --wui-tool-tip-border: #000000;
+  --wui-tool-tip-border: #00000024;
 
   /* Calendar* */
   --wui-calendar-date-picker-foreground: #000000;
@@ -599,14 +600,14 @@
   --wui-calendar-date-picker-background-pointer-over: #ffffff99;
   --wui-calendar-date-picker-background-pressed: #00000033;
   --wui-calendar-date-picker-background-disabled: #00000033;
-  --wui-calendar-date-picker-background-focused: var(--wui-system-accent-color);
+  --wui-calendar-date-picker-background-focused: color-mix(in srgb, var(--wui-system-accent-color) 40%, transparent);
   --wui-calendar-date-picker-border: #00000066;
   --wui-calendar-date-picker-border-brush-pointer-over: #00000099;
   --wui-calendar-date-picker-border-brush-pressed: #00000066;
   --wui-calendar-date-picker-border-brush-disabled: #00000033;
   --wui-calendar-view-focus-border: #000000;
-  --wui-calendar-view-selected-hover-border: var(--wui-system-accent-color);
-  --wui-calendar-view-selected-pressed-border: var(--wui-system-accent-color);
+  --wui-calendar-view-selected-hover-border: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
+  --wui-calendar-view-selected-pressed-border: color-mix(in srgb, var(--wui-system-accent-color) 70%, transparent);
   --wui-calendar-view-selected-border: var(--wui-system-accent-color);
   --wui-calendar-view-hover-border: #00000066;
   --wui-calendar-view-pressed-border: #00000099;
@@ -673,16 +674,16 @@
   --wui-date-picker-button-background-pointer-over: #ffffff99;
   --wui-date-picker-button-background-pressed: #00000033;
   --wui-date-picker-button-background-disabled: #00000033;
-  --wui-date-picker-button-background-focused: var(--wui-system-accent-color);
+  --wui-date-picker-button-background-focused: color-mix(in srgb, var(--wui-system-accent-color) 40%, transparent);
   --wui-date-picker-button-foreground: #000000;
   --wui-date-picker-button-foreground-pointer-over: #000000;
   --wui-date-picker-button-foreground-pressed: #000000;
   --wui-date-picker-button-foreground-disabled: #00000066;
   --wui-date-picker-button-foreground-focused: #000000;
   --wui-date-picker-flyout-presenter-background: #f2f2f2;
-  --wui-date-picker-flyout-presenter-border: #000000;
+  --wui-date-picker-flyout-presenter-border: #00000024;
   --wui-date-picker-flyout-presenter-spacer-fill: #00000033;
-  --wui-date-picker-flyout-presenter-highlight-fill: var(--wui-system-accent-color);
+  --wui-date-picker-flyout-presenter-highlight-fill: color-mix(in srgb, var(--wui-system-accent-color) 40%, transparent);
 
   /* Time* */
   --wui-time-picker-spacer-fill: #00000033;
@@ -697,16 +698,16 @@
   --wui-time-picker-button-background-pointer-over: #ffffff99;
   --wui-time-picker-button-background-pressed: #00000033;
   --wui-time-picker-button-background-disabled: #00000033;
-  --wui-time-picker-button-background-focused: var(--wui-system-accent-color);
+  --wui-time-picker-button-background-focused: color-mix(in srgb, var(--wui-system-accent-color) 40%, transparent);
   --wui-time-picker-button-foreground: #000000;
   --wui-time-picker-button-foreground-pointer-over: #000000;
   --wui-time-picker-button-foreground-pressed: #000000;
   --wui-time-picker-button-foreground-disabled: #00000066;
   --wui-time-picker-button-foreground-focused: #000000;
   --wui-time-picker-flyout-presenter-background: #f2f2f2;
-  --wui-time-picker-flyout-presenter-border: #000000;
+  --wui-time-picker-flyout-presenter-border: #00000024;
   --wui-time-picker-flyout-presenter-spacer-fill: #00000033;
-  --wui-time-picker-flyout-presenter-highlight-fill: var(--wui-system-accent-color);
+  --wui-time-picker-flyout-presenter-highlight-fill: color-mix(in srgb, var(--wui-system-accent-color) 40%, transparent);
 
   /* Looping* */
   --wui-looping-selector-button-background: #e6e6e6;
@@ -751,7 +752,7 @@
 
   /* Flyout* */
   --wui-flyout-presenter-background: #f2f2f2;
-  --wui-flyout-border-theme: #000000;
+  --wui-flyout-border-theme: #00000024;
 
   /* Toggle* */
   --wui-toggle-menu-flyout-item-background: transparent;
@@ -817,8 +818,8 @@
   --wui-grid-view-item-background-pointer-over: #00000019;
   --wui-grid-view-item-background-pressed: #00000033;
   --wui-grid-view-item-background-selected: var(--wui-system-accent-color);
-  --wui-grid-view-item-background-selected-pointer-over: var(--wui-system-accent-color);
-  --wui-grid-view-item-background-selected-pressed: var(--wui-system-accent-color);
+  --wui-grid-view-item-background-selected-pointer-over: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
+  --wui-grid-view-item-background-selected-pressed: color-mix(in srgb, var(--wui-system-accent-color) 70%, transparent);
   --wui-grid-view-item-foreground: #000000;
   --wui-grid-view-item-foreground-pointer-over: #000000;
   --wui-grid-view-item-foreground-selected: #000000;
@@ -938,9 +939,9 @@
   --wui-combo-box-disabled-background-theme: #cacaca66;
   --wui-combo-box-disabled-border-theme: #00000026;
   --wui-combo-box-disabled-foreground-theme: #00000066;
-  --wui-combo-box-focused-background-theme: white;
+  --wui-combo-box-focused-background-theme: #ffffff;
   --wui-combo-box-focused-border-theme: #00000070;
-  --wui-combo-box-focused-foreground-theme: white;
+  --wui-combo-box-focused-foreground-theme: #ffffff;
   --wui-combo-box-foreground-theme: #000000;
   --wui-combo-box-header-foreground-theme: #000000;
   --wui-combo-box-item-disabled-foreground-theme: #00000066;
@@ -949,7 +950,7 @@
   --wui-combo-box-item-pressed-background-theme: #d3d3d3;
   --wui-combo-box-item-pressed-foreground-theme: #000000;
   --wui-combo-box-item-selected-background-theme: #4617b4;
-  --wui-combo-box-item-selected-foreground-theme: white;
+  --wui-combo-box-item-selected-foreground-theme: #ffffff;
   --wui-combo-box-item-selected-disabled-background-theme: #0000008c;
   --wui-combo-box-item-selected-disabled-foreground-theme: #ffffff99;
   --wui-combo-box-item-selected-pointer-over-background-theme: #5f37be;
@@ -967,9 +968,9 @@
   --wui-combo-box-selected-pointer-over-background-theme: #5f37be;
 
   /* Content* */
-  --wui-content-dialog-background-theme: lightgray;
+  --wui-content-dialog-background-theme: #d3d3d3;
   --wui-content-dialog-border-theme: var(--wui-system-accent-color);
-  --wui-content-dialog-content-foreground: black;
+  --wui-content-dialog-content-foreground: #000000;
   --wui-content-dialog-dimming-theme: #ffffff99;
 
   /* Date* */
@@ -994,8 +995,8 @@
   --wui-flyout-background-theme: #ffffff;
 
   /* Focus* */
-  --wui-focus-visual-black-stroke-theme: black;
-  --wui-focus-visual-white-stroke-theme: white;
+  --wui-focus-visual-black-stroke-theme: #000000;
+  --wui-focus-visual-white-stroke-theme: #ffffff;
 
   /* Hyperlink* */
   --wui-hyperlink-button-background-theme: transparent;
@@ -1031,7 +1032,7 @@
 
   /* List* */
   --wui-list-picker-flyout-presenter-selected-item-foreground-theme: var(--wui-system-color-highlight-color);
-  --wui-list-picker-flyout-presenter-selected-item-background-theme: #ffffff00;
+  --wui-list-picker-flyout-presenter-selected-item-background-theme: transparent;
   --wui-list-view-group-header-foreground-theme: #000000;
   --wui-list-view-group-header-pointer-over-foreground-theme: #000000cc;
   --wui-list-view-group-header-pressed-foreground-theme: #00000066;
@@ -1139,8 +1140,8 @@
   --wui-slider-thumb-pointer-over-border-theme: #000000;
   --wui-slider-thumb-pressed-background-theme: #000000;
   --wui-slider-thumb-pressed-border-theme: #000000;
-  --wui-slider-tick-mark-inline-background-theme: white;
-  --wui-slider-tick-mark-inline-disabled-foreground-theme: white;
+  --wui-slider-tick-mark-inline-background-theme: #ffffff;
+  --wui-slider-tick-mark-inline-disabled-foreground-theme: #ffffff;
   --wui-slider-tickmark-outside-background-theme: #00000080;
   --wui-slider-tick-mark-outside-disabled-foreground-theme: #00000080;
   --wui-slider-track-background-theme: #0000001a;
@@ -1481,7 +1482,7 @@
 
   /* Menu* */
   --wui-menu-flyout-presenter-background: #f2f2f2;
-  --wui-menu-flyout-presenter-border: #000000;
+  --wui-menu-flyout-presenter-border: #00000024;
   --wui-menu-flyout-item-background: transparent;
   --wui-menu-flyout-item-background-pointer-over: #00000019;
   --wui-menu-flyout-item-background-pressed: #00000033;
@@ -1492,8 +1493,8 @@
   --wui-menu-flyout-item-foreground-disabled: #00000066;
   --wui-menu-flyout-sub-item-background: transparent;
   --wui-menu-flyout-sub-item-background-pointer-over: #00000019;
-  --wui-menu-flyout-sub-item-background-pressed: var(--wui-system-accent-color);
-  --wui-menu-flyout-sub-item-background-sub-menu-opened: var(--wui-system-accent-color);
+  --wui-menu-flyout-sub-item-background-pressed: color-mix(in srgb, var(--wui-system-accent-color) 70%, transparent);
+  --wui-menu-flyout-sub-item-background-sub-menu-opened: color-mix(in srgb, var(--wui-system-accent-color) 40%, transparent);
   --wui-menu-flyout-sub-item-background-disabled: transparent;
   --wui-menu-flyout-sub-item-foreground: #000000;
   --wui-menu-flyout-sub-item-foreground-pointer-over: #000000;
@@ -1597,9 +1598,9 @@
   --wui-person-picture-ellipse-fill-theme: #00000099;
 
   /* Refresh* */
-  --wui-refresh-container-foreground: black;
+  --wui-refresh-container-foreground: #000000;
   --wui-refresh-container-background: transparent;
-  --wui-refresh-visualizer-foreground: black;
+  --wui-refresh-visualizer-foreground: #000000;
   --wui-refresh-visualizer-background: transparent;
 
   /* Menu* */
@@ -1694,7 +1695,7 @@
   --wui-list-box-item-selected-background-theme: #4617b4;
   --wui-list-box-item-selected-disabled-background-theme: #0000008c;
   --wui-list-box-item-selected-disabled-foreground-theme: #ffffff99;
-  --wui-list-box-item-selected-foreground-theme: white;
+  --wui-list-box-item-selected-foreground-theme: #ffffff;
   --wui-list-box-item-selected-pointer-over-background-theme: #5f37be;
 
   /* Command* */
@@ -1703,16 +1704,16 @@
   --wui-command-bar-high-contrast-border: transparent;
   --wui-command-bar-ellipsis-icon-foreground-disabled: #00000066;
   --wui-command-bar-overflow-presenter-background: #f2f2f2;
-  --wui-command-bar-overflow-presenter-border: #000000;
+  --wui-command-bar-overflow-presenter-border: #00000024;
   --wui-command-bar-light-dismiss-overlay-background: #ffffff99;
 
   /* List* */
   --wui-list-view-item-background: transparent;
   --wui-list-view-item-background-pointer-over: #00000019;
   --wui-list-view-item-background-pressed: #00000033;
-  --wui-list-view-item-background-selected: var(--wui-system-accent-color);
-  --wui-list-view-item-background-selected-pointer-over: var(--wui-system-accent-color);
-  --wui-list-view-item-background-selected-pressed: var(--wui-system-accent-color);
+  --wui-list-view-item-background-selected: color-mix(in srgb, var(--wui-system-accent-color) 40%, transparent);
+  --wui-list-view-item-background-selected-pointer-over: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
+  --wui-list-view-item-background-selected-pressed: color-mix(in srgb, var(--wui-system-accent-color) 70%, transparent);
   --wui-list-view-item-foreground: #000000;
   --wui-list-view-item-foreground-pointer-over: #000000;
   --wui-list-view-item-foreground-selected: #000000;
@@ -1729,7 +1730,7 @@
   --wui-list-view-item-check-selecting-theme: #4617b4;
   --wui-list-view-item-check-theme: #ffffff;
   --wui-list-view-item-drag-background-theme: #4617b499;
-  --wui-list-view-item-drag-foreground-theme: white;
+  --wui-list-view-item-drag-foreground-theme: #ffffff;
   --wui-list-view-item-focus-border-theme: #000000;
   --wui-list-view-item-overlay-background-theme: #000000a6;
   --wui-list-view-item-overlay-secondary-foreground-theme: #ffffff99;
@@ -1751,7 +1752,7 @@
   --wui-text-box-button-foreground-theme: #00000099;
   --wui-text-box-button-pointer-over-background-theme: #dedede;
   --wui-text-box-button-pointer-over-border-theme: transparent;
-  --wui-text-box-button-pointer-over-foreground-theme: black;
+  --wui-text-box-button-pointer-over-foreground-theme: #000000;
   --wui-text-box-button-pressed-background-theme: #000000;
   --wui-text-box-button-pressed-border-theme: transparent;
   --wui-text-box-button-pressed-foreground-theme: #ffffff;
@@ -1762,7 +1763,7 @@
 
   /* Auto* */
   --wui-auto-suggest-box-suggestions-list-background: #f2f2f2;
-  --wui-auto-suggest-box-suggestions-list-border: #000000;
+  --wui-auto-suggest-box-suggestions-list-border: #00000024;
   --wui-auto-suggest-box-light-dismiss-overlay-background: #ffffff99;
 
   /* Tree* */
@@ -1888,7 +1889,7 @@
   --wui-menu-flyout-sub-item-reveal-border-brush-disabled: transparent;
 
   /* App* */
-  --wui-app-bar-button-background-sub-menu-opened: var(--wui-system-accent-color);
+  --wui-app-bar-button-background-sub-menu-opened: color-mix(in srgb, var(--wui-system-accent-color) 40%, transparent);
   --wui-app-bar-button-foreground-sub-menu-opened: #000000;
   --wui-app-bar-button-keyboard-accelerator-text-foreground-sub-menu-opened: #00000099;
   --wui-app-bar-button-border-brush-sub-menu-opened: transparent;
@@ -1912,9 +1913,9 @@
 
   /* Close* */
   --wui-close-button-background-pointer-over: #e81123;
-  --wui-close-button-stroke-pointer-over: white;
+  --wui-close-button-stroke-pointer-over: #ffffff;
   --wui-close-button-background-pressed: #f1707a;
-  --wui-close-button-stroke-pressed: black;
+  --wui-close-button-stroke-pressed: #000000;
 }
 
 :root[data-theme="dark"] {
@@ -2043,9 +2044,9 @@
   --wui-system-control-highlight-alt-base-medium-high: #ffffffcc;
   --wui-system-control-highlight-alt-alt-medium-high: #000000cc;
   --wui-system-control-highlight-alt-base-medium-low: #ffffff66;
-  --wui-system-control-highlight-alt-list-accent-high: var(--wui-system-accent-color);
-  --wui-system-control-highlight-alt-list-accent-low: var(--wui-system-accent-color);
-  --wui-system-control-highlight-alt-list-accent-medium: var(--wui-system-accent-color);
+  --wui-system-control-highlight-alt-list-accent-high: color-mix(in srgb, var(--wui-system-accent-color) 90%, transparent);
+  --wui-system-control-highlight-alt-list-accent-low: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
+  --wui-system-control-highlight-alt-list-accent-medium: color-mix(in srgb, var(--wui-system-accent-color) 80%, transparent);
   --wui-system-control-highlight-alt-chrome-white: #ffffff;
   --wui-system-control-highlight-alt-transparent: transparent;
   --wui-system-control-highlight-base-high: #ffffff;
@@ -2055,9 +2056,9 @@
   --wui-system-control-highlight-base-medium-low: #ffffff66;
   --wui-system-control-highlight-chrome-alt-low: #f2f2f2;
   --wui-system-control-highlight-chrome-high: #767676;
-  --wui-system-control-highlight-list-accent-high: var(--wui-system-accent-color);
-  --wui-system-control-highlight-list-accent-low: var(--wui-system-accent-color);
-  --wui-system-control-highlight-list-accent-medium: var(--wui-system-accent-color);
+  --wui-system-control-highlight-list-accent-high: color-mix(in srgb, var(--wui-system-accent-color) 90%, transparent);
+  --wui-system-control-highlight-list-accent-low: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
+  --wui-system-control-highlight-list-accent-medium: color-mix(in srgb, var(--wui-system-accent-color) 80%, transparent);
   --wui-system-control-highlight-list-medium: #ffffff33;
   --wui-system-control-highlight-list-low: #ffffff19;
   --wui-system-control-highlight-chrome-white: #ffffff;
@@ -2080,7 +2081,7 @@
   --wui-system-control-page-text-chrome-black-medium-low: #00000066;
   --wui-system-control-transparent: transparent;
   --wui-system-control-error-text-foreground: #fff000;
-  --wui-system-control-transient-border: #000000;
+  --wui-system-control-transient-border: #0000005c;
   --wui-system-control-transient-background: #2b2b2b;
   --wui-system-control-description-text-foreground: #ffffff99;
 
@@ -2279,11 +2280,11 @@
   --wui-toggle-switch-stroke-off-pressed: #ffffffcc;
   --wui-toggle-switch-stroke-off-disabled: #ffffff66;
   --wui-toggle-switch-fill-on: var(--wui-system-accent-color);
-  --wui-toggle-switch-fill-on-pointer-over: var(--wui-system-accent-color);
+  --wui-toggle-switch-fill-on-pointer-over: color-mix(in srgb, var(--wui-system-accent-color) 90%, transparent);
   --wui-toggle-switch-fill-on-pressed: #ffffff99;
   --wui-toggle-switch-fill-on-disabled: #ffffff33;
   --wui-toggle-switch-stroke-on: #ffffff;
-  --wui-toggle-switch-stroke-on-pointer-over: var(--wui-system-accent-color);
+  --wui-toggle-switch-stroke-on-pointer-over: color-mix(in srgb, var(--wui-system-accent-color) 90%, transparent);
   --wui-toggle-switch-stroke-on-pressed: #ffffff99;
   --wui-toggle-switch-stroke-on-disabled: #ffffff66;
   --wui-toggle-switch-knob-fill-off: #ffffffcc;
@@ -2365,8 +2366,8 @@
   --wui-scroll-bar-thumb-fill-pointer-over: #ffffff66;
   --wui-scroll-bar-thumb-fill-pressed: #ffffff99;
   --wui-scroll-bar-thumb-fill-disabled: transparent;
-  --wui-scroll-bar-track-fill: #1f1f1f;
-  --wui-scroll-bar-track-fill-pointer-over: #1f1f1f;
+  --wui-scroll-bar-track-fill: #1f1f1fe6;
+  --wui-scroll-bar-track-fill-pointer-over: #1f1f1fe6;
   --wui-scroll-bar-track-fill-disabled: transparent;
   --wui-scroll-bar-track-stroke: transparent;
   --wui-scroll-bar-track-stroke-pointer-over: transparent;
@@ -2375,7 +2376,7 @@
   --wui-scroll-bar-thumb-background: #ffffff33;
   --wui-scroll-bar-panning-thumb-background: #858585;
   --wui-scroll-bar-button-arrow-icon-font-size: 8px;
-  --wui-scroll-viewer-scroll-bar-separator-background: #1f1f1f;
+  --wui-scroll-viewer-scroll-bar-separator-background: #1f1f1fe6;
 
   /* List* */
   --wui-list-view-header-item-background: transparent;
@@ -2395,10 +2396,10 @@
   --wui-combo-box-item-background-pressed: #ffffff33;
   --wui-combo-box-item-background-pointer-over: #ffffff19;
   --wui-combo-box-item-background-disabled: transparent;
-  --wui-combo-box-item-background-selected: var(--wui-system-accent-color);
-  --wui-combo-box-item-background-selected-unfocused: var(--wui-system-accent-color);
-  --wui-combo-box-item-background-selected-pressed: var(--wui-system-accent-color);
-  --wui-combo-box-item-background-selected-pointer-over: var(--wui-system-accent-color);
+  --wui-combo-box-item-background-selected: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
+  --wui-combo-box-item-background-selected-unfocused: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
+  --wui-combo-box-item-background-selected-pressed: color-mix(in srgb, var(--wui-system-accent-color) 90%, transparent);
+  --wui-combo-box-item-background-selected-pointer-over: color-mix(in srgb, var(--wui-system-accent-color) 80%, transparent);
   --wui-combo-box-item-background-selected-disabled: transparent;
   --wui-combo-box-item-border: transparent;
   --wui-combo-box-item-border-brush-pressed: transparent;
@@ -2413,7 +2414,7 @@
   --wui-combo-box-background-pointer-over: #00000099;
   --wui-combo-box-background-pressed: #ffffff33;
   --wui-combo-box-background-disabled: #ffffff33;
-  --wui-combo-box-background-unfocused: var(--wui-system-accent-color);
+  --wui-combo-box-background-unfocused: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
   --wui-combo-box-background-border-brush-focused: transparent;
   --wui-combo-box-background-border-brush-unfocused: #ffffff66;
   --wui-combo-box-foreground: #ffffff;
@@ -2437,7 +2438,7 @@
   --wui-combo-box-drop-down-glyph-foreground-focused-pressed: #ffffffcc;
   --wui-combo-box-drop-down-background: #2b2b2b;
   --wui-combo-box-drop-down-foreground: #ffffff;
-  --wui-combo-box-drop-down-border: #000000;
+  --wui-combo-box-drop-down-border: #0000005c;
 
   /* App* */
   --wui-app-bar-separator-foreground: #ffffff66;
@@ -2479,7 +2480,7 @@
   /* Tool* */
   --wui-tool-tip-foreground: #ffffff;
   --wui-tool-tip-background: #2b2b2b;
-  --wui-tool-tip-border: #000000;
+  --wui-tool-tip-border: #0000005c;
 
   /* Calendar* */
   --wui-calendar-date-picker-foreground: #ffffff;
@@ -2494,14 +2495,14 @@
   --wui-calendar-date-picker-background-pointer-over: #00000099;
   --wui-calendar-date-picker-background-pressed: #ffffff33;
   --wui-calendar-date-picker-background-disabled: #ffffff33;
-  --wui-calendar-date-picker-background-focused: var(--wui-system-accent-color);
+  --wui-calendar-date-picker-background-focused: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
   --wui-calendar-date-picker-border: #ffffff66;
   --wui-calendar-date-picker-border-brush-pointer-over: #ffffff99;
   --wui-calendar-date-picker-border-brush-pressed: #ffffff66;
   --wui-calendar-date-picker-border-brush-disabled: #ffffff33;
   --wui-calendar-view-focus-border: #ffffff;
-  --wui-calendar-view-selected-hover-border: var(--wui-system-accent-color);
-  --wui-calendar-view-selected-pressed-border: var(--wui-system-accent-color);
+  --wui-calendar-view-selected-hover-border: color-mix(in srgb, var(--wui-system-accent-color) 80%, transparent);
+  --wui-calendar-view-selected-pressed-border: color-mix(in srgb, var(--wui-system-accent-color) 90%, transparent);
   --wui-calendar-view-selected-border: var(--wui-system-accent-color);
   --wui-calendar-view-hover-border: #ffffff66;
   --wui-calendar-view-pressed-border: #ffffff99;
@@ -2568,16 +2569,16 @@
   --wui-date-picker-button-background-pointer-over: #00000099;
   --wui-date-picker-button-background-pressed: #ffffff33;
   --wui-date-picker-button-background-disabled: #ffffff33;
-  --wui-date-picker-button-background-focused: var(--wui-system-accent-color);
+  --wui-date-picker-button-background-focused: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
   --wui-date-picker-button-foreground: #ffffff;
   --wui-date-picker-button-foreground-pointer-over: #ffffff;
   --wui-date-picker-button-foreground-pressed: #ffffff;
   --wui-date-picker-button-foreground-disabled: #ffffff66;
   --wui-date-picker-button-foreground-focused: #ffffff;
   --wui-date-picker-flyout-presenter-background: #2b2b2b;
-  --wui-date-picker-flyout-presenter-border: #000000;
+  --wui-date-picker-flyout-presenter-border: #0000005c;
   --wui-date-picker-flyout-presenter-spacer-fill: #ffffff33;
-  --wui-date-picker-flyout-presenter-highlight-fill: var(--wui-system-accent-color);
+  --wui-date-picker-flyout-presenter-highlight-fill: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
 
   /* Time* */
   --wui-time-picker-spacer-fill: #ffffff33;
@@ -2592,16 +2593,16 @@
   --wui-time-picker-button-background-pointer-over: #00000099;
   --wui-time-picker-button-background-pressed: #ffffff33;
   --wui-time-picker-button-background-disabled: #ffffff33;
-  --wui-time-picker-button-background-focused: var(--wui-system-accent-color);
+  --wui-time-picker-button-background-focused: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
   --wui-time-picker-button-foreground: #ffffff;
   --wui-time-picker-button-foreground-pointer-over: #ffffff;
   --wui-time-picker-button-foreground-pressed: #ffffff;
   --wui-time-picker-button-foreground-disabled: #ffffff66;
   --wui-time-picker-button-foreground-focused: #ffffff;
   --wui-time-picker-flyout-presenter-background: #2b2b2b;
-  --wui-time-picker-flyout-presenter-border: #000000;
+  --wui-time-picker-flyout-presenter-border: #0000005c;
   --wui-time-picker-flyout-presenter-spacer-fill: #ffffff33;
-  --wui-time-picker-flyout-presenter-highlight-fill: var(--wui-system-accent-color);
+  --wui-time-picker-flyout-presenter-highlight-fill: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
 
   /* Looping* */
   --wui-looping-selector-button-background: #1f1f1f;
@@ -2646,7 +2647,7 @@
 
   /* Flyout* */
   --wui-flyout-presenter-background: #2b2b2b;
-  --wui-flyout-border-theme: #000000;
+  --wui-flyout-border-theme: #0000005c;
 
   /* Toggle* */
   --wui-toggle-menu-flyout-item-background: transparent;
@@ -2712,8 +2713,8 @@
   --wui-grid-view-item-background-pointer-over: #ffffff19;
   --wui-grid-view-item-background-pressed: #ffffff33;
   --wui-grid-view-item-background-selected: var(--wui-system-accent-color);
-  --wui-grid-view-item-background-selected-pointer-over: var(--wui-system-accent-color);
-  --wui-grid-view-item-background-selected-pressed: var(--wui-system-accent-color);
+  --wui-grid-view-item-background-selected-pointer-over: color-mix(in srgb, var(--wui-system-accent-color) 80%, transparent);
+  --wui-grid-view-item-background-selected-pressed: color-mix(in srgb, var(--wui-system-accent-color) 90%, transparent);
   --wui-grid-view-item-foreground: #ffffff;
   --wui-grid-view-item-foreground-pointer-over: #ffffff;
   --wui-grid-view-item-foreground-selected: #ffffff;
@@ -2833,9 +2834,9 @@
   --wui-combo-box-disabled-background-theme: transparent;
   --wui-combo-box-disabled-border-theme: #ffffff66;
   --wui-combo-box-disabled-foreground-theme: #ffffff66;
-  --wui-combo-box-focused-background-theme: white;
-  --wui-combo-box-focused-border-theme: white;
-  --wui-combo-box-focused-foreground-theme: white;
+  --wui-combo-box-focused-background-theme: #ffffff;
+  --wui-combo-box-focused-border-theme: #ffffff;
+  --wui-combo-box-focused-foreground-theme: #ffffff;
   --wui-combo-box-foreground-theme: #000000;
   --wui-combo-box-header-foreground-theme: #ffffff;
   --wui-combo-box-item-disabled-foreground-theme: #00000066;
@@ -2846,7 +2847,7 @@
   --wui-combo-box-item-selected-background-theme: #4617b4;
   --wui-combo-box-item-selected-disabled-background-theme: #0000008c;
   --wui-combo-box-item-selected-disabled-foreground-theme: #ffffff99;
-  --wui-combo-box-item-selected-foreground-theme: white;
+  --wui-combo-box-item-selected-foreground-theme: #ffffff;
   --wui-combo-box-item-selected-pointer-over-background-theme: #5f37be;
   --wui-combo-box-placeholder-text-foreground-theme: #00000088;
   --wui-combo-box-pointer-over-background-theme: #ffffffde;
@@ -2862,9 +2863,9 @@
   --wui-combo-box-selected-pointer-over-background-theme: #5f37be;
 
   /* Content* */
-  --wui-content-dialog-background-theme: lightgray;
+  --wui-content-dialog-background-theme: #d3d3d3;
   --wui-content-dialog-border-theme: var(--wui-system-accent-color);
-  --wui-content-dialog-content-foreground: black;
+  --wui-content-dialog-content-foreground: #000000;
   --wui-content-dialog-dimming-theme: #ffffff99;
 
   /* Date* */
@@ -2889,8 +2890,8 @@
   --wui-flyout-background-theme: #000000;
 
   /* Focus* */
-  --wui-focus-visual-black-stroke-theme: black;
-  --wui-focus-visual-white-stroke-theme: white;
+  --wui-focus-visual-black-stroke-theme: #000000;
+  --wui-focus-visual-white-stroke-theme: #ffffff;
 
   /* Hyperlink* */
   --wui-hyperlink-button-background-theme: transparent;
@@ -2926,7 +2927,7 @@
 
   /* List* */
   --wui-list-picker-flyout-presenter-selected-item-foreground-theme: var(--wui-system-color-highlight-color);
-  --wui-list-picker-flyout-presenter-selected-item-background-theme: #00000000;
+  --wui-list-picker-flyout-presenter-selected-item-background-theme: transparent;
   --wui-list-view-group-header-foreground-theme: #ffffff;
   --wui-list-view-group-header-pointer-over-foreground-theme: #ffffffcc;
   --wui-list-view-group-header-pressed-foreground-theme: #ffffff66;
@@ -3034,8 +3035,8 @@
   --wui-slider-thumb-pointer-over-border-theme: #ffffff;
   --wui-slider-thumb-pressed-background-theme: #ffffff;
   --wui-slider-thumb-pressed-border-theme: #ffffff;
-  --wui-slider-tick-mark-inline-background-theme: black;
-  --wui-slider-tick-mark-inline-disabled-foreground-theme: black;
+  --wui-slider-tick-mark-inline-background-theme: #000000;
+  --wui-slider-tick-mark-inline-disabled-foreground-theme: #000000;
   --wui-slider-tickmark-outside-background-theme: #ffffff80;
   --wui-slider-tick-mark-outside-disabled-foreground-theme: #ffffff80;
   --wui-slider-track-background-theme: #ffffff29;
@@ -3376,7 +3377,7 @@
 
   /* Menu* */
   --wui-menu-flyout-presenter-background: #2b2b2b;
-  --wui-menu-flyout-presenter-border: #000000;
+  --wui-menu-flyout-presenter-border: #0000005c;
   --wui-menu-flyout-item-background: transparent;
   --wui-menu-flyout-item-background-pointer-over: #ffffff19;
   --wui-menu-flyout-item-background-pressed: #ffffff33;
@@ -3387,8 +3388,8 @@
   --wui-menu-flyout-item-foreground-disabled: #ffffff66;
   --wui-menu-flyout-sub-item-background: transparent;
   --wui-menu-flyout-sub-item-background-pointer-over: #ffffff19;
-  --wui-menu-flyout-sub-item-background-pressed: var(--wui-system-accent-color);
-  --wui-menu-flyout-sub-item-background-sub-menu-opened: var(--wui-system-accent-color);
+  --wui-menu-flyout-sub-item-background-pressed: color-mix(in srgb, var(--wui-system-accent-color) 90%, transparent);
+  --wui-menu-flyout-sub-item-background-sub-menu-opened: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
   --wui-menu-flyout-sub-item-background-disabled: transparent;
   --wui-menu-flyout-sub-item-foreground: #ffffff;
   --wui-menu-flyout-sub-item-foreground-pointer-over: #ffffff;
@@ -3492,9 +3493,9 @@
   --wui-person-picture-ellipse-fill-theme: #ffffff99;
 
   /* Refresh* */
-  --wui-refresh-container-foreground: white;
+  --wui-refresh-container-foreground: #ffffff;
   --wui-refresh-container-background: transparent;
-  --wui-refresh-visualizer-foreground: white;
+  --wui-refresh-visualizer-foreground: #ffffff;
   --wui-refresh-visualizer-background: transparent;
 
   /* Menu* */
@@ -3589,7 +3590,7 @@
   --wui-list-box-item-selected-background-theme: #4617b4;
   --wui-list-box-item-selected-disabled-background-theme: #ffffff66;
   --wui-list-box-item-selected-disabled-foreground-theme: #00000099;
-  --wui-list-box-item-selected-foreground-theme: white;
+  --wui-list-box-item-selected-foreground-theme: #ffffff;
   --wui-list-box-item-selected-pointer-over-background-theme: #5f37be;
 
   /* Command* */
@@ -3598,16 +3599,16 @@
   --wui-command-bar-high-contrast-border: transparent;
   --wui-command-bar-ellipsis-icon-foreground-disabled: #ffffff66;
   --wui-command-bar-overflow-presenter-background: #2b2b2b;
-  --wui-command-bar-overflow-presenter-border: #000000;
+  --wui-command-bar-overflow-presenter-border: #0000005c;
   --wui-command-bar-light-dismiss-overlay-background: #00000099;
 
   /* List* */
   --wui-list-view-item-background: transparent;
   --wui-list-view-item-background-pointer-over: #ffffff19;
   --wui-list-view-item-background-pressed: #ffffff33;
-  --wui-list-view-item-background-selected: var(--wui-system-accent-color);
-  --wui-list-view-item-background-selected-pointer-over: var(--wui-system-accent-color);
-  --wui-list-view-item-background-selected-pressed: var(--wui-system-accent-color);
+  --wui-list-view-item-background-selected: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
+  --wui-list-view-item-background-selected-pointer-over: color-mix(in srgb, var(--wui-system-accent-color) 80%, transparent);
+  --wui-list-view-item-background-selected-pressed: color-mix(in srgb, var(--wui-system-accent-color) 90%, transparent);
   --wui-list-view-item-foreground: #ffffff;
   --wui-list-view-item-foreground-pointer-over: #ffffff;
   --wui-list-view-item-foreground-selected: #ffffff;
@@ -3624,7 +3625,7 @@
   --wui-list-view-item-check-selecting-theme: #ffffff;
   --wui-list-view-item-check-theme: #ffffff;
   --wui-list-view-item-drag-background-theme: #4617b499;
-  --wui-list-view-item-drag-foreground-theme: white;
+  --wui-list-view-item-drag-foreground-theme: #ffffff;
   --wui-list-view-item-focus-border-theme: #ffffff;
   --wui-list-view-item-overlay-background-theme: #000000a6;
   --wui-list-view-item-overlay-foreground-theme: #ffffff;
@@ -3657,7 +3658,7 @@
 
   /* Auto* */
   --wui-auto-suggest-box-suggestions-list-background: #2b2b2b;
-  --wui-auto-suggest-box-suggestions-list-border: #000000;
+  --wui-auto-suggest-box-suggestions-list-border: #0000005c;
   --wui-auto-suggest-box-light-dismiss-overlay-background: #00000099;
 
   /* Tree* */
@@ -3783,7 +3784,7 @@
   --wui-menu-flyout-sub-item-reveal-border-brush-disabled: transparent;
 
   /* App* */
-  --wui-app-bar-button-background-sub-menu-opened: var(--wui-system-accent-color);
+  --wui-app-bar-button-background-sub-menu-opened: color-mix(in srgb, var(--wui-system-accent-color) 60%, transparent);
   --wui-app-bar-button-foreground-sub-menu-opened: #ffffff;
   --wui-app-bar-button-keyboard-accelerator-text-foreground-sub-menu-opened: #ffffff99;
   --wui-app-bar-button-border-brush-sub-menu-opened: transparent;
@@ -3807,7 +3808,7 @@
 
   /* Close* */
   --wui-close-button-background-pointer-over: #e81123;
-  --wui-close-button-stroke-pointer-over: white;
+  --wui-close-button-stroke-pointer-over: #ffffff;
   --wui-close-button-background-pressed: #f1707a;
-  --wui-close-button-stroke-pressed: black;
+  --wui-close-button-stroke-pressed: #000000;
 }
