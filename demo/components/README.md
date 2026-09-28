@@ -61,11 +61,13 @@ const rows: (string | number)[][] = [
 
     <template #docs>
       <DemoDocsTable :headers="headers" :rows="rows" />
-      <DemoCode :code="`<WuiXxx :size=\"${sizeValue}\" />`" language="vue" />
+      <DemoCode :code="`<WuiXxx :size='${sizeValue}' />`" language="vue" />
     </template>
   </DemoPage>
 </template>
 ```
+
+**引号规则(照抄必读)**:绑定属性外层用双引号时,内层字符串一律用单引号 —— HTML 属性内 `\"` 不转义,`"` 会直接截断属性值导致编译失败;较长的用法代码建议改放 `<script>` 内的 `computed`(写法见 `demo/pages/HomePage.vue` 的 `usageCode`)。
 
 文件放入 `demo/pages/` 后按文件名自动注册路由:`XxxPage.vue` → `/xxx`(见 `demo/router.ts`)。
 
