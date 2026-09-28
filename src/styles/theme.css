@@ -3,6 +3,7 @@
  *
  * 由 docs/temp/extract-tokens.mjs 自动生成,请勿手改;重生成: node docs/temp/extract-tokens.mjs
  * 来源: CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml(MIT)内 ThemeDictionaries 的 Light 与 Default(深色)字典。
+ * 画刷含 SolidColorBrush 直接定义与画刷别名(StaticResource 引用,沿别名链解析至终点画刷取值;QA F1)。
  * 命名: --wui- + 去掉结尾一个 Brush 后的键名 kebab-case(如 TextFillColorPrimaryBrush → --wui-text-fill-color-primary)。
  * 不含 prefers-color-scheme 媒体查询;系统跟随由 JS 设置 html[data-theme]。
  *
@@ -186,17 +187,689 @@
   --wui-system-control-error-text-foreground: #c50500;
   --wui-system-control-transient-border: #000000;
   --wui-system-control-transient-background: #f2f2f2;
+  --wui-system-control-description-text-foreground: #00000099;
+
+  /* Slider* */
+  --wui-slider-container-background: transparent;
+  --wui-slider-container-background-pointer-over: transparent;
+  --wui-slider-container-background-pressed: transparent;
+  --wui-slider-container-background-disabled: transparent;
+  --wui-slider-thumb-background: var(--wui-system-accent-color);
+  --wui-slider-thumb-background-pointer-over: #171717;
+  --wui-slider-thumb-background-pressed: #cccccc;
+  --wui-slider-thumb-background-disabled: #cccccc;
+  --wui-slider-track-fill: #00000066;
+  --wui-slider-track-fill-pointer-over: #00000099;
+  --wui-slider-track-fill-pressed: #00000066;
+  --wui-slider-track-fill-disabled: #cccccc;
+  --wui-slider-track-value-fill: var(--wui-system-accent-color);
+  --wui-slider-track-value-fill-pointer-over: var(--wui-system-accent-color);
+  --wui-slider-track-value-fill-pressed: var(--wui-system-accent-color);
+  --wui-slider-track-value-fill-disabled: #cccccc;
+  --wui-slider-header-foreground: #000000;
+  --wui-slider-header-foreground-disabled: #00000066;
+  --wui-slider-tick-bar-fill: #00000066;
+  --wui-slider-tick-bar-fill-disabled: #00000066;
+  --wui-slider-inline-tick-bar-fill: #ffffff;
+
+  /* Button* */
+  --wui-button-background: #00000033;
+  --wui-button-background-pointer-over: #00000033;
+  --wui-button-background-pressed: #00000066;
+  --wui-button-background-disabled: #00000033;
+  --wui-button-foreground: #000000;
+  --wui-button-foreground-pointer-over: #000000;
+  --wui-button-foreground-pressed: #000000;
+  --wui-button-foreground-disabled: #00000066;
+  --wui-button-border: transparent;
+  --wui-button-border-brush-pointer-over: #00000066;
+  --wui-button-border-brush-pressed: transparent;
+  --wui-button-border-brush-disabled: transparent;
+
+  /* Radio* */
+  --wui-radio-button-foreground: #000000;
+  --wui-radio-button-foreground-pointer-over: #000000;
+  --wui-radio-button-foreground-pressed: #000000;
+  --wui-radio-button-foreground-disabled: #00000066;
+  --wui-radio-button-background: transparent;
+  --wui-radio-button-background-pointer-over: transparent;
+  --wui-radio-button-background-pressed: transparent;
+  --wui-radio-button-background-disabled: transparent;
+  --wui-radio-button-border: transparent;
+  --wui-radio-button-border-brush-pointer-over: transparent;
+  --wui-radio-button-border-brush-pressed: transparent;
+  --wui-radio-button-border-brush-disabled: transparent;
+  --wui-radio-button-outer-ellipse-stroke: #000000cc;
+  --wui-radio-button-outer-ellipse-stroke-pointer-over: #000000;
+  --wui-radio-button-outer-ellipse-stroke-pressed: #00000099;
+  --wui-radio-button-outer-ellipse-stroke-disabled: #00000066;
+  --wui-radio-button-outer-ellipse-fill: transparent;
+  --wui-radio-button-outer-ellipse-fill-pointer-over: transparent;
+  --wui-radio-button-outer-ellipse-fill-pressed: transparent;
+  --wui-radio-button-outer-ellipse-fill-disabled: transparent;
+  --wui-radio-button-outer-ellipse-checked-stroke: var(--wui-system-accent-color);
+  --wui-radio-button-outer-ellipse-checked-stroke-pointer-over: var(--wui-system-accent-color);
+  --wui-radio-button-outer-ellipse-checked-stroke-pressed: #00000099;
+  --wui-radio-button-outer-ellipse-checked-stroke-disabled: #00000066;
+  --wui-radio-button-outer-ellipse-checked-fill: transparent;
+  --wui-radio-button-outer-ellipse-checked-fill-pointer-over: transparent;
+  --wui-radio-button-outer-ellipse-checked-fill-pressed: transparent;
+  --wui-radio-button-outer-ellipse-checked-fill-disabled: transparent;
+  --wui-radio-button-check-glyph-fill: #000000cc;
+  --wui-radio-button-check-glyph-fill-pointer-over: #000000;
+  --wui-radio-button-check-glyph-fill-pressed: #00000099;
+  --wui-radio-button-check-glyph-fill-disabled: #00000066;
+  --wui-radio-button-check-glyph-stroke: transparent;
+  --wui-radio-button-check-glyph-stroke-pointer-over: transparent;
+  --wui-radio-button-check-glyph-stroke-pressed: transparent;
+  --wui-radio-button-check-glyph-stroke-disabled: transparent;
+
+  /* Check* */
+  --wui-check-box-foreground-unchecked: #000000;
+  --wui-check-box-foreground-unchecked-pointer-over: #000000;
+  --wui-check-box-foreground-unchecked-pressed: #000000;
+  --wui-check-box-foreground-unchecked-disabled: #00000066;
+  --wui-check-box-foreground-checked: #000000;
+  --wui-check-box-foreground-checked-pointer-over: #000000;
+  --wui-check-box-foreground-checked-pressed: #000000;
+  --wui-check-box-foreground-checked-disabled: #00000066;
+  --wui-check-box-foreground-indeterminate: #000000;
+  --wui-check-box-foreground-indeterminate-pointer-over: #000000;
+  --wui-check-box-foreground-indeterminate-pressed: #000000;
+  --wui-check-box-foreground-indeterminate-disabled: #00000066;
+  --wui-check-box-background-unchecked: transparent;
+  --wui-check-box-background-unchecked-pointer-over: transparent;
+  --wui-check-box-background-unchecked-pressed: transparent;
+  --wui-check-box-background-unchecked-disabled: transparent;
+  --wui-check-box-background-checked: transparent;
+  --wui-check-box-background-checked-pointer-over: transparent;
+  --wui-check-box-background-checked-pressed: transparent;
+  --wui-check-box-background-checked-disabled: transparent;
+  --wui-check-box-background-indeterminate: transparent;
+  --wui-check-box-background-indeterminate-pointer-over: transparent;
+  --wui-check-box-background-indeterminate-pressed: transparent;
+  --wui-check-box-background-indeterminate-disabled: transparent;
+  --wui-check-box-border-brush-unchecked: transparent;
+  --wui-check-box-border-brush-unchecked-pointer-over: transparent;
+  --wui-check-box-border-brush-unchecked-pressed: transparent;
+  --wui-check-box-border-brush-unchecked-disabled: transparent;
+  --wui-check-box-border-brush-checked: transparent;
+  --wui-check-box-border-brush-checked-pointer-over: transparent;
+  --wui-check-box-border-brush-checked-pressed: transparent;
+  --wui-check-box-border-brush-checked-disabled: transparent;
+  --wui-check-box-border-brush-indeterminate: transparent;
+  --wui-check-box-border-brush-indeterminate-pointer-over: transparent;
+  --wui-check-box-border-brush-indeterminate-pressed: transparent;
+  --wui-check-box-border-brush-indeterminate-disabled: transparent;
+  --wui-check-box-check-background-stroke-unchecked: #000000cc;
+  --wui-check-box-check-background-stroke-unchecked-pointer-over: #000000;
+  --wui-check-box-check-background-stroke-unchecked-pressed: transparent;
+  --wui-check-box-check-background-stroke-unchecked-disabled: #00000066;
+  --wui-check-box-check-background-stroke-checked: transparent;
+  --wui-check-box-check-background-stroke-checked-pointer-over: #000000;
+  --wui-check-box-check-background-stroke-checked-pressed: transparent;
+  --wui-check-box-check-background-stroke-checked-disabled: #00000066;
+  --wui-check-box-check-background-stroke-indeterminate: var(--wui-system-accent-color);
+  --wui-check-box-check-background-stroke-indeterminate-pointer-over: var(--wui-system-accent-color);
+  --wui-check-box-check-background-stroke-indeterminate-pressed: #00000099;
+  --wui-check-box-check-background-stroke-indeterminate-disabled: #00000066;
+  --wui-check-box-check-background-fill-unchecked: transparent;
+  --wui-check-box-check-background-fill-unchecked-pointer-over: transparent;
+  --wui-check-box-check-background-fill-unchecked-pressed: #00000099;
+  --wui-check-box-check-background-fill-unchecked-disabled: transparent;
+  --wui-check-box-check-background-fill-checked: var(--wui-system-accent-color);
+  --wui-check-box-check-background-fill-checked-pointer-over: var(--wui-system-accent-color);
+  --wui-check-box-check-background-fill-checked-pressed: #00000099;
+  --wui-check-box-check-background-fill-checked-disabled: transparent;
+  --wui-check-box-check-background-fill-indeterminate: transparent;
+  --wui-check-box-check-background-fill-indeterminate-pointer-over: transparent;
+  --wui-check-box-check-background-fill-indeterminate-pressed: transparent;
+  --wui-check-box-check-background-fill-indeterminate-disabled: transparent;
+  --wui-check-box-check-glyph-foreground-unchecked: #ffffff;
+  --wui-check-box-check-glyph-foreground-unchecked-pointer-over: #ffffff;
+  --wui-check-box-check-glyph-foreground-unchecked-pressed: #ffffff;
+  --wui-check-box-check-glyph-foreground-unchecked-disabled: #ffffff;
+  --wui-check-box-check-glyph-foreground-checked: #ffffff;
+  --wui-check-box-check-glyph-foreground-checked-pointer-over: #ffffff;
+  --wui-check-box-check-glyph-foreground-checked-pressed: #ffffff;
+  --wui-check-box-check-glyph-foreground-checked-disabled: #00000066;
+  --wui-check-box-check-glyph-foreground-indeterminate: #000000cc;
+  --wui-check-box-check-glyph-foreground-indeterminate-pointer-over: #000000;
+  --wui-check-box-check-glyph-foreground-indeterminate-pressed: #00000099;
+  --wui-check-box-check-glyph-foreground-indeterminate-disabled: #00000066;
+
+  /* Hyperlink* */
+  --wui-hyperlink-button-foreground: var(--wui-system-accent-color);
+  --wui-hyperlink-button-foreground-pointer-over: #00000099;
+  --wui-hyperlink-button-foreground-pressed: #00000066;
+  --wui-hyperlink-button-foreground-disabled: #00000066;
+  --wui-hyperlink-button-background: transparent;
+  --wui-hyperlink-button-background-pointer-over: transparent;
+  --wui-hyperlink-button-background-pressed: transparent;
+  --wui-hyperlink-button-background-disabled: transparent;
+  --wui-hyperlink-button-border: transparent;
+  --wui-hyperlink-button-border-brush-pointer-over: transparent;
+  --wui-hyperlink-button-border-brush-pressed: transparent;
+  --wui-hyperlink-button-border-brush-disabled: transparent;
+
+  /* Repeat* */
+  --wui-repeat-button-background: #00000033;
+  --wui-repeat-button-background-pointer-over: #00000033;
+  --wui-repeat-button-background-pressed: #00000066;
+  --wui-repeat-button-background-disabled: #00000033;
+  --wui-repeat-button-foreground: #000000;
+  --wui-repeat-button-foreground-pointer-over: #000000;
+  --wui-repeat-button-foreground-pressed: #000000;
+  --wui-repeat-button-foreground-disabled: #00000066;
+  --wui-repeat-button-border: transparent;
+  --wui-repeat-button-border-brush-pointer-over: #00000066;
+  --wui-repeat-button-border-brush-pressed: transparent;
+  --wui-repeat-button-border-brush-disabled: transparent;
+
+  /* Toggle* */
+  --wui-toggle-switch-content-foreground: #000000;
+  --wui-toggle-switch-content-foreground-disabled: #00000066;
+  --wui-toggle-switch-header-foreground: #000000;
+  --wui-toggle-switch-header-foreground-disabled: #00000066;
+  --wui-toggle-switch-container-background: transparent;
+  --wui-toggle-switch-container-background-pointer-over: transparent;
+  --wui-toggle-switch-container-background-pressed: transparent;
+  --wui-toggle-switch-container-background-disabled: transparent;
+  --wui-toggle-switch-fill-off: transparent;
+  --wui-toggle-switch-fill-off-pointer-over: transparent;
+  --wui-toggle-switch-fill-off-pressed: #00000099;
+  --wui-toggle-switch-fill-off-disabled: transparent;
+  --wui-toggle-switch-stroke-off: #000000cc;
+  --wui-toggle-switch-stroke-off-pointer-over: #000000;
+  --wui-toggle-switch-stroke-off-pressed: #000000cc;
+  --wui-toggle-switch-stroke-off-disabled: #00000066;
+  --wui-toggle-switch-fill-on: var(--wui-system-accent-color);
+  --wui-toggle-switch-fill-on-pointer-over: var(--wui-system-accent-color);
+  --wui-toggle-switch-fill-on-pressed: #00000099;
+  --wui-toggle-switch-fill-on-disabled: #00000033;
+  --wui-toggle-switch-stroke-on: #000000;
+  --wui-toggle-switch-stroke-on-pointer-over: var(--wui-system-accent-color);
+  --wui-toggle-switch-stroke-on-pressed: #00000099;
+  --wui-toggle-switch-stroke-on-disabled: #00000066;
+  --wui-toggle-switch-knob-fill-off: #000000cc;
+  --wui-toggle-switch-knob-fill-off-pointer-over: #000000;
+  --wui-toggle-switch-knob-fill-off-pressed: #ffffff;
+  --wui-toggle-switch-knob-fill-off-disabled: #00000066;
+  --wui-toggle-switch-knob-fill-on: #ffffff;
+  --wui-toggle-switch-knob-fill-on-pointer-over: #ffffff;
+  --wui-toggle-switch-knob-fill-on-pressed: #ffffff;
+  --wui-toggle-switch-knob-fill-on-disabled: #00000033;
+
+  /* Thumb* */
+  --wui-thumb-background: #00000033;
+  --wui-thumb-background-pointer-over: #00000066;
+  --wui-thumb-background-pressed: #00000099;
+  --wui-thumb-border: transparent;
+  --wui-thumb-border-brush-pointer-over: transparent;
+  --wui-thumb-border-brush-pressed: transparent;
+
+  /* Toggle* */
+  --wui-toggle-button-background: #00000033;
+  --wui-toggle-button-background-pointer-over: #00000033;
+  --wui-toggle-button-background-pressed: #00000066;
+  --wui-toggle-button-background-disabled: #00000033;
+  --wui-toggle-button-background-checked: var(--wui-system-accent-color);
+  --wui-toggle-button-background-checked-pointer-over: var(--wui-system-accent-color);
+  --wui-toggle-button-background-checked-pressed: #00000066;
+  --wui-toggle-button-background-checked-disabled: #00000033;
+  --wui-toggle-button-background-indeterminate: #00000033;
+  --wui-toggle-button-background-indeterminate-pointer-over: #00000033;
+  --wui-toggle-button-background-indeterminate-pressed: #00000066;
+  --wui-toggle-button-background-indeterminate-disabled: #00000033;
+  --wui-toggle-button-foreground: #000000;
+  --wui-toggle-button-foreground-pointer-over: #000000;
+  --wui-toggle-button-foreground-pressed: #000000;
+  --wui-toggle-button-foreground-disabled: #00000066;
+  --wui-toggle-button-foreground-checked: #ffffff;
+  --wui-toggle-button-foreground-checked-pointer-over: #ffffff;
+  --wui-toggle-button-foreground-checked-pressed: #ffffff;
+  --wui-toggle-button-foreground-checked-disabled: #00000066;
+  --wui-toggle-button-foreground-indeterminate: #000000;
+  --wui-toggle-button-foreground-indeterminate-pointer-over: #000000;
+  --wui-toggle-button-foreground-indeterminate-pressed: #000000;
+  --wui-toggle-button-foreground-indeterminate-disabled: #00000066;
+  --wui-toggle-button-border: transparent;
+  --wui-toggle-button-border-brush-pointer-over: #00000066;
+  --wui-toggle-button-border-brush-pressed: transparent;
+  --wui-toggle-button-border-brush-disabled: transparent;
+  --wui-toggle-button-border-brush-checked: transparent;
+  --wui-toggle-button-border-brush-checked-pointer-over: #00000066;
+  --wui-toggle-button-border-brush-checked-pressed: transparent;
+  --wui-toggle-button-border-brush-checked-disabled: transparent;
+  --wui-toggle-button-border-brush-indeterminate: transparent;
+  --wui-toggle-button-border-brush-indeterminate-pointer-over: #00000066;
+  --wui-toggle-button-border-brush-indeterminate-pressed: transparent;
+  --wui-toggle-button-border-brush-indeterminate-disabled: transparent;
 
   /* Scroll* */
+  --wui-scroll-bar-background: transparent;
+  --wui-scroll-bar-background-pointer-over: transparent;
+  --wui-scroll-bar-background-disabled: transparent;
+  --wui-scroll-bar-foreground: transparent;
+  --wui-scroll-bar-border: transparent;
+  --wui-scroll-bar-border-brush-pointer-over: transparent;
+  --wui-scroll-bar-border-brush-disabled: transparent;
+  --wui-scroll-bar-button-background: transparent;
+  --wui-scroll-bar-button-background-pointer-over: #00000019;
+  --wui-scroll-bar-button-background-pressed: #00000099;
+  --wui-scroll-bar-button-background-disabled: transparent;
+  --wui-scroll-bar-button-border: transparent;
+  --wui-scroll-bar-button-border-brush-pointer-over: transparent;
+  --wui-scroll-bar-button-border-brush-pressed: transparent;
+  --wui-scroll-bar-button-border-brush-disabled: transparent;
+  --wui-scroll-bar-button-arrow-foreground: #000000;
+  --wui-scroll-bar-button-arrow-foreground-pointer-over: #000000;
+  --wui-scroll-bar-button-arrow-foreground-pressed: #ffffff;
+  --wui-scroll-bar-button-arrow-foreground-disabled: #00000033;
+  --wui-scroll-bar-thumb-fill: #7a7a7a;
+  --wui-scroll-bar-thumb-fill-pointer-over: #00000066;
+  --wui-scroll-bar-thumb-fill-pressed: #00000099;
+  --wui-scroll-bar-thumb-fill-disabled: transparent;
   --wui-scroll-bar-track-fill: #e6e6e6;
   --wui-scroll-bar-track-fill-pointer-over: #e6e6e6;
+  --wui-scroll-bar-track-fill-disabled: transparent;
+  --wui-scroll-bar-track-stroke: transparent;
+  --wui-scroll-bar-track-stroke-pointer-over: transparent;
+  --wui-scroll-bar-track-stroke-disabled: transparent;
+  --wui-scroll-bar-panning-thumb-background-disabled: #cccccc;
   --wui-scroll-bar-thumb-background: #00000033;
   --wui-scroll-bar-panning-thumb-background: #7a7a7a;
   --wui-scroll-bar-button-arrow-icon-font-size: 8px;
   --wui-scroll-viewer-scroll-bar-separator-background: #e6e6e6;
 
+  /* List* */
+  --wui-list-view-header-item-background: transparent;
+  --wui-list-view-header-item-divider-stroke: #00000033;
+
+  /* Combo* */
+  --wui-combo-box-item-foreground: #000000;
+  --wui-combo-box-item-foreground-pressed: #000000;
+  --wui-combo-box-item-foreground-pointer-over: #000000;
+  --wui-combo-box-item-foreground-disabled: #00000066;
+  --wui-combo-box-item-foreground-selected: #000000;
+  --wui-combo-box-item-foreground-selected-unfocused: #000000;
+  --wui-combo-box-item-foreground-selected-pressed: #000000;
+  --wui-combo-box-item-foreground-selected-pointer-over: #000000;
+  --wui-combo-box-item-foreground-selected-disabled: #00000066;
+  --wui-combo-box-item-background: transparent;
+  --wui-combo-box-item-background-pressed: #00000033;
+  --wui-combo-box-item-background-pointer-over: #00000019;
+  --wui-combo-box-item-background-disabled: transparent;
+  --wui-combo-box-item-background-selected: var(--wui-system-accent-color);
+  --wui-combo-box-item-background-selected-unfocused: var(--wui-system-accent-color);
+  --wui-combo-box-item-background-selected-pressed: var(--wui-system-accent-color);
+  --wui-combo-box-item-background-selected-pointer-over: var(--wui-system-accent-color);
+  --wui-combo-box-item-background-selected-disabled: transparent;
+  --wui-combo-box-item-border: transparent;
+  --wui-combo-box-item-border-brush-pressed: transparent;
+  --wui-combo-box-item-border-brush-pointer-over: transparent;
+  --wui-combo-box-item-border-brush-disabled: transparent;
+  --wui-combo-box-item-border-brush-selected: transparent;
+  --wui-combo-box-item-border-brush-selected-unfocused: transparent;
+  --wui-combo-box-item-border-brush-selected-pressed: transparent;
+  --wui-combo-box-item-border-brush-selected-pointer-over: transparent;
+  --wui-combo-box-item-border-brush-selected-disabled: transparent;
+  --wui-combo-box-background: #ffffff66;
+  --wui-combo-box-background-pointer-over: #ffffff99;
+  --wui-combo-box-background-pressed: #00000033;
+  --wui-combo-box-background-disabled: #00000033;
+  --wui-combo-box-background-unfocused: var(--wui-system-accent-color);
+  --wui-combo-box-background-border-brush-focused: transparent;
+  --wui-combo-box-background-border-brush-unfocused: #00000066;
+  --wui-combo-box-foreground: #000000;
+  --wui-combo-box-foreground-disabled: #00000066;
+  --wui-combo-box-foreground-focused: #000000;
+  --wui-combo-box-foreground-focused-pressed: #000000;
+  --wui-combo-box-place-holder-foreground: #000000;
+  --wui-combo-box-place-holder-foreground-focused-pressed: #000000;
+  --wui-combo-box-border: #00000066;
+  --wui-combo-box-border-brush-pointer-over: #00000099;
+  --wui-combo-box-border-brush-pressed: #00000066;
+  --wui-combo-box-border-brush-disabled: #00000033;
+  --wui-combo-box-drop-down-background-pointer-over: #00000019;
+  --wui-combo-box-drop-down-background-pointer-pressed: #00000033;
+  --wui-combo-box-focused-drop-down-background-pointer-over: #00000033;
+  --wui-combo-box-focused-drop-down-background-pointer-pressed: #00000066;
+  --wui-combo-box-drop-down-glyph-foreground: #000000cc;
+  --wui-combo-box-editable-drop-down-glyph-foreground: #000000cc;
+  --wui-combo-box-drop-down-glyph-foreground-disabled: #00000066;
+  --wui-combo-box-drop-down-glyph-foreground-focused: #000000cc;
+  --wui-combo-box-drop-down-glyph-foreground-focused-pressed: #000000cc;
+  --wui-combo-box-drop-down-background: #f2f2f2;
+  --wui-combo-box-drop-down-foreground: #000000;
+  --wui-combo-box-drop-down-border: #000000;
+
+  /* App* */
+  --wui-app-bar-separator-foreground: #00000066;
+  --wui-app-bar-ellipsis-button-background: transparent;
+  --wui-app-bar-ellipsis-button-background-pointer-over: #00000019;
+  --wui-app-bar-ellipsis-button-background-pressed: #00000033;
+  --wui-app-bar-ellipsis-button-background-disabled: transparent;
+  --wui-app-bar-ellipsis-button-foreground: #000000;
+  --wui-app-bar-ellipsis-button-foreground-pointer-over: #000000;
+  --wui-app-bar-ellipsis-button-foreground-pressed: #000000;
+  --wui-app-bar-ellipsis-button-foreground-disabled: #00000066;
+  --wui-app-bar-ellipsis-button-border: transparent;
+  --wui-app-bar-ellipsis-button-border-brush-pointer-over: transparent;
+  --wui-app-bar-ellipsis-button-border-brush-pressed: transparent;
+  --wui-app-bar-ellipsis-button-border-brush-disabled: transparent;
+  --wui-app-bar-background: #e6e6e6;
+  --wui-app-bar-foreground: #000000;
+  --wui-app-bar-high-contrast-border: transparent;
+
+  /* Content* */
+  --wui-content-dialog-foreground: #000000;
+  --wui-content-dialog-background: #ffffff;
+  --wui-content-dialog-border: #00000033;
+
+  /* Accent* */
+  --wui-accent-button-background: var(--wui-system-accent-color);
+  --wui-accent-button-background-pointer-over: var(--wui-system-accent-color);
+  --wui-accent-button-background-pressed: #00000066;
+  --wui-accent-button-background-disabled: #00000033;
+  --wui-accent-button-foreground: #ffffff;
+  --wui-accent-button-foreground-pointer-over: #ffffff;
+  --wui-accent-button-foreground-pressed: #000000;
+  --wui-accent-button-foreground-disabled: #00000066;
+  --wui-accent-button-border: transparent;
+  --wui-accent-button-border-brush-pointer-over: #00000066;
+  --wui-accent-button-border-brush-pressed: transparent;
+  --wui-accent-button-border-brush-disabled: transparent;
+
+  /* Tool* */
+  --wui-tool-tip-foreground: #000000;
+  --wui-tool-tip-background: #f2f2f2;
+  --wui-tool-tip-border: #000000;
+
+  /* Calendar* */
+  --wui-calendar-date-picker-foreground: #000000;
+  --wui-calendar-date-picker-foreground-disabled: #00000066;
+  --wui-calendar-date-picker-calendar-glyph-foreground: #000000cc;
+  --wui-calendar-date-picker-calendar-glyph-foreground-disabled: #00000066;
+  --wui-calendar-date-picker-text-foreground: #00000099;
+  --wui-calendar-date-picker-text-foreground-disabled: #00000066;
+  --wui-calendar-date-picker-text-foreground-selected: #000000;
+  --wui-calendar-date-picker-header-foreground-disabled: #00000066;
+  --wui-calendar-date-picker-background: #ffffff66;
+  --wui-calendar-date-picker-background-pointer-over: #ffffff99;
+  --wui-calendar-date-picker-background-pressed: #00000033;
+  --wui-calendar-date-picker-background-disabled: #00000033;
+  --wui-calendar-date-picker-background-focused: var(--wui-system-accent-color);
+  --wui-calendar-date-picker-border: #00000066;
+  --wui-calendar-date-picker-border-brush-pointer-over: #00000099;
+  --wui-calendar-date-picker-border-brush-pressed: #00000066;
+  --wui-calendar-date-picker-border-brush-disabled: #00000033;
+  --wui-calendar-view-focus-border: #000000;
+  --wui-calendar-view-selected-hover-border: var(--wui-system-accent-color);
+  --wui-calendar-view-selected-pressed-border: var(--wui-system-accent-color);
+  --wui-calendar-view-selected-border: var(--wui-system-accent-color);
+  --wui-calendar-view-hover-border: #00000066;
+  --wui-calendar-view-pressed-border: #00000099;
+  --wui-calendar-view-today-foreground: #ffffff;
+  --wui-calendar-view-blackout-foreground: #00000066;
+  --wui-calendar-view-selected-foreground: #000000;
+  --wui-calendar-view-pressed-foreground: #000000;
+  --wui-calendar-view-out-of-scope-foreground: #000000;
+  --wui-calendar-view-calendar-item-foreground: #000000;
+  --wui-calendar-view-out-of-scope-background: #f2f2f2;
+  --wui-calendar-view-calendar-item-background: #ffffff;
+  --wui-calendar-view-foreground: #000000cc;
+  --wui-calendar-view-background: #ffffff;
+  --wui-calendar-view-border: #e6e6e6;
+  --wui-calendar-view-week-day-foreground-disabled: #00000066;
+  --wui-calendar-view-navigation-button-background: transparent;
+  --wui-calendar-view-navigation-button-foreground-pointer-over: #000000;
+  --wui-calendar-view-navigation-button-foreground-pressed: #00000099;
+  --wui-calendar-view-navigation-button-foreground-disabled: #00000066;
+  --wui-calendar-view-calendar-item-reveal-background: transparent;
+  --wui-calendar-view-calendar-item-reveal-border: transparent;
+  --wui-calendar-view-navigation-button-border-brush-pointer-over: transparent;
+  --wui-calendar-view-navigation-button-border: transparent;
+
+  /* Hub* */
+  --wui-hub-foreground: #000000;
+  --wui-hub-section-header-button-foreground: var(--wui-system-accent-color);
+  --wui-hub-section-header-button-foreground-pointer-over: #00000099;
+  --wui-hub-section-header-button-foreground-pressed: #00000066;
+  --wui-hub-section-header-button-foreground-disabled: #00000066;
+  --wui-hub-section-header-foreground: #000000;
+
+  /* Flip* */
+  --wui-flip-view-background: #00000019;
+  --wui-flip-view-next-previous-button-background: #00000066;
+  --wui-flip-view-next-previous-button-background-pointer-over: #00000099;
+  --wui-flip-view-next-previous-button-background-pressed: #000000cc;
+  --wui-flip-view-next-previous-arrow-foreground: #ffffffcc;
+  --wui-flip-view-next-previous-arrow-foreground-pointer-over: #ffffffcc;
+  --wui-flip-view-next-previous-arrow-foreground-pressed: #ffffffcc;
+  --wui-flip-view-next-previous-button-border: transparent;
+  --wui-flip-view-next-previous-button-border-brush-pointer-over: transparent;
+  --wui-flip-view-next-previous-button-border-brush-pressed: transparent;
+  --wui-flip-view-item-background: transparent;
+
+  /* Date* */
+  --wui-date-time-picker-flyout-button-background: transparent;
+  --wui-date-time-picker-flyout-button-background-pointer-over: #00000019;
+  --wui-date-time-picker-flyout-button-background-pressed: #00000033;
+  --wui-date-time-picker-flyout-button-border: transparent;
+  --wui-date-time-picker-flyout-button-border-brush-pointer-over: transparent;
+  --wui-date-time-picker-flyout-button-border-brush-pressed: transparent;
+  --wui-date-time-picker-flyout-button-foreground-pointer-over: #000000;
+  --wui-date-time-picker-flyout-button-foreground-pressed: #000000;
+  --wui-date-picker-spacer-fill: #00000033;
+  --wui-date-picker-spacer-fill-disabled: #00000033;
+  --wui-date-picker-header-foreground: #000000;
+  --wui-date-picker-header-foreground-disabled: #00000066;
+  --wui-date-picker-button-border: #00000066;
+  --wui-date-picker-button-border-brush-pointer-over: #00000099;
+  --wui-date-picker-button-border-brush-pressed: #00000066;
+  --wui-date-picker-button-border-brush-disabled: #00000033;
+  --wui-date-picker-button-background: #ffffff66;
+  --wui-date-picker-button-background-pointer-over: #ffffff99;
+  --wui-date-picker-button-background-pressed: #00000033;
+  --wui-date-picker-button-background-disabled: #00000033;
+  --wui-date-picker-button-background-focused: var(--wui-system-accent-color);
+  --wui-date-picker-button-foreground: #000000;
+  --wui-date-picker-button-foreground-pointer-over: #000000;
+  --wui-date-picker-button-foreground-pressed: #000000;
+  --wui-date-picker-button-foreground-disabled: #00000066;
+  --wui-date-picker-button-foreground-focused: #000000;
+  --wui-date-picker-flyout-presenter-background: #f2f2f2;
+  --wui-date-picker-flyout-presenter-border: #000000;
+  --wui-date-picker-flyout-presenter-spacer-fill: #00000033;
+  --wui-date-picker-flyout-presenter-highlight-fill: var(--wui-system-accent-color);
+
+  /* Time* */
+  --wui-time-picker-spacer-fill: #00000033;
+  --wui-time-picker-spacer-fill-disabled: #00000033;
+  --wui-time-picker-header-foreground: #000000;
+  --wui-time-picker-header-foreground-disabled: #00000066;
+  --wui-time-picker-button-border: #00000066;
+  --wui-time-picker-button-border-brush-pointer-over: #00000099;
+  --wui-time-picker-button-border-brush-pressed: #00000066;
+  --wui-time-picker-button-border-brush-disabled: #00000033;
+  --wui-time-picker-button-background: #ffffff66;
+  --wui-time-picker-button-background-pointer-over: #ffffff99;
+  --wui-time-picker-button-background-pressed: #00000033;
+  --wui-time-picker-button-background-disabled: #00000033;
+  --wui-time-picker-button-background-focused: var(--wui-system-accent-color);
+  --wui-time-picker-button-foreground: #000000;
+  --wui-time-picker-button-foreground-pointer-over: #000000;
+  --wui-time-picker-button-foreground-pressed: #000000;
+  --wui-time-picker-button-foreground-disabled: #00000066;
+  --wui-time-picker-button-foreground-focused: #000000;
+  --wui-time-picker-flyout-presenter-background: #f2f2f2;
+  --wui-time-picker-flyout-presenter-border: #000000;
+  --wui-time-picker-flyout-presenter-spacer-fill: #00000033;
+  --wui-time-picker-flyout-presenter-highlight-fill: var(--wui-system-accent-color);
+
+  /* Looping* */
+  --wui-looping-selector-button-background: #e6e6e6;
+  --wui-looping-selector-item-foreground: #000000;
+  --wui-looping-selector-item-foreground-selected: #000000;
+  --wui-looping-selector-item-foreground-pointer-over: #000000;
+  --wui-looping-selector-item-foreground-pressed: #000000;
+  --wui-looping-selector-item-background-pointer-over: #00000019;
+  --wui-looping-selector-item-background-pressed: #00000033;
+
   /* Text* */
+  --wui-text-control-foreground: #000000;
+  --wui-text-control-foreground-pointer-over: #000000;
+  --wui-text-control-foreground-focused: #000000;
+  --wui-text-control-foreground-disabled: #7a7a7a;
+  --wui-text-control-background: #ffffff66;
+  --wui-text-control-background-pointer-over: #ffffff99;
+  --wui-text-control-background-focused: #ffffff;
+  --wui-text-control-background-disabled: #00000033;
+  --wui-text-control-border: #00000066;
+  --wui-text-control-border-brush-pointer-over: #00000099;
+  --wui-text-control-border-brush-focused: var(--wui-system-accent-color);
+  --wui-text-control-border-brush-disabled: #00000033;
+  --wui-text-control-placeholder-foreground: #00000099;
+  --wui-text-control-placeholder-foreground-pointer-over: #00000099;
+  --wui-text-control-placeholder-foreground-focused: #00000066;
+  --wui-text-control-placeholder-foreground-disabled: #7a7a7a;
+  --wui-text-control-header-foreground: #000000;
+  --wui-text-control-header-foreground-disabled: #00000066;
+  --wui-text-control-selection-highlight-color: var(--wui-system-accent-color);
+  --wui-text-control-button-background: transparent;
+  --wui-text-control-button-background-pointer-over: transparent;
+  --wui-text-control-button-background-pressed: var(--wui-system-accent-color);
+  --wui-text-control-button-border: transparent;
+  --wui-text-control-button-border-brush-pointer-over: transparent;
+  --wui-text-control-button-border-brush-pressed: transparent;
+  --wui-text-control-button-foreground: #000000cc;
+  --wui-text-control-button-foreground-pointer-over: var(--wui-system-accent-color);
+  --wui-text-control-button-foreground-pressed: #ffffff;
+  --wui-text-control-highlighter-foreground: #000000;
   --wui-text-control-highlighter-background: #ffff00;
+
+  /* Flyout* */
+  --wui-flyout-presenter-background: #f2f2f2;
+  --wui-flyout-border-theme: #000000;
+
+  /* Toggle* */
+  --wui-toggle-menu-flyout-item-background: transparent;
+  --wui-toggle-menu-flyout-item-background-pointer-over: #00000019;
+  --wui-toggle-menu-flyout-item-background-pressed: #00000033;
+  --wui-toggle-menu-flyout-item-background-disabled: transparent;
+  --wui-toggle-menu-flyout-item-foreground: #000000;
+  --wui-toggle-menu-flyout-item-foreground-pointer-over: #000000;
+  --wui-toggle-menu-flyout-item-foreground-pressed: #000000;
+  --wui-toggle-menu-flyout-item-foreground-disabled: #00000066;
+  --wui-toggle-menu-flyout-item-keyboard-accelerator-text-foreground: #00000099;
+  --wui-toggle-menu-flyout-item-keyboard-accelerator-text-foreground-pointer-over: #00000099;
+  --wui-toggle-menu-flyout-item-keyboard-accelerator-text-foreground-pressed: #00000099;
+  --wui-toggle-menu-flyout-item-keyboard-accelerator-text-foreground-disabled: #00000066;
+  --wui-toggle-menu-flyout-item-check-glyph-foreground: #000000cc;
+  --wui-toggle-menu-flyout-item-check-glyph-foreground-pointer-over: #000000;
+  --wui-toggle-menu-flyout-item-check-glyph-foreground-pressed: #000000;
+  --wui-toggle-menu-flyout-item-check-glyph-foreground-disabled: #00000066;
+
+  /* Pivot* */
+  --wui-pivot-background: transparent;
+  --wui-pivot-header-background: transparent;
+  --wui-pivot-next-button-background: #00000066;
+  --wui-pivot-next-button-background-pointer-over: #00000099;
+  --wui-pivot-next-button-background-pressed: #000000cc;
+  --wui-pivot-next-button-border: transparent;
+  --wui-pivot-next-button-border-brush-pointer-over: transparent;
+  --wui-pivot-next-button-border-brush-pressed: transparent;
+  --wui-pivot-next-button-foreground: #ffffffcc;
+  --wui-pivot-next-button-foreground-pointer-over: #ffffffcc;
+  --wui-pivot-next-button-foreground-pressed: #ffffffcc;
+  --wui-pivot-previous-button-background: #00000066;
+  --wui-pivot-previous-button-background-pointer-over: #00000099;
+  --wui-pivot-previous-button-background-pressed: #000000cc;
+  --wui-pivot-previous-button-border: transparent;
+  --wui-pivot-previous-button-border-brush-pointer-over: transparent;
+  --wui-pivot-previous-button-border-brush-pressed: transparent;
+  --wui-pivot-previous-button-foreground: #ffffffcc;
+  --wui-pivot-previous-button-foreground-pointer-over: #ffffffcc;
+  --wui-pivot-previous-button-foreground-pressed: #ffffffcc;
+  --wui-pivot-item-background: transparent;
+  --wui-pivot-header-item-background-unselected: transparent;
+  --wui-pivot-header-item-background-unselected-pointer-over: transparent;
+  --wui-pivot-header-item-background-unselected-pressed: transparent;
+  --wui-pivot-header-item-background-selected: transparent;
+  --wui-pivot-header-item-background-selected-pointer-over: transparent;
+  --wui-pivot-header-item-background-selected-pressed: transparent;
+  --wui-pivot-header-item-background-disabled: transparent;
+  --wui-pivot-header-item-foreground-unselected: #00000099;
+  --wui-pivot-header-item-foreground-unselected-pointer-over: #000000cc;
+  --wui-pivot-header-item-foreground-unselected-pressed: #000000cc;
+  --wui-pivot-header-item-foreground-selected: #000000;
+  --wui-pivot-header-item-foreground-selected-pointer-over: #000000cc;
+  --wui-pivot-header-item-foreground-selected-pressed: #000000cc;
+  --wui-pivot-header-item-foreground-disabled: #00000066;
+  --wui-pivot-header-item-focus-pipe-fill: var(--wui-system-accent-color);
+  --wui-pivot-header-item-selected-pipe-fill: var(--wui-system-accent-color);
+
+  /* Grid* */
+  --wui-grid-view-header-item-background: transparent;
+  --wui-grid-view-header-item-divider-stroke: #00000033;
+  --wui-grid-view-item-background: transparent;
+  --wui-grid-view-item-background-pointer-over: #00000019;
+  --wui-grid-view-item-background-pressed: #00000033;
+  --wui-grid-view-item-background-selected: var(--wui-system-accent-color);
+  --wui-grid-view-item-background-selected-pointer-over: var(--wui-system-accent-color);
+  --wui-grid-view-item-background-selected-pressed: var(--wui-system-accent-color);
+  --wui-grid-view-item-foreground: #000000;
+  --wui-grid-view-item-foreground-pointer-over: #000000;
+  --wui-grid-view-item-foreground-selected: #000000;
+  --wui-grid-view-item-focus-visual-primary: #000000;
+  --wui-grid-view-item-focus-visual-secondary: #ffffff99;
+  --wui-grid-view-item-focus-border: #ffffff;
+  --wui-grid-view-item-focus-secondary-border: #000000;
+  --wui-grid-view-item-check: #000000cc;
+  --wui-grid-view-item-check-box: #e6e6e6;
+  --wui-grid-view-item-drag-background: transparent;
+  --wui-grid-view-item-drag-foreground: #ffffff;
+  --wui-grid-view-item-placeholder-background: #cccccc;
+
+  /* Media* */
+  --wui-media-transport-controls-panel-background: #ffffff99;
+  --wui-media-transport-controls-flyout-background: #f2f2f2;
+
+  /* App* */
+  --wui-app-bar-light-dismiss-overlay-background: #ffffff99;
+
+  /* Calendar* */
+  --wui-calendar-date-picker-light-dismiss-overlay-background: #ffffff99;
+
+  /* Combo* */
+  --wui-combo-box-light-dismiss-overlay-background: #ffffff99;
+
+  /* Date* */
+  --wui-date-picker-light-dismiss-overlay-background: #ffffff99;
+
+  /* Flyout* */
+  --wui-flyout-light-dismiss-overlay-background: #ffffff99;
+
+  /* Popup* */
+  --wui-popup-light-dismiss-overlay-background: #ffffff99;
+
+  /* Split* */
+  --wui-split-view-light-dismiss-overlay-background: #ffffff99;
+
+  /* Time* */
+  --wui-time-picker-light-dismiss-overlay-background: #ffffff99;
+
+  /* Jump* */
+  --wui-jump-list-default-enabled-background: var(--wui-system-accent-color);
+  --wui-jump-list-default-enabled-foreground: #ffffff;
+  --wui-jump-list-default-disabled-background: #00000033;
+  --wui-jump-list-default-disabled-foreground: #00000066;
+
+  /* Key* */
+  --wui-key-tip-foreground: #ffffff;
+  --wui-key-tip-background: #767676;
+  --wui-key-tip-border: transparent;
 
   /* App* */
   --wui-app-bar-background-theme: #f0f0f0;
@@ -331,6 +1004,9 @@
   --wui-hyperlink-foreground-theme: #4f1acb;
   --wui-hyperlink-pointer-over-foreground-theme: #4f1acbcc;
   --wui-hyperlink-pressed-foreground-theme: #4f1acb99;
+  --wui-hyperlink-foreground: var(--wui-system-accent-color);
+  --wui-hyperlink-foreground-pointer-over: #00000099;
+  --wui-hyperlink-foreground-pressed: #00000066;
 
   /* Hub* */
   --wui-hub-section-header-pointer-over-foreground-theme: #d1d1d1;
@@ -594,25 +1270,242 @@
   --wui-system-control-highlight-base-low-reveal-border: #00000033;
   --wui-system-control-highlight-base-medium-reveal-border: #00000099;
   --wui-system-control-highlight-base-medium-high-reveal-border: #000000cc;
+
+  /* List* */
+  --wui-list-view-item-reveal-border: transparent;
+  --wui-list-view-item-reveal-border-brush-pointer-over: transparent;
+  --wui-list-view-item-reveal-border-brush-pressed: transparent;
+
+  /* Grid* */
+  --wui-grid-view-item-reveal-border: transparent;
+
+  /* Button* */
+  --wui-button-reveal-background: #00000033;
+  --wui-button-reveal-background-pointer-over: #00000033;
+  --wui-button-reveal-background-pressed: #00000066;
+  --wui-button-reveal-background-disabled: #00000033;
+  --wui-button-reveal-border: transparent;
+  --wui-button-reveal-border-brush-pointer-over: #00000066;
+  --wui-button-reveal-border-brush-pressed: transparent;
+  --wui-button-reveal-border-brush-disabled: transparent;
+
+  /* Repeat* */
+  --wui-repeat-button-reveal-background: #00000033;
+  --wui-repeat-button-reveal-background-pointer-over: #00000033;
+  --wui-repeat-button-reveal-background-pressed: #00000066;
+  --wui-repeat-button-reveal-background-disabled: #00000033;
+  --wui-repeat-button-reveal-border: transparent;
+  --wui-repeat-button-reveal-border-brush-pointer-over: #00000066;
+  --wui-repeat-button-reveal-border-brush-pressed: transparent;
+  --wui-repeat-button-reveal-border-brush-disabled: transparent;
+
+  /* Toggle* */
+  --wui-toggle-button-reveal-background: #00000033;
+  --wui-toggle-button-reveal-background-pointer-over: #00000033;
+  --wui-toggle-button-reveal-background-pressed: #00000066;
+  --wui-toggle-button-reveal-background-disabled: #00000033;
+  --wui-toggle-button-reveal-background-checked: var(--wui-system-accent-color);
+  --wui-toggle-button-reveal-background-checked-pointer-over: var(--wui-system-accent-color);
+
+  /* SystemControl* */
   --wui-system-control-highlight-base-medium-low-reveal-accent-background: #00000066;
+
+  /* Toggle* */
+  --wui-toggle-button-reveal-background-checked-pressed: #00000066;
+  --wui-toggle-button-reveal-background-checked-disabled: #00000066;
+  --wui-toggle-button-reveal-background-indeterminate: #00000033;
+
+  /* SystemControl* */
   --wui-system-control-background-base-low-reveal-background: #00000033;
+
+  /* Toggle* */
+  --wui-toggle-button-reveal-background-indeterminate-pointer-over: #00000033;
+
+  /* SystemControl* */
   --wui-system-control-background-base-medium-low-reveal-base-low-background: #00000066;
+
+  /* Toggle* */
+  --wui-toggle-button-reveal-background-indeterminate-pressed: #00000066;
+  --wui-toggle-button-reveal-background-indeterminate-disabled: #00000033;
+  --wui-toggle-button-reveal-border: transparent;
+  --wui-toggle-button-reveal-border-brush-pointer-over: #00000066;
+  --wui-toggle-button-reveal-border-brush-pressed: transparent;
+  --wui-toggle-button-reveal-border-brush-disabled: transparent;
+
+  /* SystemControl* */
   --wui-system-control-highlight-alt-transparent-reveal-border: transparent;
+
+  /* Toggle* */
+  --wui-toggle-button-reveal-border-brush-checked: transparent;
+  --wui-toggle-button-reveal-border-brush-checked-pointer-over: #00000066;
+  --wui-toggle-button-reveal-border-brush-checked-pressed: transparent;
+  --wui-toggle-button-reveal-border-brush-checked-disabled: transparent;
+  --wui-toggle-button-reveal-border-brush-indeterminate: transparent;
+
+  /* SystemControl* */
   --wui-system-control-highlight-base-medium-low-reveal-border: #00000066;
+
+  /* Toggle* */
+  --wui-toggle-button-reveal-border-brush-indeterminate-pointer-over: #00000066;
+  --wui-toggle-button-reveal-border-brush-indeterminate-pressed: transparent;
+  --wui-toggle-button-reveal-border-brush-indeterminate-disabled: transparent;
+
+  /* App* */
+  --wui-app-bar-ellipsis-button-reveal-background: transparent;
+  --wui-app-bar-ellipsis-button-reveal-background-pointer-over: #00000019;
+
+  /* SystemControl* */
   --wui-system-control-highlight-list-medium-reveal-background: #00000033;
+
+  /* App* */
+  --wui-app-bar-ellipsis-button-reveal-background-pressed: #00000033;
+  --wui-app-bar-ellipsis-button-reveal-background-disabled: transparent;
+  --wui-app-bar-ellipsis-button-reveal-border: transparent;
+  --wui-app-bar-ellipsis-button-reveal-border-brush-pointer-over: transparent;
+  --wui-app-bar-ellipsis-button-reveal-border-brush-pressed: transparent;
+  --wui-app-bar-ellipsis-button-reveal-border-brush-disabled: transparent;
+  --wui-app-bar-button-reveal-background: transparent;
+  --wui-app-bar-button-reveal-background-pointer-over: #00000019;
+  --wui-app-bar-button-reveal-background-pressed: #00000033;
+  --wui-app-bar-button-reveal-background-disabled: transparent;
+  --wui-app-bar-button-reveal-border: transparent;
+  --wui-app-bar-button-reveal-border-brush-pointer-over: transparent;
+
+  /* SystemControl* */
   --wui-system-control-transparent-reveal-list-low-border: transparent;
+
+  /* App* */
+  --wui-app-bar-button-reveal-border-brush-pressed: transparent;
+  --wui-app-bar-button-reveal-border-brush-disabled: transparent;
+  --wui-app-bar-toggle-button-reveal-background: transparent;
+  --wui-app-bar-toggle-button-reveal-background-disabled: transparent;
+  --wui-app-bar-toggle-button-reveal-background-high-light-overlay: transparent;
+  --wui-app-bar-toggle-button-reveal-background-high-light-overlay-pointer-over: #00000019;
+  --wui-app-bar-toggle-button-reveal-background-high-light-overlay-pressed: #00000033;
+  --wui-app-bar-toggle-button-reveal-background-high-light-overlay-checked-pointer-over: #00000019;
+  --wui-app-bar-toggle-button-reveal-background-high-light-overlay-checked-pressed: #00000033;
+  --wui-app-bar-toggle-button-reveal-border: transparent;
+  --wui-app-bar-toggle-button-reveal-border-brush-pointer-over: transparent;
+  --wui-app-bar-toggle-button-reveal-border-brush-pressed: transparent;
+  --wui-app-bar-toggle-button-reveal-border-brush-disabled: transparent;
+
+  /* SystemControl* */
   --wui-system-control-background-transparent-reveal-border: transparent;
+
+  /* App* */
+  --wui-app-bar-toggle-button-reveal-border-brush-checked: transparent;
+  --wui-app-bar-toggle-button-reveal-border-brush-checked-pointer-over: transparent;
+
+  /* SystemControl* */
   --wui-system-control-highlight-transparent-reveal-border: transparent;
+
+  /* App* */
+  --wui-app-bar-toggle-button-reveal-border-brush-checked-pressed: transparent;
+  --wui-app-bar-toggle-button-reveal-border-brush-checked-disabled: transparent;
+
+  /* List* */
+  --wui-list-view-item-reveal-background: transparent;
+  --wui-list-view-item-reveal-background-pointer-over: #00000019;
+  --wui-list-view-item-reveal-background-pressed: #00000033;
+  --wui-list-view-item-reveal-background-selected: var(--wui-system-accent-color-light-3);
+  --wui-list-view-item-reveal-background-selected-pointer-over: var(--wui-system-accent-color-light-2);
+  --wui-list-view-item-reveal-background-selected-pressed: var(--wui-system-accent-color-light-3);
+  --wui-list-view-item-reveal-placeholder-background: #cccccc;
+
+  /* Grid* */
+  --wui-grid-view-item-reveal-background: transparent;
+  --wui-grid-view-item-reveal-background-pointer-over: #00000019;
+  --wui-grid-view-item-reveal-background-pressed: #00000033;
+
+  /* SystemControl* */
   --wui-system-control-highlight-accent-reveal-background: var(--wui-system-accent-color);
+
+  /* Grid* */
+  --wui-grid-view-item-reveal-background-selected: var(--wui-system-accent-color);
+  --wui-grid-view-item-reveal-background-selected-pointer-over: var(--wui-system-accent-color-light-2);
+  --wui-grid-view-item-reveal-background-selected-pressed: var(--wui-system-accent-color-light-3);
+  --wui-grid-view-item-reveal-placeholder-background: #cccccc;
+
+  /* SystemControl* */
   --wui-system-control-transparent-reveal-background: transparent;
+
+  /* Combo* */
+  --wui-combo-box-item-reveal-background: transparent;
+
+  /* SystemControl* */
   --wui-system-control-highlight-list-medium-reveal-list-low-background: #00000033;
+
+  /* Combo* */
+  --wui-combo-box-item-reveal-background-pressed: #00000033;
+
+  /* SystemControl* */
   --wui-system-control-highlight-list-low-reveal-background: #00000019;
+
+  /* Combo* */
+  --wui-combo-box-item-reveal-background-pointer-over: #00000019;
+  --wui-combo-box-item-reveal-background-disabled: transparent;
+  --wui-combo-box-item-reveal-background-selected: var(--wui-system-accent-color-light-3);
+
+  /* SystemControl* */
   --wui-system-control-highlight-accent-3-reveal-background: var(--wui-system-accent-color-light-3);
+
+  /* Combo* */
+  --wui-combo-box-item-reveal-background-selected-unfocused: var(--wui-system-accent-color-light-3);
+
+  /* SystemControl* */
   --wui-system-control-highlight-accent-3-reveal-accent-2-background: var(--wui-system-accent-color-light-3);
+
+  /* Combo* */
+  --wui-combo-box-item-reveal-background-selected-pressed: var(--wui-system-accent-color-light-3);
+
+  /* SystemControl* */
   --wui-system-control-highlight-accent-2-reveal-background: var(--wui-system-accent-color-light-2);
+
+  /* Combo* */
+  --wui-combo-box-item-reveal-background-selected-pointer-over: var(--wui-system-accent-color-light-2);
+  --wui-combo-box-item-reveal-background-selected-disabled: transparent;
+  --wui-combo-box-item-reveal-border: transparent;
+  --wui-combo-box-item-reveal-border-brush-pressed: transparent;
+  --wui-combo-box-item-reveal-border-brush-pointer-over: transparent;
+  --wui-combo-box-item-reveal-border-brush-disabled: transparent;
+  --wui-combo-box-item-reveal-border-brush-selected: transparent;
+  --wui-combo-box-item-reveal-border-brush-selected-unfocused: transparent;
+  --wui-combo-box-item-reveal-border-brush-selected-pressed: transparent;
+
+  /* SystemControl* */
   --wui-system-control-transparent-reveal-border: transparent;
 
+  /* Combo* */
+  --wui-combo-box-item-reveal-border-brush-selected-pointer-over: transparent;
+  --wui-combo-box-item-reveal-border-brush-selected-disabled: transparent;
+
   /* Menu* */
+  --wui-menu-flyout-presenter-background: #f2f2f2;
+  --wui-menu-flyout-presenter-border: #000000;
+  --wui-menu-flyout-item-background: transparent;
+  --wui-menu-flyout-item-background-pointer-over: #00000019;
+  --wui-menu-flyout-item-background-pressed: #00000033;
+  --wui-menu-flyout-item-background-disabled: transparent;
+  --wui-menu-flyout-item-foreground: #000000;
+  --wui-menu-flyout-item-foreground-pointer-over: #000000;
+  --wui-menu-flyout-item-foreground-pressed: #000000;
+  --wui-menu-flyout-item-foreground-disabled: #00000066;
+  --wui-menu-flyout-sub-item-background: transparent;
+  --wui-menu-flyout-sub-item-background-pointer-over: #00000019;
+  --wui-menu-flyout-sub-item-background-pressed: var(--wui-system-accent-color);
+  --wui-menu-flyout-sub-item-background-sub-menu-opened: var(--wui-system-accent-color);
+  --wui-menu-flyout-sub-item-background-disabled: transparent;
+  --wui-menu-flyout-sub-item-foreground: #000000;
+  --wui-menu-flyout-sub-item-foreground-pointer-over: #000000;
+  --wui-menu-flyout-sub-item-foreground-pressed: #000000;
+  --wui-menu-flyout-sub-item-foreground-sub-menu-opened: #000000;
+  --wui-menu-flyout-sub-item-foreground-disabled: #00000066;
+  --wui-menu-flyout-sub-item-chevron: #000000cc;
+  --wui-menu-flyout-sub-item-chevron-pointer-over: #000000;
+  --wui-menu-flyout-sub-item-chevron-pressed: #000000;
+  --wui-menu-flyout-sub-item-chevron-sub-menu-opened: #000000;
+  --wui-menu-flyout-sub-item-chevron-disabled: #00000066;
+  --wui-menu-flyout-light-dismiss-overlay-background: #ffffff99;
   --wui-menu-flyout-item-focused-background-theme: #e5e5e5;
   --wui-menu-flyout-item-focused-foreground-theme: #000000;
   --wui-menu-flyout-item-disabled-foreground-theme: #00000066;
@@ -622,8 +1515,79 @@
   --wui-menu-flyout-item-pressed-foreground-theme: #ffffff;
   --wui-menu-flyout-separator-theme: #7a7a7a;
 
+  /* Rating* */
+  --wui-rating-control-unselected-foreground: #00000033;
+  --wui-rating-control-selected-foreground: var(--wui-system-accent-color);
+  --wui-rating-control-placeholder-foreground: #000000;
+  --wui-rating-control-pointer-over-placeholder-foreground: #00000099;
+  --wui-rating-control-pointer-over-unselected-foreground: #00000099;
+  --wui-rating-control-pointer-over-selected-foreground: var(--wui-system-accent-color);
+  --wui-rating-control-caption-foreground: #00000099;
+
   /* Navigation* */
+  --wui-navigation-view-default-pane-background: #f2f2f2;
   --wui-navigation-view-expanded-pane-background: #e6e6e6;
+  --wui-navigation-view-top-pane-background: #f2f2f2;
+  --wui-navigation-view-item-background: transparent;
+  --wui-navigation-view-item-background-pointer-over: #00000019;
+  --wui-navigation-view-item-background-pressed: #00000033;
+  --wui-navigation-view-item-background-disabled: transparent;
+  --wui-navigation-view-item-background-checked: transparent;
+  --wui-navigation-view-item-background-checked-pointer-over: #00000019;
+  --wui-navigation-view-item-background-checked-pressed: #00000033;
+  --wui-navigation-view-item-background-checked-disabled: transparent;
+  --wui-navigation-view-item-background-selected: transparent;
+  --wui-navigation-view-item-background-selected-pointer-over: #00000019;
+  --wui-navigation-view-item-background-selected-pressed: #00000033;
+  --wui-navigation-view-item-background-selected-disabled: transparent;
+  --wui-navigation-view-item-foreground: #000000;
+  --wui-navigation-view-item-foreground-pointer-over: #000000;
+  --wui-navigation-view-item-foreground-pressed: #000000;
+  --wui-navigation-view-item-foreground-disabled: #00000066;
+  --wui-navigation-view-item-foreground-checked: #000000;
+  --wui-navigation-view-item-foreground-checked-pointer-over: #000000;
+  --wui-navigation-view-item-foreground-checked-pressed: #000000;
+  --wui-navigation-view-item-foreground-checked-disabled: #00000066;
+  --wui-navigation-view-item-foreground-selected: #000000;
+  --wui-navigation-view-item-foreground-selected-pointer-over: #000000;
+  --wui-navigation-view-item-foreground-selected-pressed: #000000;
+  --wui-navigation-view-item-foreground-selected-disabled: #00000066;
+  --wui-navigation-view-item-border: transparent;
+  --wui-navigation-view-item-border-brush-pointer-over: transparent;
+  --wui-navigation-view-item-border-brush-pressed: transparent;
+  --wui-navigation-view-item-border-brush-disabled: transparent;
+  --wui-navigation-view-item-border-brush-checked: transparent;
+  --wui-navigation-view-item-border-brush-checked-pointer-over: transparent;
+  --wui-navigation-view-item-border-brush-checked-pressed: transparent;
+  --wui-navigation-view-item-border-brush-checked-disabled: transparent;
+  --wui-navigation-view-item-border-brush-selected: transparent;
+  --wui-navigation-view-item-border-brush-selected-pointer-over: transparent;
+  --wui-navigation-view-item-border-brush-selected-pressed: transparent;
+  --wui-navigation-view-item-border-brush-selected-disabled: transparent;
+  --wui-navigation-view-selection-indicator-foreground: var(--wui-system-accent-color);
+
+  /* Top* */
+  --wui-top-navigation-view-item-foreground: #00000099;
+  --wui-top-navigation-view-item-foreground-pointer-over: #000000cc;
+  --wui-top-navigation-view-item-foreground-pressed: #000000cc;
+  --wui-top-navigation-view-item-foreground-selected: #000000;
+  --wui-top-navigation-view-item-foreground-disabled: #00000066;
+  --wui-top-navigation-view-item-background-pointer-over: transparent;
+  --wui-top-navigation-view-item-background-pressed: transparent;
+  --wui-top-navigation-view-item-background-selected: transparent;
+  --wui-top-navigation-view-item-reveal-background-focused: var(--wui-system-accent-color);
+  --wui-top-navigation-view-item-reveal-icon-foreground-focused: #ffffff;
+  --wui-top-navigation-view-item-reveal-content-foreground-focused: #ffffff;
+
+  /* Navigation* */
+  --wui-navigation-view-back-button-background: transparent;
+
+  /* Color* */
+  --wui-color-picker-slider-thumb-background: #000000;
+  --wui-color-picker-slider-thumb-background-pointer-over: #171717;
+  --wui-color-picker-slider-thumb-background-pressed: #cccccc;
+  --wui-color-picker-slider-thumb-background-disabled: #cccccc;
+  --wui-color-picker-slider-track-fill-disabled: #00000033;
 
   /* Person* */
   --wui-person-picture-foreground-theme: #ffffff;
@@ -638,7 +1602,71 @@
   --wui-refresh-visualizer-foreground: black;
   --wui-refresh-visualizer-background: transparent;
 
+  /* Menu* */
+  --wui-menu-bar-background: transparent;
+  --wui-menu-bar-item-background: transparent;
+  --wui-menu-bar-item-background-pointer-over: #00000019;
+  --wui-menu-bar-item-background-pressed: #00000033;
+  --wui-menu-bar-item-background-selected: #00000033;
+  --wui-menu-bar-item-border: #00000066;
+  --wui-menu-bar-item-border-brush-pointer-over: #00000099;
+  --wui-menu-bar-item-border-brush-pressed: #00000066;
+  --wui-menu-bar-item-border-brush-selected: #00000066;
+
   /* App* */
+  --wui-app-bar-button-background: transparent;
+  --wui-app-bar-button-background-pointer-over: #00000019;
+  --wui-app-bar-button-background-pressed: #00000033;
+  --wui-app-bar-button-background-disabled: transparent;
+  --wui-app-bar-button-foreground: #000000;
+  --wui-app-bar-button-foreground-pointer-over: #000000;
+  --wui-app-bar-button-foreground-pressed: #000000;
+  --wui-app-bar-button-foreground-disabled: #00000066;
+  --wui-app-bar-button-border: transparent;
+  --wui-app-bar-button-border-brush-pointer-over: transparent;
+  --wui-app-bar-button-border-brush-pressed: transparent;
+  --wui-app-bar-button-border-brush-disabled: transparent;
+  --wui-app-bar-toggle-button-background: transparent;
+  --wui-app-bar-toggle-button-background-disabled: transparent;
+  --wui-app-bar-toggle-button-background-checked: var(--wui-system-accent-color);
+  --wui-app-bar-toggle-button-background-checked-pointer-over: var(--wui-system-accent-color);
+  --wui-app-bar-toggle-button-background-checked-pressed: var(--wui-system-accent-color);
+  --wui-app-bar-toggle-button-background-checked-disabled: var(--wui-system-accent-color);
+  --wui-app-bar-toggle-button-background-high-light-overlay: transparent;
+  --wui-app-bar-toggle-button-background-high-light-overlay-pointer-over: #00000019;
+  --wui-app-bar-toggle-button-background-high-light-overlay-pressed: #00000033;
+  --wui-app-bar-toggle-button-background-high-light-overlay-checked-pointer-over: #00000019;
+  --wui-app-bar-toggle-button-background-high-light-overlay-checked-pressed: #00000033;
+  --wui-app-bar-toggle-button-foreground: #000000;
+  --wui-app-bar-toggle-button-foreground-pointer-over: #000000;
+  --wui-app-bar-toggle-button-foreground-pressed: #000000;
+  --wui-app-bar-toggle-button-foreground-disabled: #00000066;
+  --wui-app-bar-toggle-button-foreground-checked: #000000;
+  --wui-app-bar-toggle-button-foreground-checked-pointer-over: #000000;
+  --wui-app-bar-toggle-button-foreground-checked-pressed: #000000;
+  --wui-app-bar-toggle-button-foreground-checked-disabled: #00000066;
+  --wui-app-bar-toggle-button-border: transparent;
+  --wui-app-bar-toggle-button-border-brush-pointer-over: transparent;
+  --wui-app-bar-toggle-button-border-brush-pressed: transparent;
+  --wui-app-bar-toggle-button-border-brush-disabled: transparent;
+  --wui-app-bar-toggle-button-border-brush-checked: transparent;
+  --wui-app-bar-toggle-button-border-brush-checked-pointer-over: transparent;
+  --wui-app-bar-toggle-button-border-brush-checked-pressed: transparent;
+  --wui-app-bar-toggle-button-border-brush-checked-disabled: transparent;
+  --wui-app-bar-toggle-button-check-glyph-foreground: #000000;
+  --wui-app-bar-toggle-button-check-glyph-foreground-pointer-over: #000000;
+  --wui-app-bar-toggle-button-check-glyph-foreground-pressed: #000000;
+  --wui-app-bar-toggle-button-check-glyph-foreground-disabled: #00000066;
+  --wui-app-bar-toggle-button-check-glyph-foreground-checked: #000000;
+  --wui-app-bar-toggle-button-check-glyph-foreground-checked-pointer-over: #000000;
+  --wui-app-bar-toggle-button-check-glyph-foreground-checked-pressed: #000000;
+  --wui-app-bar-toggle-button-check-glyph-foreground-checked-disabled: #00000066;
+  --wui-app-bar-toggle-button-overflow-label-foreground-pointer-over: #000000;
+  --wui-app-bar-toggle-button-overflow-label-foreground-pressed: #000000;
+  --wui-app-bar-toggle-button-overflow-label-foreground-disabled: #00000066;
+  --wui-app-bar-toggle-button-overflow-label-foreground-checked-pointer-over: #000000;
+  --wui-app-bar-toggle-button-overflow-label-foreground-checked-pressed: #000000;
+  --wui-app-bar-toggle-button-overflow-label-foreground-checked-disabled: #00000066;
   --wui-app-bar-toggle-button-checked-background-theme: #000000;
   --wui-app-bar-toggle-button-checked-border-theme: #000000;
   --wui-app-bar-toggle-button-checked-disabled-background-theme: #00000066;
@@ -668,6 +1696,35 @@
   --wui-list-box-item-selected-disabled-foreground-theme: #ffffff99;
   --wui-list-box-item-selected-foreground-theme: white;
   --wui-list-box-item-selected-pointer-over-background-theme: #5f37be;
+
+  /* Command* */
+  --wui-command-bar-background: #e6e6e6;
+  --wui-command-bar-foreground: #000000;
+  --wui-command-bar-high-contrast-border: transparent;
+  --wui-command-bar-ellipsis-icon-foreground-disabled: #00000066;
+  --wui-command-bar-overflow-presenter-background: #f2f2f2;
+  --wui-command-bar-overflow-presenter-border: #000000;
+  --wui-command-bar-light-dismiss-overlay-background: #ffffff99;
+
+  /* List* */
+  --wui-list-view-item-background: transparent;
+  --wui-list-view-item-background-pointer-over: #00000019;
+  --wui-list-view-item-background-pressed: #00000033;
+  --wui-list-view-item-background-selected: var(--wui-system-accent-color);
+  --wui-list-view-item-background-selected-pointer-over: var(--wui-system-accent-color);
+  --wui-list-view-item-background-selected-pressed: var(--wui-system-accent-color);
+  --wui-list-view-item-foreground: #000000;
+  --wui-list-view-item-foreground-pointer-over: #000000;
+  --wui-list-view-item-foreground-selected: #000000;
+  --wui-list-view-item-focus-visual-primary: #000000;
+  --wui-list-view-item-focus-visual-secondary: #ffffff99;
+  --wui-list-view-item-focus-border: #ffffff;
+  --wui-list-view-item-focus-secondary-border: #000000;
+  --wui-list-view-item-check: #000000cc;
+  --wui-list-view-item-check-box: #000000cc;
+  --wui-list-view-item-drag-background: transparent;
+  --wui-list-view-item-drag-foreground: #ffffff;
+  --wui-list-view-item-placeholder-background: #cccccc;
   --wui-list-view-item-check-hint-theme: #4617b4;
   --wui-list-view-item-check-selecting-theme: #4617b4;
   --wui-list-view-item-check-theme: #ffffff;
@@ -704,9 +1761,153 @@
   --wui-text-box-foreground-theme: #000000;
 
   /* Auto* */
+  --wui-auto-suggest-box-suggestions-list-background: #f2f2f2;
+  --wui-auto-suggest-box-suggestions-list-border: #000000;
+  --wui-auto-suggest-box-light-dismiss-overlay-background: #ffffff99;
+
+  /* Tree* */
+  --wui-tree-view-item-background: transparent;
+  --wui-tree-view-item-background-pointer-over: #00000019;
+  --wui-tree-view-item-background-pressed: #00000033;
+  --wui-tree-view-item-background-disabled: transparent;
+  --wui-tree-view-item-background-selected: var(--wui-system-accent-color-light-3);
+  --wui-tree-view-item-background-selected-pointer-over: var(--wui-system-accent-color-light-2);
+  --wui-tree-view-item-background-selected-pressed: #00000033;
+  --wui-tree-view-item-background-selected-disabled: #00000066;
+  --wui-tree-view-item-foreground: #000000;
+  --wui-tree-view-item-foreground-pointer-over: #000000;
+  --wui-tree-view-item-foreground-pressed: #000000;
+  --wui-tree-view-item-foreground-disabled: #00000066;
+  --wui-tree-view-item-foreground-selected: #000000;
+  --wui-tree-view-item-foreground-selected-pointer-over: #000000;
+  --wui-tree-view-item-foreground-selected-pressed: #000000;
+  --wui-tree-view-item-foreground-selected-disabled: #00000066;
+  --wui-tree-view-item-border: transparent;
+  --wui-tree-view-item-border-brush-pointer-over: transparent;
+  --wui-tree-view-item-border-brush-pressed: transparent;
+  --wui-tree-view-item-border-brush-disabled: transparent;
+  --wui-tree-view-item-border-brush-selected: transparent;
+  --wui-tree-view-item-border-brush-selected-pointer-over: transparent;
+  --wui-tree-view-item-border-brush-selected-pressed: transparent;
+  --wui-tree-view-item-border-brush-selected-disabled: transparent;
+  --wui-tree-view-item-check-box-background-selected: transparent;
+  --wui-tree-view-item-check-box-border-selected: #000000cc;
+  --wui-tree-view-item-check-glyph-selected: #000000cc;
+
+  /* Swipe* */
+  --wui-swipe-item-background: #00000033;
+  --wui-swipe-item-foreground: #000000;
+  --wui-swipe-item-background-pressed: #00000066;
+  --wui-swipe-item-pre-threshold-execute-foreground: #00000099;
+  --wui-swipe-item-pre-threshold-execute-background: #00000033;
+  --wui-swipe-item-post-threshold-execute-foreground: #ffffff;
+  --wui-swipe-item-post-threshold-execute-background: var(--wui-system-accent-color);
+
+  /* Split* */
+  --wui-split-button-background: #00000033;
+  --wui-split-button-background-pointer-over: #00000033;
+  --wui-split-button-background-pressed: #00000066;
+  --wui-split-button-background-disabled: #00000033;
+  --wui-split-button-background-checked: var(--wui-system-accent-color);
+  --wui-split-button-background-checked-pointer-over: var(--wui-system-accent-color);
+  --wui-split-button-background-checked-pressed: #00000066;
+  --wui-split-button-background-checked-disabled: #00000033;
+  --wui-split-button-foreground: #000000;
+  --wui-split-button-foreground-pointer-over: #000000;
+  --wui-split-button-foreground-pressed: #000000;
+  --wui-split-button-foreground-disabled: #00000066;
+  --wui-split-button-foreground-checked: #ffffff;
+  --wui-split-button-foreground-checked-pointer-over: #ffffff;
+  --wui-split-button-foreground-checked-pressed: #ffffff;
+  --wui-split-button-foreground-checked-disabled: #00000066;
+  --wui-split-button-border: transparent;
+  --wui-split-button-border-brush-pointer-over: #00000066;
+  --wui-split-button-border-brush-pressed: transparent;
+  --wui-split-button-border-brush-disabled: transparent;
+  --wui-split-button-border-brush-checked: transparent;
+  --wui-split-button-border-brush-checked-pointer-over: #00000066;
+  --wui-split-button-border-brush-checked-pressed: transparent;
+  --wui-split-button-border-brush-checked-disabled: transparent;
+
+  /* Command* */
+  --wui-command-bar-flyout-button-background: transparent;
+
+  /* Auto* */
   --wui-auto-suggest-box-icon-font-size: 12px;
 
+  /* Menu* */
+  --wui-menu-flyout-item-keyboard-accelerator-text-foreground: #00000099;
+  --wui-menu-flyout-item-keyboard-accelerator-text-foreground-pointer-over: #00000099;
+  --wui-menu-flyout-item-keyboard-accelerator-text-foreground-pressed: #00000099;
+  --wui-menu-flyout-item-keyboard-accelerator-text-foreground-disabled: #00000066;
+
+  /* App* */
+  --wui-app-bar-button-keyboard-accelerator-text-foreground: #00000099;
+  --wui-app-bar-button-keyboard-accelerator-text-foreground-pointer-over: #00000099;
+  --wui-app-bar-button-keyboard-accelerator-text-foreground-pressed: #00000099;
+  --wui-app-bar-button-keyboard-accelerator-text-foreground-disabled: #00000066;
+  --wui-app-bar-toggle-button-keyboard-accelerator-text-foreground: #00000099;
+  --wui-app-bar-toggle-button-keyboard-accelerator-text-foreground-pointer-over: #00000099;
+  --wui-app-bar-toggle-button-keyboard-accelerator-text-foreground-pressed: #00000099;
+  --wui-app-bar-toggle-button-keyboard-accelerator-text-foreground-disabled: #00000066;
+  --wui-app-bar-toggle-button-keyboard-accelerator-text-foreground-checked: #00000099;
+  --wui-app-bar-toggle-button-keyboard-accelerator-text-foreground-checked-pointer-over: #00000099;
+  --wui-app-bar-toggle-button-keyboard-accelerator-text-foreground-checked-pressed: #00000099;
+  --wui-app-bar-toggle-button-keyboard-accelerator-text-foreground-checked-disabled: #00000066;
+
+  /* Menu* */
+  --wui-menu-flyout-item-reveal-background: transparent;
+  --wui-menu-flyout-item-reveal-background-pointer-over: #00000019;
+  --wui-menu-flyout-item-reveal-background-pressed: #00000033;
+  --wui-menu-flyout-item-reveal-background-disabled: transparent;
+  --wui-menu-flyout-item-reveal-border: transparent;
+  --wui-menu-flyout-item-reveal-border-brush-pressed: transparent;
+  --wui-menu-flyout-item-reveal-border-brush-pointer-over: transparent;
+  --wui-menu-flyout-item-reveal-border-brush-disabled: transparent;
+
+  /* Toggle* */
+  --wui-toggle-menu-flyout-item-reveal-background: transparent;
+  --wui-toggle-menu-flyout-item-reveal-background-pointer-over: #00000019;
+  --wui-toggle-menu-flyout-item-reveal-background-pressed: #00000033;
+  --wui-toggle-menu-flyout-item-reveal-background-disabled: transparent;
+  --wui-toggle-menu-flyout-item-reveal-border: transparent;
+  --wui-toggle-menu-flyout-item-reveal-border-brush-pressed: transparent;
+  --wui-toggle-menu-flyout-item-reveal-border-brush-pointer-over: transparent;
+  --wui-toggle-menu-flyout-item-reveal-border-brush-disabled: transparent;
+
+  /* Menu* */
+  --wui-menu-flyout-sub-item-reveal-background: transparent;
+  --wui-menu-flyout-sub-item-reveal-background-pointer-over: #00000019;
+  --wui-menu-flyout-sub-item-reveal-background-pressed: var(--wui-system-accent-color);
+  --wui-menu-flyout-sub-item-reveal-background-sub-menu-opened: var(--wui-system-accent-color-light-3);
+  --wui-menu-flyout-sub-item-reveal-background-disabled: transparent;
+  --wui-menu-flyout-sub-item-reveal-border: transparent;
+  --wui-menu-flyout-sub-item-reveal-border-brush-pressed: transparent;
+  --wui-menu-flyout-sub-item-reveal-border-brush-pointer-over: transparent;
+  --wui-menu-flyout-sub-item-reveal-border-brush-sub-menu-opened: transparent;
+  --wui-menu-flyout-sub-item-reveal-border-brush-disabled: transparent;
+
+  /* App* */
+  --wui-app-bar-button-background-sub-menu-opened: var(--wui-system-accent-color);
+  --wui-app-bar-button-foreground-sub-menu-opened: #000000;
+  --wui-app-bar-button-keyboard-accelerator-text-foreground-sub-menu-opened: #00000099;
+  --wui-app-bar-button-border-brush-sub-menu-opened: transparent;
+  --wui-app-bar-button-sub-item-chevron-foreground: #000000cc;
+  --wui-app-bar-button-sub-item-chevron-foreground-pointer-over: #000000;
+  --wui-app-bar-button-sub-item-chevron-foreground-pressed: #000000;
+  --wui-app-bar-button-sub-item-chevron-foreground-sub-menu-opened: #000000;
+  --wui-app-bar-button-sub-item-chevron-foreground-disabled: #00000066;
+
   /* Window* */
+  --wui-window-caption-background: #00000033;
+  --wui-window-caption-background-disabled: #00000033;
+  --wui-window-caption-foreground: #000000;
+  --wui-window-caption-foreground-disabled: #00000066;
+  --wui-window-caption-button-background-pointer-over: #00000033;
+  --wui-window-caption-button-background-pressed: #00000066;
+  --wui-window-caption-button-stroke: #000000;
+  --wui-window-caption-button-stroke-pointer-over: #000000;
+  --wui-window-caption-button-stroke-pressed: #000000;
   --wui-window-caption-button-background: transparent;
 
   /* Close* */
@@ -881,17 +2082,689 @@
   --wui-system-control-error-text-foreground: #fff000;
   --wui-system-control-transient-border: #000000;
   --wui-system-control-transient-background: #2b2b2b;
+  --wui-system-control-description-text-foreground: #ffffff99;
+
+  /* Slider* */
+  --wui-slider-container-background: transparent;
+  --wui-slider-container-background-pointer-over: transparent;
+  --wui-slider-container-background-pressed: transparent;
+  --wui-slider-container-background-disabled: transparent;
+  --wui-slider-thumb-background: var(--wui-system-accent-color);
+  --wui-slider-thumb-background-pointer-over: #f2f2f2;
+  --wui-slider-thumb-background-pressed: #767676;
+  --wui-slider-thumb-background-disabled: #333333;
+  --wui-slider-track-fill: #ffffff66;
+  --wui-slider-track-fill-pointer-over: #ffffff99;
+  --wui-slider-track-fill-pressed: #ffffff66;
+  --wui-slider-track-fill-disabled: #333333;
+  --wui-slider-track-value-fill: var(--wui-system-accent-color);
+  --wui-slider-track-value-fill-pointer-over: var(--wui-system-accent-color);
+  --wui-slider-track-value-fill-pressed: var(--wui-system-accent-color);
+  --wui-slider-track-value-fill-disabled: #333333;
+  --wui-slider-header-foreground: #ffffff;
+  --wui-slider-header-foreground-disabled: #ffffff66;
+  --wui-slider-tick-bar-fill: #ffffff66;
+  --wui-slider-tick-bar-fill-disabled: #ffffff66;
+  --wui-slider-inline-tick-bar-fill: #000000;
+
+  /* Button* */
+  --wui-button-background: #ffffff33;
+  --wui-button-background-pointer-over: #ffffff33;
+  --wui-button-background-pressed: #ffffff66;
+  --wui-button-background-disabled: #ffffff33;
+  --wui-button-foreground: #ffffff;
+  --wui-button-foreground-pointer-over: #ffffff;
+  --wui-button-foreground-pressed: #ffffff;
+  --wui-button-foreground-disabled: #ffffff66;
+  --wui-button-border: transparent;
+  --wui-button-border-brush-pointer-over: #ffffff66;
+  --wui-button-border-brush-pressed: transparent;
+  --wui-button-border-brush-disabled: transparent;
+
+  /* Radio* */
+  --wui-radio-button-foreground: #ffffff;
+  --wui-radio-button-foreground-pointer-over: #ffffff;
+  --wui-radio-button-foreground-pressed: #ffffff;
+  --wui-radio-button-foreground-disabled: #ffffff66;
+  --wui-radio-button-background: transparent;
+  --wui-radio-button-background-pointer-over: transparent;
+  --wui-radio-button-background-pressed: transparent;
+  --wui-radio-button-background-disabled: transparent;
+  --wui-radio-button-border: transparent;
+  --wui-radio-button-border-brush-pointer-over: transparent;
+  --wui-radio-button-border-brush-pressed: transparent;
+  --wui-radio-button-border-brush-disabled: transparent;
+  --wui-radio-button-outer-ellipse-stroke: #ffffffcc;
+  --wui-radio-button-outer-ellipse-stroke-pointer-over: #ffffff;
+  --wui-radio-button-outer-ellipse-stroke-pressed: #ffffff99;
+  --wui-radio-button-outer-ellipse-stroke-disabled: #ffffff66;
+  --wui-radio-button-outer-ellipse-fill: transparent;
+  --wui-radio-button-outer-ellipse-fill-pointer-over: transparent;
+  --wui-radio-button-outer-ellipse-fill-pressed: transparent;
+  --wui-radio-button-outer-ellipse-fill-disabled: transparent;
+  --wui-radio-button-outer-ellipse-checked-stroke: var(--wui-system-accent-color);
+  --wui-radio-button-outer-ellipse-checked-stroke-pointer-over: var(--wui-system-accent-color);
+  --wui-radio-button-outer-ellipse-checked-stroke-pressed: #ffffff99;
+  --wui-radio-button-outer-ellipse-checked-stroke-disabled: #ffffff66;
+  --wui-radio-button-outer-ellipse-checked-fill: transparent;
+  --wui-radio-button-outer-ellipse-checked-fill-pointer-over: transparent;
+  --wui-radio-button-outer-ellipse-checked-fill-pressed: transparent;
+  --wui-radio-button-outer-ellipse-checked-fill-disabled: transparent;
+  --wui-radio-button-check-glyph-fill: #ffffffcc;
+  --wui-radio-button-check-glyph-fill-pointer-over: #ffffff;
+  --wui-radio-button-check-glyph-fill-pressed: #ffffff99;
+  --wui-radio-button-check-glyph-fill-disabled: #ffffff66;
+  --wui-radio-button-check-glyph-stroke: transparent;
+  --wui-radio-button-check-glyph-stroke-pointer-over: transparent;
+  --wui-radio-button-check-glyph-stroke-pressed: transparent;
+  --wui-radio-button-check-glyph-stroke-disabled: transparent;
+
+  /* Check* */
+  --wui-check-box-foreground-unchecked: #ffffff;
+  --wui-check-box-foreground-unchecked-pointer-over: #ffffff;
+  --wui-check-box-foreground-unchecked-pressed: #ffffff;
+  --wui-check-box-foreground-unchecked-disabled: #ffffff66;
+  --wui-check-box-foreground-checked: #ffffff;
+  --wui-check-box-foreground-checked-pointer-over: #ffffff;
+  --wui-check-box-foreground-checked-pressed: #ffffff;
+  --wui-check-box-foreground-checked-disabled: #ffffff66;
+  --wui-check-box-foreground-indeterminate: #ffffff;
+  --wui-check-box-foreground-indeterminate-pointer-over: #ffffff;
+  --wui-check-box-foreground-indeterminate-pressed: #ffffff;
+  --wui-check-box-foreground-indeterminate-disabled: #ffffff66;
+  --wui-check-box-background-unchecked: transparent;
+  --wui-check-box-background-unchecked-pointer-over: transparent;
+  --wui-check-box-background-unchecked-pressed: transparent;
+  --wui-check-box-background-unchecked-disabled: transparent;
+  --wui-check-box-background-checked: transparent;
+  --wui-check-box-background-checked-pointer-over: transparent;
+  --wui-check-box-background-checked-pressed: transparent;
+  --wui-check-box-background-checked-disabled: transparent;
+  --wui-check-box-background-indeterminate: transparent;
+  --wui-check-box-background-indeterminate-pointer-over: transparent;
+  --wui-check-box-background-indeterminate-pressed: transparent;
+  --wui-check-box-background-indeterminate-disabled: transparent;
+  --wui-check-box-border-brush-unchecked: transparent;
+  --wui-check-box-border-brush-unchecked-pointer-over: transparent;
+  --wui-check-box-border-brush-unchecked-pressed: transparent;
+  --wui-check-box-border-brush-unchecked-disabled: transparent;
+  --wui-check-box-border-brush-checked: transparent;
+  --wui-check-box-border-brush-checked-pointer-over: transparent;
+  --wui-check-box-border-brush-checked-pressed: transparent;
+  --wui-check-box-border-brush-checked-disabled: transparent;
+  --wui-check-box-border-brush-indeterminate: transparent;
+  --wui-check-box-border-brush-indeterminate-pointer-over: transparent;
+  --wui-check-box-border-brush-indeterminate-pressed: transparent;
+  --wui-check-box-border-brush-indeterminate-disabled: transparent;
+  --wui-check-box-check-background-stroke-unchecked: #ffffffcc;
+  --wui-check-box-check-background-stroke-unchecked-pointer-over: #ffffff;
+  --wui-check-box-check-background-stroke-unchecked-pressed: transparent;
+  --wui-check-box-check-background-stroke-unchecked-disabled: #ffffff66;
+  --wui-check-box-check-background-stroke-checked: transparent;
+  --wui-check-box-check-background-stroke-checked-pointer-over: #ffffff;
+  --wui-check-box-check-background-stroke-checked-pressed: transparent;
+  --wui-check-box-check-background-stroke-checked-disabled: #ffffff66;
+  --wui-check-box-check-background-stroke-indeterminate: var(--wui-system-accent-color);
+  --wui-check-box-check-background-stroke-indeterminate-pointer-over: var(--wui-system-accent-color);
+  --wui-check-box-check-background-stroke-indeterminate-pressed: #ffffff99;
+  --wui-check-box-check-background-stroke-indeterminate-disabled: #ffffff66;
+  --wui-check-box-check-background-fill-unchecked: transparent;
+  --wui-check-box-check-background-fill-unchecked-pointer-over: transparent;
+  --wui-check-box-check-background-fill-unchecked-pressed: #ffffff99;
+  --wui-check-box-check-background-fill-unchecked-disabled: transparent;
+  --wui-check-box-check-background-fill-checked: var(--wui-system-accent-color);
+  --wui-check-box-check-background-fill-checked-pointer-over: var(--wui-system-accent-color);
+  --wui-check-box-check-background-fill-checked-pressed: #ffffff99;
+  --wui-check-box-check-background-fill-checked-disabled: transparent;
+  --wui-check-box-check-background-fill-indeterminate: transparent;
+  --wui-check-box-check-background-fill-indeterminate-pointer-over: transparent;
+  --wui-check-box-check-background-fill-indeterminate-pressed: transparent;
+  --wui-check-box-check-background-fill-indeterminate-disabled: transparent;
+  --wui-check-box-check-glyph-foreground-unchecked: #ffffff;
+  --wui-check-box-check-glyph-foreground-unchecked-pointer-over: #ffffff;
+  --wui-check-box-check-glyph-foreground-unchecked-pressed: #ffffff;
+  --wui-check-box-check-glyph-foreground-unchecked-disabled: #ffffff;
+  --wui-check-box-check-glyph-foreground-checked: #ffffff;
+  --wui-check-box-check-glyph-foreground-checked-pointer-over: #ffffff;
+  --wui-check-box-check-glyph-foreground-checked-pressed: #ffffff;
+  --wui-check-box-check-glyph-foreground-checked-disabled: #ffffff66;
+  --wui-check-box-check-glyph-foreground-indeterminate: #ffffffcc;
+  --wui-check-box-check-glyph-foreground-indeterminate-pointer-over: #ffffff;
+  --wui-check-box-check-glyph-foreground-indeterminate-pressed: #ffffff99;
+  --wui-check-box-check-glyph-foreground-indeterminate-disabled: #ffffff66;
+
+  /* Hyperlink* */
+  --wui-hyperlink-button-foreground: var(--wui-system-accent-color);
+  --wui-hyperlink-button-foreground-pointer-over: #ffffff99;
+  --wui-hyperlink-button-foreground-pressed: #ffffff66;
+  --wui-hyperlink-button-foreground-disabled: #ffffff66;
+  --wui-hyperlink-button-background: transparent;
+  --wui-hyperlink-button-background-pointer-over: transparent;
+  --wui-hyperlink-button-background-pressed: transparent;
+  --wui-hyperlink-button-background-disabled: transparent;
+  --wui-hyperlink-button-border: transparent;
+  --wui-hyperlink-button-border-brush-pointer-over: transparent;
+  --wui-hyperlink-button-border-brush-pressed: transparent;
+  --wui-hyperlink-button-border-brush-disabled: transparent;
+
+  /* Repeat* */
+  --wui-repeat-button-background: #ffffff33;
+  --wui-repeat-button-background-pointer-over: #ffffff33;
+  --wui-repeat-button-background-pressed: #ffffff66;
+  --wui-repeat-button-background-disabled: #ffffff33;
+  --wui-repeat-button-foreground: #ffffff;
+  --wui-repeat-button-foreground-pointer-over: #ffffff;
+  --wui-repeat-button-foreground-pressed: #ffffff;
+  --wui-repeat-button-foreground-disabled: #ffffff66;
+  --wui-repeat-button-border: transparent;
+  --wui-repeat-button-border-brush-pointer-over: #ffffff66;
+  --wui-repeat-button-border-brush-pressed: transparent;
+  --wui-repeat-button-border-brush-disabled: transparent;
+
+  /* Toggle* */
+  --wui-toggle-switch-content-foreground: #ffffff;
+  --wui-toggle-switch-content-foreground-disabled: #ffffff66;
+  --wui-toggle-switch-header-foreground: #ffffff;
+  --wui-toggle-switch-header-foreground-disabled: #ffffff66;
+  --wui-toggle-switch-container-background: transparent;
+  --wui-toggle-switch-container-background-pointer-over: transparent;
+  --wui-toggle-switch-container-background-pressed: transparent;
+  --wui-toggle-switch-container-background-disabled: transparent;
+  --wui-toggle-switch-fill-off: transparent;
+  --wui-toggle-switch-fill-off-pointer-over: transparent;
+  --wui-toggle-switch-fill-off-pressed: #ffffff99;
+  --wui-toggle-switch-fill-off-disabled: transparent;
+  --wui-toggle-switch-stroke-off: #ffffffcc;
+  --wui-toggle-switch-stroke-off-pointer-over: #ffffff;
+  --wui-toggle-switch-stroke-off-pressed: #ffffffcc;
+  --wui-toggle-switch-stroke-off-disabled: #ffffff66;
+  --wui-toggle-switch-fill-on: var(--wui-system-accent-color);
+  --wui-toggle-switch-fill-on-pointer-over: var(--wui-system-accent-color);
+  --wui-toggle-switch-fill-on-pressed: #ffffff99;
+  --wui-toggle-switch-fill-on-disabled: #ffffff33;
+  --wui-toggle-switch-stroke-on: #ffffff;
+  --wui-toggle-switch-stroke-on-pointer-over: var(--wui-system-accent-color);
+  --wui-toggle-switch-stroke-on-pressed: #ffffff99;
+  --wui-toggle-switch-stroke-on-disabled: #ffffff66;
+  --wui-toggle-switch-knob-fill-off: #ffffffcc;
+  --wui-toggle-switch-knob-fill-off-pointer-over: #ffffff;
+  --wui-toggle-switch-knob-fill-off-pressed: #ffffff;
+  --wui-toggle-switch-knob-fill-off-disabled: #ffffff66;
+  --wui-toggle-switch-knob-fill-on: #ffffff;
+  --wui-toggle-switch-knob-fill-on-pointer-over: #ffffff;
+  --wui-toggle-switch-knob-fill-on-pressed: #ffffff;
+  --wui-toggle-switch-knob-fill-on-disabled: #ffffff33;
+
+  /* Thumb* */
+  --wui-thumb-background: #ffffff33;
+  --wui-thumb-background-pointer-over: #ffffff66;
+  --wui-thumb-background-pressed: #ffffff99;
+  --wui-thumb-border: transparent;
+  --wui-thumb-border-brush-pointer-over: transparent;
+  --wui-thumb-border-brush-pressed: transparent;
+
+  /* Toggle* */
+  --wui-toggle-button-background: #ffffff33;
+  --wui-toggle-button-background-pointer-over: #ffffff33;
+  --wui-toggle-button-background-pressed: #ffffff66;
+  --wui-toggle-button-background-disabled: #ffffff33;
+  --wui-toggle-button-background-checked: var(--wui-system-accent-color);
+  --wui-toggle-button-background-checked-pointer-over: var(--wui-system-accent-color);
+  --wui-toggle-button-background-checked-pressed: #ffffff66;
+  --wui-toggle-button-background-checked-disabled: #ffffff33;
+  --wui-toggle-button-background-indeterminate: #ffffff33;
+  --wui-toggle-button-background-indeterminate-pointer-over: #ffffff33;
+  --wui-toggle-button-background-indeterminate-pressed: #ffffff66;
+  --wui-toggle-button-background-indeterminate-disabled: #ffffff33;
+  --wui-toggle-button-foreground: #ffffff;
+  --wui-toggle-button-foreground-pointer-over: #ffffff;
+  --wui-toggle-button-foreground-pressed: #ffffff;
+  --wui-toggle-button-foreground-disabled: #ffffff66;
+  --wui-toggle-button-foreground-checked: #ffffff;
+  --wui-toggle-button-foreground-checked-pointer-over: #ffffff;
+  --wui-toggle-button-foreground-checked-pressed: #ffffff;
+  --wui-toggle-button-foreground-checked-disabled: #ffffff66;
+  --wui-toggle-button-foreground-indeterminate: #ffffff;
+  --wui-toggle-button-foreground-indeterminate-pointer-over: #ffffff;
+  --wui-toggle-button-foreground-indeterminate-pressed: #ffffff;
+  --wui-toggle-button-foreground-indeterminate-disabled: #ffffff66;
+  --wui-toggle-button-border: transparent;
+  --wui-toggle-button-border-brush-pointer-over: #ffffff66;
+  --wui-toggle-button-border-brush-pressed: transparent;
+  --wui-toggle-button-border-brush-disabled: transparent;
+  --wui-toggle-button-border-brush-checked: transparent;
+  --wui-toggle-button-border-brush-checked-pointer-over: #ffffff66;
+  --wui-toggle-button-border-brush-checked-pressed: transparent;
+  --wui-toggle-button-border-brush-checked-disabled: transparent;
+  --wui-toggle-button-border-brush-indeterminate: transparent;
+  --wui-toggle-button-border-brush-indeterminate-pointer-over: #ffffff66;
+  --wui-toggle-button-border-brush-indeterminate-pressed: transparent;
+  --wui-toggle-button-border-brush-indeterminate-disabled: transparent;
 
   /* Scroll* */
+  --wui-scroll-bar-background: transparent;
+  --wui-scroll-bar-background-pointer-over: transparent;
+  --wui-scroll-bar-background-disabled: transparent;
+  --wui-scroll-bar-foreground: transparent;
+  --wui-scroll-bar-border: transparent;
+  --wui-scroll-bar-border-brush-pointer-over: transparent;
+  --wui-scroll-bar-border-brush-disabled: transparent;
+  --wui-scroll-bar-button-background: transparent;
+  --wui-scroll-bar-button-background-pointer-over: #ffffff19;
+  --wui-scroll-bar-button-background-pressed: #ffffff99;
+  --wui-scroll-bar-button-background-disabled: transparent;
+  --wui-scroll-bar-button-border: transparent;
+  --wui-scroll-bar-button-border-brush-pointer-over: transparent;
+  --wui-scroll-bar-button-border-brush-pressed: transparent;
+  --wui-scroll-bar-button-border-brush-disabled: transparent;
+  --wui-scroll-bar-button-arrow-foreground: #ffffff;
+  --wui-scroll-bar-button-arrow-foreground-pointer-over: #ffffff;
+  --wui-scroll-bar-button-arrow-foreground-pressed: #000000;
+  --wui-scroll-bar-button-arrow-foreground-disabled: #ffffff33;
+  --wui-scroll-bar-thumb-fill: #858585;
+  --wui-scroll-bar-thumb-fill-pointer-over: #ffffff66;
+  --wui-scroll-bar-thumb-fill-pressed: #ffffff99;
+  --wui-scroll-bar-thumb-fill-disabled: transparent;
   --wui-scroll-bar-track-fill: #1f1f1f;
   --wui-scroll-bar-track-fill-pointer-over: #1f1f1f;
+  --wui-scroll-bar-track-fill-disabled: transparent;
+  --wui-scroll-bar-track-stroke: transparent;
+  --wui-scroll-bar-track-stroke-pointer-over: transparent;
+  --wui-scroll-bar-track-stroke-disabled: transparent;
+  --wui-scroll-bar-panning-thumb-background-disabled: #767676;
   --wui-scroll-bar-thumb-background: #ffffff33;
   --wui-scroll-bar-panning-thumb-background: #858585;
   --wui-scroll-bar-button-arrow-icon-font-size: 8px;
   --wui-scroll-viewer-scroll-bar-separator-background: #1f1f1f;
 
+  /* List* */
+  --wui-list-view-header-item-background: transparent;
+  --wui-list-view-header-item-divider-stroke: #ffffff33;
+
+  /* Combo* */
+  --wui-combo-box-item-foreground: #ffffff;
+  --wui-combo-box-item-foreground-pressed: #ffffff;
+  --wui-combo-box-item-foreground-pointer-over: #ffffff;
+  --wui-combo-box-item-foreground-disabled: #ffffff66;
+  --wui-combo-box-item-foreground-selected: #ffffff;
+  --wui-combo-box-item-foreground-selected-unfocused: #ffffff;
+  --wui-combo-box-item-foreground-selected-pressed: #ffffff;
+  --wui-combo-box-item-foreground-selected-pointer-over: #ffffff;
+  --wui-combo-box-item-foreground-selected-disabled: #ffffff66;
+  --wui-combo-box-item-background: transparent;
+  --wui-combo-box-item-background-pressed: #ffffff33;
+  --wui-combo-box-item-background-pointer-over: #ffffff19;
+  --wui-combo-box-item-background-disabled: transparent;
+  --wui-combo-box-item-background-selected: var(--wui-system-accent-color);
+  --wui-combo-box-item-background-selected-unfocused: var(--wui-system-accent-color);
+  --wui-combo-box-item-background-selected-pressed: var(--wui-system-accent-color);
+  --wui-combo-box-item-background-selected-pointer-over: var(--wui-system-accent-color);
+  --wui-combo-box-item-background-selected-disabled: transparent;
+  --wui-combo-box-item-border: transparent;
+  --wui-combo-box-item-border-brush-pressed: transparent;
+  --wui-combo-box-item-border-brush-pointer-over: transparent;
+  --wui-combo-box-item-border-brush-disabled: transparent;
+  --wui-combo-box-item-border-brush-selected: transparent;
+  --wui-combo-box-item-border-brush-selected-unfocused: transparent;
+  --wui-combo-box-item-border-brush-selected-pressed: transparent;
+  --wui-combo-box-item-border-brush-selected-pointer-over: transparent;
+  --wui-combo-box-item-border-brush-selected-disabled: transparent;
+  --wui-combo-box-background: #00000066;
+  --wui-combo-box-background-pointer-over: #00000099;
+  --wui-combo-box-background-pressed: #ffffff33;
+  --wui-combo-box-background-disabled: #ffffff33;
+  --wui-combo-box-background-unfocused: var(--wui-system-accent-color);
+  --wui-combo-box-background-border-brush-focused: transparent;
+  --wui-combo-box-background-border-brush-unfocused: #ffffff66;
+  --wui-combo-box-foreground: #ffffff;
+  --wui-combo-box-foreground-disabled: #ffffff66;
+  --wui-combo-box-foreground-focused: #ffffff;
+  --wui-combo-box-foreground-focused-pressed: #ffffff;
+  --wui-combo-box-place-holder-foreground: #ffffff;
+  --wui-combo-box-place-holder-foreground-focused-pressed: #ffffff;
+  --wui-combo-box-border: #ffffff66;
+  --wui-combo-box-border-brush-pointer-over: #ffffff99;
+  --wui-combo-box-border-brush-pressed: #ffffff66;
+  --wui-combo-box-border-brush-disabled: #ffffff33;
+  --wui-combo-box-drop-down-background-pointer-over: #ffffff19;
+  --wui-combo-box-drop-down-background-pointer-pressed: #ffffff33;
+  --wui-combo-box-focused-drop-down-background-pointer-over: #00000033;
+  --wui-combo-box-focused-drop-down-background-pointer-pressed: #00000066;
+  --wui-combo-box-drop-down-glyph-foreground: #ffffffcc;
+  --wui-combo-box-editable-drop-down-glyph-foreground: #000000cc;
+  --wui-combo-box-drop-down-glyph-foreground-disabled: #ffffff66;
+  --wui-combo-box-drop-down-glyph-foreground-focused: #ffffffcc;
+  --wui-combo-box-drop-down-glyph-foreground-focused-pressed: #ffffffcc;
+  --wui-combo-box-drop-down-background: #2b2b2b;
+  --wui-combo-box-drop-down-foreground: #ffffff;
+  --wui-combo-box-drop-down-border: #000000;
+
+  /* App* */
+  --wui-app-bar-separator-foreground: #ffffff66;
+  --wui-app-bar-ellipsis-button-background: transparent;
+  --wui-app-bar-ellipsis-button-background-pointer-over: #ffffff19;
+  --wui-app-bar-ellipsis-button-background-pressed: #ffffff33;
+  --wui-app-bar-ellipsis-button-background-disabled: transparent;
+  --wui-app-bar-ellipsis-button-foreground: #ffffff;
+  --wui-app-bar-ellipsis-button-foreground-pointer-over: #ffffff;
+  --wui-app-bar-ellipsis-button-foreground-pressed: #ffffff;
+  --wui-app-bar-ellipsis-button-foreground-disabled: #ffffff66;
+  --wui-app-bar-ellipsis-button-border: transparent;
+  --wui-app-bar-ellipsis-button-border-brush-pointer-over: transparent;
+  --wui-app-bar-ellipsis-button-border-brush-pressed: transparent;
+  --wui-app-bar-ellipsis-button-border-brush-disabled: transparent;
+  --wui-app-bar-background: #1f1f1f;
+  --wui-app-bar-foreground: #ffffff;
+  --wui-app-bar-high-contrast-border: transparent;
+
+  /* Content* */
+  --wui-content-dialog-foreground: #ffffff;
+  --wui-content-dialog-background: #000000;
+  --wui-content-dialog-border: #ffffff33;
+
+  /* Accent* */
+  --wui-accent-button-background: var(--wui-system-accent-color);
+  --wui-accent-button-background-pointer-over: var(--wui-system-accent-color);
+  --wui-accent-button-background-pressed: #ffffff66;
+  --wui-accent-button-background-disabled: #ffffff33;
+  --wui-accent-button-foreground: #ffffff;
+  --wui-accent-button-foreground-pointer-over: #ffffff;
+  --wui-accent-button-foreground-pressed: #ffffff;
+  --wui-accent-button-foreground-disabled: #ffffff66;
+  --wui-accent-button-border: transparent;
+  --wui-accent-button-border-brush-pointer-over: #ffffff66;
+  --wui-accent-button-border-brush-pressed: transparent;
+  --wui-accent-button-border-brush-disabled: transparent;
+
+  /* Tool* */
+  --wui-tool-tip-foreground: #ffffff;
+  --wui-tool-tip-background: #2b2b2b;
+  --wui-tool-tip-border: #000000;
+
+  /* Calendar* */
+  --wui-calendar-date-picker-foreground: #ffffff;
+  --wui-calendar-date-picker-foreground-disabled: #ffffff66;
+  --wui-calendar-date-picker-calendar-glyph-foreground: #ffffffcc;
+  --wui-calendar-date-picker-calendar-glyph-foreground-disabled: #ffffff66;
+  --wui-calendar-date-picker-text-foreground: #ffffff99;
+  --wui-calendar-date-picker-text-foreground-disabled: #ffffff66;
+  --wui-calendar-date-picker-text-foreground-selected: #ffffff;
+  --wui-calendar-date-picker-header-foreground-disabled: #ffffff66;
+  --wui-calendar-date-picker-background: #00000066;
+  --wui-calendar-date-picker-background-pointer-over: #00000099;
+  --wui-calendar-date-picker-background-pressed: #ffffff33;
+  --wui-calendar-date-picker-background-disabled: #ffffff33;
+  --wui-calendar-date-picker-background-focused: var(--wui-system-accent-color);
+  --wui-calendar-date-picker-border: #ffffff66;
+  --wui-calendar-date-picker-border-brush-pointer-over: #ffffff99;
+  --wui-calendar-date-picker-border-brush-pressed: #ffffff66;
+  --wui-calendar-date-picker-border-brush-disabled: #ffffff33;
+  --wui-calendar-view-focus-border: #ffffff;
+  --wui-calendar-view-selected-hover-border: var(--wui-system-accent-color);
+  --wui-calendar-view-selected-pressed-border: var(--wui-system-accent-color);
+  --wui-calendar-view-selected-border: var(--wui-system-accent-color);
+  --wui-calendar-view-hover-border: #ffffff66;
+  --wui-calendar-view-pressed-border: #ffffff99;
+  --wui-calendar-view-today-foreground: #ffffff;
+  --wui-calendar-view-blackout-foreground: #ffffff66;
+  --wui-calendar-view-selected-foreground: #ffffff;
+  --wui-calendar-view-pressed-foreground: #ffffff;
+  --wui-calendar-view-out-of-scope-foreground: #ffffff;
+  --wui-calendar-view-calendar-item-foreground: #ffffff;
+  --wui-calendar-view-out-of-scope-background: #2b2b2b;
+  --wui-calendar-view-calendar-item-background: #000000;
+  --wui-calendar-view-foreground: #ffffffcc;
+  --wui-calendar-view-background: #000000;
+  --wui-calendar-view-border: #1f1f1f;
+  --wui-calendar-view-week-day-foreground-disabled: #ffffff66;
+  --wui-calendar-view-navigation-button-background: transparent;
+  --wui-calendar-view-navigation-button-foreground-pointer-over: #ffffff;
+  --wui-calendar-view-navigation-button-foreground-pressed: #ffffff99;
+  --wui-calendar-view-navigation-button-foreground-disabled: #ffffff66;
+  --wui-calendar-view-calendar-item-reveal-background: transparent;
+  --wui-calendar-view-calendar-item-reveal-border: transparent;
+  --wui-calendar-view-navigation-button-border-brush-pointer-over: transparent;
+  --wui-calendar-view-navigation-button-border: transparent;
+
+  /* Hub* */
+  --wui-hub-foreground: #ffffff;
+  --wui-hub-section-header-button-foreground: var(--wui-system-accent-color);
+  --wui-hub-section-header-button-foreground-pointer-over: #ffffff99;
+  --wui-hub-section-header-button-foreground-pressed: #ffffff66;
+  --wui-hub-section-header-button-foreground-disabled: #ffffff66;
+  --wui-hub-section-header-foreground: #ffffff;
+
+  /* Flip* */
+  --wui-flip-view-background: #ffffff19;
+  --wui-flip-view-next-previous-button-background: #ffffff66;
+  --wui-flip-view-next-previous-button-background-pointer-over: #ffffff99;
+  --wui-flip-view-next-previous-button-background-pressed: #ffffffcc;
+  --wui-flip-view-next-previous-arrow-foreground: #000000cc;
+  --wui-flip-view-next-previous-arrow-foreground-pointer-over: #000000cc;
+  --wui-flip-view-next-previous-arrow-foreground-pressed: #000000cc;
+  --wui-flip-view-next-previous-button-border: transparent;
+  --wui-flip-view-next-previous-button-border-brush-pointer-over: transparent;
+  --wui-flip-view-next-previous-button-border-brush-pressed: transparent;
+  --wui-flip-view-item-background: transparent;
+
+  /* Date* */
+  --wui-date-time-picker-flyout-button-background: transparent;
+  --wui-date-time-picker-flyout-button-background-pointer-over: #ffffff19;
+  --wui-date-time-picker-flyout-button-background-pressed: #ffffff33;
+  --wui-date-time-picker-flyout-button-border: transparent;
+  --wui-date-time-picker-flyout-button-border-brush-pointer-over: transparent;
+  --wui-date-time-picker-flyout-button-border-brush-pressed: transparent;
+  --wui-date-time-picker-flyout-button-foreground-pointer-over: #ffffff;
+  --wui-date-time-picker-flyout-button-foreground-pressed: #ffffff;
+  --wui-date-picker-spacer-fill: #ffffff33;
+  --wui-date-picker-spacer-fill-disabled: #ffffff33;
+  --wui-date-picker-header-foreground: #ffffff;
+  --wui-date-picker-header-foreground-disabled: #ffffff66;
+  --wui-date-picker-button-border: #ffffff66;
+  --wui-date-picker-button-border-brush-pointer-over: #ffffff99;
+  --wui-date-picker-button-border-brush-pressed: #ffffff66;
+  --wui-date-picker-button-border-brush-disabled: #ffffff33;
+  --wui-date-picker-button-background: #00000066;
+  --wui-date-picker-button-background-pointer-over: #00000099;
+  --wui-date-picker-button-background-pressed: #ffffff33;
+  --wui-date-picker-button-background-disabled: #ffffff33;
+  --wui-date-picker-button-background-focused: var(--wui-system-accent-color);
+  --wui-date-picker-button-foreground: #ffffff;
+  --wui-date-picker-button-foreground-pointer-over: #ffffff;
+  --wui-date-picker-button-foreground-pressed: #ffffff;
+  --wui-date-picker-button-foreground-disabled: #ffffff66;
+  --wui-date-picker-button-foreground-focused: #ffffff;
+  --wui-date-picker-flyout-presenter-background: #2b2b2b;
+  --wui-date-picker-flyout-presenter-border: #000000;
+  --wui-date-picker-flyout-presenter-spacer-fill: #ffffff33;
+  --wui-date-picker-flyout-presenter-highlight-fill: var(--wui-system-accent-color);
+
+  /* Time* */
+  --wui-time-picker-spacer-fill: #ffffff33;
+  --wui-time-picker-spacer-fill-disabled: #ffffff33;
+  --wui-time-picker-header-foreground: #ffffff;
+  --wui-time-picker-header-foreground-disabled: #ffffff66;
+  --wui-time-picker-button-border: #ffffff66;
+  --wui-time-picker-button-border-brush-pointer-over: #ffffff99;
+  --wui-time-picker-button-border-brush-pressed: #ffffff66;
+  --wui-time-picker-button-border-brush-disabled: #ffffff33;
+  --wui-time-picker-button-background: #00000066;
+  --wui-time-picker-button-background-pointer-over: #00000099;
+  --wui-time-picker-button-background-pressed: #ffffff33;
+  --wui-time-picker-button-background-disabled: #ffffff33;
+  --wui-time-picker-button-background-focused: var(--wui-system-accent-color);
+  --wui-time-picker-button-foreground: #ffffff;
+  --wui-time-picker-button-foreground-pointer-over: #ffffff;
+  --wui-time-picker-button-foreground-pressed: #ffffff;
+  --wui-time-picker-button-foreground-disabled: #ffffff66;
+  --wui-time-picker-button-foreground-focused: #ffffff;
+  --wui-time-picker-flyout-presenter-background: #2b2b2b;
+  --wui-time-picker-flyout-presenter-border: #000000;
+  --wui-time-picker-flyout-presenter-spacer-fill: #ffffff33;
+  --wui-time-picker-flyout-presenter-highlight-fill: var(--wui-system-accent-color);
+
+  /* Looping* */
+  --wui-looping-selector-button-background: #1f1f1f;
+  --wui-looping-selector-item-foreground: #ffffff;
+  --wui-looping-selector-item-foreground-selected: #ffffff;
+  --wui-looping-selector-item-foreground-pointer-over: #ffffff;
+  --wui-looping-selector-item-foreground-pressed: #ffffff;
+  --wui-looping-selector-item-background-pointer-over: #ffffff19;
+  --wui-looping-selector-item-background-pressed: #ffffff33;
+
   /* Text* */
+  --wui-text-control-foreground: #ffffff;
+  --wui-text-control-foreground-pointer-over: #ffffff;
+  --wui-text-control-foreground-focused: #000000;
+  --wui-text-control-foreground-disabled: #858585;
+  --wui-text-control-background: #00000066;
+  --wui-text-control-background-pointer-over: #00000099;
+  --wui-text-control-background-focused: #ffffff;
+  --wui-text-control-background-disabled: #ffffff33;
+  --wui-text-control-border: #ffffff66;
+  --wui-text-control-border-brush-pointer-over: #ffffff99;
+  --wui-text-control-border-brush-focused: var(--wui-system-accent-color);
+  --wui-text-control-border-brush-disabled: #ffffff33;
+  --wui-text-control-placeholder-foreground: #ffffff99;
+  --wui-text-control-placeholder-foreground-pointer-over: #ffffff99;
+  --wui-text-control-placeholder-foreground-focused: #00000066;
+  --wui-text-control-placeholder-foreground-disabled: #858585;
+  --wui-text-control-header-foreground: #ffffff;
+  --wui-text-control-header-foreground-disabled: #ffffff66;
+  --wui-text-control-selection-highlight-color: var(--wui-system-accent-color);
+  --wui-text-control-button-background: transparent;
+  --wui-text-control-button-background-pointer-over: transparent;
+  --wui-text-control-button-background-pressed: var(--wui-system-accent-color);
+  --wui-text-control-button-border: transparent;
+  --wui-text-control-button-border-brush-pointer-over: transparent;
+  --wui-text-control-button-border-brush-pressed: transparent;
+  --wui-text-control-button-foreground: #000000cc;
+  --wui-text-control-button-foreground-pointer-over: var(--wui-system-accent-color);
+  --wui-text-control-button-foreground-pressed: #ffffff;
+  --wui-text-control-highlighter-foreground: #000000;
   --wui-text-control-highlighter-background: #ffff00;
+
+  /* Flyout* */
+  --wui-flyout-presenter-background: #2b2b2b;
+  --wui-flyout-border-theme: #000000;
+
+  /* Toggle* */
+  --wui-toggle-menu-flyout-item-background: transparent;
+  --wui-toggle-menu-flyout-item-background-pointer-over: #ffffff19;
+  --wui-toggle-menu-flyout-item-background-pressed: #ffffff33;
+  --wui-toggle-menu-flyout-item-background-disabled: transparent;
+  --wui-toggle-menu-flyout-item-foreground: #ffffff;
+  --wui-toggle-menu-flyout-item-foreground-pointer-over: #ffffff;
+  --wui-toggle-menu-flyout-item-foreground-pressed: #ffffff;
+  --wui-toggle-menu-flyout-item-foreground-disabled: #ffffff66;
+  --wui-toggle-menu-flyout-item-keyboard-accelerator-text-foreground: #ffffff99;
+  --wui-toggle-menu-flyout-item-keyboard-accelerator-text-foreground-pointer-over: #ffffff99;
+  --wui-toggle-menu-flyout-item-keyboard-accelerator-text-foreground-pressed: #ffffff99;
+  --wui-toggle-menu-flyout-item-keyboard-accelerator-text-foreground-disabled: #ffffff66;
+  --wui-toggle-menu-flyout-item-check-glyph-foreground: #ffffffcc;
+  --wui-toggle-menu-flyout-item-check-glyph-foreground-pointer-over: #ffffff;
+  --wui-toggle-menu-flyout-item-check-glyph-foreground-pressed: #ffffff;
+  --wui-toggle-menu-flyout-item-check-glyph-foreground-disabled: #ffffff66;
+
+  /* Pivot* */
+  --wui-pivot-background: transparent;
+  --wui-pivot-header-background: transparent;
+  --wui-pivot-next-button-background: #ffffff66;
+  --wui-pivot-next-button-background-pointer-over: #ffffff99;
+  --wui-pivot-next-button-background-pressed: #ffffffcc;
+  --wui-pivot-next-button-border: transparent;
+  --wui-pivot-next-button-border-brush-pointer-over: transparent;
+  --wui-pivot-next-button-border-brush-pressed: transparent;
+  --wui-pivot-next-button-foreground: #000000cc;
+  --wui-pivot-next-button-foreground-pointer-over: #000000cc;
+  --wui-pivot-next-button-foreground-pressed: #000000cc;
+  --wui-pivot-previous-button-background: #ffffff66;
+  --wui-pivot-previous-button-background-pointer-over: #ffffff99;
+  --wui-pivot-previous-button-background-pressed: #ffffffcc;
+  --wui-pivot-previous-button-border: transparent;
+  --wui-pivot-previous-button-border-brush-pointer-over: transparent;
+  --wui-pivot-previous-button-border-brush-pressed: transparent;
+  --wui-pivot-previous-button-foreground: #000000cc;
+  --wui-pivot-previous-button-foreground-pointer-over: #000000cc;
+  --wui-pivot-previous-button-foreground-pressed: #000000cc;
+  --wui-pivot-item-background: transparent;
+  --wui-pivot-header-item-background-unselected: transparent;
+  --wui-pivot-header-item-background-unselected-pointer-over: transparent;
+  --wui-pivot-header-item-background-unselected-pressed: transparent;
+  --wui-pivot-header-item-background-selected: transparent;
+  --wui-pivot-header-item-background-selected-pointer-over: transparent;
+  --wui-pivot-header-item-background-selected-pressed: transparent;
+  --wui-pivot-header-item-background-disabled: transparent;
+  --wui-pivot-header-item-foreground-unselected: #ffffff99;
+  --wui-pivot-header-item-foreground-unselected-pointer-over: #ffffffcc;
+  --wui-pivot-header-item-foreground-unselected-pressed: #ffffffcc;
+  --wui-pivot-header-item-foreground-selected: #ffffff;
+  --wui-pivot-header-item-foreground-selected-pointer-over: #ffffffcc;
+  --wui-pivot-header-item-foreground-selected-pressed: #ffffffcc;
+  --wui-pivot-header-item-foreground-disabled: #ffffff66;
+  --wui-pivot-header-item-focus-pipe-fill: var(--wui-system-accent-color);
+  --wui-pivot-header-item-selected-pipe-fill: var(--wui-system-accent-color);
+
+  /* Grid* */
+  --wui-grid-view-header-item-background: transparent;
+  --wui-grid-view-header-item-divider-stroke: #ffffff33;
+  --wui-grid-view-item-background: transparent;
+  --wui-grid-view-item-background-pointer-over: #ffffff19;
+  --wui-grid-view-item-background-pressed: #ffffff33;
+  --wui-grid-view-item-background-selected: var(--wui-system-accent-color);
+  --wui-grid-view-item-background-selected-pointer-over: var(--wui-system-accent-color);
+  --wui-grid-view-item-background-selected-pressed: var(--wui-system-accent-color);
+  --wui-grid-view-item-foreground: #ffffff;
+  --wui-grid-view-item-foreground-pointer-over: #ffffff;
+  --wui-grid-view-item-foreground-selected: #ffffff;
+  --wui-grid-view-item-focus-visual-primary: #ffffff;
+  --wui-grid-view-item-focus-visual-secondary: #00000099;
+  --wui-grid-view-item-focus-border: #000000;
+  --wui-grid-view-item-focus-secondary-border: #ffffff;
+  --wui-grid-view-item-check: #ffffffcc;
+  --wui-grid-view-item-check-box: #1f1f1f;
+  --wui-grid-view-item-drag-background: transparent;
+  --wui-grid-view-item-drag-foreground: #ffffff;
+  --wui-grid-view-item-placeholder-background: #333333;
+
+  /* Media* */
+  --wui-media-transport-controls-panel-background: #00000099;
+  --wui-media-transport-controls-flyout-background: #2b2b2b;
+
+  /* App* */
+  --wui-app-bar-light-dismiss-overlay-background: #00000099;
+
+  /* Calendar* */
+  --wui-calendar-date-picker-light-dismiss-overlay-background: #00000099;
+
+  /* Combo* */
+  --wui-combo-box-light-dismiss-overlay-background: #00000099;
+
+  /* Date* */
+  --wui-date-picker-light-dismiss-overlay-background: #00000099;
+
+  /* Flyout* */
+  --wui-flyout-light-dismiss-overlay-background: #00000099;
+
+  /* Popup* */
+  --wui-popup-light-dismiss-overlay-background: #00000099;
+
+  /* Split* */
+  --wui-split-view-light-dismiss-overlay-background: #00000099;
+
+  /* Time* */
+  --wui-time-picker-light-dismiss-overlay-background: #00000099;
+
+  /* Jump* */
+  --wui-jump-list-default-enabled-background: var(--wui-system-accent-color);
+  --wui-jump-list-default-enabled-foreground: #ffffff;
+  --wui-jump-list-default-disabled-background: #ffffff33;
+  --wui-jump-list-default-disabled-foreground: #ffffff66;
+
+  /* Key* */
+  --wui-key-tip-foreground: #ffffff;
+  --wui-key-tip-background: #767676;
+  --wui-key-tip-border: transparent;
 
   /* App* */
   --wui-app-bar-background-theme: #000000;
@@ -1026,6 +2899,9 @@
   --wui-hyperlink-foreground-theme: #9c72ff;
   --wui-hyperlink-pointer-over-foreground-theme: #9c72ffcc;
   --wui-hyperlink-pressed-foreground-theme: #9c72ff99;
+  --wui-hyperlink-foreground: var(--wui-system-accent-color);
+  --wui-hyperlink-foreground-pointer-over: #ffffff99;
+  --wui-hyperlink-foreground-pressed: #ffffff66;
 
   /* Hub* */
   --wui-hub-section-header-pointer-over-foreground-theme: #d1d1d1;
@@ -1289,25 +3165,242 @@
   --wui-system-control-highlight-base-low-reveal-border: #ffffff33;
   --wui-system-control-highlight-base-medium-reveal-border: #ffffff99;
   --wui-system-control-highlight-base-medium-high-reveal-border: #ffffffcc;
+
+  /* List* */
+  --wui-list-view-item-reveal-border: transparent;
+  --wui-list-view-item-reveal-border-brush-pointer-over: transparent;
+  --wui-list-view-item-reveal-border-brush-pressed: transparent;
+
+  /* Grid* */
+  --wui-grid-view-item-reveal-border: transparent;
+
+  /* Button* */
+  --wui-button-reveal-background: #ffffff33;
+  --wui-button-reveal-background-pointer-over: #ffffff33;
+  --wui-button-reveal-background-pressed: #ffffff66;
+  --wui-button-reveal-background-disabled: #ffffff33;
+  --wui-button-reveal-border: transparent;
+  --wui-button-reveal-border-brush-pointer-over: #ffffff66;
+  --wui-button-reveal-border-brush-pressed: transparent;
+  --wui-button-reveal-border-brush-disabled: transparent;
+
+  /* Repeat* */
+  --wui-repeat-button-reveal-background: #ffffff33;
+  --wui-repeat-button-reveal-background-pointer-over: #ffffff33;
+  --wui-repeat-button-reveal-background-pressed: #ffffff66;
+  --wui-repeat-button-reveal-background-disabled: #ffffff33;
+  --wui-repeat-button-reveal-border: transparent;
+  --wui-repeat-button-reveal-border-brush-pointer-over: #ffffff66;
+  --wui-repeat-button-reveal-border-brush-pressed: transparent;
+  --wui-repeat-button-reveal-border-brush-disabled: transparent;
+
+  /* Toggle* */
+  --wui-toggle-button-reveal-background: #ffffff33;
+  --wui-toggle-button-reveal-background-pointer-over: #ffffff33;
+  --wui-toggle-button-reveal-background-pressed: #ffffff66;
+  --wui-toggle-button-reveal-background-disabled: #ffffff33;
+  --wui-toggle-button-reveal-background-checked: var(--wui-system-accent-color);
+  --wui-toggle-button-reveal-background-checked-pointer-over: var(--wui-system-accent-color);
+
+  /* SystemControl* */
   --wui-system-control-highlight-base-medium-low-reveal-accent-background: #ffffff66;
+
+  /* Toggle* */
+  --wui-toggle-button-reveal-background-checked-pressed: #ffffff66;
+  --wui-toggle-button-reveal-background-checked-disabled: #ffffff66;
+  --wui-toggle-button-reveal-background-indeterminate: #ffffff33;
+
+  /* SystemControl* */
   --wui-system-control-background-base-low-reveal-background: #ffffff33;
+
+  /* Toggle* */
+  --wui-toggle-button-reveal-background-indeterminate-pointer-over: #ffffff33;
+
+  /* SystemControl* */
   --wui-system-control-background-base-medium-low-reveal-base-low-background: #ffffff66;
+
+  /* Toggle* */
+  --wui-toggle-button-reveal-background-indeterminate-pressed: #ffffff66;
+  --wui-toggle-button-reveal-background-indeterminate-disabled: #ffffff33;
+  --wui-toggle-button-reveal-border: transparent;
+  --wui-toggle-button-reveal-border-brush-pointer-over: #ffffff66;
+  --wui-toggle-button-reveal-border-brush-pressed: transparent;
+  --wui-toggle-button-reveal-border-brush-disabled: transparent;
+
+  /* SystemControl* */
   --wui-system-control-highlight-alt-transparent-reveal-border: transparent;
+
+  /* Toggle* */
+  --wui-toggle-button-reveal-border-brush-checked: transparent;
+  --wui-toggle-button-reveal-border-brush-checked-pointer-over: #ffffff66;
+  --wui-toggle-button-reveal-border-brush-checked-pressed: transparent;
+  --wui-toggle-button-reveal-border-brush-checked-disabled: transparent;
+  --wui-toggle-button-reveal-border-brush-indeterminate: transparent;
+
+  /* SystemControl* */
   --wui-system-control-highlight-base-medium-low-reveal-border: #ffffff66;
+
+  /* Toggle* */
+  --wui-toggle-button-reveal-border-brush-indeterminate-pointer-over: #ffffff66;
+  --wui-toggle-button-reveal-border-brush-indeterminate-pressed: transparent;
+  --wui-toggle-button-reveal-border-brush-indeterminate-disabled: transparent;
+
+  /* App* */
+  --wui-app-bar-ellipsis-button-reveal-background: transparent;
+  --wui-app-bar-ellipsis-button-reveal-background-pointer-over: #ffffff19;
+
+  /* SystemControl* */
   --wui-system-control-highlight-list-medium-reveal-background: #ffffff33;
+
+  /* App* */
+  --wui-app-bar-ellipsis-button-reveal-background-pressed: #ffffff33;
+  --wui-app-bar-ellipsis-button-reveal-background-disabled: transparent;
+  --wui-app-bar-ellipsis-button-reveal-border: transparent;
+  --wui-app-bar-ellipsis-button-reveal-border-brush-pointer-over: transparent;
+  --wui-app-bar-ellipsis-button-reveal-border-brush-pressed: transparent;
+  --wui-app-bar-ellipsis-button-reveal-border-brush-disabled: transparent;
+  --wui-app-bar-button-reveal-background: transparent;
+  --wui-app-bar-button-reveal-background-pointer-over: #ffffff19;
+  --wui-app-bar-button-reveal-background-pressed: #ffffff33;
+  --wui-app-bar-button-reveal-background-disabled: transparent;
+  --wui-app-bar-button-reveal-border: transparent;
+  --wui-app-bar-button-reveal-border-brush-pointer-over: transparent;
+
+  /* SystemControl* */
   --wui-system-control-transparent-reveal-list-low-border: transparent;
+
+  /* App* */
+  --wui-app-bar-button-reveal-border-brush-pressed: transparent;
+  --wui-app-bar-button-reveal-border-brush-disabled: transparent;
+  --wui-app-bar-toggle-button-reveal-background: transparent;
+  --wui-app-bar-toggle-button-reveal-background-disabled: transparent;
+  --wui-app-bar-toggle-button-reveal-background-high-light-overlay: transparent;
+  --wui-app-bar-toggle-button-reveal-background-high-light-overlay-pointer-over: #ffffff19;
+  --wui-app-bar-toggle-button-reveal-background-high-light-overlay-pressed: #ffffff33;
+  --wui-app-bar-toggle-button-reveal-background-high-light-overlay-checked-pointer-over: #ffffff19;
+  --wui-app-bar-toggle-button-reveal-background-high-light-overlay-checked-pressed: #ffffff33;
+  --wui-app-bar-toggle-button-reveal-border: transparent;
+  --wui-app-bar-toggle-button-reveal-border-brush-pointer-over: transparent;
+  --wui-app-bar-toggle-button-reveal-border-brush-pressed: transparent;
+  --wui-app-bar-toggle-button-reveal-border-brush-disabled: transparent;
+
+  /* SystemControl* */
   --wui-system-control-background-transparent-reveal-border: transparent;
+
+  /* App* */
+  --wui-app-bar-toggle-button-reveal-border-brush-checked: transparent;
+  --wui-app-bar-toggle-button-reveal-border-brush-checked-pointer-over: transparent;
+
+  /* SystemControl* */
   --wui-system-control-highlight-transparent-reveal-border: transparent;
+
+  /* App* */
+  --wui-app-bar-toggle-button-reveal-border-brush-checked-pressed: transparent;
+  --wui-app-bar-toggle-button-reveal-border-brush-checked-disabled: transparent;
+
+  /* List* */
+  --wui-list-view-item-reveal-background: transparent;
+  --wui-list-view-item-reveal-background-pointer-over: #ffffff19;
+  --wui-list-view-item-reveal-background-pressed: #ffffff33;
+  --wui-list-view-item-reveal-background-selected: var(--wui-system-accent-color-dark-3);
+  --wui-list-view-item-reveal-background-selected-pointer-over: var(--wui-system-accent-color-dark-2);
+  --wui-list-view-item-reveal-background-selected-pressed: var(--wui-system-accent-color-dark-3);
+  --wui-list-view-item-reveal-placeholder-background: #333333;
+
+  /* Grid* */
+  --wui-grid-view-item-reveal-background: transparent;
+  --wui-grid-view-item-reveal-background-pointer-over: #ffffff19;
+  --wui-grid-view-item-reveal-background-pressed: #ffffff33;
+
+  /* SystemControl* */
   --wui-system-control-highlight-accent-reveal-background: var(--wui-system-accent-color);
+
+  /* Grid* */
+  --wui-grid-view-item-reveal-background-selected: var(--wui-system-accent-color);
+  --wui-grid-view-item-reveal-background-selected-pointer-over: var(--wui-system-accent-color-dark-2);
+  --wui-grid-view-item-reveal-background-selected-pressed: var(--wui-system-accent-color-dark-3);
+  --wui-grid-view-item-reveal-placeholder-background: #333333;
+
+  /* SystemControl* */
   --wui-system-control-transparent-reveal-background: transparent;
+
+  /* Combo* */
+  --wui-combo-box-item-reveal-background: transparent;
+
+  /* SystemControl* */
   --wui-system-control-highlight-list-medium-reveal-list-low-background: #ffffff33;
+
+  /* Combo* */
+  --wui-combo-box-item-reveal-background-pressed: #ffffff33;
+
+  /* SystemControl* */
   --wui-system-control-highlight-list-low-reveal-background: #ffffff19;
+
+  /* Combo* */
+  --wui-combo-box-item-reveal-background-pointer-over: #ffffff19;
+  --wui-combo-box-item-reveal-background-disabled: transparent;
+  --wui-combo-box-item-reveal-background-selected: var(--wui-system-accent-color-dark-3);
+
+  /* SystemControl* */
   --wui-system-control-highlight-accent-3-reveal-background: var(--wui-system-accent-color-dark-3);
+
+  /* Combo* */
+  --wui-combo-box-item-reveal-background-selected-unfocused: var(--wui-system-accent-color-dark-3);
+
+  /* SystemControl* */
   --wui-system-control-highlight-accent-3-reveal-accent-2-background: var(--wui-system-accent-color-dark-3);
+
+  /* Combo* */
+  --wui-combo-box-item-reveal-background-selected-pressed: var(--wui-system-accent-color-dark-3);
+
+  /* SystemControl* */
   --wui-system-control-highlight-accent-2-reveal-background: var(--wui-system-accent-color-dark-2);
+
+  /* Combo* */
+  --wui-combo-box-item-reveal-background-selected-pointer-over: var(--wui-system-accent-color-dark-2);
+  --wui-combo-box-item-reveal-background-selected-disabled: transparent;
+  --wui-combo-box-item-reveal-border: transparent;
+  --wui-combo-box-item-reveal-border-brush-pressed: transparent;
+  --wui-combo-box-item-reveal-border-brush-pointer-over: transparent;
+  --wui-combo-box-item-reveal-border-brush-disabled: transparent;
+  --wui-combo-box-item-reveal-border-brush-selected: transparent;
+  --wui-combo-box-item-reveal-border-brush-selected-unfocused: transparent;
+  --wui-combo-box-item-reveal-border-brush-selected-pressed: transparent;
+
+  /* SystemControl* */
   --wui-system-control-transparent-reveal-border: transparent;
 
+  /* Combo* */
+  --wui-combo-box-item-reveal-border-brush-selected-pointer-over: transparent;
+  --wui-combo-box-item-reveal-border-brush-selected-disabled: transparent;
+
   /* Menu* */
+  --wui-menu-flyout-presenter-background: #2b2b2b;
+  --wui-menu-flyout-presenter-border: #000000;
+  --wui-menu-flyout-item-background: transparent;
+  --wui-menu-flyout-item-background-pointer-over: #ffffff19;
+  --wui-menu-flyout-item-background-pressed: #ffffff33;
+  --wui-menu-flyout-item-background-disabled: transparent;
+  --wui-menu-flyout-item-foreground: #ffffff;
+  --wui-menu-flyout-item-foreground-pointer-over: #ffffff;
+  --wui-menu-flyout-item-foreground-pressed: #ffffff;
+  --wui-menu-flyout-item-foreground-disabled: #ffffff66;
+  --wui-menu-flyout-sub-item-background: transparent;
+  --wui-menu-flyout-sub-item-background-pointer-over: #ffffff19;
+  --wui-menu-flyout-sub-item-background-pressed: var(--wui-system-accent-color);
+  --wui-menu-flyout-sub-item-background-sub-menu-opened: var(--wui-system-accent-color);
+  --wui-menu-flyout-sub-item-background-disabled: transparent;
+  --wui-menu-flyout-sub-item-foreground: #ffffff;
+  --wui-menu-flyout-sub-item-foreground-pointer-over: #ffffff;
+  --wui-menu-flyout-sub-item-foreground-pressed: #ffffff;
+  --wui-menu-flyout-sub-item-foreground-sub-menu-opened: #ffffff;
+  --wui-menu-flyout-sub-item-foreground-disabled: #ffffff66;
+  --wui-menu-flyout-sub-item-chevron: #ffffffcc;
+  --wui-menu-flyout-sub-item-chevron-pointer-over: #ffffff;
+  --wui-menu-flyout-sub-item-chevron-pressed: #ffffff;
+  --wui-menu-flyout-sub-item-chevron-sub-menu-opened: #ffffff;
+  --wui-menu-flyout-sub-item-chevron-disabled: #ffffff66;
+  --wui-menu-flyout-light-dismiss-overlay-background: #00000099;
   --wui-menu-flyout-item-focused-background-theme: #212121;
   --wui-menu-flyout-item-focused-foreground-theme: #ffffff;
   --wui-menu-flyout-item-disabled-foreground-theme: #ffffff66;
@@ -1317,8 +3410,79 @@
   --wui-menu-flyout-item-pressed-foreground-theme: #000000;
   --wui-menu-flyout-separator-theme: #7a7a7a;
 
+  /* Rating* */
+  --wui-rating-control-unselected-foreground: #ffffff33;
+  --wui-rating-control-selected-foreground: var(--wui-system-accent-color);
+  --wui-rating-control-placeholder-foreground: #ffffff;
+  --wui-rating-control-pointer-over-placeholder-foreground: #ffffff99;
+  --wui-rating-control-pointer-over-unselected-foreground: #ffffff99;
+  --wui-rating-control-pointer-over-selected-foreground: var(--wui-system-accent-color);
+  --wui-rating-control-caption-foreground: #ffffff99;
+
   /* Navigation* */
+  --wui-navigation-view-default-pane-background: #2b2b2b;
   --wui-navigation-view-expanded-pane-background: #1f1f1f;
+  --wui-navigation-view-top-pane-background: #2b2b2b;
+  --wui-navigation-view-item-background: transparent;
+  --wui-navigation-view-item-background-pointer-over: #ffffff19;
+  --wui-navigation-view-item-background-pressed: #ffffff33;
+  --wui-navigation-view-item-background-disabled: transparent;
+  --wui-navigation-view-item-background-checked: transparent;
+  --wui-navigation-view-item-background-checked-pointer-over: #ffffff19;
+  --wui-navigation-view-item-background-checked-pressed: #ffffff33;
+  --wui-navigation-view-item-background-checked-disabled: transparent;
+  --wui-navigation-view-item-background-selected: transparent;
+  --wui-navigation-view-item-background-selected-pointer-over: #ffffff19;
+  --wui-navigation-view-item-background-selected-pressed: #ffffff33;
+  --wui-navigation-view-item-background-selected-disabled: transparent;
+  --wui-navigation-view-item-foreground: #ffffff;
+  --wui-navigation-view-item-foreground-pointer-over: #ffffff;
+  --wui-navigation-view-item-foreground-pressed: #ffffff;
+  --wui-navigation-view-item-foreground-disabled: #ffffff66;
+  --wui-navigation-view-item-foreground-checked: #ffffff;
+  --wui-navigation-view-item-foreground-checked-pointer-over: #ffffff;
+  --wui-navigation-view-item-foreground-checked-pressed: #ffffff;
+  --wui-navigation-view-item-foreground-checked-disabled: #ffffff66;
+  --wui-navigation-view-item-foreground-selected: #ffffff;
+  --wui-navigation-view-item-foreground-selected-pointer-over: #ffffff;
+  --wui-navigation-view-item-foreground-selected-pressed: #ffffff;
+  --wui-navigation-view-item-foreground-selected-disabled: #ffffff66;
+  --wui-navigation-view-item-border: transparent;
+  --wui-navigation-view-item-border-brush-pointer-over: transparent;
+  --wui-navigation-view-item-border-brush-pressed: transparent;
+  --wui-navigation-view-item-border-brush-disabled: transparent;
+  --wui-navigation-view-item-border-brush-checked: transparent;
+  --wui-navigation-view-item-border-brush-checked-pointer-over: transparent;
+  --wui-navigation-view-item-border-brush-checked-pressed: transparent;
+  --wui-navigation-view-item-border-brush-checked-disabled: transparent;
+  --wui-navigation-view-item-border-brush-selected: transparent;
+  --wui-navigation-view-item-border-brush-selected-pointer-over: transparent;
+  --wui-navigation-view-item-border-brush-selected-pressed: transparent;
+  --wui-navigation-view-item-border-brush-selected-disabled: transparent;
+  --wui-navigation-view-selection-indicator-foreground: var(--wui-system-accent-color);
+
+  /* Top* */
+  --wui-top-navigation-view-item-foreground: #ffffff99;
+  --wui-top-navigation-view-item-foreground-pointer-over: #ffffffcc;
+  --wui-top-navigation-view-item-foreground-pressed: #ffffffcc;
+  --wui-top-navigation-view-item-foreground-selected: #ffffff;
+  --wui-top-navigation-view-item-foreground-disabled: #ffffff66;
+  --wui-top-navigation-view-item-background-pointer-over: transparent;
+  --wui-top-navigation-view-item-background-pressed: transparent;
+  --wui-top-navigation-view-item-background-selected: transparent;
+  --wui-top-navigation-view-item-reveal-background-focused: var(--wui-system-accent-color);
+  --wui-top-navigation-view-item-reveal-icon-foreground-focused: #ffffff;
+  --wui-top-navigation-view-item-reveal-content-foreground-focused: #ffffff;
+
+  /* Navigation* */
+  --wui-navigation-view-back-button-background: transparent;
+
+  /* Color* */
+  --wui-color-picker-slider-thumb-background: #ffffff;
+  --wui-color-picker-slider-thumb-background-pointer-over: #f2f2f2;
+  --wui-color-picker-slider-thumb-background-pressed: #767676;
+  --wui-color-picker-slider-thumb-background-disabled: #333333;
+  --wui-color-picker-slider-track-fill-disabled: #ffffff33;
 
   /* Person* */
   --wui-person-picture-foreground-theme: #000000;
@@ -1333,7 +3497,71 @@
   --wui-refresh-visualizer-foreground: white;
   --wui-refresh-visualizer-background: transparent;
 
+  /* Menu* */
+  --wui-menu-bar-background: transparent;
+  --wui-menu-bar-item-background: transparent;
+  --wui-menu-bar-item-background-pointer-over: #ffffff19;
+  --wui-menu-bar-item-background-pressed: #ffffff33;
+  --wui-menu-bar-item-background-selected: #ffffff33;
+  --wui-menu-bar-item-border: #ffffff66;
+  --wui-menu-bar-item-border-brush-pointer-over: #ffffff99;
+  --wui-menu-bar-item-border-brush-pressed: #ffffff66;
+  --wui-menu-bar-item-border-brush-selected: #ffffff66;
+
   /* App* */
+  --wui-app-bar-button-background: transparent;
+  --wui-app-bar-button-background-pointer-over: #ffffff19;
+  --wui-app-bar-button-background-pressed: #ffffff33;
+  --wui-app-bar-button-background-disabled: transparent;
+  --wui-app-bar-button-foreground: #ffffff;
+  --wui-app-bar-button-foreground-pointer-over: #ffffff;
+  --wui-app-bar-button-foreground-pressed: #ffffff;
+  --wui-app-bar-button-foreground-disabled: #ffffff66;
+  --wui-app-bar-button-border: transparent;
+  --wui-app-bar-button-border-brush-pointer-over: transparent;
+  --wui-app-bar-button-border-brush-pressed: transparent;
+  --wui-app-bar-button-border-brush-disabled: transparent;
+  --wui-app-bar-toggle-button-background: transparent;
+  --wui-app-bar-toggle-button-background-disabled: transparent;
+  --wui-app-bar-toggle-button-background-checked: var(--wui-system-accent-color);
+  --wui-app-bar-toggle-button-background-checked-pointer-over: var(--wui-system-accent-color);
+  --wui-app-bar-toggle-button-background-checked-pressed: var(--wui-system-accent-color);
+  --wui-app-bar-toggle-button-background-checked-disabled: var(--wui-system-accent-color);
+  --wui-app-bar-toggle-button-background-high-light-overlay: transparent;
+  --wui-app-bar-toggle-button-background-high-light-overlay-pointer-over: #ffffff19;
+  --wui-app-bar-toggle-button-background-high-light-overlay-pressed: #ffffff33;
+  --wui-app-bar-toggle-button-background-high-light-overlay-checked-pointer-over: #ffffff19;
+  --wui-app-bar-toggle-button-background-high-light-overlay-checked-pressed: #ffffff33;
+  --wui-app-bar-toggle-button-foreground: #ffffff;
+  --wui-app-bar-toggle-button-foreground-pointer-over: #ffffff;
+  --wui-app-bar-toggle-button-foreground-pressed: #ffffff;
+  --wui-app-bar-toggle-button-foreground-disabled: #ffffff66;
+  --wui-app-bar-toggle-button-foreground-checked: #ffffff;
+  --wui-app-bar-toggle-button-foreground-checked-pointer-over: #ffffff;
+  --wui-app-bar-toggle-button-foreground-checked-pressed: #ffffff;
+  --wui-app-bar-toggle-button-foreground-checked-disabled: #ffffff66;
+  --wui-app-bar-toggle-button-border: transparent;
+  --wui-app-bar-toggle-button-border-brush-pointer-over: transparent;
+  --wui-app-bar-toggle-button-border-brush-pressed: transparent;
+  --wui-app-bar-toggle-button-border-brush-disabled: transparent;
+  --wui-app-bar-toggle-button-border-brush-checked: transparent;
+  --wui-app-bar-toggle-button-border-brush-checked-pointer-over: transparent;
+  --wui-app-bar-toggle-button-border-brush-checked-pressed: transparent;
+  --wui-app-bar-toggle-button-border-brush-checked-disabled: transparent;
+  --wui-app-bar-toggle-button-check-glyph-foreground: #ffffff;
+  --wui-app-bar-toggle-button-check-glyph-foreground-pointer-over: #ffffff;
+  --wui-app-bar-toggle-button-check-glyph-foreground-pressed: #ffffff;
+  --wui-app-bar-toggle-button-check-glyph-foreground-disabled: #ffffff66;
+  --wui-app-bar-toggle-button-check-glyph-foreground-checked: #ffffff;
+  --wui-app-bar-toggle-button-check-glyph-foreground-checked-pointer-over: #ffffff;
+  --wui-app-bar-toggle-button-check-glyph-foreground-checked-pressed: #ffffff;
+  --wui-app-bar-toggle-button-check-glyph-foreground-checked-disabled: #ffffff66;
+  --wui-app-bar-toggle-button-overflow-label-foreground-pointer-over: #ffffff;
+  --wui-app-bar-toggle-button-overflow-label-foreground-pressed: #ffffff;
+  --wui-app-bar-toggle-button-overflow-label-foreground-disabled: #ffffff66;
+  --wui-app-bar-toggle-button-overflow-label-foreground-checked-pointer-over: #ffffff;
+  --wui-app-bar-toggle-button-overflow-label-foreground-checked-pressed: #ffffff;
+  --wui-app-bar-toggle-button-overflow-label-foreground-checked-disabled: #ffffff66;
   --wui-app-bar-toggle-button-checked-background-theme: #ffffff;
   --wui-app-bar-toggle-button-checked-border-theme: #ffffff;
   --wui-app-bar-toggle-button-checked-disabled-background-theme: #ffffff66;
@@ -1363,6 +3591,35 @@
   --wui-list-box-item-selected-disabled-foreground-theme: #00000099;
   --wui-list-box-item-selected-foreground-theme: white;
   --wui-list-box-item-selected-pointer-over-background-theme: #5f37be;
+
+  /* Command* */
+  --wui-command-bar-background: #1f1f1f;
+  --wui-command-bar-foreground: #ffffff;
+  --wui-command-bar-high-contrast-border: transparent;
+  --wui-command-bar-ellipsis-icon-foreground-disabled: #ffffff66;
+  --wui-command-bar-overflow-presenter-background: #2b2b2b;
+  --wui-command-bar-overflow-presenter-border: #000000;
+  --wui-command-bar-light-dismiss-overlay-background: #00000099;
+
+  /* List* */
+  --wui-list-view-item-background: transparent;
+  --wui-list-view-item-background-pointer-over: #ffffff19;
+  --wui-list-view-item-background-pressed: #ffffff33;
+  --wui-list-view-item-background-selected: var(--wui-system-accent-color);
+  --wui-list-view-item-background-selected-pointer-over: var(--wui-system-accent-color);
+  --wui-list-view-item-background-selected-pressed: var(--wui-system-accent-color);
+  --wui-list-view-item-foreground: #ffffff;
+  --wui-list-view-item-foreground-pointer-over: #ffffff;
+  --wui-list-view-item-foreground-selected: #ffffff;
+  --wui-list-view-item-focus-visual-primary: #ffffff;
+  --wui-list-view-item-focus-visual-secondary: #00000099;
+  --wui-list-view-item-focus-border: #000000;
+  --wui-list-view-item-focus-secondary-border: #ffffff;
+  --wui-list-view-item-check: #ffffffcc;
+  --wui-list-view-item-check-box: #ffffffcc;
+  --wui-list-view-item-drag-background: transparent;
+  --wui-list-view-item-drag-foreground: #ffffff;
+  --wui-list-view-item-placeholder-background: #333333;
   --wui-list-view-item-check-hint-theme: #ffffff;
   --wui-list-view-item-check-selecting-theme: #ffffff;
   --wui-list-view-item-check-theme: #ffffff;
@@ -1399,9 +3656,153 @@
   --wui-text-box-foreground-theme: #000000;
 
   /* Auto* */
+  --wui-auto-suggest-box-suggestions-list-background: #2b2b2b;
+  --wui-auto-suggest-box-suggestions-list-border: #000000;
+  --wui-auto-suggest-box-light-dismiss-overlay-background: #00000099;
+
+  /* Tree* */
+  --wui-tree-view-item-background: transparent;
+  --wui-tree-view-item-background-pointer-over: #ffffff19;
+  --wui-tree-view-item-background-pressed: #ffffff33;
+  --wui-tree-view-item-background-disabled: transparent;
+  --wui-tree-view-item-background-selected: var(--wui-system-accent-color-dark-3);
+  --wui-tree-view-item-background-selected-pointer-over: var(--wui-system-accent-color-dark-2);
+  --wui-tree-view-item-background-selected-pressed: #ffffff33;
+  --wui-tree-view-item-background-selected-disabled: #ffffff66;
+  --wui-tree-view-item-foreground: #ffffff;
+  --wui-tree-view-item-foreground-pointer-over: #ffffff;
+  --wui-tree-view-item-foreground-pressed: #ffffff;
+  --wui-tree-view-item-foreground-disabled: #ffffff66;
+  --wui-tree-view-item-foreground-selected: #ffffff;
+  --wui-tree-view-item-foreground-selected-pointer-over: #ffffff;
+  --wui-tree-view-item-foreground-selected-pressed: #ffffff;
+  --wui-tree-view-item-foreground-selected-disabled: #ffffff66;
+  --wui-tree-view-item-border: transparent;
+  --wui-tree-view-item-border-brush-pointer-over: transparent;
+  --wui-tree-view-item-border-brush-pressed: transparent;
+  --wui-tree-view-item-border-brush-disabled: transparent;
+  --wui-tree-view-item-border-brush-selected: transparent;
+  --wui-tree-view-item-border-brush-selected-pointer-over: transparent;
+  --wui-tree-view-item-border-brush-selected-pressed: transparent;
+  --wui-tree-view-item-border-brush-selected-disabled: transparent;
+  --wui-tree-view-item-check-box-background-selected: transparent;
+  --wui-tree-view-item-check-box-border-selected: #ffffffcc;
+  --wui-tree-view-item-check-glyph-selected: #ffffffcc;
+
+  /* Swipe* */
+  --wui-swipe-item-background: #ffffff33;
+  --wui-swipe-item-foreground: #ffffff;
+  --wui-swipe-item-background-pressed: #ffffff66;
+  --wui-swipe-item-pre-threshold-execute-foreground: #ffffff99;
+  --wui-swipe-item-pre-threshold-execute-background: #ffffff33;
+  --wui-swipe-item-post-threshold-execute-foreground: #ffffff;
+  --wui-swipe-item-post-threshold-execute-background: var(--wui-system-accent-color);
+
+  /* Split* */
+  --wui-split-button-background: #ffffff33;
+  --wui-split-button-background-pointer-over: #ffffff33;
+  --wui-split-button-background-pressed: #ffffff66;
+  --wui-split-button-background-disabled: #ffffff33;
+  --wui-split-button-background-checked: var(--wui-system-accent-color);
+  --wui-split-button-background-checked-pointer-over: var(--wui-system-accent-color);
+  --wui-split-button-background-checked-pressed: #ffffff66;
+  --wui-split-button-background-checked-disabled: #ffffff33;
+  --wui-split-button-foreground: #ffffff;
+  --wui-split-button-foreground-pointer-over: #ffffff;
+  --wui-split-button-foreground-pressed: #ffffff;
+  --wui-split-button-foreground-disabled: #ffffff66;
+  --wui-split-button-foreground-checked: #ffffff;
+  --wui-split-button-foreground-checked-pointer-over: #ffffff;
+  --wui-split-button-foreground-checked-pressed: #ffffff;
+  --wui-split-button-foreground-checked-disabled: #ffffff66;
+  --wui-split-button-border: transparent;
+  --wui-split-button-border-brush-pointer-over: #ffffff66;
+  --wui-split-button-border-brush-pressed: transparent;
+  --wui-split-button-border-brush-disabled: transparent;
+  --wui-split-button-border-brush-checked: transparent;
+  --wui-split-button-border-brush-checked-pointer-over: #ffffff66;
+  --wui-split-button-border-brush-checked-pressed: transparent;
+  --wui-split-button-border-brush-checked-disabled: transparent;
+
+  /* Command* */
+  --wui-command-bar-flyout-button-background: transparent;
+
+  /* Auto* */
   --wui-auto-suggest-box-icon-font-size: 12px;
 
+  /* Menu* */
+  --wui-menu-flyout-item-keyboard-accelerator-text-foreground: #ffffff99;
+  --wui-menu-flyout-item-keyboard-accelerator-text-foreground-pointer-over: #ffffff99;
+  --wui-menu-flyout-item-keyboard-accelerator-text-foreground-pressed: #ffffff99;
+  --wui-menu-flyout-item-keyboard-accelerator-text-foreground-disabled: #ffffff66;
+
+  /* App* */
+  --wui-app-bar-button-keyboard-accelerator-text-foreground: #ffffff99;
+  --wui-app-bar-button-keyboard-accelerator-text-foreground-pointer-over: #ffffff99;
+  --wui-app-bar-button-keyboard-accelerator-text-foreground-pressed: #ffffff99;
+  --wui-app-bar-button-keyboard-accelerator-text-foreground-disabled: #ffffff66;
+  --wui-app-bar-toggle-button-keyboard-accelerator-text-foreground: #ffffff99;
+  --wui-app-bar-toggle-button-keyboard-accelerator-text-foreground-pointer-over: #ffffff99;
+  --wui-app-bar-toggle-button-keyboard-accelerator-text-foreground-pressed: #ffffff99;
+  --wui-app-bar-toggle-button-keyboard-accelerator-text-foreground-disabled: #ffffff66;
+  --wui-app-bar-toggle-button-keyboard-accelerator-text-foreground-checked: #ffffff99;
+  --wui-app-bar-toggle-button-keyboard-accelerator-text-foreground-checked-pointer-over: #ffffff99;
+  --wui-app-bar-toggle-button-keyboard-accelerator-text-foreground-checked-pressed: #ffffff99;
+  --wui-app-bar-toggle-button-keyboard-accelerator-text-foreground-checked-disabled: #ffffff66;
+
+  /* Menu* */
+  --wui-menu-flyout-item-reveal-background: transparent;
+  --wui-menu-flyout-item-reveal-background-pointer-over: #ffffff19;
+  --wui-menu-flyout-item-reveal-background-pressed: #ffffff33;
+  --wui-menu-flyout-item-reveal-background-disabled: transparent;
+  --wui-menu-flyout-item-reveal-border: transparent;
+  --wui-menu-flyout-item-reveal-border-brush-pressed: transparent;
+  --wui-menu-flyout-item-reveal-border-brush-pointer-over: transparent;
+  --wui-menu-flyout-item-reveal-border-brush-disabled: transparent;
+
+  /* Toggle* */
+  --wui-toggle-menu-flyout-item-reveal-background: transparent;
+  --wui-toggle-menu-flyout-item-reveal-background-pointer-over: #ffffff19;
+  --wui-toggle-menu-flyout-item-reveal-background-pressed: #ffffff33;
+  --wui-toggle-menu-flyout-item-reveal-background-disabled: transparent;
+  --wui-toggle-menu-flyout-item-reveal-border: transparent;
+  --wui-toggle-menu-flyout-item-reveal-border-brush-pressed: transparent;
+  --wui-toggle-menu-flyout-item-reveal-border-brush-pointer-over: transparent;
+  --wui-toggle-menu-flyout-item-reveal-border-brush-disabled: transparent;
+
+  /* Menu* */
+  --wui-menu-flyout-sub-item-reveal-background: transparent;
+  --wui-menu-flyout-sub-item-reveal-background-pointer-over: #ffffff19;
+  --wui-menu-flyout-sub-item-reveal-background-pressed: var(--wui-system-accent-color);
+  --wui-menu-flyout-sub-item-reveal-background-sub-menu-opened: var(--wui-system-accent-color-dark-3);
+  --wui-menu-flyout-sub-item-reveal-background-disabled: transparent;
+  --wui-menu-flyout-sub-item-reveal-border: transparent;
+  --wui-menu-flyout-sub-item-reveal-border-brush-pressed: transparent;
+  --wui-menu-flyout-sub-item-reveal-border-brush-pointer-over: transparent;
+  --wui-menu-flyout-sub-item-reveal-border-brush-sub-menu-opened: transparent;
+  --wui-menu-flyout-sub-item-reveal-border-brush-disabled: transparent;
+
+  /* App* */
+  --wui-app-bar-button-background-sub-menu-opened: var(--wui-system-accent-color);
+  --wui-app-bar-button-foreground-sub-menu-opened: #ffffff;
+  --wui-app-bar-button-keyboard-accelerator-text-foreground-sub-menu-opened: #ffffff99;
+  --wui-app-bar-button-border-brush-sub-menu-opened: transparent;
+  --wui-app-bar-button-sub-item-chevron-foreground: #ffffffcc;
+  --wui-app-bar-button-sub-item-chevron-foreground-pointer-over: #ffffff;
+  --wui-app-bar-button-sub-item-chevron-foreground-pressed: #ffffff;
+  --wui-app-bar-button-sub-item-chevron-foreground-sub-menu-opened: #ffffff;
+  --wui-app-bar-button-sub-item-chevron-foreground-disabled: #ffffff66;
+
   /* Window* */
+  --wui-window-caption-background: #ffffff33;
+  --wui-window-caption-background-disabled: #ffffff33;
+  --wui-window-caption-foreground: #ffffff;
+  --wui-window-caption-foreground-disabled: #ffffff66;
+  --wui-window-caption-button-background-pointer-over: #ffffff33;
+  --wui-window-caption-button-background-pressed: #ffffff66;
+  --wui-window-caption-button-stroke: #ffffff;
+  --wui-window-caption-button-stroke-pointer-over: #ffffff;
+  --wui-window-caption-button-stroke-pressed: #ffffff;
   --wui-window-caption-button-background: transparent;
 
   /* Close* */
