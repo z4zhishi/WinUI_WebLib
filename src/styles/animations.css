@@ -1,0 +1,167 @@
+/*
+ * WinUI_WebLib — WinUI 动效 token 与通用关键帧(animations.css)
+ *
+ * 来源: CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml(MIT)内
+ * Storyboard / ThemeAnimation / VisualTransition 的 Duration、KeyTime 与 KeySpline 实测采样。
+ * 采样统计与「关键帧 ↔ 源动画」对照表见 docs/temp/motion-notes.md。
+ * 命名契约与 theme.css 一致:--wui- 前缀;动画名 wui-* 前缀。
+ *
+ * 本文件当前未被任何入口引用(阶段 0 基建,供后续控件动画复用)。
+ */
+
+:root {
+  /* ------------------------------------------------------------------
+   * 时长 token
+   * ------------------------------------------------------------------ */
+
+  /* 快速(167ms):源中出现频次最高的时长(19 处 Duration/KeyTime = 0:0:0.167)。
+     依据:ToolTip Opened FadeInThemeAnimation(平台默认 167ms)generic.xaml L11572;
+     CommandBar overflow 关闭 KeyTime="0:0:0.167" L10220;CalendarView 头部淡入
+     Duration="0:0:0.167" L14447。 */
+  --wui-duration-fast: 167ms;
+
+  /* 常规(240ms):ListViewItem 重排态 DoubleAnimation Duration="0:0:0.240" 共 10 处
+     (L9821、L9831、L9835、L9839、L9867、L20945、L20955、L20959、L20963、L20991);
+     并覆盖相邻聚类:Overlay 关闭 216ms(L8929)、CalendarView 切换 233ms(L14491)、
+     SplitView 展开资源 200ms(L1305)。 */
+  --wui-duration-normal: 240ms;
+
+  /* 慢速(350ms):大表面入场聚类 —— Overlay 展开 KeyTime 383ms(L8923)、
+     AppBar/CommandBar 展开转换 467ms(L10242 等 18 处)、媒体控制面板滑入 300ms(L13820)。
+     取 383/467/300 的近似中值 350ms(与迁移计划 ~350ms 锚点一致,见 motion-notes.md 偏差说明)。 */
+  --wui-duration-slow: 350ms;
+
+  /* ------------------------------------------------------------------
+   * 缓动 token(KeySpline → cubic-bezier 1:1 转换)
+   * ------------------------------------------------------------------ */
+
+  /* 标准(入场/默认曲线,源中出现约 90 处,频次最高)。
+     依据:KeySpline="0.1,0.9 0.2,1.0" ContentDialog L8395(首处);
+     逗号变体 KeySpline="0.1,0.9,0.2,1" CalendarView L14491。 */
+  --wui-easing-standard: cubic-bezier(0.1, 0.9, 0.2, 1);
+
+  /* 减速(大表面滑入的缓着陆曲线,SplitView 窗格开合专用,10 处)。
+     依据:KeySpline="0.0,0.35 0.15,1.0" SplitView L15291(首处,另见 L15331、L15378、L15412)。 */
+  --wui-easing-decelerate: cubic-bezier(0, 0.35, 0.15, 1);
+
+  /* 加速(退出/收拢曲线,关闭类动画专用,约 100 处)。
+     依据:KeySpline="0.2,0 0,1" CommandBar overflow 关闭 L10220(首处,
+     另见 NavigationView/CommandBar 收拢 L10268、L10344 等成对出现)。 */
+  --wui-easing-accelerate: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ======================================================================
+ * 通用关键帧(供弹层/工具提示/对话框/菜单复用)
+ * ====================================================================== */
+
+/* 淡入(纯透明度)。
+   依据:generic.xaml ToolTip Opened 态 <FadeInThemeAnimation> L11572;
+   CalendarView ViewChanging Opacity 0→1 Duration 167ms L14441-14447。 */
+@keyframes wui-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 淡出(纯透明度)。
+   依据:generic.xaml ToolTip Closed 态 <FadeOutThemeAnimation> L11566;
+   ContentDialog DialogHidden Opacity 1→0 L8397-8403。 */
+@keyframes wui-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* 弹层入场(透明度 + 轻微上移),对应 Popup / MenuFlyout / ComboBox 下拉。
+   依据:generic.xaml ComboBox 模板 <Storyboard x:Key="OverlayOpeningAnimation">
+   Opacity 0→1、KeyTime 0.383s、KeySpline 0.1,0.9 0.2,1.0(纯淡入)L8920-8924;
+   同键副本:L10211(AppBar)、L16223、L22903(CommandBar)。
+   注:WinUI 弹层入场为纯淡入;此处 8px 的 translateY 为 Web 适配增强
+   (纯淡入在 Web 上层次感不足),偏移量与时长取值见 motion-notes.md 偏差说明。 */
+@keyframes wui-flyout-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 缩放入场(透明度 + scale),对应 ToolTip / TeachingTip。
+   依据:generic.xaml ContentDialog DialogShowing 转换 Scale 1.05→1.0、
+   KeyTime 0.5s、KeySpline 0.1,0.9 0.2,1.0(L8411-8419)+ Opacity 0→1 L8421-8423;
+   本文件中 ToolTip 自身为纯淡入(L11572),缩放规格取自同机制的 ContentDialog,
+   供 TeachingTip 类需要缩放入场的浮层复用。 */
+@keyframes wui-scale-up-in {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 对话框入场(透明度 + scale),对应 ContentDialog。
+   依据:generic.xaml <VisualTransition To="DialogShowing">:Scale 1.05→1.0
+   KeyTime 0.5s KeySpline 0.1,0.9 0.2,1.0(L8415、L8419);Opacity 0→1 线性 167ms(L8421-8423)。
+   CSS 单一动画无法拆分双时间线,统一取慢速档 + 标准缓动(见 motion-notes.md 偏差说明);
+   遮罩淡入由使用方配合 --wui-content-dialog-dimming-theme 单独处理。 */
+@keyframes wui-dialog-in {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ======================================================================
+ * 工具类(组合关键帧与 token,供使用方直接挂类名)
+ * ====================================================================== */
+
+.wui-anim-fade-in {
+  animation: wui-fade-in var(--wui-duration-fast) var(--wui-easing-standard) both;
+}
+
+.wui-anim-fade-out {
+  animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-standard) both;
+}
+
+.wui-anim-flyout-in {
+  animation: wui-flyout-in var(--wui-duration-normal) var(--wui-easing-standard) both;
+}
+
+.wui-anim-scale-up-in {
+  animation: wui-scale-up-in var(--wui-duration-fast) var(--wui-easing-standard) both;
+}
+
+.wui-anim-dialog-in {
+  animation: wui-dialog-in var(--wui-duration-slow) var(--wui-easing-standard) both;
+}
+
+/* ======================================================================
+ * 无障碍降级:用户偏好减少动态效果时,所有动画/过渡时长趋近 0
+ * (取 0.01ms 而非 0,保证 animationend 事件仍会触发,便于 Vue transition 钩子收尾)
+ * ====================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
