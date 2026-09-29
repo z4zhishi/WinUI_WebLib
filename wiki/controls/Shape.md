@@ -128,5 +128,6 @@ import WuiPath from '@/components/Path.vue'
 
 - 演示页源码:[demo/pages/ShapePage.vue](../../demo/pages/ShapePage.vue)
 - 共享几何工具:[src/utils/shapeGeometry.ts](../../src/utils/shapeGeometry.ts)(Stretch 映射 / points 与路径解析)
+- 几何标记语法详解:[Geometry](Geometry.md)(Path 迷你语言逐指令对照、解析器与包围盒口径)
 - 图标用路径请用:[PathIcon](IconElement.md)(IconElement 家族;与本族 Path 的职责区分见顶部概述)
 - 同类:Viewbox(整体缩放容器,与 Stretch 的区别见上文)、Canvas(形状常被绝对定位其中)

@@ -120,4 +120,4 @@ import WuiPathIcon from '@/components/PathIcon.vue'
 
 ---
 
-演示页源码:[demo/pages/IconElementPage.vue](../../demo/pages/IconElementPage.vue) · 组件源码:[FontIcon](../../src/components/FontIcon.vue) · [SymbolIcon](../../src/components/SymbolIcon.vue) · [BitmapIcon](../../src/components/BitmapIcon.vue) · [PathIcon](../../src/components/PathIcon.vue) · 映射表:[src/utils/symbolIcons.ts](../../src/utils/symbolIcons.ts) · 字形表:[demo/data/fontIconGlyphs.ts](../../demo/data/fontIconGlyphs.ts)
+演示页源码:[demo/pages/IconElementPage.vue](../../demo/pages/IconElementPage.vue) · 组件源码:[FontIcon](../../src/components/FontIcon.vue) · [SymbolIcon](../../src/components/SymbolIcon.vue) · [BitmapIcon](../../src/components/BitmapIcon.vue) · [PathIcon](../../src/components/PathIcon.vue) · 映射表:[src/utils/symbolIcons.ts](../../src/utils/symbolIcons.ts) · 字形表:[demo/data/fontIconGlyphs.ts](../../demo/data/fontIconGlyphs.ts) · `Data` 语法详解:[Geometry](Geometry.md)
