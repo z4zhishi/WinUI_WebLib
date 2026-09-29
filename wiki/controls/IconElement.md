@@ -70,6 +70,8 @@ IconElement 是「用不同类型的图像作为内容」的图标控件抽象�
 | `viewBox` | `string` | `'0 0 20 20'` | SVG 坐标系;需与 `data` 的坐标范围一致(官方示例即 20×20) |
 | `foreground` | `string` | 继承 `currentColor` | 前景色(`fill = currentColor`) |
 
+> **与 Shape 家族中 Path 的区分**:两者接受同一种路径迷你语言,但 PathIcon 是**图标控件**(单色前景、viewBox 显式给定、装饰性);几何形状请用 [Shape 家族的 Path](Shape.md)(独立 fill/stroke、StrokeThickness/Stretch 等,参与布局)。 |
+
 ## 事件
 
 无。四种图标均为纯展示组件,不派发业务事件,也无可交互视觉状态(Normal/PointerOver 等由宿主控件负责)。无障碍:默认 `aria-hidden="true"`(装饰性);如需独立命名,请覆盖为 `aria-hidden="false"` 并提供 `role="img"` + `aria-label`(或交给宿主控件命名,推荐)。
