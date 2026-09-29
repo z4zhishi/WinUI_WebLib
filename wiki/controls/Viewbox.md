@@ -69,7 +69,7 @@ import WuiViewbox from '@/components/Viewbox.vue'
 ## 与 WinUI 的差异
 
 1. **溢出默认裁剪**:WinUI 的 Viewbox 不裁剪内容——`UniformToFill`(以及子内容大于容器的 `None`)会把内容画到布局边界之外,官方要裁剪得自己包一层 `Border` 并设置 `RectangleGeometry.Clip`(且需在 SizeChanged 里手工同步矩形)。本复刻按任务规格在根元素上默认 `overflow: hidden`:溢出部分不可见。需要在 WinUI 里复现同样观感,参考官方的 Border.Clip 包裹方案。
-2. **无约束轴的自动尺寸**:WinUI 中 Viewbox 的布局尺寸由父容器决定(Measure 返回 DesiredSize)。Web 里无法得知父布局的约束意图,组件把「测得尺寸 <= 0」的轴视为无约束,并按 DesiredSize(= scale × contentSize)回写该轴的 inline 尺寸,使无尺寸的 Viewbox 呈现为子内容的自然大小;一旦该轴有了实际约束(包括 `maxWidth`/`maxHeight` 钳制生效),自动尺寸即让位。
+2. **无约束轴的自动尺寸(锁定式回写)**:WinUI 中 Viewbox 的布局尺寸由父容器决定(Measure 返回 DesiredSize)。Web 里无法得知父布局的约束意图,组件把「测得尺寸 <= 0」的轴视为无约束,按 DesiredSize(= scale × contentSize)回写该轴的 inline 尺寸并**锁定**:锁定期间持续回写当前计算值(静止后样式不再变化,无逐帧振荡),仍随内容尺寸与 stretch 变化实时重算;一旦该轴被消费方以显式尺寸接管(组件检测到测得值偏离回写值,消费方 style 优先级高于组件回写),即解锁让位。因此:双轴都无约束的裸 Viewbox 呈现子内容的自然大小(比例 1:1);只约束一轴时另一轴按等比反推(与 XAML DesiredSize 语义一致);已显式给定的尺寸永远不会被组件覆写。
 3. **子内容测量用 `width: max-content`**:内容元素以 max-content 布局来逼近 XAML「以无限尺寸 Measure」的语义——文本不再按容器宽度换行,而是取整行自然宽度后再整体缩放。因此子内容里的**百分比尺寸**(如 `width: 100%`)会相对 max-content 盒解析,跨浏览器表现略有差异;子内容建议用固定或内容驱动的尺寸。
 4. **子内容的外边距不参与自然尺寸**:绝对定位的内容盒高度不包含末个子元素的 `margin-bottom`(BFC 常规行为);XAML 的 `Margin` 会完整计入 Child 的 DesiredSize。需要留边时改用 padding 或在 slot 里包一层。
 5. **DPR 与亚像素**:缩放经 CSS transform 在合成器上完成,`UniformToFill` 裁剪发生在根元素边界;WinUI 按布局像素栅格化,放大倍数很大时文字清晰度可能略好于 Web 实现(浏览器对 transform 文本会重栅格化,通常观感接近)。
