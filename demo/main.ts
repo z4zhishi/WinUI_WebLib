@@ -6,6 +6,7 @@ import { createI18n, detectLocale, i18nKey } from './i18n'
 import router from './router'
 import '../src/styles/theme.css'
 import '../src/styles/theme-hooks.css' // 系统色钩子默认值层(需在 theme.css 之后)
+import '../src/styles/popup.css' // 弹层公共层(层级 token/皮肤/动画类)
 
 const app = createApp(App)
 
