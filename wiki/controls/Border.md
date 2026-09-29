@@ -1,0 +1,94 @@
+# Border
+
+在线示例:[/#/border](/#/border)
+
+## 概述
+
+Border 是 WinUI 中用于**在另一个对象周围绘制边框线、背景或两者**的装饰容器,一个 Border 只能包含一个子对象(`Child`)。它不是模板控件(没有 ControlTemplate 与视觉状态树),只提供 `BorderThickness` / `BorderBrush` / `CornerRadius` / `Padding` / `Background` 五个装饰属性,常用于给面板中的内容加边框、底色或做成卡片。
+
+本组件是 WinUI Border 的 Web 复刻:渲染为一个 `div`,`Background` / `CornerRadius` / `Padding` 直接映射为 CSS `background` / `border-radius` / `padding`(`--wui-*` 主题 token 可直接作为属性值传入),默认 slot 即 XAML 的 `Child`。
+
+官方文档:
+
+- [Border - API](https://learn.microsoft.com/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.controls.border)
+- [Guidelines(布局面板指南)](https://learn.microsoft.com/windows/apps/design/layout/layout-panels)
+
+## 属性
+
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `borderThickness` | `number \| string` | `0` | 边框厚度。XAML Thickness 形式:数字(四边一致,无单位按 px)、`"left,top"`(左右/上下配对)、`"left,top,right,bottom"` 四边独立 |
+| `borderBrush` | `string` | `null`(不绘制) | 边框画刷;任意 CSS 颜色或 `--wui-*` 变量(如 `var(--wui-system-accent-color)`) |
+| `cornerRadius` | `number \| string` | `0` | 圆角。XAML CornerRadius 形式:数字(四角一致)或 `"topLeft,topRight,bottomRight,bottomLeft"`(如 `"8,0,8,0"`) |
+| `padding` | `number \| string` | `0` | 内边距。XAML Thickness 形式(同 `borderThickness`) |
+| `background` | `string` | `null`(透明) | 背景画刷;任意 CSS 颜色或 `--wui-*` 主题 token |
+| (默认 slot) | `any` | — | 对应 XAML `Child`:被装饰的单个子元素 |
+
+## 事件
+
+Border 是布局装饰容器,**无业务事件**,也没有 PointerOver / Pressed / Focus 视觉状态(WinUI 中它不是 Control,不参与视觉状态机)。
+
+## 基础用法
+
+```vue
+<script setup lang="ts">
+import WuiBorder from '@/components/Border.vue'
+import WuiTextBlock from '@/components/TextBlock.vue'
+</script>
+
+<template>
+  <!-- 最简:绕一个 TextBlock 画 2px 金色边框(官方示例组合) -->
+  <WuiBorder :border-thickness="2" border-brush="#FFD700" background="var(--wui-application-page-background-theme)">
+    <WuiTextBlock text="Text inside a border" :font-size="18" />
+  </WuiBorder>
+
+  <!-- 四边独立厚度:XAML Thickness 四值序 left,top,right,bottom -->
+  <WuiBorder border-thickness="8,0,8,0" border-brush="var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme))">
+    <WuiTextBlock text="左右 8px、上下 0px" />
+  </WuiBorder>
+
+  <!-- 逐角圆角:XAML CornerRadius 四值序 topLeft,topRight,bottomRight,bottomLeft -->
+  <WuiBorder corner-radius="8,0,8,0" :padding="16" background="var(--wui-tool-tip-background-theme)">
+    <WuiTextBlock text="对角 8px 圆角、其余直角的卡片" />
+  </WuiBorder>
+
+  <!-- 主题 token 卡片组合 -->
+  <WuiBorder
+    :border-thickness="1"
+    border-brush="var(--wui-system-control-background-base-low)"
+    background="var(--wui-tool-tip-background-theme)"
+    :corner-radius="8"
+    :padding="16"
+  >
+    <WuiTextBlock text="1px 描边 + 面板背景 + 8px 圆角,深浅主题自动适配。" />
+  </WuiBorder>
+</template>
+```
+
+## 边框绘制方案选型(内绘语义)
+
+本组件的边框**画在盒内**:不挤占 `padding` 与内容区,改变 `borderThickness` 不会引起布局抖动。实现取多重 `box-shadow: inset`(四边一致时合并为一条 `inset 0 0 0 Npx color` 内环),三种 CSS 方案的取舍:
+
+| 方案 | 结论 | 原因 |
+| --- | --- | --- |
+| CSS `border` | 不采用 | `border` 参与盒模型(border-box 下会挤占 padding/内容区),厚度变化引起内容回流抖动;且 WinUI 的 BorderThickness 不属于 `Padding` 语义 |
+| CSS `outline` | 不采用 | 不支持四边独立厚度(只能等宽);负 `outline-offset` 内绘依赖较新浏览器的圆角跟随行为 |
+| **`box-shadow: inset`(采用)** | ✔ | 盒内绘制、零布局影响、天然跟随 `border-radius`;借多重阴影(每边一条 `inset ±Npx 0 0 color`)实现四边独立厚度。代价:同侧多层阴影在圆角处按覆盖而非斜接(miter)合并, extreme 非对称厚度 + 大圆角时拐角过渡与 WinUI 略有出入(同色画刷下肉眼几乎不可见) |
+
+与 WinUI 原生语义的差异:WinUI 的 Border 在排版时子元素区域会被 `BorderThickness + Padding` 共同内缩(边框参与布局);Web 版按本移植约定改为「内绘、不挤占」,换来的是厚度动态调节零回流。需要严格还原 WinUI 排版行为时,可把 `padding` 手动加上对应边的厚度近似(如 `border-thickness="2"` 时 `padding="2"` 与厚度叠加)。
+
+## 与 WinUI 的差异
+
+1. **边框内绘、不挤占内容区**(见上节):`borderThickness` 用 inset box-shadow 实现,不参与盒模型;WinUI 中 thickness 与 padding 共同内缩子元素排片区。
+2. **Thickness 两值形式**:XAML `"left,top"` 表示左右/上下配对,已按此语义解析;XAML CornerRadius 没有两值形式,本组件遇到两值时按 CSS 对角语义(`tl/br`、`tr/bl`)透传,作为宽容扩展。
+3. **三值形式**:XAML Thickness 不支持三值,本组件按 CSS 语义(`top`、`right/left`、`bottom`)透传;建议统一使用 1/2/4 值形式。
+4. **画刷类型**:WinUI `BorderBrush`/`Background` 是 Brush(纯色、渐变、亚克力等);Web 版属性为 CSS `background`/颜色值,纯色与 CSS 渐变均可用,亚克力等系统材质无对应物。
+5. **对齐与拉伸**:WinUI Border 默认 `HorizontalAlignment/VerticalAlignment = Stretch`,块级 `div` 天然横向撑满、竖向由内容决定;WinUI 的竖向拉伸依赖父容器,Web 版如需请经 `$attrs` 传 `style="height: 100%"` 等自行控制。
+6. **单子元素约束**:WinUI `Child` 只允许一个子元素(多个会抛异常);Web 版 slot 放入多个元素时按普通文档流依次排列,不做校验。
+7. **无视觉状态与事件**:与 WinUI 一致,Border 不是 Control,无 PointerOver/Pressed/Focus 状态、无业务事件;组件相应未声明 emits。
+
+## 相关链接
+
+- 演示页源码:[demo/pages/BorderPage.vue](../../demo/pages/BorderPage.vue)
+- 组件源码:[src/components/Border.vue](../../src/components/Border.vue)
+- 同类控件:Grid、StackPanel、Canvas(布局面板)、ContentPresenter / ContentControl(模板化容器)
