@@ -3,6 +3,7 @@
 export { default as BitmapIcon } from './components/BitmapIcon.vue'
 export { default as Border } from './components/Border.vue'
 export { default as Button } from './components/Button.vue'
+export { default as Canvas } from './components/Canvas.vue'
 export { default as CheckBox } from './components/CheckBox.vue'
 export { default as FontIcon } from './components/FontIcon.vue'
 export { default as HyperlinkButton } from './components/HyperlinkButton.vue'
