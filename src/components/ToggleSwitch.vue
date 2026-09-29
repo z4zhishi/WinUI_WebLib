@@ -193,24 +193,6 @@ function onButtonClick(): void {
   flex-direction: column;
   font-family: inherit; /* ContentControlThemeFontFamily 为 XamlAutoFontFamily 占位,回退浏览器默认 */
   font-size: var(--wui-control-content-theme-font-size);
-
-  /*
-   * theme.css 中以下 token 链至 --wui-system-accent-color,该系统色钩子尚未在应用层定义;
-   * 按项目约定(demo/components/README.md 约定 1)在组件根局部重声明带回退链:
-   * 钩子定义后自动接管,未定义时回退主题强调紫。
-   */
-  --wui-toggle-switch-fill-on: var(
-    --wui-system-accent-color,
-    var(--wui-hyperlink-foreground-theme)
-  );
-  --wui-toggle-switch-fill-on-pointer-over: var(
-    --wui-system-accent-color,
-    var(--wui-hyperlink-foreground-theme)
-  );
-  --wui-toggle-switch-stroke-on-pointer-over: var(
-    --wui-system-accent-color,
-    var(--wui-hyperlink-foreground-theme)
-  );
 }
 
 /* —— 整行按钮:点击/键盘/拖拽的交互目标(role=switch)—— */
@@ -386,7 +368,7 @@ function onButtonClick(): void {
 
 /* —— Focus(项目惯例的 accent 描边焦点框,见 demo/components/README.md 约定 1)—— */
 .wui-switch-button:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
+  outline: 2px solid var(--wui-system-accent-color);
   outline-offset: 1px;
 }
 </style>
