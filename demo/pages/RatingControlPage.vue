@@ -151,7 +151,7 @@ import RatingControl from '@/components/RatingControl.vue'
 
 // null = 未评分(WinUI 哨兵 -1)
 const rating = ref<number | null>(null)
-<\/script>
+</script>
 
 <template>
   <RatingControl

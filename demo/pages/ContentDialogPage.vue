@@ -115,7 +115,7 @@ const open = ref(false)
 function onPrimary(args: { cancel: boolean }) {
   if (!canSave()) args.cancel = true // 阻止关闭
 }
-<\/script>
+</script>
 
 <template>
   <WuiButton @click="open = true">Show dialog</WuiButton>
