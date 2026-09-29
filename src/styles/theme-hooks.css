@@ -1,0 +1,55 @@
+/*
+ * WinUI_WebLib — 系统色钩子默认值层(theme-hooks.css)
+ *
+ * theme.css(生成器产物)把 Windows 系统色留作未定义的 var() 钩子,由应用层决定取值;
+ * 本文件为这些钩子提供 WinUI 3 在 Windows 上的默认呈现值,使控件在应用未定制主题时
+ * 与 WinUI 3 / Windows 11 观感一致。值的来源与推导依据见 docs/temp/palette-notes.md。
+ *
+ * 覆盖契约:应用可在同名变量上按常规 CSS 层叠规则覆盖(在 :root 或任意子树重新声明
+ * 即可,后加载或更高特异性者生效),无需修改本文件。
+ *
+ * 浅/深主题取值相同:WinUI 中 SystemAccentColor 系为系统级资源(运行时经
+ * IUISettings3.GetColorValue(UIColorType_Accent*) 取用户强调色,与 App 主题无关,
+ * 见 CK/WinUI-Reference/dxaml/xcp/components/theming/FrameworkTheming.cpp L48、L239-244);
+ * SystemColorHighlightColor/TextColor 经 GetSysColor(COLOR_HIGHLIGHT/HIGHLIGHTTEXT)
+ * 取全局系统色,同样不随 App 明暗主题变化(同目录 SystemThemingInterop.cpp L197-202)。
+ *
+ * 钩子清单(与 theme.css 文件头注释一致,共 8 个,theme.css 内 210 处 var() 引用):
+ *   --wui-system-accent-color              ← SystemAccentColor
+ *   --wui-system-accent-color-dark-1       ← SystemAccentColorDark1
+ *   --wui-system-accent-color-dark-2       ← SystemAccentColorDark2
+ *   --wui-system-accent-color-dark-3       ← SystemAccentColorDark3
+ *   --wui-system-accent-color-light-2      ← SystemAccentColorLight2
+ *   --wui-system-accent-color-light-3      ← SystemAccentColorLight3
+ *   --wui-system-color-highlight-color     ← SystemColorHighlightColor
+ *   --wui-system-color-highlight-text-color← SystemColorHighlightTextColor
+ * 未含 SystemAccentColorLight1(theme.css 无引用,值为 #0091F8,备查见 notes)。
+ */
+
+:root,
+:root[data-theme="light"] {
+  /* Windows 11 默认强调色(默认蓝 #0078D4)及其系统衍生变体 */
+  --wui-system-accent-color: #0078d4;
+  --wui-system-accent-color-dark-1: #0067c0;
+  --wui-system-accent-color-dark-2: #003e92;
+  --wui-system-accent-color-dark-3: #001a68;
+  --wui-system-accent-color-light-2: #4cc2ff;
+  --wui-system-accent-color-light-3: #99ebff;
+
+  /* Win32 系统色默认值:高亮底/高亮文字(选中态) */
+  --wui-system-color-highlight-color: #0078d4;
+  --wui-system-color-highlight-text-color: #ffffff;
+}
+
+:root[data-theme="dark"] {
+  /* 同浅色:系统强调色与 Win32 系统色不随 App 主题变化(依据见文件头) */
+  --wui-system-accent-color: #0078d4;
+  --wui-system-accent-color-dark-1: #0067c0;
+  --wui-system-accent-color-dark-2: #003e92;
+  --wui-system-accent-color-dark-3: #001a68;
+  --wui-system-accent-color-light-2: #4cc2ff;
+  --wui-system-accent-color-light-3: #99ebff;
+
+  --wui-system-color-highlight-color: #0078d4;
+  --wui-system-color-highlight-text-color: #ffffff;
+}
