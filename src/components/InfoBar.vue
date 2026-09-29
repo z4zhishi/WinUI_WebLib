@@ -238,11 +238,12 @@ const severityGlyph = computed(() => SEVERITY_GLYPHS[props.severity] ?? '\uF13F'
  * (theme.css 未提取,源值取 Common_themeresources_any.xaml,对照表见 wiki 差异节)。
  */
 .wui-infobar {
-  /* Informational:背景 SystemFillColorAttentionBackground(light #80F6F6F6),
+  /* Informational:背景 SystemFillColorAttentionBackground(light 源 #80F6F6F6,
+     XAML AARRGGBB → CSS RRGGBBAA 写作 #f6f6f680),
      图标 SystemFillColorAttentionBrush ← SystemAccentColor(theme-hooks token) */
-  --wui-infobar-severity-bg: #80f6f6f6;
+  --wui-infobar-severity-bg: #f6f6f680;
   --wui-infobar-severity-icon: var(--wui-system-accent-color);
-  --wui-infobar-icon-inverse: #ffffff; /* TextFillColorInverse(light) */
+  --wui-infobar-icon-inverse: #ffffff; /* TextFillColorInverse(light,#FFFFFF 不透明,无字节序问题) */
 
   box-sizing: border-box;
   font-family: inherit; /* XamlAutoFontFamily 占位,回退浏览器默认 */
@@ -271,12 +272,13 @@ const severityGlyph = computed(() => SEVERITY_GLYPHS[props.severity] ?? '\uF13F'
   --wui-infobar-severity-icon: #c42b1c;
 }
 
-/* 深色主题(Default 字典):背景 / 图标填充换档;图标反白字换 TextFillColorInverse(dark)= #E4000000。
+/* 深色主题(Default 字典):背景 / 图标填充换档;图标反白字换 TextFillColorInverse(dark)
+   (源 #E4000000,XAML AARRGGBB → CSS RRGGBBAA 写作 #000000e4)。
    档位规则带主题前缀以保证在深色下稳定压过浅色基线(比源顺序更明确的特异性约定)。 */
 html[data-theme='dark'] .wui-infobar {
-  --wui-infobar-severity-bg: #08ffffff; /* SystemFillColorAttentionBackground(dark) */
+  --wui-infobar-severity-bg: #ffffff08; /* SystemFillColorAttentionBackground(dark),源 #08FFFFFF → RRGGBBAA */
   --wui-infobar-severity-icon: var(--wui-system-accent-color-light-2); /* ← SystemAccentColorLight2 */
-  --wui-infobar-icon-inverse: #e4000000;
+  --wui-infobar-icon-inverse: #000000e4; /* TextFillColorInverse(dark),源 #E4000000 → RRGGBBAA */
 }
 
 html[data-theme='dark'] .wui-infobar--success {

@@ -89,7 +89,7 @@ function onClosed(args: { reason: string }) {
 
 ## 与 WinUI 的差异(视觉与行为对照)
 
-视觉按 `controls/dev/InfoBar/InfoBar.xaml`(ControlTemplate)与 `InfoBar_themeresources.xaml`(四档配色 / 尺寸资源)复刻。四档配色引用 **SystemFillColor\* 系画刷**(定义于 `controls/dev/CommonStyles/Common_themeresources_any.xaml`),theme.css(提取自 OS generic.xaml)未收录该系画刷,且现有 token 仅中性灰 + 强调色,**无带色相的最近似 token 可用**(严重级别的绿 / 黄 / 红是控件的核心语义,映射到强调色会使档位不可分辨)。按 `theme-hooks.css`「WinUI 默认呈现值」先例,将源值 1:1 注入组件级 token `--wui-infobar-*`(浅 / 深两套,经 `html[data-theme]` 切换),升级路径:主题生成器收录 `SystemFillColor*` 后改为直接引用。对照表:
+视觉按 `controls/dev/InfoBar/InfoBar.xaml`(ControlTemplate)与 `InfoBar_themeresources.xaml`(四档配色 / 尺寸资源)复刻。四档配色引用 **SystemFillColor\* 系画刷**(定义于 `controls/dev/CommonStyles/Common_themeresources_any.xaml`),theme.css(提取自 OS generic.xaml)未收录该系画刷,且现有 token 仅中性灰 + 强调色,**无带色相的最近似 token 可用**(严重级别的绿 / 黄 / 红是控件的核心语义,映射到强调色会使档位不可分辨)。按 `theme-hooks.css`「WinUI 默认呈现值」先例,将源值注入组件级 token `--wui-infobar-*`(浅 / 深两套,经 `html[data-theme]` 切换),升级路径:主题生成器收录 `SystemFillColor*` 后改为直接引用。注意字节序:XAML 颜色为 **AARRGGBB**,CSS 需按通道重排为 **RRGGBBAA**(带 alpha 的 8 位值,如 `#08FFFFFF` → `#ffffff08`、`#E4000000` → `#000000e4`、`#80F6F6F6` → `#f6f6f680`);不透明的 6 位值原样使用。对照表(源值列为 XAML 原始字节序):
 
 | 源资源(WinUI 3) | 源值(light / dark) | 本组件取值 |
 | --- | --- | --- |
