@@ -41,6 +41,49 @@ export function resetPopupZIndexBase(base: number = POPUP_Z_INDEX_BASE): void {
 }
 
 /* -------------------------------------------------------------------------
+ * 已开弹层注册表(嵌套链路)
+ *
+ * usePopupLayer 在层元素挂载时注册、卸载时注销,形成「后开在上」的栈。
+ * 用途(控件宿主零改动即可受益,由 usePopupLayer 内部消费):
+ *   1. 外部点击豁免:pointerdown 目标位于任何已开弹层(含其他实例的子弹层)内时,
+ *      不视作「外部」,不触发其他层实例的 onOutsidePress(否则 Teleport 到 body
+ *      的子弹层内点击会误关父层);
+ *   2. Escape 只关栈顶:嵌套时同帧只有最后打开的实例收到 Escape,逐级收口。
+ * ---------------------------------------------------------------------- */
+
+/** 已开弹层层元素栈(注册序 = 打开序,栈顶 = 最后打开)。 */
+const layerStack: HTMLElement[] = []
+
+/**
+ * 注册一个已开弹层层元素(栈顶入栈)。
+ * @returns 注销函数:层关闭/卸载时调用(usePopupLayer 已内置,控件不必自行调用)。
+ */
+export function registerPopupLayer(element: HTMLElement): () => void {
+  layerStack.push(element)
+  return () => {
+    const index = layerStack.indexOf(element)
+    if (index >= 0) layerStack.splice(index, 1)
+  }
+}
+
+/**
+ * 查询事件目标是否位于任何已开弹层层内(含层自身)。
+ * 外部点击豁免判定用;层内元素再开启的子弹层同样被注册覆盖。
+ */
+export function isInsideAnyPopupLayer(target: Element): boolean {
+  return layerStack.some((layer) => layer === target || layer.contains(target))
+}
+
+/**
+ * 当前最后打开(栈顶)的弹层元素;无已开弹层时返回 null。
+ * Escape「只关最顶层」的判定用。
+ */
+export function getTopmostPopupLayer(): HTMLElement | null {
+  const top = layerStack[layerStack.length - 1]
+  return top ?? null
+}
+
+/* -------------------------------------------------------------------------
  * 焦点辅助(Tab 循环)
  * ---------------------------------------------------------------------- */
 

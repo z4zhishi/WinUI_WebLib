@@ -9,7 +9,9 @@
 //      shift(推回视口内)、offset(主轴/交叉轴偏移)、matchAnchorWidth(等宽,
 //      供 ComboBox 下拉类);ResizeObserver + scroll/resize 跟随(rAF 节流);
 //   3. 自动关闭只以回调接口提供(onOutsidePress / onEscape / onAnchorScroll),
-//      何时触发关闭由具体控件决定(ToolTip 只跟随不关闭,MenuFlyout 全开)。
+//      何时触发关闭由具体控件决定(ToolTip 只跟随不关闭,MenuFlyout 全开);
+//      嵌套链路(子弹层内点击不误关父层、Escape 只关最后打开的栈顶实例)由
+//      src/utils/popup.ts 的已开弹层注册表统一豁免,宿主组件零改动即可受益。
 //
 // 配套:z-index 分配与焦点辅助在 src/utils/popup.ts;层级/阴影/圆角 token 与
 // 公共类在 src/styles/popup.css。接入指南(含最小示例):wiki/controls/_popup-infra.md。
@@ -19,7 +21,7 @@
 
 import { onMounted, onScopeDispose, ref, toValue, watch } from 'vue'
 import type { MaybeRefOrGetter, Ref } from 'vue'
-import { nextPopupZIndex } from '@/utils/popup'
+import { getTopmostPopupLayer, isInsideAnyPopupLayer, nextPopupZIndex, registerPopupLayer } from '@/utils/popup'
 
 /* -------------------------------------------------------------------------
  * 类型
@@ -73,17 +75,20 @@ export interface UsePopupLayerOptions {
    */
   zIndex?: MaybeRefOrGetter<number | string | undefined>
   /**
-   * 外部按下回调:pointerdown 落在锚与层之外时触发(light dismiss 语义,
+   * 外部按下回调:层已开时,pointerdown 落在本层锚之外、且不在任何已开弹层
+   * (含本层与其他实例的子弹层,由注册表统一豁免)内时触发(light dismiss 语义,
    * 典型实现:onOutsidePress={() => (open.value = false)})。
+   * 嵌套场景宿主无需自判:点击子弹层内部不会误触发父层本回调。
    */
   onOutsidePress?: (event: PointerEvent) => void
   /**
-   * Escape 键回调:层打开期间任意 Escape 都会触发;是否要求焦点在层内等
-   * 语义由控件自行判断(回调入参是原始事件,可读取 event.target 过滤)。
+   * Escape 键回调:仅当本实例层已开、且是最后打开的弹层(注册表栈顶)时触发
+   * ——嵌套时同帧只有最顶层实例收到,逐级收口,不广播;回调入参是原始事件,
+   * 进一步过滤(如要求焦点位置)由控件自行判断。
    */
   onEscape?: (event: KeyboardEvent) => void
   /**
-   * 锚滚动回调:滚动事件发生在锚的滚动链上(锚被滚走)时触发。
+   * 锚滚动回调:层已开且滚动事件发生在锚的滚动链上(锚被滚走)时触发。
    * 语义由控件决定:ToolTip 选择继续跟随,部分 Flyout 选择关闭。
    */
   onAnchorScroll?: (event: Event) => void
@@ -313,10 +318,10 @@ export function usePopupLayer(options: UsePopupLayerOptions): UsePopupLayerRetur
   // ---- 客户端事件跟随(rAF 节流) ----
   const onDocumentScroll = (event: Event): void => {
     // 任意滚动都可能移动锚 → 跟随重算;而语义化的 onAnchorScroll 只在
-    // 「锚的滚动链」(页面滚动或锚的祖先滚动容器)上触发
+    // 「锚的滚动链」(页面滚动或锚的祖先滚动容器)且层已开时触发
     scheduleUpdate()
     const handler = options.onAnchorScroll
-    if (!handler) return
+    if (!handler || layerRef.value === null) return
     const anchorElement = toValue(options.anchor)
     const target = event.target
     if (anchorElement && target instanceof Node && target.contains(anchorElement)) {
@@ -329,20 +334,50 @@ export function usePopupLayer(options: UsePopupLayerOptions): UsePopupLayerRetur
     if (!handler) return
     const target = event.target
     if (!(target instanceof Element)) return
+    // 层未开不触发(对齐「层已开时才 light dismiss」语义)
     const layer = layerRef.value
-    if (layer && (layer === target || layer.contains(target))) return
+    if (!layer) return
+    // 嵌套链路豁免(注册表统一保证,宿主零改动):目标位于任何已开弹层
+    // (含本层与其他实例的子弹层)内时,不视作「外部」,避免子弹层内
+    // 点击误关父层
+    if (isInsideAnyPopupLayer(target)) return
     const anchorElement = toValue(options.anchor)
     if (anchorElement && (anchorElement === target || anchorElement.contains(target))) return
     handler(event)
   }
 
   const onDocumentKeydown = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape') options.onEscape?.(event)
+    if (event.key !== 'Escape') return
+    const handler = options.onEscape
+    if (!handler) return
+    // 只关最顶层:仅当本实例层已开且是最后打开(注册表栈顶)的弹层时触发,
+    // 不广播——嵌套时同帧只有栈顶实例收到,逐级收口
+    const layer = layerRef.value
+    if (!layer || getTopmostPopupLayer() !== layer) return
+    handler(event)
   }
 
   const onWindowResize = (): void => {
     scheduleUpdate()
   }
+
+  // ---- 层注册(嵌套链路):层挂载入栈、关闭/卸载出栈 ----
+  let unregisterLayer: (() => void) | null = null
+  let registeredLayer: HTMLElement | null = null
+
+  function syncLayerRegistration(): void {
+    const layer = layerRef.value
+    if (layer === registeredLayer) return
+    unregisterLayer?.()
+    unregisterLayer = null
+    registeredLayer = null
+    if (layer) {
+      unregisterLayer = registerPopupLayer(layer)
+      registeredLayer = layer
+    }
+  }
+
+  watch(layerRef, syncLayerRegistration)
 
   // ---- 选项/元素变化 → 立即重算;元素变化 → 重挂观察目标 ----
   watch(
@@ -365,6 +400,7 @@ export function usePopupLayer(options: UsePopupLayerOptions): UsePopupLayerRetur
 
   onMounted(() => {
     computePosition()
+    syncLayerRegistration()
     if (typeof ResizeObserver !== 'undefined') {
       resizeObserver = new ResizeObserver(() => scheduleUpdate())
       syncObservers()
@@ -391,6 +427,10 @@ export function usePopupLayer(options: UsePopupLayerOptions): UsePopupLayerRetur
     resizeObserver = null
     observedAnchor = null
     observedLayer = null
+    // 层注册出栈(嵌套豁免链路):实例销毁后不再参与豁免/栈顶判定
+    unregisterLayer?.()
+    unregisterLayer = null
+    registeredLayer = null
     if (typeof document !== 'undefined') {
       document.removeEventListener('scroll', onDocumentScroll, { capture: true })
       document.removeEventListener('pointerdown', onDocumentPointerdown, { capture: true })

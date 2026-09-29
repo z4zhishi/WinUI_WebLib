@@ -6,7 +6,7 @@ MenuFlyout / ComboBox 下拉 / DatePickerFlyout …)共用的底座。**在实�
 | 文件 | 职责 |
 | ---- | ---- |
 | `src/composables/usePopup.ts` | `usePopupAnchor()`(宿主锚标记)+ `usePopupLayer(options)`(手写定位:placement / flip / shift / offset / 等宽;ResizeObserver + scroll 跟随;自动关闭回调) |
-| `src/utils/popup.ts` | `nextPopupZIndex()`(z-index 分配)+ `trapFocus` / `releaseFocus` / `focusFirst`(Tab 循环,ContentDialog 用) |
+| `src/utils/popup.ts` | `nextPopupZIndex()`(z-index 分配)+ 弹层注册表(`registerPopupLayer` / `isInsideAnyPopupLayer` / `getTopmostPopupLayer`,嵌套链路豁免用)+ `trapFocus` / `releaseFocus` / `focusFirst`(Tab 循环,ContentDialog 用) |
 | `src/styles/popup.css` | 层级 token、`.wui-popup-layer` 层根类、`.wui-popup-overlay` 遮罩、presenter 皮肤类、出入场动画挂接(已 `@import animations.css`) |
 
 无在线示例(基建,非控件);风格母版:任何弹层控件实现完成后在此文件末尾互链。
@@ -34,7 +34,7 @@ const { layerRef, update } = usePopupLayer({
 
 watch(open, (value) => {
   if (value) update() // 内容是异步/动态尺寸时确保就位
-})
+}, { flush: 'post' }) // post:等 v-if 的层挂载完成后再重算;pre 会在渲染前跑到,update() 空转
 </script>
 
 <template>
@@ -56,6 +56,7 @@ watch(open, (value) => {
 - **v-if + Teleport 组合**:`usePopupLayer` 依赖层元素挂载才能测量,`v-if` 控制开关即可;层关闭即卸载,监听与观察器随组件作用域自动清理。
 - **z-index 不用手写**:`usePopupLayer` 打开时自动调用 `nextPopupZIndex()` 写入内联样式(后开者在上);需要固定档位时用 `zIndex` 选项(见下表)。
 - **回调要稳定**:`usePopupLayer(options)` 的 options 对象在 setup 时捕获一次,回调内请引用 ref/props(如上例的 `open`),不要在模板里现造闭包依赖会变的局部量。
+- **嵌套零负担**:子弹层再开弹层时,外部点击豁免与 Escape 逐级收口由基建注册表自动完成(见「自动关闭约定」),宿主组件**无需**自行判断「目标是否在其他弹层内」或「自己是否最顶层」。
 - **定位样式由组合式直写**(position/left/top/width/z-index/`data-wui-placement`),控件不要在层根上再写这些属性,以免被覆盖。
 
 ## usePopupLayer 选项表
@@ -71,9 +72,9 @@ watch(open, (value) => {
 | `matchAnchorWidth` | `boolean` | `false` | 层与锚同宽(ComboBox 下拉语义);在测高前写入,换行高度参与定位 |
 | `viewportPadding` | `number` | `8` | flip/shift 判定的视口安全边距(px) |
 | `zIndex` | `number \| string` | 自动分配 | 缺省时打开即取 `nextPopupZIndex()`(单调递增);需要固定档位传数字或 CSS var,如 `'var(--wui-z-popup-dialog)'` |
-| `onOutsidePress` | `(event: PointerEvent) => void` | 无 | pointerdown 落在锚与层之外时触发(light dismiss)。控件决定是否关闭;典型:`() => (open.value = false)` |
-| `onEscape` | `(event: KeyboardEvent) => void` | 无 | 层打开期间任意 Escape 触发,事件原样给回调;**是否要求焦点在层/锚内等过滤由控件实现**(读 `event.target` 自行判断) |
-| `onAnchorScroll` | `(event: Event) => void` | 无 | 滚动发生在**锚的滚动链**(页面或锚的祖先滚动容器)时触发。控件决定语义:ToolTip 选择继续跟随、不关闭;部分 Flyout 选择关闭 |
+| `onOutsidePress` | `(event: PointerEvent) => void` | 无 | **层已开时**,pointerdown 落在本层锚之外、且不在任何已开弹层(含本层与其他实例的子弹层,注册表统一豁免)内才触发(light dismiss)。控件决定是否关闭;典型:`() => (open.value = false)` |
+| `onEscape` | `(event: KeyboardEvent) => void` | 无 | **仅当本实例层已开、且是最后打开的弹层(注册表栈顶)时**触发(嵌套时同帧只有最顶层收到,逐级收口,不广播);事件原样给回调,进一步过滤(如要求焦点位置)由控件实现 |
+| `onAnchorScroll` | `(event: Event) => void` | 无 | **层已开时**,滚动发生在**锚的滚动链**(页面或锚的祖先滚动容器)才触发。控件决定语义:ToolTip 选择继续跟随、不关闭;部分 Flyout 选择关闭 |
 
 返回值:
 
@@ -92,6 +93,15 @@ watch(open, (value) => {
 | ToolTip | 不监听 | 不监听 | 不监听(只跟随重定位) |
 | ContentDialog(模态) | 不监听(遮罩挡指针) | 由 `IsPrimaryButtonEnabled` 等对话框逻辑决定 | 不监听 |
 | TeachingTip | `IsLightDismissEnabled` 时关闭 | 同左 | 不监听 |
+
+### 嵌套链路(基建内置,宿主零改动)
+
+弹层套弹层(MenuFlyout 子菜单、Popup 内再开 Flyout 等)时,各层各自 Teleport 到 body、互不在对方 DOM 内,基建用 `src/utils/popup.ts` 的**已开弹层注册表**(栈:层挂载入栈、关闭/卸载出栈)统一收口,宿主组件无需任何配合代码:
+
+- **外部点击豁免**:pointerdown 目标位于**任何已开弹层**(含其他实例的子弹层)内时,不视作「外部」——点击子弹层内部不会误关父层;层内元素再开的更深弹层同样被注册覆盖。
+- **Escape 只关栈顶**:嵌套时同帧只有**最后打开**的实例收到 Escape;关闭后栈顶回落到父层,再按一次关父层,逐级收口(与 WinUI 菜单 Escape 行为一致)。
+- **层关闭即出栈**:v-if 关闭/组件卸载自动注销,父层立即恢复「栈顶」资格。
+- 兼容性说明:已接入控件里自带的同类守卫(如 MenuFlyout 子菜单的 `data-wui-menu-layer` 判定、`openChildHandle` 检查)与此机制叠加无害,可留待后续清理。
 
 ## z-index 约定
 
@@ -154,4 +164,8 @@ releaseFocus()                                // 焦点归还到打开前的元�
 ## 互链
 
 - 基建源码:`src/composables/usePopup.ts`、`src/utils/popup.ts`、`src/styles/popup.css`
-- 后续控件文档将在此列出:ContentDialog、MenuFlyout、ToolTip、TeachingTip…
+- 后续控件文档将在此列出:ContentDialog、MenuFlyout、TeachingTip…
+- 已接入控件:[ToolTip](./ToolTip.md)(皮肤 `.wui-popup-skin-tooltip`,滚动跟随不关闭,演示页 `demo/pages/ToolTipPage.vue`)
+- 已接入控件:[MenuFlyout](./MenuFlyout.md)(五件套菜单族:根层 + Item/Toggle/Separator/SubItem 级联子菜单,子菜单经 `registerOpenSubmenu` 登记实现 Escape 逐级与兄弟互斥,演示页 `demo/pages/MenuFlyoutPage.vue`)
+- 已接入控件:[ContentDialog](./ContentDialog.md)(视口居中模态:不走 usePopupLayer 定位,z-index 固定档 `--wui-z-popup-dialog`,`trapFocus`/`releaseFocus` 焦点陷阱 + `registerPopupLayer` 栈顶登记实现嵌套 Esc 逐级,演示页 `demo/pages/ContentDialogPage.vue`)
+- 已接入控件:[TeachingTip](./TeachingTip.md)(targeted 尾巴指向:四边 + 八角 + Center 全枚举经 placement + 交叉轴 offset 组合扩展,non-targeted 以 0×0 视口锚点复用同一基建,小屏尾巴够不到锚自动折叠,演示页 `demo/pages/TeachingTipPage.vue`)
