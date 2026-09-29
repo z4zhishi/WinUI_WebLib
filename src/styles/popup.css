@@ -1,0 +1,138 @@
+/*
+ * WinUI_WebLib — 弹层公共样式(popup.css)
+ *
+ * 阶段 3 弹层基建:层级 token、公共层根类(.wui-popup-layer)、light-dismiss 遮罩、
+ * presenter 皮肤类与出入场动画挂接。配套逻辑见 src/composables/usePopup.ts 与
+ * src/utils/popup.ts;接入指南(选项表/z-index 约定/焦点与自动关闭约定/最小示例):
+ * wiki/controls/_popup-infra.md。
+ *
+ * 引入方式:应用入口 import 一次即可(如 demo/main.ts 加
+ * `import '../src/styles/popup.css'`),或由弹层控件各自 import(Vite 构建去重);
+ * 本文件已 @import animations.css,关键帧随之加载,无需重复引入。
+ *
+ * 本文件为普通(非 scoped)样式表:data-theme 主题选择器直接书写,
+ * 不经过 plugin-vue 的 scoped :global 编译(该路径存在组件选择器丢失缺陷,
+ * 见 T3-ProgressBar 报告);theme.css 的颜色 token 本身按
+ * :root[data-theme=…] 分块重声明,直接 var() 引用即可随主题切换。
+ */
+
+/* 弹层出入场动画引用的关键帧与时长/缓动 token(须位于文件顶部) */
+@import './animations.css';
+
+:root {
+  /* ------------------------------------------------------------------
+   * 层级 token(z-index 阶梯)
+   * 与 src/utils/popup.ts 的 POPUP_Z_INDEX_BASE(10000)同基:
+   * 常规弹层打开时由 nextPopupZIndex() 分配递增值(内联覆盖);
+   * token 供需要固定档位的场景(ContentDialog、遮罩)与 CSS 回退使用。
+   * ------------------------------------------------------------------ */
+  --wui-z-popup-base: 10000; /* 锚定弹层:ToolTip / Flyout / MenuFlyout / 下拉 */
+  --wui-z-popup-overlay: 10500; /* light-dismiss 遮罩(.wui-popup-overlay) */
+  --wui-z-popup-dialog: 11000; /* ContentDialog(模态对话框层) */
+  --wui-z-popup-topmost: 12000; /* 手动救急:强制置于所有弹层之上 */
+
+  /* ------------------------------------------------------------------
+   * 弹层公共外观
+   * WinUI 3 弹层圆角取 OverlayCornerRadius(默认 8px);该键不在
+   * generic.xaml ThemeDictionaries 内,theme.css 未生成 token,故在此
+   * 定义基建级 token(应用可按常规层叠覆盖)。阴影在 WinUI 3 由
+   * ThemeShadow(合成器 elevation)实现、XAML 无画刷 token,以双层
+   * box-shadow 做视觉近似,均记录为与 WinUI 的差异(见 wiki)。
+   * ------------------------------------------------------------------ */
+  --wui-popup-corner-radius: 8px;
+  --wui-popup-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.14),
+    0 0 2px rgba(0, 0, 0, 0.12);
+}
+
+/* ======================================================================
+ * 层根:定位/层叠外壳(几何由 usePopupLayer 以内联样式写入)
+ * 不带背景/边框 —— 视觉皮肤由控件叠加 presenter 皮肤类,或按各控件
+ * generic.xaml 模板自定(如 ContentDialog 用 --wui-content-dialog-*)。
+ * ====================================================================== */
+
+.wui-popup-layer {
+  /* JS 默认写 position: fixed 并内联覆盖;此处 absolute 为无 JS 时的回退 */
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* JS 打开时以内联 nextPopupZIndex() 覆盖;此为无 JS 回退 */
+  z-index: var(--wui-z-popup-base);
+  box-sizing: border-box;
+  border-radius: var(--wui-popup-corner-radius);
+  box-shadow: var(--wui-popup-shadow);
+}
+
+/* scale 类入场动画的形变原点按翻转后的实际基位收放
+   (data-wui-placement 由 usePopupLayer 写入) */
+.wui-popup-layer[data-wui-placement='top'] {
+  transform-origin: bottom center;
+}
+
+.wui-popup-layer[data-wui-placement='bottom'] {
+  transform-origin: top center;
+}
+
+.wui-popup-layer[data-wui-placement='left'] {
+  transform-origin: right center;
+}
+
+.wui-popup-layer[data-wui-placement='right'] {
+  transform-origin: left center;
+}
+
+/* ======================================================================
+ * light-dismiss 遮罩(锚定弹层的模态底)
+ * 颜色引用 theme.css 既有 token(浅 #ffffff99 / 深 #00000099,随主题切换);
+ * 各控件若有专属遮罩 token(如 --wui-combo-box-light-dismiss-overlay-background)
+ * 由控件自行覆盖。
+ * ====================================================================== */
+
+.wui-popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--wui-z-popup-overlay);
+  background: var(--wui-popup-light-dismiss-overlay-background);
+}
+
+/* ======================================================================
+ * presenter 皮肤类(颜色一律引用 theme.css 既有 token,禁止硬编码)
+ * 对应 generic.xaml 默认模板:FlyoutPresenter L11952-11998、ToolTip L11538-11545。
+ * ====================================================================== */
+
+.wui-popup-skin-flyout {
+  background: var(--wui-flyout-presenter-background);
+  border: 1px solid var(--wui-flyout-border-theme);
+}
+
+.wui-popup-skin-tooltip {
+  background: var(--wui-tool-tip-background);
+  border: 1px solid var(--wui-tool-tip-border);
+  color: var(--wui-tool-tip-foreground);
+}
+
+/* ======================================================================
+ * 出入场动画挂接(引用 animations.css 关键帧 + 时长/缓动 token)
+ * 也可直接用 animations.css 的 .wui-anim-* 工具类;此处提供弹层语义命名。
+ * prefers-reduced-motion 降级由 animations.css 的全局媒体查询统一处理。
+ * ====================================================================== */
+
+.wui-popup-anim-fade {
+  animation: wui-fade-in var(--wui-duration-fast) var(--wui-easing-standard) both;
+}
+
+.wui-popup-anim-flyout {
+  animation: wui-flyout-in var(--wui-duration-normal) var(--wui-easing-standard) both;
+}
+
+.wui-popup-anim-scale {
+  animation: wui-scale-up-in var(--wui-duration-fast) var(--wui-easing-standard) both;
+}
+
+.wui-popup-anim-dialog {
+  animation: wui-dialog-in var(--wui-duration-slow) var(--wui-easing-standard) both;
+}
+
+.wui-popup-anim-leave {
+  animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-standard) both;
+}
