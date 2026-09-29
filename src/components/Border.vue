@@ -11,7 +11,7 @@ import { computed } from 'vue'
 defineOptions({ inheritAttrs: false })
 
 const props = defineProps<{
-  /** 边框厚度,XAML Thickness 形式:数字(四边一致,无单位按 px)/ "left,top" / "left,top,right,bottom"。 */
+  /** 边框厚度,XAML Thickness 形式:数字(四边一致,无单位按 px)/ "left,top" / "left,top,right,bottom";1/2/4 之外的计数(如 3 值)按首值四边一致宽容回退。 */
   borderThickness?: number | string
   /** 边框画刷:任意 CSS 颜色或 --wui-* 变量;缺省不绘制(WinUI BorderBrush 默认 null)。 */
   borderBrush?: string
@@ -26,6 +26,7 @@ const props = defineProps<{
 /** CSS 长度四元组(left, top, right, bottom)。 */
 type Sides = [string, string, string, string]
 
+/** 全零边(CSS 长度四元组的零值)。 */
 function zeroSides(): Sides {
   return ['0px', '0px', '0px', '0px']
 }
@@ -40,7 +41,13 @@ function toCssLength(part: string): string | null {
   return trimmed
 }
 
-/** 解析 XAML Thickness:1 值四边一致;2 值 "left,top"(左右/上下配对);4 值 "left,top,right,bottom"。 */
+/**
+ * 解析 XAML Thickness。官方级联为 4→2→1 值、每次都须精确消费全串
+ * (CK/WinUI-Reference dxaml/xcp/components/xstring/StringConversions.cpp L1815 起 ThicknessFromString):
+ * 4 值 "left,top,right,bottom";2 值 "left,top"(left/right=第 1、top/bottom=第 2);1 值四边一致。
+ * 1/2/4 之外的计数(如 3 值)官方为解析失败;本组件按宽容回退取首值四边一致
+ * (与官方 CornerRadius 回退同型,QA 裁决 ② 引用),绝不向 CSS 值泄漏 undefined。
+ */
 function parseSides(value: number | string | undefined): Sides {
   if (value === undefined || value === '') return zeroSides()
   if (typeof value === 'number') {
@@ -52,17 +59,17 @@ function parseSides(value: number | string | undefined): Sides {
     const length = toCssLength(part)
     if (length !== null) lengths.push(length)
   }
-  if (lengths.length === 0) return zeroSides()
-  if (lengths.length === 1) {
-    const s = lengths[0]
-    return [s, s, s, s]
-  }
+  if (lengths.length === 4) return [lengths[0], lengths[1], lengths[2], lengths[3]]
   if (lengths.length === 2) {
     const l = lengths[0]
     const t = lengths[1]
     return [l, t, l, t]
   }
-  return [lengths[0], lengths[1], lengths[2], lengths[3]]
+  if (lengths.length >= 1) {
+    const s = lengths[0]
+    return [s, s, s, s]
+  }
+  return zeroSides()
 }
 
 /** 判断 CSS 长度是否为 0(仅用于跳过零厚度边)。 */

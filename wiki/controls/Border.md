@@ -65,6 +65,36 @@ import WuiTextBlock from '@/components/TextBlock.vue'
 </template>
 ```
 
+## 官方解析语义与本组件的宽容回退(Thickness / CornerRadius)
+
+以下语义已对照官方源码核实(`CK/WinUI-Reference/dxaml/xcp/components/xstring/StringConversions.cpp` 的 `ThicknessFromString`、`dxaml/xcp/components/primitiveDependencyObjects/CornerRadius.cpp` 的 `CornerRadiusFromString`;两者都经 `ArrayFromString` 解析,要求**精确消费整个字符串**):
+
+**Thickness 官方级联**(自上而下尝试,全串精确匹配,否则整体解析失败):
+
+1. 4 值:`left, top, right, bottom`
+2. 2 值:`left, top`(left/right = 第 1 值,top/bottom = 第 2 值)
+3. 1 值:四边一致
+
+**CornerRadius 官方级联**:
+
+1. 4 值:`topLeft, topRight, bottomRight, bottomLeft`
+2. 1 值:四角一致(uniformRadius,`FromUniformRadius`)
+
+即官方**不存在** Thickness 三值 / CornerRadius 两值形式;这类输入官方语义是解析失败(XAML 报错)。本组件为 Web 宽容性不抛错,采用如下回退策略:
+
+| 输入计数 | Thickness | CornerRadius |
+| --- | --- | --- |
+| 1 值 | 四边一致(官方) | 四角一致(官方) |
+| 2 值 | 左右 = 第 1、上下 = 第 2(官方) | 按 CSS 对角语义 `tl/br`、`tr/bl` 透传(宽容扩展) |
+| 3 值 | 官方解析失败 → **宽容回退为首值四边一致** | 官方解析失败 → **宽容回退为首值四角一致** |
+| 4 值 | left, top, right, bottom(官方) | topLeft, topRight, bottomRight, bottomLeft(官方) |
+
+> 宽容回退取首值 uniform 的方向,与官方 CornerRadius 回退档(非四值即走向 uniformRadius)同型;QA 复审裁决确认按此口径落实。
+
+## 官方示例对照色说明
+
+[WinUI Gallery 官方 Border 示例](https://github.com/microsoft/WinUI-Gallery)的 Background / BorderBrush 单选给出 Green / Yellow / Blue / White 四色,其 code-behind(`Samples/Border/BorderPage.xaml.cs`)的映射为:Yellow → `Colors.Gold`、Green → `Colors.DarkGreen`、Blue → `Colors.DarkBlue`、White → `Colors.White`。演示页为了**逐像素对照官方示例**,在画刷下拉与「官方示例还原」固定示例中直接使用这些字面 CSS 色(`#FFD700` / `#006400` / `#00008B` / `#FFFFFF`)——它们是演示选项的属性值而非组件样式,组件样式本身零硬编码;实际业务请优先使用 `--wui-*` 主题 token(演示页下拉的默认项即主题 token)。
+
 ## 边框绘制方案选型(内绘语义)
 
 本组件的边框**画在盒内**:不挤占 `padding` 与内容区,改变 `borderThickness` 不会引起布局抖动。实现取多重 `box-shadow: inset`(四边一致时合并为一条 `inset 0 0 0 Npx color` 内环),三种 CSS 方案的取舍:
@@ -80,8 +110,8 @@ import WuiTextBlock from '@/components/TextBlock.vue'
 ## 与 WinUI 的差异
 
 1. **边框内绘、不挤占内容区**(见上节):`borderThickness` 用 inset box-shadow 实现,不参与盒模型;WinUI 中 thickness 与 padding 共同内缩子元素排片区。
-2. **Thickness 两值形式**:XAML `"left,top"` 表示左右/上下配对,已按此语义解析;XAML CornerRadius 没有两值形式,本组件遇到两值时按 CSS 对角语义(`tl/br`、`tr/bl`)透传,作为宽容扩展。
-3. **三值形式**:XAML Thickness 不支持三值,本组件按 CSS 语义(`top`、`right/left`、`bottom`)透传;建议统一使用 1/2/4 值形式。
+2. **Thickness 两值形式**:XAML `"left,top"` 表示左右/上下配对,已按此语义解析(官方支持,见上节级联);XAML CornerRadius 没有两值形式,本组件遇到两值时按 CSS 对角语义(`tl/br`、`tr/bl`)透传,作为宽容扩展(官方为解析失败)。
+3. **Thickness 三值形式**:官方不支持三值 Thickness,`ThicknessFromString` 对 "1,2,3" 类输入的语义是**解析失败**(4→2→1 级联均无法精确消费全串);本组件按宽容策略**回退为首值四边一致**(旧版本曾在此处把 `undefined` 泄漏进 CSS 值,导致 padding / box-shadow 整条声明被浏览器丢弃,已修复)。官方三值与组件回退的行为差异见「官方解析语义与本组件的宽容回退」节。
 4. **画刷类型**:WinUI `BorderBrush`/`Background` 是 Brush(纯色、渐变、亚克力等);Web 版属性为 CSS `background`/颜色值,纯色与 CSS 渐变均可用,亚克力等系统材质无对应物。
 5. **对齐与拉伸**:WinUI Border 默认 `HorizontalAlignment/VerticalAlignment = Stretch`,块级 `div` 天然横向撑满、竖向由内容决定;WinUI 的竖向拉伸依赖父容器,Web 版如需请经 `$attrs` 传 `style="height: 100%"` 等自行控制。
 6. **单子元素约束**:WinUI `Child` 只允许一个子元素(多个会抛异常);Web 版 slot 放入多个元素时按普通文档流依次排列,不做校验。
