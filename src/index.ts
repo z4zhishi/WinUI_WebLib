@@ -1,6 +1,7 @@
 // 主项目(控件库)公共出口。
 // 所有对外暴露的控件与工具统一在此导出,供 demo 示例站与外部使用者引用。
 export { default as BitmapIcon } from './components/BitmapIcon.vue'
+export { default as Border } from './components/Border.vue'
 export { default as Button } from './components/Button.vue'
 export { default as CheckBox } from './components/CheckBox.vue'
 export { default as FontIcon } from './components/FontIcon.vue'
