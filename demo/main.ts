@@ -5,6 +5,7 @@ import App from './App.vue'
 import { createI18n, detectLocale, i18nKey } from './i18n'
 import router from './router'
 import '../src/styles/theme.css'
+import '../src/styles/theme-hooks.css' // 系统色钩子默认值层(需在 theme.css 之后)
 
 const app = createApp(App)
 
