@@ -26,3 +26,6 @@ Thumbs.db
 # lint/test 缓存
 .eslintcache
 *.tsbuildinfo
+
+# QA 临时目录
+.qa-tmp/
