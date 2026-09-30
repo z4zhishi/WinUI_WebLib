@@ -75,16 +75,16 @@ const bold = ref(false)
 
 ## 视觉状态对照
 
-Checked 全族(源 `controls/dev/SplitButton/SplitButton.xaml` L131-L207;状态选择逻辑见 `ToggleSplitButton` 复用的 `SplitButton.cpp UpdateVisualStates` L137-L183)。实现方式:SplitButton.vue 的全部状态规则消费根元素 `--sb-*` token,本组件经 attrs 透传在同一根元素追加 `.is-checked` 并覆写 token,即命中全族:
+Checked 全族(源 `controls/dev/SplitButton/SplitButton.xaml` L131-L207;状态选择逻辑见 `ToggleSplitButton` 复用的 `SplitButton.cpp UpdateVisualStates` L137-L183)。实现方式:SplitButton.vue 的全部状态规则消费根元素 `--wui-splitbutton-*` token,本组件经 attrs 透传在同一根元素追加 `.is-checked` 并覆写 token,即命中全族:
 
 | 源 VisualState | 触发 | Web 实现 |
 | --- | --- | --- |
 | `Checked` | 勾选、无交互 | `.is-checked` 覆写 token:背景 accent / 前景 TextOnAccent / 边框 OnAccentSecondary / 分隔线 OnAccentTertiary |
-| `CheckedPrimaryPointerOver` | 指针悬停主区 | 主区 `:hover` 经 `--sb-fill-hover` / `--sb-fg-hover` 自动生效 |
+| `CheckedPrimaryPointerOver` | 指针悬停主区 | 主区 `:hover` 经 `--wui-splitbutton-fill-pointer-over` / `--wui-splitbutton-foreground-pointer-over` 自动生效 |
 | `CheckedPrimaryPressed` | 主区按压 | 主区 `:active` + `:has()` 恢复 accent 边框(源保留 Checked 边框) |
 | `CheckedSecondaryPointerOver` | 次区悬停 | 次区 `:hover`(次区前景 TextOnAccentPrimary,同源) |
 | `CheckedSecondaryPressed` | 次区按压 | 次区 `:active` + `:has()` 恢复 accent 边框 |
-| `CheckedFlyoutOpen` | 勾选 + 弹层打开 | `.is-checked` + `.is-flyout-open` 组合类;边框透明(`--sb-stroke-pressed: transparent`) |
+| `CheckedFlyoutOpen` | 勾选 + 弹层打开 | `.is-checked` + `.is-flyout-open` 组合类;边框透明(`--wui-splitbutton-stroke-pressed: transparent`) |
 | `CheckedTouchPressed` | 勾选 + 键盘 Space 按住(`m_isKeyDown`)/ 触摸 | `.is-checked` + `.is-key-pressed` 组合类,配色同 CheckedFlyoutOpen |
 | (无 `CheckedDisabled` 态) | 禁用 + 勾选 | 不覆写(`:not(.is-disabled)`),回落普通 Disabled 链,外观同「仅禁用」 |
 
@@ -94,14 +94,14 @@ SplitButton 的全部差异项(边框渐变简化、圆角 / 内边距资源写�
 
 | 组件 token(`.is-checked` 覆写) | 源资源(解析链) | Light | Dark |
 | --- | --- | --- | --- |
-| `--sb-fill` | `SplitButtonBackgroundChecked` ← `AccentFillColorDefault` | 系统强调色 | 系统强调色 |
-| `--sb-fill-hover` | `SplitButtonBackgroundCheckedPointerOver` ← `AccentFillColorSecondary` | ≈ Dark1 | ≈ Dark1 |
-| `--sb-fill-pressed` | `SplitButtonBackgroundCheckedPressed` ← `AccentFillColorTertiary` | ≈ Dark2 | ≈ Dark2 |
-| `--sb-fg` / `--sb-fg-hover` / `--sb-fg-secondary` | `SplitButtonForegroundChecked(PointerOver)` ← `TextOnAccentFillColorPrimary` | `#FFFFFF` | `#000000` |
-| `--sb-fg-pressed` / `--sb-fg-secondary-pressed` | `SplitButtonForegroundCheckedPressed` ← `TextOnAccentFillColorSecondary` | `#FFFFFFB3` | `#00000080` |
-| `--sb-stroke` | `SplitButtonBorderBrushChecked` ← `AccentControlElevationBorderBrush` | ≈`#00000066` | ≈`#00000023` |
-| `--sb-stroke-pressed` | `SplitButtonBorderBrushCheckedPressed` ← `ControlFillColorTransparent`(仅 FlyoutOpen / TouchPressed) | 透明 | 透明 |
-| `--sb-divider` | `SplitButtonBorderBrushCheckedDivider` ← `ControlStrokeColorOnAccentTertiary` | `#00000037` | `#00000037` |
+| `--wui-splitbutton-fill` | `SplitButtonBackgroundChecked` ← `AccentFillColorDefault` | 系统强调色 | 系统强调色 |
+| `--wui-splitbutton-fill-pointer-over` | `SplitButtonBackgroundCheckedPointerOver` ← `AccentFillColorSecondary` | ≈ Dark1 | ≈ Dark1 |
+| `--wui-splitbutton-fill-pressed` | `SplitButtonBackgroundCheckedPressed` ← `AccentFillColorTertiary` | ≈ Dark2 | ≈ Dark2 |
+| `--wui-splitbutton-foreground` / `--wui-splitbutton-foreground-pointer-over` / `--wui-splitbutton-foreground-secondary` | `SplitButtonForegroundChecked(PointerOver)` ← `TextOnAccentFillColorPrimary` | `#FFFFFF` | `#000000` |
+| `--wui-splitbutton-foreground-pressed` / `--wui-splitbutton-foreground-secondary-pressed` | `SplitButtonForegroundCheckedPressed` ← `TextOnAccentFillColorSecondary` | `#FFFFFFB3` | `#00000080` |
+| `--wui-splitbutton-stroke` | `SplitButtonBorderBrushChecked` ← `AccentControlElevationBorderBrush` | ≈`#00000066` | ≈`#00000023` |
+| `--wui-splitbutton-stroke-pressed` | `SplitButtonBorderBrushCheckedPressed` ← `ControlFillColorTransparent`(仅 FlyoutOpen / TouchPressed) | 透明 | 透明 |
+| `--wui-splitbutton-divider` | `SplitButtonBorderBrushCheckedDivider` ← `ControlStrokeColorOnAccentTertiary` | `#00000037` | `#00000037` |
 
 其他差异项:
 
