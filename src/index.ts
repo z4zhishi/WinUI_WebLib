@@ -48,6 +48,7 @@ export { default as MenuFlyoutSubItem } from './components/MenuFlyoutSubItem.vue
 export { default as NumberBox } from './components/NumberBox.vue'
 export { default as PasswordBox } from './components/PasswordBox.vue'
 export { default as PersonPicture } from './components/PersonPicture.vue'
+export { default as PipsPager } from './components/PipsPager.vue'
 export { default as Pivot } from './components/Pivot.vue'
 export { default as PivotItem } from './components/PivotItem.vue'
 export { default as Path } from './components/Path.vue'
