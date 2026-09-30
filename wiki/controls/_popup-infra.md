@@ -169,3 +169,4 @@ releaseFocus()                                // 焦点归还到打开前的元�
 - 已接入控件:[MenuFlyout](./MenuFlyout.md)(五件套菜单族:根层 + Item/Toggle/Separator/SubItem 级联子菜单,子菜单经 `registerOpenSubmenu` 登记实现 Escape 逐级与兄弟互斥,演示页 `demo/pages/MenuFlyoutPage.vue`)
 - 已接入控件:[ContentDialog](./ContentDialog.md)(视口居中模态:不走 usePopupLayer 定位,z-index 固定档 `--wui-z-popup-dialog`,`trapFocus`/`releaseFocus` 焦点陷阱 + `registerPopupLayer` 栈顶登记实现嵌套 Esc 逐级,演示页 `demo/pages/ContentDialogPage.vue`)
 - 已接入控件:[TeachingTip](./TeachingTip.md)(targeted 尾巴指向:四边 + 八角 + Center 全枚举经 placement + 交叉轴 offset 组合扩展,non-targeted 以 0×0 视口锚点复用同一基建,小屏尾巴够不到锚自动折叠,演示页 `demo/pages/TeachingTipPage.vue`)
+- 已接入控件:[DropDownButton](./DropDownButton.md)(整钮即锚的 flyout 宿主按钮:#flyout slot 承载菜单族(provide 与 MenuFlyout 同构的层上下文)或任意内容(层皮肤/role 按内容切换),演示页 `demo/pages/DropDownButtonPage.vue`)
