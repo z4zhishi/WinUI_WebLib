@@ -13,7 +13,7 @@
 //     (Button Tag="0"…"6" 依次对应 ElementSoundKind 枚举序,与本文档 KINDS 顺序一致)、
 //     SpaceAudio 复选框切 SpatialAudioMode;
 //   - ElementSoundKind 枚举序(Focus=0 … GoBack=6)与 SoundPage.xaml 的 Tag 一致;
-//   - ElementSoundPlayerState:Auto=0(默认)/ On=1 / Off=2;Volume 默认 1.0。
+//   - ElementSoundPlayerState:Auto=0(默认)/ Off=1 / On=2;Volume 默认 1.0。
 //
 // 与 WinUI 的已知差异(详见 wiki/controls/Sound.md):
 //   1. WinUI 系统音是 Windows 内置的 wav 资产,仓库与浏览器均不可得 —— 本实现用

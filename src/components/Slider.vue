@@ -412,7 +412,7 @@ function tickLeft(r: number): string {
 
 /* —— Focus(键盘焦点可见性) —— */
 .wui-slider__input:focus-visible ~ .wui-slider__thumb {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
+  outline: 2px solid var(--wui-system-accent-color);
   outline-offset: 2px;
 }
 

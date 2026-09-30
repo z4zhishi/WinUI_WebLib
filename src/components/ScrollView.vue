@@ -588,7 +588,7 @@ defineExpose({
 }
 
 .wui-scroll-view:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
+  outline: 2px solid var(--wui-system-accent-color);
   outline-offset: 1px;
 }
 

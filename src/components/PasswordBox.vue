@@ -208,7 +208,7 @@ const rootClass = computed(() => ({
       模板 Focused 态即键盘焦点指示,无需额外 outline) —— */
 .wui-password-box-border:focus-within {
   background: var(--wui-text-control-background-focused);
-  border-color: var(--wui-text-control-border-brush-focused, var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme)));
+  border-color: var(--wui-text-control-border-brush-focused, var(--wui-system-accent-color));
 }
 
 .wui-password-box-border:focus-within .wui-password-box-input {
@@ -240,7 +240,7 @@ const rootClass = computed(() => ({
 
 /* 选区高亮 = TextControlSelectionHighlightColor */
 .wui-password-box-input::selection {
-  background: var(--wui-text-control-selection-highlight-color, var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme)));
+  background: var(--wui-text-control-selection-highlight-color, var(--wui-system-accent-color));
 }
 
 /* —— Disabled 状态 —— */
