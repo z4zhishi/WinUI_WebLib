@@ -5,8 +5,8 @@
  * Storyboard / ThemeAnimation / VisualTransition 的 Duration、KeyTime 与 KeySpline 实测采样。
  * 采样统计与「关键帧 ↔ 源动画」对照表见 docs/temp/motion-notes.md。
  * 命名契约与 theme.css 一致:--wui- 前缀;动画名 wui-* 前缀。
- *
- * 本文件当前未被任何入口引用(阶段 0 基建,供后续控件动画复用)。
+ * 引用方式:组件按需 `import '../styles/animations.css'`(阶段 7 起),
+ * 示例站经页面导入生效。
  */
 
 :root {
@@ -152,8 +152,588 @@
 }
 
 /* ======================================================================
+ * 导航/页面转场(NavigationThemeTransition,阶段 7 PageTransition / ConnectedAnimation)
+ * ----------------------------------------------------------------------
+ * 源:CK/WinUI-Reference/dxaml/phone/lib/ThemeTransitions.cpp(MIT)各
+ * NavigationTransitionInfo::CreateStoryboards 的四个触发态(NavigatingTo/Away +
+ * Back 前缀)与 NavigateTransitionHelper.h 常量(SLIDE_OFFSET_IN=200、
+ * SLIDE_MID_TIME=250、SLIDE_END_TIME=600、TURNSTILE_* 同处)。
+ * 类名由 src/utils/transitions.ts 的 getNavigationTransition() 生成
+ * (wui-nav-<kind>-<dir>-enter|leave);进入用关键帧 from 端,离开用 fill both
+ * 保持末态直到 Vue 移除元素。时长保留源中的精确颗粒(未并入 fast/normal/slow
+ * 三档 token,见 motion-notes.md 采样口径),缓动一律用 --wui-easing-* token;
+ * 离开曲线源用 (0.7,0 1,.5) 等加速 spline,统一以 --wui-easing-accelerate 近似。
+ * 交互视图进入页恒 z-index:1(源中 NavigatingTo 页为前景页)。
+ * ====================================================================== */
+
+/* 视图堆叠容器:过渡期间新旧视图同格重叠(等价 WinUI Frame 两页叠放),
+   供 NavigationThemeTransition.vue 与裸 vue-router 用法共用。 */
+.wui-nav-frame {
+  display: grid;
+  overflow: hidden;
+}
+
+.wui-nav-frame > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* ---- Entrance(缺省 NavigationTransitionInfo,源 L233/L3141-L3186):
+   进页:淡入 + 上浮 140px(前 150ms 隐藏,150-450ms 标准曲线滑入);
+   离页:淡出 150ms;退导航镜像(退页下沉 140px 淡出,新页纯淡入 450ms)。 */
+@keyframes wui-nav-entrance-fwd-in {
+  from {
+    opacity: 0;
+    transform: translateY(140px);
+  }
+  33.333% {
+    opacity: 1;
+    transform: translateY(140px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wui-nav-entrance-fwd-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes wui-nav-entrance-back-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes wui-nav-entrance-back-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(140px);
+  }
+}
+
+.wui-nav-entrance-fwd-enter {
+  z-index: 1;
+  animation: wui-nav-entrance-fwd-in 450ms var(--wui-easing-standard) both;
+}
+
+.wui-nav-entrance-fwd-leave {
+  animation: wui-nav-entrance-fwd-out 150ms var(--wui-easing-accelerate) both;
+}
+
+.wui-nav-entrance-back-enter {
+  z-index: 1;
+  animation: wui-nav-entrance-back-in 450ms var(--wui-easing-standard) both;
+}
+
+.wui-nav-entrance-back-leave {
+  animation: wui-nav-entrance-back-out 150ms var(--wui-easing-accelerate) both;
+}
+
+/* ---- Slide 横向(Effect=FromRight/FromLeft,源 L1543-L1601):
+   进页:从 ±200px 滑入(150ms 隐藏后 300ms 标准曲线);
+   离页:向反向 ±150px 滑出并淡出 150ms;退导航进/离互换镜像。 */
+@keyframes wui-nav-slide-right-fwd-in {
+  from {
+    opacity: 0;
+    transform: translateX(200px);
+  }
+  33.333% {
+    opacity: 1;
+    transform: translateX(200px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes wui-nav-slide-right-fwd-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-150px);
+  }
+}
+
+@keyframes wui-nav-slide-right-back-in {
+  from {
+    opacity: 0;
+    transform: translateX(-150px);
+  }
+  33.333% {
+    opacity: 1;
+    transform: translateX(-150px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes wui-nav-slide-right-back-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(200px);
+  }
+}
+
+.wui-nav-slide-right-fwd-enter {
+  z-index: 1;
+  animation: wui-nav-slide-right-fwd-in 450ms var(--wui-easing-standard) both;
+}
+
+.wui-nav-slide-right-fwd-leave {
+  animation: wui-nav-slide-right-fwd-out 150ms var(--wui-easing-accelerate) both;
+}
+
+.wui-nav-slide-right-back-enter {
+  z-index: 1;
+  animation: wui-nav-slide-right-back-in 450ms var(--wui-easing-standard) both;
+}
+
+.wui-nav-slide-right-back-leave {
+  animation: wui-nav-slide-right-back-out 150ms var(--wui-easing-accelerate) both;
+}
+
+@keyframes wui-nav-slide-left-fwd-in {
+  from {
+    opacity: 0;
+    transform: translateX(-200px);
+  }
+  33.333% {
+    opacity: 1;
+    transform: translateX(-200px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes wui-nav-slide-left-fwd-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(150px);
+  }
+}
+
+@keyframes wui-nav-slide-left-back-in {
+  from {
+    opacity: 0;
+    transform: translateX(150px);
+  }
+  33.333% {
+    opacity: 1;
+    transform: translateX(150px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes wui-nav-slide-left-back-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-200px);
+  }
+}
+
+.wui-nav-slide-left-fwd-enter {
+  z-index: 1;
+  animation: wui-nav-slide-left-fwd-in 450ms var(--wui-easing-standard) both;
+}
+
+.wui-nav-slide-left-fwd-leave {
+  animation: wui-nav-slide-left-fwd-out 150ms var(--wui-easing-accelerate) both;
+}
+
+.wui-nav-slide-left-back-enter {
+  z-index: 1;
+  animation: wui-nav-slide-left-back-in 450ms var(--wui-easing-standard) both;
+}
+
+.wui-nav-slide-left-back-leave {
+  animation: wui-nav-slide-left-back-out 150ms var(--wui-easing-accelerate) both;
+}
+
+/* ---- Slide 纵向(Effect=FromBottom 缺省/FromTop,NavigateTransitionHelper.h
+   SLIDE_OFFSET_IN=200、SLIDE_MID_TIME=250、SLIDE_END_TIME=600,ExponentialEase):
+   进页:从 ±200px 升入(250ms 隐藏后 350ms 指数缓出 → decelerate token);
+   离页:250ms 后被进页覆盖淡出;退导航:退页滑出 ±200px(600ms 指数缓入 →
+   accelerate token),新页 250ms 淡入。注:源纵滑分支未按 FromTop/FromBottom
+   区分符号,Web 端按语义镜像实现(wiki 差异节)。 */
+@keyframes wui-nav-slide-bottom-fwd-in {
+  from {
+    opacity: 0;
+    transform: translateY(200px);
+  }
+  41.667% {
+    opacity: 1;
+    transform: translateY(200px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wui-nav-slide-bottom-fwd-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes wui-nav-slide-bottom-back-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes wui-nav-slide-bottom-back-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(200px);
+  }
+}
+
+.wui-nav-slide-bottom-fwd-enter {
+  z-index: 1;
+  animation: wui-nav-slide-bottom-fwd-in 600ms var(--wui-easing-decelerate) both;
+}
+
+.wui-nav-slide-bottom-fwd-leave {
+  animation: wui-nav-slide-bottom-fwd-out 250ms linear both;
+}
+
+.wui-nav-slide-bottom-back-enter {
+  z-index: 1;
+  animation: wui-nav-slide-bottom-back-in 250ms linear both;
+}
+
+.wui-nav-slide-bottom-back-leave {
+  animation: wui-nav-slide-bottom-back-out 600ms var(--wui-easing-accelerate) both;
+}
+
+@keyframes wui-nav-slide-top-fwd-in {
+  from {
+    opacity: 0;
+    transform: translateY(-200px);
+  }
+  41.667% {
+    opacity: 1;
+    transform: translateY(-200px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wui-nav-slide-top-fwd-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes wui-nav-slide-top-back-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes wui-nav-slide-top-back-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-200px);
+  }
+}
+
+.wui-nav-slide-top-fwd-enter {
+  z-index: 1;
+  animation: wui-nav-slide-top-fwd-in 600ms var(--wui-easing-decelerate) both;
+}
+
+.wui-nav-slide-top-fwd-leave {
+  animation: wui-nav-slide-top-fwd-out 250ms linear both;
+}
+
+.wui-nav-slide-top-back-enter {
+  z-index: 1;
+  animation: wui-nav-slide-top-back-in 250ms linear both;
+}
+
+.wui-nav-slide-top-back-leave {
+  animation: wui-nav-slide-top-back-out 600ms var(--wui-easing-accelerate) both;
+}
+
+/* ---- DrillIn(源 L2830-L2987):进页 scale 0.94→1(783ms 标准曲线)+ 淡入
+   (333ms);离页 scale 1→1.04 + 淡出(100ms);退导航镜像(1.06→1 / 1→0.96)。
+   transform-origin: center(源 transformOrigin 0.5,0.5)。 */
+@keyframes wui-nav-drill-fwd-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  42.529% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes wui-nav-drill-fwd-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes wui-nav-drill-back-in {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes wui-nav-drill-back-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+.wui-nav-drill-fwd-enter {
+  z-index: 1;
+  animation: wui-nav-drill-fwd-in 783ms var(--wui-easing-standard) both;
+  transform-origin: center;
+}
+
+.wui-nav-drill-fwd-leave {
+  animation: wui-nav-drill-fwd-out 100ms var(--wui-easing-standard) both;
+  transform-origin: center;
+}
+
+.wui-nav-drill-back-enter {
+  z-index: 1;
+  animation: wui-nav-drill-back-in 333ms var(--wui-easing-standard) both;
+  transform-origin: center;
+}
+
+.wui-nav-drill-back-leave {
+  animation: wui-nav-drill-back-out 100ms var(--wui-easing-standard) both;
+  transform-origin: center;
+}
+
+/* ---- Common(Turnstile 旋转门,源 L557-L880、TURNSTILE_* 常量):绕左/右缘
+   rotateY 三维翻转 —— 进页 -80°→0(128ms 隐藏后至 556ms 指数缓出)、128ms 淡入;
+   离页 0→50°(128ms 指数缓入)后淡出。透视 1200px 与绕轴手性为 Web 近似。 */
+@keyframes wui-nav-common-fwd-in {
+  from {
+    opacity: 0;
+    transform: perspective(1200px) rotateY(-80deg);
+  }
+  23.022% {
+    opacity: 1;
+    transform: perspective(1200px) rotateY(-80deg);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(1200px) rotateY(0deg);
+  }
+}
+
+@keyframes wui-nav-common-fwd-out {
+  from {
+    opacity: 1;
+    transform: perspective(1200px) rotateY(0deg);
+  }
+  to {
+    opacity: 0;
+    transform: perspective(1200px) rotateY(50deg);
+  }
+}
+
+@keyframes wui-nav-common-back-in {
+  from {
+    opacity: 0;
+    transform: perspective(1200px) rotateY(80deg);
+  }
+  23.022% {
+    opacity: 1;
+    transform: perspective(1200px) rotateY(80deg);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(1200px) rotateY(0deg);
+  }
+}
+
+@keyframes wui-nav-common-back-out {
+  from {
+    opacity: 1;
+    transform: perspective(1200px) rotateY(0deg);
+  }
+  to {
+    opacity: 0;
+    transform: perspective(1200px) rotateY(-50deg);
+  }
+}
+
+.wui-nav-common-fwd-enter {
+  z-index: 1;
+  animation: wui-nav-common-fwd-in 556ms var(--wui-easing-decelerate) both;
+  transform-origin: left center;
+}
+
+.wui-nav-common-fwd-leave {
+  animation: wui-nav-common-fwd-out 128ms var(--wui-easing-accelerate) both;
+  transform-origin: left center;
+}
+
+.wui-nav-common-back-enter {
+  z-index: 1;
+  animation: wui-nav-common-back-in 556ms var(--wui-easing-decelerate) both;
+  transform-origin: right center;
+}
+
+.wui-nav-common-back-leave {
+  animation: wui-nav-common-back-out 128ms var(--wui-easing-accelerate) both;
+  transform-origin: right center;
+}
+
+/* ---- Continuum(源 L1826-L1910):背景层 scale 0.9→1 + 淡入(staggeringFactor
+   267ms 后 350ms);离页淡出。源中 continuum 目标元素的 3D 翻转/飞行与
+   ConnectedAnimation 协同,Web 端仅映射页面层(wiki 差异节)。 */
+@keyframes wui-nav-continuum-fwd-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes wui-nav-continuum-fwd-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.wui-nav-continuum-fwd-enter {
+  z-index: 1;
+  animation: wui-nav-continuum-fwd-in 350ms var(--wui-easing-standard) both;
+  transform-origin: center;
+}
+
+.wui-nav-continuum-fwd-leave {
+  animation: wui-nav-continuum-fwd-out 150ms var(--wui-easing-accelerate) both;
+}
+
+/* 退导航:continuum 无独立 Back 分支,复用正向(fwd)规格。 */
+.wui-nav-continuum-back-enter {
+  z-index: 1;
+  animation: wui-nav-continuum-fwd-in 350ms var(--wui-easing-standard) both;
+  transform-origin: center;
+}
+
+.wui-nav-continuum-back-leave {
+  animation: wui-nav-continuum-fwd-out 150ms var(--wui-easing-accelerate) both;
+}
+
+/* ---- 内容入场 stagger(EntranceThemeTransition / CommonNavigationTransitionInfo
+   的子元素错峰入场):位移与节奏由使用方经 --wui-entrance-* 注入(组件
+   EntranceNavigationThemeTransition.vue 设置;延迟在 reduced-motion 下被清零)。 */
+@keyframes wui-entrance-in {
+  from {
+    opacity: 0;
+    transform: translate(var(--wui-entrance-from-x, 0px), var(--wui-entrance-from-y, 28px));
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+.wui-entrance-item {
+  animation: wui-entrance-in var(--wui-entrance-duration, var(--wui-duration-normal))
+    var(--wui-entrance-easing, var(--wui-easing-standard)) both;
+  animation-delay: var(--wui-entrance-delay, 0ms);
+}
+
+/* ======================================================================
  * 无障碍降级:用户偏好减少动态效果时,所有动画/过渡时长趋近 0
- * (取 0.01ms 而非 0,保证 animationend 事件仍会触发,便于 Vue transition 钩子收尾)
+ * (取 0.01ms 而非 0,保证 animationend 事件仍会触发,便于 Vue transition 钩子收尾)。
+ * 阶段 7 补充:延迟同步清零(入场 stagger / 转场 hold 段不再空等)。
  * ====================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
@@ -161,7 +741,9 @@
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0.01ms !important;
   }
 }

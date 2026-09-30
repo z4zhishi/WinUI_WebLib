@@ -46,7 +46,7 @@ export interface ThemeSetting {
  * 创建主题设置。在根组件 setup 中调用一次即可;
  * 偏好或系统深色偏好变化时自动同步 html[data-theme]。
  */
-export function useThemeSetting(): ThemeSetting {
+function createThemeSetting(): ThemeSetting {
   const mode = ref<ThemeMode>(readStoredThemeMode() ?? DEFAULT_THEME_MODE)
 
   // 系统深色偏好(system 档据此解析);环境不支持 matchMedia 时按浅色处理。
@@ -83,4 +83,15 @@ export function useThemeSetting(): ThemeSetting {
   }
 
   return { mode, resolved, setMode }
+}
+
+// 模块级共享实例:useThemeSetting() 多处调用(站点壳顶栏、设置页)返回同一份
+// 偏好状态,保证各处选中档位一致;首次调用所在组件的 effect scope 持有
+// watchEffect 与 matchMedia 监听(站点壳为根组件,全生命周期存活)。
+let shared: ThemeSetting | null = null
+
+/** 取主题设置(共享单例);首次调用时创建并即刻同步 html[data-theme]。 */
+export function useThemeSetting(): ThemeSetting {
+  if (!shared) shared = createThemeSetting()
+  return shared
 }

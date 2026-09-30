@@ -1,12 +1,16 @@
 <script setup lang="ts">
-// 示例站外壳:顶栏(appName + 主题三档切换 + 语言切换)、侧栏目录导航(目录数据缓存,
-// isSpecialSection 组排在最后)、主内容区 <router-view> 与页脚统计。
+// 示例站外壳:顶栏(appName + 搜索入口 + 主题三档切换 + 语言切换)、侧栏目录导航
+// (目录数据缓存,isSpecialSection 组排在最后)、主内容区 <router-view> 与页脚统计。
 // 全部文案走 i18n 键(导航组/item 标题用 catalog 自身 title,语言自称与页脚统计除外);
 // 样式全部使用 --wui-* token(入口已引入 theme.css),明暗由 useThemeSetting 写入的
 // html[data-theme] 驱动,无硬编码色值。
-import { computed, watchEffect } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
+import { useRouter } from 'vue-router'
+import WuiAutoSuggestBox from '@/components/AutoSuggestBox.vue'
+import type { AutoSuggestQuerySubmittedEventArgs } from '@/components/AutoSuggestBox.vue'
 import { CATALOG, ITEM_COUNT } from './data/catalog'
-import type { CatalogGroup } from './data/catalog'
+import type { CatalogGroup, CatalogItem } from './data/catalog'
+import { suggestControls } from './data/search'
 import { LOCALES, useI18n } from './i18n'
 import type { Locale } from './i18n'
 import { useThemeSetting } from './composables/useThemeSetting'
@@ -52,6 +56,33 @@ const navGroups = computed<CatalogGroup[]>(() => [
   ...CATALOG.filter((group) => !group.isSpecialSection),
   ...CATALOG.filter((group) => group.isSpecialSection),
 ])
+
+// —— 顶栏搜索入口:候选与搜索结果页共用 suggestControls 口径(阶段 8 站点收尾)。
+// 提交路径:点击建议 / 高亮建议后 Enter 直达控件页(提交文本=建议标题),
+// 其余(自由文本 Enter / 查询按钮)带 querystring 跳 /search?q=,与首页搜索框联动。
+const router = useRouter()
+const searchText = ref('')
+const searchSuggestions = computed<CatalogItem[]>(() => suggestControls(searchText.value))
+
+/** 最近一次选中的建议(suggestionChosen 先于 querySubmitted 触发,作单次暂存)。 */
+let chosenEntry: CatalogItem | null = null
+
+function onSuggestionChosen(entry: unknown): void {
+  chosenEntry = (entry ?? null) as CatalogItem | null
+}
+
+function onSearchSubmitted(args: AutoSuggestQuerySubmittedEventArgs): void {
+  const entry = chosenEntry
+  chosenEntry = null
+  if (entry && args.queryText === entry.title) {
+    router.push(`/${entry.id}`)
+    return
+  }
+  const query = args.queryText.trim()
+  if (query !== '') {
+    router.push({ path: '/search', query: { q: query } })
+  }
+}
 </script>
 
 <template>
@@ -59,6 +90,18 @@ const navGroups = computed<CatalogGroup[]>(() => [
     <header class="topbar">
       <div class="topbar-title">{{ t('appName') }}</div>
       <div class="topbar-actions">
+        <WuiAutoSuggestBox
+          v-model:text="searchText"
+          class="topbar-search"
+          style="width: 240px"
+          :items-source="searchSuggestions"
+          display-member-path="title"
+          query-icon="Find"
+          :placeholder-text="t('searchPlaceholder')"
+          :no-results-text="t('searchNoResults', { query: searchText })"
+          @suggestion-chosen="onSuggestionChosen"
+          @query-submitted="onSearchSubmitted"
+        />
         <div class="theme-switch" role="group" :aria-label="t('settingsTitle')">
           <button
             v-for="option in themeOptions"
@@ -110,7 +153,11 @@ const navGroups = computed<CatalogGroup[]>(() => [
       </main>
     </div>
 
-    <footer class="footer">Controls: {{ ITEM_COUNT }}</footer>
+    <footer class="footer">
+      <span>{{ t('settingsItemsCount') }}: {{ ITEM_COUNT }}</span>
+      <span class="footer-sep" aria-hidden="true">·</span>
+      <router-link class="footer-link" to="/settings">{{ t('navSettings') }}</router-link>
+    </footer>
   </div>
 </template>
 
@@ -158,6 +205,11 @@ body {
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+/* 顶栏搜索入口宽度走内联 style(控件根经 $attrs 透传;scoped 类对子组件根不可靠) */
+.topbar-search {
+  max-width: 100%;
 }
 
 .theme-switch {
@@ -271,10 +323,26 @@ body {
 
 /* ---- 页脚 ---- */
 .footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 8px 16px;
   border-top: 1px solid var(--wui-system-control-background-base-low);
   color: var(--wui-application-secondary-foreground-theme);
   background: var(--wui-system-control-page-background-chrome-medium-low);
+}
+
+.footer-link {
+  color: var(--wui-hyperlink-button-foreground);
+  text-decoration: underline;
+}
+
+.footer-link:hover {
+  color: var(--wui-hyperlink-button-foreground-pointer-over);
+}
+
+.footer-link:active {
+  color: var(--wui-hyperlink-button-foreground-pressed);
 }
 
 /* ---- 窄屏:纯 CSS 折叠侧栏 ---- */

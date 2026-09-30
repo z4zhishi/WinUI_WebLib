@@ -1,4 +1,10 @@
 // 主项目(控件库)公共出口。
+export * as standardUiCommands from './utils/standardUiCommands.ts'
+export * as uiCommand from './utils/uiCommand.ts'
+export * as themeShadow from './utils/themeShadow.ts'
+export * as transitions from './utils/transitions.ts'
+export * as easingFunctions from './utils/easingFunctions.ts'
+export * as SystemBackdropElement from './components/SystemBackdropElement.vue'
 // 所有对外暴露的控件与工具统一在此导出,供 demo 示例站与外部使用者引用。
 export { default as SplitView } from './components/SplitView.vue'
 export { default as SwipeControl } from './components/SwipeControl.vue'

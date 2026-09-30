@@ -12,6 +12,9 @@ const routes: RouteRecordRaw[] = [
     const name = file.replace('./pages/', '').replace(/Page\.vue$/, '')
     return { path: `/${name.toLowerCase()}`, name, component }
   }),
+  // 站点搜索页(阶段 8):规范入口 /search?q=。文件名自动路由是 /searchresults,
+  // 这里补一条同组件路由,首页/顶栏搜索与外链统一走 /search(两路径等价)。
+  { path: '/search', name: 'Search', component: () => import('./pages/SearchResultsPage.vue') },
   { path: '/:pathMatch(.*)*', redirect: '/home' },
 ]
 
