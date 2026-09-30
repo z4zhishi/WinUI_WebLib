@@ -3,7 +3,9 @@
 // (目录数据缓存,isSpecialSection 组排在最后)、主内容区 <router-view> 与页脚统计。
 // 全部文案走 i18n 键(导航组/item 标题用 catalog 自身 title,语言自称与页脚统计除外);
 // 样式全部使用 --wui-* token(入口已引入 theme.css),明暗由 useThemeSetting 写入的
-// html[data-theme] 驱动,无硬编码色值。
+// html[data-theme] 驱动。例外:壳层基色 token --wui-solid-background-fill-color-base
+// 在下方全局块按 WinUI 3 SolidBackgroundFillColorBase 定义(theme.css 抽取源无此键,
+// 取值与依据见全局块注释)。
 import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import WuiAutoSuggestBox from '@/components/AutoSuggestBox.vue'
@@ -162,9 +164,26 @@ function onSearchSubmitted(args: AutoSuggestQuerySubmittedEventArgs): void {
 </template>
 
 <style>
-/* 全局:页面底色随主题,避免暗色下滚动露白;body 默认外边距清零。 */
+/*
+ * 全局:页面底色随主题,避免暗色下滚动露白;body 默认外边距清零。
+ * 基色取 WinUI 3 实际呈现值 SolidBackgroundFillColorBase
+ * (CK/WinUI-Reference/controls/dev/CommonStyles/Common_themeresources_any.xaml
+ *  L272 Light #F3F3F3 / L68 Default #202020;T7-SystemBackdrops 同源核对)。
+ * theme.css 的 --wui-application-page-background-theme 是 UWP 经典值
+ * (generic.xaml Default #FF000000 / Light #FFFFFFFF),为忠实提取不改值,
+ * 仅作控件级画刷使用;壳层基色按 WinUI 3 Fluent 观感走本 token(视觉 QA 批次 A)。
+ */
+:root,
+:root[data-theme="light"] {
+  --wui-solid-background-fill-color-base: #f3f3f3;
+}
+
+:root[data-theme="dark"] {
+  --wui-solid-background-fill-color-base: #202020;
+}
+
 html {
-  background: var(--wui-application-page-background-theme);
+  background: var(--wui-solid-background-fill-color-base);
 }
 body {
   margin: 0;
@@ -179,7 +198,8 @@ body {
   font-family: var(--wui-phone-font-family-normal), system-ui, sans-serif;
   font-size: var(--wui-control-content-theme-font-size);
   color: var(--wui-application-foreground-theme);
-  background: var(--wui-application-page-background-theme);
+  /* 壳层基色:SolidBackgroundFillColorBase(定义见上方全局块),暗 #202020 / 浅 #F3F3F3。 */
+  background: var(--wui-solid-background-fill-color-base);
 }
 
 /* ---- 顶栏 ---- */
