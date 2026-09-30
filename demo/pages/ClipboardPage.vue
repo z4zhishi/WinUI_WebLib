@@ -565,7 +565,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="Clipboard">
     <template #demo>
       <div class="clipboard-stage">
         <!-- 降级提示:非安全上下文 / API 不可用(对照需求:权限被拒/非安全上下文的降级 UI)-->

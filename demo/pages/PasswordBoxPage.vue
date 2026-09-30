@@ -119,7 +119,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="PasswordBox">
     <template #demo>
       <div class="password-box-stage">
         <!-- 简单 PasswordBox(默认 Peek:聚焦且有内容期间显示揭示按钮,按住临时明文) -->

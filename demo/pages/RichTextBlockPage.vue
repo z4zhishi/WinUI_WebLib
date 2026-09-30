@@ -169,7 +169,7 @@ const usageCode = computed(() => {
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="RichTextBlock"
     title="RichTextBlock"
     description="富文本展示容器:段落与行内格式按 XAML 文档模型(Paragraph/Run/Hyperlink…)组合,支持首行缩进、高亮、行内链接与溢出简化行为。"
   >

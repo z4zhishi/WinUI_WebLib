@@ -379,7 +379,7 @@ const entranceUsageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="PageTransition"
     title="Page Transitions"
     description="页面转场为导航提供页面间关系的视觉反馈:NavigationThemeTransition 挂在 Frame(或路由出口)上,由 NavigationTransitionInfo 决定具体动画 —— 缺省入场(淡入 + 上浮)、DrillIn(缩放)、Slide(滑入,横/纵)、Common(Turnstile 旋转门)、Continuum、Suppress(无动画)。参数逐条对照 WinUI 源码 ThemeTransitions.cpp,缓动取 animations.css token。"
   >

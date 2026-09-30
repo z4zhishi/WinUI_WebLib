@@ -271,7 +271,7 @@ const usageCode = computed(() => {
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="ImplicitTransition"
     title="Implicit Transitions"
     description="使用隐式过渡在属性变化时自动播放动画:transitions 声明启用哪些过渡(Opacity / Translate / Scale / Rotation / Background),之后只管修改 opacity / translate / scale / rotation / background 等属性,过渡自动播放,无需调用动画 API。时长 / 延迟 / 缓动默认取 animations.css token。"
   >

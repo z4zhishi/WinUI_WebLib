@@ -193,7 +193,7 @@ const onSave = withSound('Invoke', () => save())`
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="Sound">
     <template #demo>
       <div class="sound-stage">
         <!-- 配置 1:官方 TogglingSound 对照 —— ToggleSwitch 切 State,滑块调 Volume -->

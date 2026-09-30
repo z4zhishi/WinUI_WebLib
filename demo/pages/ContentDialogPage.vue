@@ -136,7 +136,7 @@ function onPrimary(args: { cancel: boolean }) {
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="ContentDialog"
     title="ContentDialog"
     description="用 ContentDialog 显示相关信息,或提供可承载任意内容的模态对话框体验。模态由全屏遮罩挡指针实现:遮罩点击不关闭,只能通过命令按钮或 Esc 关闭(WinUI 语义);打开后焦点圈定在对话框内,关闭后归还。"
   >

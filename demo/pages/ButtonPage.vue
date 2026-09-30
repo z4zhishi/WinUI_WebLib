@@ -96,7 +96,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="Button">
     <template #demo>
       <div class="button-stage">
         <!-- 配置 1:文本按钮,参数由左侧面板实时驱动(对应官方 ButtonSimple 示例) -->

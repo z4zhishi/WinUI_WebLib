@@ -141,7 +141,7 @@ const usageCode = `<!-- WinUI:keyed style + Setter,隐式样式按 TargetType �
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="XamlStyles">
     <template #demo>
       <div class="xs-page">
         <!-- 示例 1:keyed style -->

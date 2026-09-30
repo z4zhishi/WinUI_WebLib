@@ -168,7 +168,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="NumberBox">
     <template #demo>
       <div class="number-box-stage">
         <!-- 示例一:基础输入(标头 + 占位文本) -->

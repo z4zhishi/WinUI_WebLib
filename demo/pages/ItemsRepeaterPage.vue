@@ -268,7 +268,7 @@ const usageCode = `<WuiItemsRepeater
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="ItemsRepeater">
     <template #demo>
       <div class="repeater-stage">
         <!-- 演示一:万级数据滚动 -->

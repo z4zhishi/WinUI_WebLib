@@ -92,7 +92,7 @@ const usageCode = computed(() => {
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="HyperlinkButton">
     <template #demo>
       <div class="hyperlink-stage">
         <!-- 配置 1:NavigateUri 导航(对应官方示例一),参数由左侧面板实时驱动 -->

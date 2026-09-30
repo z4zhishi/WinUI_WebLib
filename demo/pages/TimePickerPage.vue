@@ -192,7 +192,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="TimePicker">
     <template #demo>
       <div class="timepicker-stage">
         <!-- 演示一:基础选择(参数面板实时调节 Header/制式/分钟步进/禁用) -->

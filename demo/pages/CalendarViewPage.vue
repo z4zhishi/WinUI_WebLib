@@ -175,7 +175,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="CalendarView">
     <template #demo>
       <div class="calendar-stage">
         <!-- 示例一:基础用法(选项面板实时调节;头部下钻 / 单元回退见说明) -->

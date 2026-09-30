@@ -122,7 +122,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="Popup"
     title="Popup"
     description="在既有 UI 之上显示临时内容的最底层弹层原语:只负责层级、定位与(可选的)点击外部关闭(light dismiss),不带任何默认皮肤——背景、边框、圆角、阴影都由 child 自己决定。定位基准分两档:placement='Default'(WinUI 默认)按 HorizontalOffset / VerticalOffset 相对窗口左上角定位;其余 placement 值相对锚点(#target 或组件声明点)定位。"
   >

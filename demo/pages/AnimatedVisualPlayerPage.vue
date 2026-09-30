@@ -246,7 +246,7 @@ const player = ref<InstanceType<typeof WuiAnimatedVisualPlayer> | null>(null)
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="AnimatedVisualPlayer"
     title="AnimatedVisualPlayer"
     description="渲染并控制播放动态图形(motion graphics)的元素:Source 为 Lottie 动画(本实现以 lottie-web 播放 Lottie JSON),支持 AutoPlay、实时倍率(负值倒放)、区间播放与进度设置;源不可用时经 fallback 插槽降级(WinUI FallbackContent 等价)。"
   >

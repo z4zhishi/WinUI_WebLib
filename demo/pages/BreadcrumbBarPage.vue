@@ -145,7 +145,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="BreadcrumbBar">
     <template #demo>
       <div class="breadcrumb-stage">
         <!-- 演示一:字符串路径 + 容器宽度可调(收窄看节点折叠,下拉回溯) -->

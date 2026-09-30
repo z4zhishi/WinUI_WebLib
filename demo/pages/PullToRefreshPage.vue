@@ -194,7 +194,7 @@ const usageCode = [
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="PullToRefresh">
     <template #demo>
       <div class="ptr-stage">
         <!-- 场景 1:基础下拉刷新(Deferral 流) -->

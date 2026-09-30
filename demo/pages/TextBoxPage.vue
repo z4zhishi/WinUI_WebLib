@@ -95,7 +95,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="TextBox">
     <template #demo>
       <div class="text-box-stage">
         <!-- 简单 TextBox -->

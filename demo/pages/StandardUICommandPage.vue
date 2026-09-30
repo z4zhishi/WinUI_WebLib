@@ -200,7 +200,7 @@ const deleteCommand = createStandardUICommand('Delete', {
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="StandardUICommand">
     <template #demo>
       <div class="suc-sections">
         <!-- 示例 1:官方示例复刻(共享 Delete 命令;对照 StandardUICommandExposingCommandMultipleControls) -->

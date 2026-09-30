@@ -185,7 +185,7 @@ const usageCode = `<!-- WinUI 原生:在应用 / 页面 / 控件级引入紧凑�
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="CompactSizing">
     <template #demo>
       <!-- 示例 1:官方示例对照(radio 切换密度) -->
       <div class="guide-section">

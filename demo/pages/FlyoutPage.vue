@@ -207,7 +207,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="Flyout">
     <template #demo>
       <div class="flyout-sections">
         <!-- 示例 1:附加到按钮(对照官方 Empty cart) -->

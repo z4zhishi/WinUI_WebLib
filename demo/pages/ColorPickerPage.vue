@@ -156,7 +156,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="ColorPicker">
     <template #demo>
       <div class="color-picker-stage">
         <!-- 示例一:完整取色器(对照官方示例的可见性开关与形状切换) -->

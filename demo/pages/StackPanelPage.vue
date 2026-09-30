@@ -77,7 +77,7 @@ const usageCode = computed(() => {
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="StackPanel"
     title="StackPanel"
     description="单行排列子项的布局面板:调整方向与间距,观察子项的堆叠、交叉轴拉伸与溢出行为。"
   >

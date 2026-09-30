@@ -230,7 +230,7 @@ const xamlCode = computed(() => {
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="SystemBackdrops">
     <template #demo>
       <div class="backdrop-area">
         <!-- 三材质观感对照(浅 / 深两行,对照官方四种背板的说明) -->

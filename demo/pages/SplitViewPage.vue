@@ -128,7 +128,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="SplitView"
     title="SplitView"
     description="带两个内容区的容器:窗格(pane)常用于侧边导航等辅助内容,支持 Inline / CompactInline / Overlay / CompactOverlay 四种展示模式与四向摆放。Overlay 模式下窗格浮于内容之上,点击遮罩、按 Esc 或沿关闭方向轻扫窗格即可关闭。"
   >

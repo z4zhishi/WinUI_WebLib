@@ -178,7 +178,7 @@ const page = ref(0)
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="PipsPager">
     <template #demo>
       <div class="pips-stage">
         <!-- 演示一:与分页内容区双向联动(对照官方 PipspagerIntegratedFlipview) -->

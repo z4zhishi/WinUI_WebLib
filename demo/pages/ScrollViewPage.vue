@@ -218,7 +218,7 @@ const usageCode = [
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="ScrollView">
     <template #demo>
       <div class="scrollview-stage">
         <!-- 场景 1:参数舞台 -->

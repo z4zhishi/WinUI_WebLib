@@ -40,3 +40,6 @@ export const LABEL_COPY: BilingualText = { zh: '复制', en: 'Copy' }
 
 /** 复制成功文案。 */
 export const LABEL_COPIED: BilingualText = { zh: '已复制', en: 'Copied' }
+
+/** 页头教学文档回链行前缀(wiki/controls/<Name>.md)。 */
+export const LABEL_WIKI_DOC: BilingualText = { zh: '教学文档', en: 'Tutorial doc' }

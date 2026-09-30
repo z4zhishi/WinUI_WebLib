@@ -228,7 +228,7 @@ const usageCode = `<!-- WinUI 原生:TextBlock 套用字型阶梯 Style 资源 -
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="Typography">
     <template #demo>
       <div class="type-stage">
         <!-- —— 1. 字型阶梯 —— -->

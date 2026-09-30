@@ -165,7 +165,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="SystemBackdropElement">
     <template #demo>
       <div class="backdrop-area">
         <!-- 三材质元素卡片对照(同一「桌面」舞台,主题跟随站点) -->

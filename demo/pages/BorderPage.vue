@@ -180,7 +180,7 @@ const usageCode = computed(() => {
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="Border"
     title="Border"
     description="在单个子元素周围绘制边框线、背景或两者的装饰容器:调整四边厚度、逐角圆角、内边距与画刷,观察画在盒内、不挤占内容区的边框效果。"
   >

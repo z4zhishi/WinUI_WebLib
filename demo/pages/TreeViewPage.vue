@@ -170,7 +170,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="TreeView"
     title="TreeView"
     description="分层列表模式:节点可展开 / 收起以显隐嵌套子项,支持单选(强调色指示条)与多选(复选框)、键盘导航(↑/↓/←/→/Space/Enter)、展开高度过渡与箭头旋向动画。适合文件资源管理器、分类导航等层级数据。"
   >

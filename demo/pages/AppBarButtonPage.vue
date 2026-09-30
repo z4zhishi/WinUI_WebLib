@@ -113,7 +113,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="AppBarButton">
     <template #demo>
       <div class="abb-sections">
         <!-- 示例 1:官方示例复刻(SymbolIcon / FontIcon / PathIcon / KeyboardAccelerator,对照

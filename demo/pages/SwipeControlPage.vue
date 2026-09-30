@@ -262,7 +262,7 @@ ${'</'}script>
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="SwipeControl">
     <template #demo>
       <div class="swipe-stage">
         <!-- 演示一:邮件列表(两侧 Execute) -->

@@ -213,7 +213,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="TabView"
     title="TabView"
     description="文档式标签页控件:标签条点击/键盘切换页面,加号按钮新建、X 关闭(closing 可取消,支持 Deferral 异步判定),标签过多时溢出滚动,并支持拖拽重排与三种宽度模式。典型场景为多文档界面(MDI)与浏览器式标签。"
   >

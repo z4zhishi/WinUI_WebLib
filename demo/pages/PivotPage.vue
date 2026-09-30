@@ -127,7 +127,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="Pivot"
     title="Pivot"
     description="选项卡式分页控件:标题行点击或左右方向键切换分页,内容即时切换(WinUI Pivot 默认无内容动画)。悬停标题行且标题溢出时显示左右导航箭头(端点方向自动隐藏)。注意:Windows 11 设计模式推荐改用 SelectorBar,Pivot 仅建议用于维持既有 UWP 视觉的场景。"
   >

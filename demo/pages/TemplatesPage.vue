@@ -308,7 +308,7 @@ const usageCode = `<!-- DataTemplate:官方 ComboBox 圆点项模板(#item 插�
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="Templates">
     <template #demo>
       <div class="templates-stage">
         <!-- 概念导语:三类模板(对照官方 TemplatesPage.xaml 的 RichTextBlock 导语) -->

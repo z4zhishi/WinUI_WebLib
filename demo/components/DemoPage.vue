@@ -3,18 +3,25 @@
 // 「上半区可交互、下半区固定开发文档」由本组件承载;控件示例页只需按名填充三个 slot。
 // 依赖的真实控件落地后仅替换 slot 内的演示对象,本模板不动。
 import { ref } from 'vue'
-import { LABEL_OPTIONS, LABEL_THEME_PREVIEW, useBilingual, useDemoI18n } from './labels'
+import { LABEL_OPTIONS, LABEL_THEME_PREVIEW, LABEL_WIKI_DOC, useBilingual, useDemoI18n } from './labels'
 
 defineProps<{
   /** 页头标题(控件名)。 */
   title: string
   /** 页头描述(可选)。 */
   description?: string
+  /**
+   * 对应教学文档名(可选):传入 Name 即在页头下渲染「教学文档:wiki/controls/Name.md」回链行。
+   * wiki/*.md 不在构建产物内,链接只作仓库路径提示(惯性 # 锚,点击不跳转),
+   * 与 wiki/controls/*.md 顶部「在线示例:/#/route」互链约定对齐。
+   */
+  wiki?: string
 }>()
 
 const i18n = useDemoI18n()
 const optionsTitle = useBilingual(i18n, LABEL_OPTIONS)
 const themePreviewLabel = useBilingual(i18n, LABEL_THEME_PREVIEW)
+const wikiDocLabel = useBilingual(i18n, LABEL_WIKI_DOC)
 
 // —— 浅/深主题预览切换 ——
 // theme.css 只在 :root[data-theme="light|dark"] 上定义 token,因此预览通过写 html[data-theme] 生效
@@ -36,6 +43,9 @@ function applyPreview(theme: PreviewTheme): void {
     <header class="page-header">
       <h2 class="page-title">{{ title }}</h2>
       <p v-if="description" class="page-description">{{ description }}</p>
+      <p v-if="wiki" class="page-wiki-doc">
+        📖 {{ wikiDocLabel }}:<a class="wiki-doc-link" href="#" @click.prevent>wiki/controls/{{ wiki }}.md</a>
+      </p>
     </header>
 
     <!-- 上半区:交互演示 -->
@@ -103,6 +113,26 @@ function applyPreview(theme: PreviewTheme): void {
   margin: 8px 0 0;
   font-size: var(--wui-control-content-theme-font-size);
   color: var(--wui-application-secondary-foreground-theme);
+}
+
+/* 教学文档回链行(小字,与描述同级;wiki 不在构建产物内,锚点仅作路径提示) */
+.page-wiki-doc {
+  margin: 4px 0 0;
+  font-size: var(--wui-tool-tip-content-theme-font-size);
+  color: var(--wui-application-secondary-foreground-theme);
+}
+
+.wiki-doc-link {
+  color: var(--wui-hyperlink-button-foreground);
+  text-decoration: underline;
+}
+
+.wiki-doc-link:hover {
+  color: var(--wui-hyperlink-button-foreground-pointer-over);
+}
+
+.wiki-doc-link:active {
+  color: var(--wui-hyperlink-button-foreground-pressed);
 }
 
 .page-section {

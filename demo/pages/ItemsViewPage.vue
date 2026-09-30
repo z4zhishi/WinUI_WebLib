@@ -253,7 +253,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="ItemsView">
     <template #demo>
       <div class="itemsview-stage">
         <!-- 演示一:文件列表式单选(Stack 布局;Enter/双击调用回显) -->

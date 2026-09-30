@@ -138,7 +138,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="InfoBar"
     title="InfoBar"
     description="内联通知条:以四档严重级别(Informational / Success / Warning / Error)展示应用级状态变化,默认常驻内容区直至用户关闭,不打断操作流。支持标题、正文、图标、操作按钮与可取消的关闭事件。"
   >

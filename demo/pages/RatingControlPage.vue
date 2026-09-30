@@ -167,7 +167,7 @@ const rating = ref<number | null>(null)
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="RatingControl">
     <template #demo>
       <div class="rating-stage">
         <!-- 演示一:基础评分(参数面板实时调节 IsClearEnabled/IsReadOnly/Disabled) -->

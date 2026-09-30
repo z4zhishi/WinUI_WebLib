@@ -95,7 +95,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="ToolTip"
     title="ToolTip"
     description="显示元素相关的更多信息:说明该元素的用途或提示用户可以做什么。鼠标悬停、键盘聚焦或触屏长按目标元素时在旁边弹出,移出 / 超时 / Esc 关闭。适合补足控件本身放不下的简短说明。"
   >

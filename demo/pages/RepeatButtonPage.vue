@@ -94,7 +94,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="RepeatButton">
     <template #demo>
       <div class="repeat-button-stage">
         <!-- 配置 1:官方「Click and hold」示例复刻:参数由左侧面板实时驱动,点击计数输出 -->

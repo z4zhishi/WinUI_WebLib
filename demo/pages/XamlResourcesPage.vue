@@ -257,7 +257,7 @@ const usageCode = `<!-- WinUI:资源定义在 ResourceDictionary,引用用 Stati
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="XamlResources">
     <template #demo>
       <div class="xr-page" :class="{ 'show-keys': showKeys }">
         <!-- 示例 1:资源三级作用域 -->

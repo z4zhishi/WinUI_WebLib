@@ -208,7 +208,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="DatePicker">
     <template #demo>
       <div class="datepicker-stage">
         <!-- 演示一:基础选择(参数面板实时调节 Header/列显隐/格式/禁用) -->

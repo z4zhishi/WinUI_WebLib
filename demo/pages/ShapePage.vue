@@ -157,7 +157,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="Shape">
     <template #demo>
       <div class="shape-stage">
         <!-- 家族一览 -->

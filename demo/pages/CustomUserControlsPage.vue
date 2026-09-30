@@ -270,7 +270,7 @@ const isFavorite = ref(false)
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="CustomUserControls">
     <template #demo>
       <div class="cuc-stage">
         <!-- 主题一:组合控件 RatingRecipe(食谱评分卡列表) -->

@@ -80,7 +80,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="Expander"
     title="Expander"
     description="带头部的可展开 / 收起容器:头部常显,点击或按空格 / 回车在展开与收起间切换,内容区以高度(左右方向为宽度)过渡动画呈现。适合只在部分场景才需要展示的内容,如“阅读更多”或某一项的附加选项。"
   >

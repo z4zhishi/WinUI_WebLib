@@ -477,7 +477,7 @@ getEasingFunction('bounce').cssEasing.easeOut // null`
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="EasingFunction"
     title="Easing Functions"
     description="缓动(缓动函数族)操纵对象动画的速度曲线:WinUI 提供 11 个缓动类(Back / Bounce / Circle / Cubic / Elastic / Exponential / Power / Quadratic / Quartic / Quintic / Sine),配合 EasingMode(EaseIn / EaseOut / EaseInOut)使用。本页全族 × 三模式同屏对照,并给出选中函数的进度曲线、公式、可调参数与 CSS cubic-bezier 关系。"
   >

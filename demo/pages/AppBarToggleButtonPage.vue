@@ -188,7 +188,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="AppBarToggleButton">
     <template #demo>
       <div class="atb-sections">
         <!-- 示例 1:官方示例复刻(对照 AppBarToggleButtonPage.xaml 的 Button1/Button3/Button4;

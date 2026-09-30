@@ -144,7 +144,7 @@ const usageCode = [
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="ParallaxView">
     <template #demo>
       <div class="parallax-stage">
         <!-- 场景 1:背景视差(官方 Example1 复刻) -->

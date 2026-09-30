@@ -188,7 +188,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="ComboBox">
     <template #demo>
       <div class="combobox-stage">
         <!-- 演示一:基础选择(参数面板实时调节 Header/Placeholder/禁用/程序开关) -->

@@ -212,7 +212,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="SplitButton">
     <template #demo>
       <div class="splitbutton-stage">
         <!-- 演示一:色板选择器(官方 SplitButtonColorPicker 复刻:主区色块 + 弹层色板) -->

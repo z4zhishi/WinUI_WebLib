@@ -149,7 +149,7 @@ const usageCode = computed(() => {
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="TextBlock"
     title="TextBlock"
     description="轻量的只读文本控件:调整换行、截断、行数与字体参数,观察文本排版行为。"
   >

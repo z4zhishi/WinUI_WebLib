@@ -219,7 +219,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="IconElement"
     title="IconElement"
     description="图标族基座:FontIcon(字体字形)/ SymbolIcon(Symbol 枚举)/ BitmapIcon(位图,可单色化)/ PathIcon(矢量路径)。四个控件均为轻量无状态组件,可内嵌进按钮、菜单等宿主控件。"
   >

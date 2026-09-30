@@ -164,7 +164,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="AnimatedIcon"
     title="AnimatedIcon"
     description="随交互状态(Normal / PointerOver / Pressed / Disabled)播放动画的图标元素:源对象(Source)声明 SVG 部件与状态机,控件负责渲染与状态驱动;源不可用时降级为静态字形 / SVG(FallbackIconSource)。本阶段为源接口与 CSS/SVG 源验证,完整 Lottie 源体系留后续。"
   >

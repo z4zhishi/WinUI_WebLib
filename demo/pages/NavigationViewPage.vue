@@ -182,7 +182,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="NavigationView"
     title="NavigationView"
     description="汉堡导航容器:可开合窗格(菜单项、页脚项、窗格标题)+ 页头 + 内容卡。PaneDisplayMode 支持 Auto(按宽度断点)/ Left / LeftCompact / LeftMinimal / Top;Minimal 模式窗格浮层支持遮罩点击、Esc 与轻扫关闭。"
   >

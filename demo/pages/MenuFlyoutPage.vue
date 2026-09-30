@@ -193,7 +193,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="MenuFlyout">
     <template #demo>
       <div class="menuflyout-stage">
         <!-- 演示一:图标 + 快捷键 + 分隔线(参数面板实时调节 placement/lightDismiss/isOpen) -->

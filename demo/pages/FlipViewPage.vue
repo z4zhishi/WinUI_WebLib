@@ -129,7 +129,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="FlipView"
     title="FlipView"
     description="一次翻阅一页的集合控件:适合展示图库照片、杂志页面等逐页内容。悬停显示前后箭头,支持触摸拖拽换页(松手按阈值提交或回弹)、方向键翻页与滚轮翻页;相邻页切换带滑动过渡动画。"
   >

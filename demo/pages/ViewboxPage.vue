@@ -102,7 +102,7 @@ const usageCode = computed(() => {
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="Viewbox">
     <template #demo>
       <div class="viewbox-stage">
         <!-- 主演示:全部参数由参数面板实时驱动 -->

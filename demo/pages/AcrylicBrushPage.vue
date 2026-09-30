@@ -214,7 +214,7 @@ background-color: ${customLayers.value.fallbackColor};`,
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="Acrylic">
     <template #demo>
       <div class="acrylic-stage-area">
         <!-- 官方示例对照:Example1 / Example3 / Example4 同款彩色背景(Aqua / Magenta / Yellow) -->

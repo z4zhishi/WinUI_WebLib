@@ -248,7 +248,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="GridView">
     <template #demo>
       <div class="gridview-stage">
         <!-- 演示一:图片网格(参数面板实时调节 SelectionMode / IsItemClickEnabled / RevealBorder) -->

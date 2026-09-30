@@ -814,7 +814,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="StoragePickers">
     <template #demo>
       <div class="pickers-stage">
         <!-- 降级提示:API 不支持 / 非安全上下文(对照需求:不支持的降级 UI)-->

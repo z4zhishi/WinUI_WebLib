@@ -279,7 +279,7 @@ ${iconLine}  :update-text-on-select="${updateTextValue.value}"
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="AutoSuggestBox">
     <template #demo>
       <div class="asb-stage">
         <!-- 示例一:基础候选(官方猫名单 + 分词全包含过滤;参数面板实时调节) -->

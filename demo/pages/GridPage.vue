@@ -78,7 +78,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="Grid"
     title="Grid"
     description="以行和列排布控件与内容的布局面板:子项通过 data-grid-column / data-grid-row 附加属性定位(等价 WinUI Grid.Column / Grid.Row)。行高列宽简写、列 / 行间距与跨行跨列均可实时调参。"
   >

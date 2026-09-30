@@ -121,7 +121,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="MenuBar">
     <template #demo>
       <div class="menubar-stage">
         <!-- 演示一:简单菜单栏(对照官方 SimpleMenubar:File/Edit/Help + 回显文本) -->

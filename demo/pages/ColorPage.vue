@@ -365,7 +365,7 @@ const usageCode = `/* 颜色一律经 token 引用,随 html[data-theme] 明暗�
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="Color">
     <template #demo>
       <div class="color-stage">
         <!-- —— 1. 系统色钩子 + 强调色覆盖演示 —— -->

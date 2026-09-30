@@ -169,7 +169,7 @@ const usageCode = computed(() => {
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="InfoBadge">
     <template #demo>
       <div class="infobadge-stage">
         <!-- 演示一:动态数值 -->

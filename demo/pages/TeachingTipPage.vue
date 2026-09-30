@@ -196,7 +196,7 @@ ${SCRIPT_CLOSE}
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="TeachingTip"
     title="TeachingTip"
     description="内容丰富的教学气泡:用于指引新手、讲解功能或给工作流补充上下文,不打断用户操作。可锚定目标元素(targeted,尾巴指向)或作为视口浮层(non-targeted)出现;支持 hero 大图、操作按钮与 light dismiss。"
   >

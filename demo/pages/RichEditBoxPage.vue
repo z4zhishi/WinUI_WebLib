@@ -308,7 +308,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="RichEditBox">
     <template #demo>
       <div class="rich-edit-box-stage">
         <!-- 简单 RichEditBox(官方示例 Simple text editor) -->

@@ -335,7 +335,7 @@ geometryBounds(geo) // { x: 1, y: 2, width: 19, height: 14 }
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="Geometry">
     <template #demo>
       <div class="geometry-stage">
         <!-- —— 1. 逐指令教学 —— -->

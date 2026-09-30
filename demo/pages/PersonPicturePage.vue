@@ -223,7 +223,7 @@ const usageCode = computed(() => {
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="PersonPicture">
     <template #demo>
       <div class="person-picture-stage">
         <!-- 演示一:三种头像来源(对照官方 Select different looks 示例) -->

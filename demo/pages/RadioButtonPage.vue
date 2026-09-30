@@ -210,7 +210,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="RadioButton">
     <template #demo>
       <div class="radio-stage">
         <!-- 演示一:基础组(互斥 + 方向键;参数面板实时调节) -->

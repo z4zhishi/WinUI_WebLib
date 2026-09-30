@@ -168,7 +168,7 @@ const usageCode = computed(() => {
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="RelativePanel"
     title="RelativePanel"
     description="关系定位布局面板:子项通过 data-relative-* 附加属性声明彼此之间及与面板之间的关系,由约束求解器计算坐标;无关系的子项默认落在左上角。"
   >

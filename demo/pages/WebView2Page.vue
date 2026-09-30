@@ -201,7 +201,7 @@ const usageCode = computed(() => {
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="WebView2">
     <template #demo>
       <div class="webview-stage">
         <!-- 配置 1:预设源切换 —— 可嵌入站点与 X-Frame-Options 拒嵌站点对照(演示失败降级) -->

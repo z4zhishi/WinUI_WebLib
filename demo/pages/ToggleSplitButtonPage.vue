@@ -255,7 +255,7 @@ const bold = ref(false)
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="ToggleSplitButton">
     <template #demo>
       <div class="togglesplitbutton-stage">
         <!-- 演示一:加粗开关(官方文档样式,M 带勾选视觉) -->

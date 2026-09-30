@@ -141,7 +141,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="ToggleButton">
     <template #demo>
       <div class="toggle-stage">
         <!-- 演示一:基础用法,参数由左侧面板实时驱动(对应官方 ToggleButtonSimple 示例) -->

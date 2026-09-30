@@ -116,7 +116,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="Slider">
     <template #demo>
       <div class="slider-stage">
         <!-- 主滑块:全部参数由参数面板实时驱动 -->

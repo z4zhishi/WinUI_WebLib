@@ -320,7 +320,7 @@ const GUIDE_DOCS_ROWS: (string | number)[][] = [
   ['颜色', '系统图标为 monoline 单描边,天然单色;经 Foreground 取色,强调场景用系统强调色', 'foreground 属性,缺省继承 currentColor;本页演示用 --wui-* token'],
   ['层次', '底图占满脚手架,修饰元放右下象限;同位叠加(layering)表达同一图标的另一状态', '两枚 FontIcon 绝对定位叠加(本页 EB51 + EB52 官方示例)'],
   ['字体', 'Win11 用 Segoe Fluent Icons,Win10 为 Segoe MDL2 Assets;Fluent 已取代 MDL2 成推荐字体', '--wui-symbol-theme-font-family 双字体栈;R1 裁决不加载网络字体'],
-  ['弃用区', 'E0–E5 前缀码点标记为 legacy,已弃用', '字形表仍收录(可搜索),新代码避免使用'],
+  ['弃用区', 'E0–E5 前缀码点标记为 legacy,已弃用', '本仓字形表未收录(全表为 E7–F8 段),新代码避免使用'],
   ['行内混排', '图标字体不用于与正文行内混排(旧式渐进披露箭头等技巧不再适用)', '—'],
   ['RTL 镜像', '方向性字形提供镜像变体(RTL 语言使用)', '按需选码点;组件不做自动镜像'],
 ]
@@ -342,7 +342,7 @@ const usageCode = `<WuiFontIcon glyph="\\uE713" :font-size="20" />
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="Iconography">
     <template #demo>
       <div class="icon-stage">
         <!-- —— 1. 四类图标对照 —— -->

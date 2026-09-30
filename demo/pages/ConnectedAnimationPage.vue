@@ -300,7 +300,7 @@ ${SCRIPT_CLOSE}
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="ConnectedAnimation"
     title="Connected Animation"
     description="连接动画在页面导航期间延续显示同一个元素,帮助用户在视图切换间保持上下文:列表→详情点按后图片飞入详情头部,返回时反向飞回。选型采用 CSS View Transitions API,浏览器不支持时降级为即时切换(页面有声明徽标)。"
   >

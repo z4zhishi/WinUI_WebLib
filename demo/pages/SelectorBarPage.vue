@@ -106,7 +106,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="SelectorBar"
     title="SelectorBar"
     description="轻量单选选项卡条:在少量固定选项间切换显示内容(Pivot 的 Windows 11 推荐替代)。点击或按左右方向键切换,选中随焦点移动、端点截停;选中项底部展开 16×3 的强调色指示条。空间不足时整条横向滚动(源 ItemsView 行为)。"
   >

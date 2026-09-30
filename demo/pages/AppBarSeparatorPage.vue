@@ -101,7 +101,7 @@ const usageCode = computed(() => {
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="AppBarSeparator"
     title="AppBarSeparator"
     description="在命令栏里用一条竖线分隔多组命令的装饰件:默认拉伸填满命令栏行高,IsCompact 时收窄到 48px 顶对齐以匹配紧凑命令按钮;UseOverflowStyle 时变为溢出区的横向细分隔线。"
   >

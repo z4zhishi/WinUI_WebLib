@@ -65,7 +65,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="ToggleSwitch"
     title="ToggleSwitch"
     description="在两个互斥选项(如开 / 关)之间切换的开关:选择立即生效,适合带单一标签的设置项。点击整行、按空格 / 回车或水平拖拽滑块均可切换。"
   >

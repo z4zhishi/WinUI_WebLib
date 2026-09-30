@@ -104,7 +104,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="TitleBar"
     title="TitleBar"
     description="现代标题栏一站式控件:应用图标 + 标题 + 副标题 + 中部交互内容 + 右侧系统按钮占位,并可选返回/窗格切换按钮。浏览器内为视觉复刻:无真实窗口能力 —— 不会执行最小化/最大化/关闭,也不支持系统级拖拽,系统按钮点击仅发事件。"
   >

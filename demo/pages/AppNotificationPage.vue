@@ -133,9 +133,8 @@ interface AppStatus {
 }
 
 // —— 例 1:权限状态与请求流程 ——
-// TS 6.0 lib.dom 的 NotificationPermission 为 "denied" | "granted"(规范运行值含 default),
-// permissions.query 则返回 PermissionState("granted" | "denied" | "prompt");
-// 取两者并集为展示态,另加 unsupported。
+// 展示态取两者并集:Notification.permission 为 NotificationPermission("default" | "denied" | "granted"),
+// permissions.query 返回 PermissionState("denied" | "granted" | "prompt");另加 unsupported。
 type PermissionDisplay = NotificationPermission | PermissionState | 'unsupported'
 const permissionState = ref<PermissionDisplay>(
   notificationSupported ? Notification.permission : 'unsupported',
@@ -181,18 +180,24 @@ async function requestPermission(): Promise<void> {
 // permissions.onchange 实时同步(Chromium / Firefox 支持 'notifications' 权限名;
 // Safari 不支持 query,依赖发送前直读 Notification.permission 复核)。
 let permissionStatusSource: PermissionStatus | null = null
+// 卸载标记:query 是异步的,晚于卸载返回时不再挂监听(配合 onBeforeUnmount 的显式移除)。
+let permissionWatchDisposed = false
+
+/** permissions.onchange 回调:同步权限状态到展示徽标(卸载时显式移除)。 */
+function onPermissionChange(): void {
+  if (permissionStatusSource !== null) permissionState.value = permissionStatusSource.state
+}
 
 async function watchPermissionChange(): Promise<void> {
   if (!notificationSupported || typeof navigator.permissions === 'undefined') return
   try {
-    // 'notifications' 不在 TS lib.dom 的 PermissionName 字面量联合内(运行时合法),双重断言绕过。
-    const descriptor = { name: 'notifications' } as unknown as PermissionDescriptor
+    // 'notifications' 是 TS lib.dom PermissionName 的合法成员,直接构造描述符即可。
+    const descriptor: PermissionDescriptor = { name: 'notifications' }
     const status = await navigator.permissions.query(descriptor)
+    if (permissionWatchDisposed) return
     permissionStatusSource = status
     permissionState.value = status.state
-    status.addEventListener('change', () => {
-      permissionState.value = status.state
-    })
+    status.addEventListener('change', onPermissionChange)
   } catch {
     // 查询不支持:保持 Notification.permission 直读路径
   }
@@ -493,8 +498,9 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  permissionWatchDisposed = true
   if (permissionStatusSource !== null) {
-    // PermissionStatus 挂在 navigator 上,页面销毁后监听一并失效;显式清理保持纪律
+    permissionStatusSource.removeEventListener('change', onPermissionChange)
     permissionStatusSource = null
   }
   for (const timer of autoCloseTimers.values()) {
@@ -506,7 +512,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="AppNotification">
     <template #demo>
       <div class="notification-stage">
         <!-- 页首说明条:对照官方 XAML 页首的两条 InfoBar(免打扰行为 / 防滥用警示)-->

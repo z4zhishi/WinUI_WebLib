@@ -136,7 +136,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="Line"
     title="Line"
     description="在两点之间绘制一条直线的 Shape:X1/Y1 → X2/Y2 定位,由 stroke(必设)与 strokeThickness 等描边属性控制外观,渲染为内联 SVG。"
   >

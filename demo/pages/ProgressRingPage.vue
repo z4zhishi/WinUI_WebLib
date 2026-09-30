@@ -122,7 +122,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="ProgressRing">
     <template #demo>
       <div class="progressring-stage">
         <!-- 主进度环:全部参数由参数面板实时驱动 -->

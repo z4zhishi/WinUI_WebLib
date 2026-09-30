@@ -176,7 +176,7 @@ const usageCode = `<!-- WinUI 原生:StackPanel 以 Spacing 统一子元素间�
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="Spacing">
     <template #demo>
       <div class="spacing-stage">
         <!-- —— 1. 4px 网格与圆角 —— -->

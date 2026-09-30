@@ -172,7 +172,7 @@ const usageCode = computed(() => {
 </script>
 
 <template>
-  <DemoPage
+  <DemoPage wiki="Canvas"
     title="Canvas"
     description="支持绝对定位的布局面板:子项通过 data-canvas-top/left/right/bottom/z-index 附加属性相对画布定位,默认不裁剪溢出内容。"
   >

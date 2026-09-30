@@ -161,7 +161,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="CommandBar">
     <template #demo>
       <div class="cb-sections">
         <!-- 示例 1:官方示例复刻(CommandBarPage.xaml:DefaultLabelPosition=Right +

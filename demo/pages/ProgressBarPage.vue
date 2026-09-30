@@ -117,7 +117,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="ProgressBar">
     <template #demo>
       <div class="progressbar-stage">
         <!-- 主进度条:全部参数由参数面板实时驱动 -->

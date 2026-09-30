@@ -254,7 +254,7 @@ const css = useRadialGradient(() => ({
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="RadialGradientBrush">
     <template #demo>
       <div class="brush-stage">
         <!-- 官方示例对照:全参数联动 -->

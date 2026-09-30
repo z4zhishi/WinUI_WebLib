@@ -166,7 +166,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="CheckBox">
     <template #demo>
       <div class="checkbox-stage">
         <section class="demo-group">

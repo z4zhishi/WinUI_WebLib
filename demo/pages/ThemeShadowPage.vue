@@ -165,7 +165,7 @@ import ThemeShadowDemo from '@/components/ThemeShadowDemo.vue'
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="ThemeShadow">
     <template #demo>
       <div class="tsd-sections">
         <!-- 示例 1:官方示例复刻(200×200 卡片 + Z-translation 滑块 + receiver 背景层) -->

@@ -160,7 +160,7 @@ const usageCode = computed(
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="DropDownButton">
     <template #demo>
       <div class="ddb-sections">
         <!-- 示例 1:官方示例复刻(简单 + 图标两例,对照 DropDownButtonSimple.txt / DropDownButtonIcon.txt) -->

@@ -193,7 +193,7 @@ viewerRef.value?.changeView(0, 0, 1)`,
 </script>
 
 <template>
-  <DemoPage :title="pageTitle" :description="pageDescription">
+  <DemoPage :title="pageTitle" :description="pageDescription" wiki="ScrollViewer">
     <template #demo>
       <div class="viewer-stage">
         <!-- 例 1:参数面板联动(官方示例的参数组合) -->
