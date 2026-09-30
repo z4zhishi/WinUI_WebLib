@@ -8,8 +8,10 @@
 //   为 SplitButton 的同目录独立文件;样式为 SplitButton.xaml 末尾
 //   <Style TargetType="controls:ToggleSplitButton" BasedOn="{StaticResource SplitButtonStyle}" />
 //   (空 BasedOn —— 与 SplitButton 共用模板与全部状态资源)。本组件因此实现为 SplitButton.vue
-//   的**组合扩展**(源码继承 ↔ Web 组合,SplitButton.vue 零改动):模板 / 弹层 / 键盘全部
+//   的**组合扩展**(源码继承 ↔ Web 组合):模板 / 弹层 / 键盘全部
 //   复用,仅追加 checked 分支的视觉与行为,经 attrs 透传落到其根元素。
+//   (fix round 1:SplitButton 组件级 token 前缀统一为 --wui-splitbutton-*,本文件的
+//   token 覆写引用已同步更名——纯机械更名,值与选择器未变。)
 //
 // Checked 状态规格(源 CommonStates 的 Checked 全族,SplitButton.cpp UpdateVisualStates
 //   L137-L183 + SplitButton.xaml L131-L207,钩子挂点见 SplitButton.vue 文末预留注释):
@@ -40,7 +42,8 @@
 //     aria-pressed 开关语义(ToggleButton.vue 同款);aria-haspopup / aria-expanded 不变;
 //   - 次区点击 / Alt+Down / F4 / 弹层 light dismiss 全部继承 SplitButton,无差异。
 //
-// checked 视觉的实现方式:SplitButton.vue 的全部状态规则消费**根元素**上的 --sb-* token,
+// checked 视觉的实现方式:SplitButton.vue 的全部状态规则消费**根元素**上的
+//   --wui-splitbutton-* token,
 //   本组件在同一根元素(SplitButton 根 span,attrs 落点)上追加 .is-checked 并仅覆写 token,
 //   即可命中 Checked × Normal / PointerOver / Pressed / FlyoutOpen / 键盘按压全族
 //   (逐态对照见样式表注);唯一结构性差异是 CheckedPrimary/SecondaryPressed 保留 accent
@@ -169,7 +172,7 @@ defineExpose({
 <style scoped>
 /* ======================================================================
  * Checked 全族状态(SplitButton.xaml L131-L207 的 Checked 分支):
- * SplitButton.vue 的全部状态规则消费根元素 --sb-* token,本组件经 attrs 透传在
+ * SplitButton.vue 的全部状态规则消费根元素 --wui-splitbutton-* token,本组件经 attrs 透传在
  * 同一根元素追加 .is-checked,覆写 token 即命中全族 —— 逐态对照(源 → 实现):
  *   Checked                        背景 AccentFillDefault;前景 TextOnAccentPrimary;
  *                                  边框 AccentControlElevation(≈OnAccentSecondary);
@@ -181,7 +184,7 @@ defineExpose({
  *   CheckedSecondaryPressed        次区背景 AccentFillTertiary、前景 TextOnAccentSecondary;
  *                                  边框保留 accent(→ 同上)
  *   CheckedFlyoutOpen              双区背景 AccentFillTertiary、前景 TextOnAccentSecondary、
- *                                  边框透明(→ --sb-stroke-pressed = transparent)
+ *                                  边框透明(→ --wui-splitbutton-stroke-pressed = transparent)
  *   CheckedTouchPressed / 键盘 Space 按住   同 CheckedFlyoutOpen(源 m_isKeyDown 同分支)
  *   (无 CheckedDisabled 态 → 整块规则 :not(.is-disabled),禁用时回落普通 Disabled 链)
  * 交互态色经 SplitButton 既有规则的同名 token 自动生效(hover/pressed 对两区同值,
@@ -191,44 +194,44 @@ defineExpose({
 .wui-togglesplitbutton.is-checked:not(.is-disabled) {
   /* 背景:AccentFillColorDefault / Secondary(≈SystemAccentColorDark1)/ Tertiary(≈Dark2)。
      accent 为应用层系统色钩子,未定义时回退超链色(README 约定,钩子定义后自动生效) */
-  --sb-fill: var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  --sb-fill-hover: var(
+  --wui-splitbutton-fill: var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
+  --wui-splitbutton-fill-pointer-over: var(
     --wui-system-accent-color-dark-1,
     var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme))
   );
-  --sb-fill-pressed: var(
+  --wui-splitbutton-fill-pressed: var(
     --wui-system-accent-color-dark-2,
     var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme))
   );
 
   /* 前景:TextOnAccentFillColorPrimary(Light #FFFFFF / Default #000000)、
      TextOnAccentFillColorSecondary(Light #B3FFFFFF / Default #80000000) */
-  --sb-fg: #ffffff;
-  --sb-fg-hover: #ffffff; /* CheckedPointerOver 前景 = Checked 同值(TextOnAccentPrimary) */
-  --sb-fg-pressed: #ffffffb3;
-  --sb-fg-secondary: #ffffff;
-  --sb-fg-secondary-pressed: #ffffffb3;
+  --wui-splitbutton-foreground: #ffffff;
+  --wui-splitbutton-foreground-pointer-over: #ffffff; /* CheckedPointerOver 前景 = Checked 同值(TextOnAccentPrimary) */
+  --wui-splitbutton-foreground-pressed: #ffffffb3;
+  --wui-splitbutton-foreground-secondary: #ffffff;
+  --wui-splitbutton-foreground-secondary-pressed: #ffffffb3;
 
   /* 边框:AccentControlElevationBorderBrush 1px 近似 ControlStrokeColorOnAccentSecondary
      (Light #66000000 / Default #23000000);按压族色:Primary/SecondaryPressed 保留 accent
      边框(下方 :has 规则恢复),FlyoutOpen / TouchPressed = ControlFillColorTransparent */
-  --sb-stroke: #00000066;
-  --sb-stroke-pressed: transparent;
+  --wui-splitbutton-stroke: #00000066;
+  --wui-splitbutton-stroke-pressed: transparent;
 
   /* 分隔线:SplitButtonBorderBrushCheckedDivider = ControlStrokeColorOnAccentTertiary
      (Light / Default 同值 #37000000) */
-  --sb-divider: #00000037;
+  --wui-splitbutton-divider: #00000037;
 }
 
 /* 深色档(Default 字典):TextOnAccent / OnAccentStroke 换值;accent 钩子由应用层换档 */
 html[data-theme='dark'] .wui-togglesplitbutton.is-checked:not(.is-disabled) {
-  --sb-fg: #000000;
-  --sb-fg-hover: #000000;
-  --sb-fg-pressed: #00000080;
-  --sb-fg-secondary: #000000;
-  --sb-fg-secondary-pressed: #00000080;
-  --sb-stroke: #00000023;
-  --sb-divider: #00000037;
+  --wui-splitbutton-foreground: #000000;
+  --wui-splitbutton-foreground-pointer-over: #000000;
+  --wui-splitbutton-foreground-pressed: #00000080;
+  --wui-splitbutton-foreground-secondary: #000000;
+  --wui-splitbutton-foreground-secondary-pressed: #00000080;
+  --wui-splitbutton-stroke: #00000023;
+  --wui-splitbutton-divider: #00000037;
 }
 
 /* CheckedPrimaryPressed / CheckedSecondaryPressed:源边框保留 SplitButtonBorderBrushChecked
@@ -240,6 +243,6 @@ html[data-theme='dark'] .wui-togglesplitbutton.is-checked:not(.is-disabled) {
 .wui-togglesplitbutton.is-checked:not(.is-disabled):not(.is-flyout-open):has(
     .wui-splitbutton-secondary:active
   ) {
-  --sb-stroke-current: var(--sb-stroke);
+  --wui-splitbutton-stroke-current: var(--wui-splitbutton-stroke);
 }
 </style>
