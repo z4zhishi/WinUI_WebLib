@@ -22,7 +22,7 @@ export default {
   searchNoResults: '"{query}"과(와) 일치하는 결과가 없습니다',
   searchNoResultsHint: '컨트롤 이름, 설명 및 태그를 검색할 수 있습니다.',
   settingsTheme: '테마',
-  settingsThemeHint: '밝게, 어둡게 또는 시스템 설정 따르기를 선택하세요.',
+  settingsThemeHint: '라이트, 다크 또는 시스템 설정 따르기를 선택하세요.',
   settingsPersistHint: '기본 설정은 브라우저 로컬 스토리지(localStorage)에 저장됩니다.',
   settingsAbout: '정보',
   settingsVersion: '버전',

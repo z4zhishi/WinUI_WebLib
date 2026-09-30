@@ -22,7 +22,7 @@ export default {
   searchNoResults: 'Aucun résultat pour « {query} »',
   searchNoResultsHint: 'La recherche porte sur les noms, descriptions et balises des contrôles.',
   settingsTheme: 'Thème',
-  settingsThemeHint: 'Choisissez clair, sombre ou suivez le système.',
+  settingsThemeHint: 'Choisissez le thème clair ou sombre, ou suivez le système.',
   settingsPersistHint: 'Les préférences sont enregistrées dans le navigateur (localStorage).',
   settingsAbout: 'À propos',
   settingsVersion: 'Version',

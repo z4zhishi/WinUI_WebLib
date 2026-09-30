@@ -22,7 +22,7 @@ export default {
   searchNoResults: '「{query}」に一致する結果はありません',
   searchNoResultsHint: 'コントロール名、説明、タグを検索できます。',
   settingsTheme: 'テーマ',
-  settingsThemeHint: 'ライト、ダーク、またはシステムに従うを選択できます。',
+  settingsThemeHint: 'ライト、ダーク、またはシステムに従うから選択できます。',
   settingsPersistHint: '設定はブラウザーのローカル ストレージ(localStorage)に保存されます。',
   settingsAbout: 'バージョン情報',
   settingsVersion: 'バージョン',
