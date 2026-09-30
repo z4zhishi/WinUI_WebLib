@@ -76,7 +76,7 @@ function onPasswordChanged(value: string): void {
 
 - **颜色 / 字号**:四态颜色全部取自 `theme.css` 的 `--wui-text-control-*` token(含揭示按钮的 `--wui-text-control-button-*` 族,与 TextBox 清除按钮同族)。聚焦边框、选区高亮、揭示按钮按压强调色最终落到系统钩子 `--wui-system-accent-color`;该钩子由应用层定义,未定义时回退 `--wui-hyperlink-foreground-theme`。
 - **无 token 的结构值**(源 generic.xaml 键,按源值直接使用):`TextControlBorderThemeThickness` = 2px(四周)、`TextControlThemePadding` = 10,3,6,6、`TextControlThemeMinHeight` / `MinWidth` = 32 / 64、`PasswordBoxTopHeaderMargin` = 0,0,0,4、揭示按钮 `MinWidth` = 34、glyph 字号 12px(取同值 token `--wui-tool-tip-content-theme-font-size`)。
-- **圆角**:源模板未给 PasswordBox 设置 `CornerRadius`(TemplateBinding 默认 0),故为直角;需要圆角可自行覆盖样式。
+- **圆角**:按 WinUI 3 默认 `ControlCornerRadius`(4px)取 4px 圆角(引用 theme-hooks.css 的 `--wui-control-corner-radius`,与 TextBox 同款,V3 视觉 QA 打回后修正);应用可在同名变量上按层叠覆盖(如改 0 恢复直角)。
 - **聚焦视觉**:`UseSystemFocusVisuals` 默认关闭,焦点指示即模板 Focused 态的强调色边框 + 实底背景,本实现不再叠加系统焦点框(outline)。
 - **掩码字符**:`PasswordChar`(自定义掩码字符,如 `#`)未实现,掩码跟随浏览器 `type="password"` 的原生气泡掩码;如需固定掩码字符需后续波次扩展。
 - **揭示按钮 glyph**:使用 `--wui-symbol-theme-font-family`(Segoe Fluent Icons / Segoe MDL2 Assets)的 U+E052(RedEye);源模板的 ButtonLayoutGrid 带 `BorderThickness = 2` 边框,但 `TextControlButtonBorderBrush` 默认透明,视觉上不可见,本实现直接省略该边框(与已过 QA 的 TextBox 清除按钮一致)。

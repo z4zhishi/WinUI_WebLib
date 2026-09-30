@@ -69,7 +69,7 @@ function onTextChanged(value: string): void {
 
 - **颜色 / 字号**:四态颜色全部取自 `theme.css` 的 `--wui-text-control-*` token(含清除按钮的 `--wui-text-control-button-*` 族)。聚焦边框、选区高亮、清除按钮悬停/按压强调色最终落到系统钩子 `--wui-system-accent-color`;该钩子由应用层定义,未定义时回退 `--wui-hyperlink-foreground-theme`。
 - **无 token 的结构值**(源 generic.xaml 键,按源值直接使用):`TextControlBorderThemeThickness` = 2px(四周)、`TextControlThemePadding` = 10,3,6,6、`TextControlThemeMinHeight` / `MinWidth` = 32 / 64、`TextBoxTopHeaderMargin` = 0,0,0,4、清除按钮 `MinWidth` = 34、glyph 字号 12px(取同值 token `--wui-tool-tip-content-theme-font-size`)。
-- **圆角**:源模板未给 TextBox 设置 `CornerRadius`(TemplateBinding 默认 0),故为直角;Windows 11 新模板使用 `ControlCornerRadius`(4px),需要圆角可自行覆盖样式。
+- **圆角**:按 WinUI 3 默认 `ControlCornerRadius`(4px)取 4px 圆角(引用 theme-hooks.css 的 `--wui-control-corner-radius`,V3 视觉 QA 打回后修正);应用可在同名变量上按层叠覆盖(如改 0 恢复直角)。
 - **聚焦视觉**:`UseSystemFocusVisuals` 默认取 `IsApplicationFocusVisualKindReveal`(默认关闭),焦点指示即模板 Focused 态的强调色边框 + 实底背景,本实现不再叠加系统焦点框(outline)。
 - **清除按钮 glyph**:使用 `--wui-symbol-theme-font-family`(Segoe Fluent Icons / Segoe MDL2 Assets)的 U+E10A;按钮以 `tabindex="-1"` + `aria-hidden` 复刻 WinUI `IsTabStop=False` + Raw 自动化视图,点击后焦点送回输入框。
 - **清除按钮可见条件**:`clearButtonEnabled && 聚焦 && 有内容`。源模板未在可见条件中排除只读;本实现在 `isReadOnly` 或禁用时不显示清除按钮,避免只读框出现可清空入口。

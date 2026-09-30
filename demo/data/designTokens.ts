@@ -95,5 +95,9 @@ export const WUI_CORNER_RADIUS_TOKENS: WuiToken[] = WUI_TOKENS.filter((token) =>
  * 系统色钩子(theme-hooks.css 提供默认值的 var() 钩子,共 8 个,浅深同值):
  * Windows 上由系统提供(强调色 / Win32 高亮色),theme.css 未定义、以 var() 引用,
  * 应用层可在同名变量上覆盖(本库默认值即 WinUI 3 缺省观感)。
+ * theme-hooks.css 另含几何类 token(--wui-control-corner-radius: 4px,T9 圆角修复,
+ * 值非颜色),不属系统色钩子,按值过滤排除,保持本列表为纯色钩子。
  */
-export const SYSTEM_COLOR_HOOKS: WuiToken[] = buildTokens(themeHooksSource)
+export const SYSTEM_COLOR_HOOKS: WuiToken[] = buildTokens(themeHooksSource).filter((token) =>
+  isColorValue(token.light),
+)

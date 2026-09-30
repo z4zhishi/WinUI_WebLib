@@ -606,6 +606,7 @@ const rootClass = computed(() => ({
   min-height: 32px; /* 源未给 MinHeight:内容行(内边距 5+7 + 14px 文本行)自然高度 ≈ 32 */
   background: var(--wui-combo-box-background);
   border: 2px solid var(--wui-combo-box-border); /* ComboBoxBorderThemeThickness */
+  border-radius: var(--wui-control-corner-radius); /* ControlCornerRadius = 4,仅闭合/聚焦态盒(V3 QA 打回项;下拉面板 8px 见弹层基建) */
   cursor: pointer;
   outline: none;
 }

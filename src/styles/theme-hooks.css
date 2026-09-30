@@ -24,6 +24,14 @@
  *   --wui-system-color-highlight-color     ← SystemColorHighlightColor
  *   --wui-system-color-highlight-text-color← SystemColorHighlightTextColor
  * 未含 SystemAccentColorLight1(theme.css 无引用,值为 #0091F8,备查见 notes)。
+ *
+ * 非颜色几何 token(theme.css 生成源不含对应键,由本层人工提供默认值):
+ *   --wui-control-corner-radius            ← ControlCornerRadius(4px,WinUI 3 默认;
+ *                                            TextBox/PasswordBox/ComboBox 等闭合态
+ *                                            盒子引用,T9 圆角修复。该键属发行版
+ *                                            Common_themeresources_any.xaml 层资源,
+ *                                            不在本库 generic.xaml 提取范围)
+ * (OverlayCornerRadius 同类,8px,在 popup.css 的 --wui-popup-corner-radius。)
  */
 
 :root,
@@ -39,6 +47,10 @@
   /* Win32 系统色默认值:高亮底/高亮文字(选中态) */
   --wui-system-color-highlight-color: #0078d4;
   --wui-system-color-highlight-text-color: #ffffff;
+
+  /* WinUI 3 控件圆角(ControlCornerRadius 默认 4;几何常量,主题无关,
+     故仅在此 :root 块声明一次,深色主题经 CSS 继承同值) */
+  --wui-control-corner-radius: 4px;
 }
 
 :root[data-theme="dark"] {

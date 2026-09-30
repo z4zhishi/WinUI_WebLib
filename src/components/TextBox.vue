@@ -162,9 +162,8 @@ const rootClass = computed(() => ({
   min-height: 32px; /* TextControlThemeMinHeight */
   background: var(--wui-text-control-background);
   border: 2px solid var(--wui-text-control-border);
+  border-radius: var(--wui-control-corner-radius); /* ControlCornerRadius = 4(V3 QA 打回项) */
 }
-
-/* 源模板无 CornerRadius 设置,默认直角;不做圆角(差异见 wiki)。 */
 
 /* —— PointerOver 状态:VSM 优先级 Focused > PointerOver > Disabled 思路的 CSS 映射 ——
    hover 规则加 :not(:focus-within)(QA F1):聚焦时 hover 规则整体不命中,

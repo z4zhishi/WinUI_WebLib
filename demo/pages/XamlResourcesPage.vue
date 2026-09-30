@@ -213,7 +213,7 @@ const mappingRows: (string | number)[][] = [
 const libraryHeaders = ['文件', '角色', '说明']
 const libraryRows: (string | number)[][] = [
   ['src/styles/theme.css', '主题资源字典(生成产物)', '由 docs/temp/extract-tokens.mjs 从 generic.xaml 的 Light + Default(深)字典生成,约 3100+ 条 --wui-* token;浅/深两套值分别在 :root[data-theme="light"] 与 [data-theme="dark"] 作用域'],
-  ['src/styles/theme-hooks.css', '系统色钩子默认值', 'theme.css 把 8 个 Windows 系统色(--wui-system-accent-color 等)留作未定义钩子,由本文件提供 WinUI 3 默认值(#0078D4 系);应用可按 CSS 层叠覆盖'],
+  ['src/styles/theme-hooks.css', '系统色钩子与几何 token 默认值', 'theme.css 把 8 个 Windows 系统色(--wui-system-accent-color 等)留作未定义钩子,由本文件提供 WinUI 3 默认值(#0078D4 系);另提供 generic.xaml 提取范围外的几何 token(--wui-control-corner-radius: 4px ← ControlCornerRadius);应用可按 CSS 层叠覆盖'],
   ['src/styles/animations.css', '动画 token 与关键帧', '过渡/缓动 token(控件动画引用)'],
   ['src/styles/popup.css', '弹出层公共样式', 'Flyout/Popup 类共享的弹出层样式'],
 ]
