@@ -1,6 +1,8 @@
 // 主项目(控件库)公共出口。
 // 所有对外暴露的控件与工具统一在此导出,供 demo 示例站与外部使用者引用。
 export { default as SplitView } from './components/SplitView.vue'
+export { default as SwipeControl } from './components/SwipeControl.vue'
+export { default as SwipeItem } from './components/SwipeItem.vue'
 export * from './utils/geometry'
 export { default as BitmapIcon } from './components/BitmapIcon.vue'
 export { default as NavigationView } from './components/NavigationView.vue'
