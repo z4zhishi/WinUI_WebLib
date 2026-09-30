@@ -207,7 +207,7 @@ const onSave = withSound('Invoke', () => save())`
               aria-label="Sound On/Off"
             />
             <WuiSlider
-              v-model="volumeNumber"
+              v-model:value="volumeNumber"
               class="volume-slider"
               :minimum="0"
               :maximum="1"

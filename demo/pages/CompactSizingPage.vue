@@ -267,7 +267,7 @@ const usageCode = `<!-- WinUI 原生:在应用 / 页面 / 控件级引入紧凑�
                 <WuiButton content="Button" />
                 <WuiCheckBox v-model:checked="compareChecked" content="CheckBox" />
               </div>
-              <WuiSlider v-model="compareSlider" :minimum="0" :maximum="100" />
+              <WuiSlider v-model:value="compareSlider" :minimum="0" :maximum="100" />
             </div>
           </section>
 
@@ -318,7 +318,7 @@ const usageCode = `<!-- WinUI 原生:在应用 / 页面 / 控件级引入紧凑�
                 <WuiButton content="Button" />
                 <WuiCheckBox v-model:checked="compareChecked" content="CheckBox" />
               </div>
-              <WuiSlider v-model="compareSlider" :minimum="0" :maximum="100" />
+              <WuiSlider v-model:value="compareSlider" :minimum="0" :maximum="100" />
             </div>
           </section>
         </div>
