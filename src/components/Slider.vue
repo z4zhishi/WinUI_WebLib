@@ -63,8 +63,8 @@ const emit = defineEmits<{
   valueChanged: [event: SliderValueChangedEventArgs]
 }>()
 
-/** 当前值(WinUI Value,双向)。 */
-const value = defineModel<number>({ default: 0 })
+/** 当前值(WinUI Value,双向,v-model:value)。 */
+const value = defineModel<number>('value', { default: 0 })
 
 const inputEl = ref<HTMLInputElement | null>(null)
 
