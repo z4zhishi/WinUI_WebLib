@@ -661,7 +661,8 @@ const rootClass = computed(() => ({
   position: relative;
   display: flex;
   align-items: center;
-  min-height: 32px; /* 源模板 MinHeight = 32 */
+  box-sizing: border-box; /* XAML MinHeight 含边框:内容盒下 32 + 2×2px 边框会变 36px(FIX2 更正) */
+  min-height: 32px; /* 源模板 MinHeight = 32(含 2px 边框,控件关闭态总高 = 32) */
   background: var(--wui-calendar-date-picker-background);
   border: 2px solid var(--wui-calendar-date-picker-border); /* CalendarDatePickerBorderThemeThickness */
   border-radius: 4px; /* CornerRadius = ControlCornerRadius,无同名 token(见 wiki) */
@@ -722,6 +723,14 @@ const rootClass = computed(() => ({
 /* 聚焦态:仅换 Background(Focused storyboard 只动 Background;边框保持) */
 .wui-calendar-date-picker:not(.is-disabled) .wui-cdp-input:focus {
   background: var(--wui-calendar-date-picker-background-focused);
+}
+
+/* 系统焦点视觉:UseSystemFocusVisuals=True(generic.xaml L8038)+ 默认 FocusVisualMargin=0
+   → 键盘聚焦在控件内画双环(primary [0,2] + secondary [2,3],指针聚焦不画) */
+.wui-calendar-date-picker:not(.is-disabled) .wui-cdp-input:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--wui-system-control-focus-visual-primary);
+  outline: 1px solid var(--wui-system-control-focus-visual-secondary);
+  outline-offset: -3px;
 }
 
 /* —— Disabled(Header / 背景 / 边框 / 文本 / Glyph 各自的 Disabled 前景)—— */
@@ -836,9 +845,12 @@ const rootClass = computed(() => ({
   outline: none;
 }
 
+/* 系统焦点视觉:日格同 CalendarViewDayItem(FocusVisualMargin=-2)→
+   primary [0,2] 在元素外贴缘 + secondary [0,1] 在元素内 = 系统双环 */
 .wui-cdp-day:focus-visible {
   outline: 2px solid var(--wui-calendar-view-focus-border); /* FocusBorderBrush */
-  outline-offset: -2px;
+  outline-offset: 0;
+  box-shadow: inset 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 .wui-cdp-day-fill {

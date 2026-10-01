@@ -732,12 +732,21 @@ const rootClass = computed(() => ({
   cursor: default;
 }
 
+/* 系统焦点视觉:头/导航按钮(Button 族 FocusVisualMargin=-3)双环全在外;
+   日格/月年格(CalendarViewDayItem FocusVisualMargin=-2,generic.xaml L14275)
+   primary [0,2] 在元素外贴缘 + secondary [0,1] 在元素内 = 系统双环 */
 .cv-header-button:focus-visible,
-.cv-nav-button:focus-visible,
+.cv-nav-button:focus-visible {
+  outline: 2px solid var(--wui-calendar-view-focus-border);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
+}
+
 .cv-day:focus-visible,
 .cv-unit:focus-visible {
   outline: 2px solid var(--wui-calendar-view-focus-border);
-  outline-offset: -2px;
+  outline-offset: 0;
+  box-shadow: inset 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 /* —— 视图层:BackgroundLayer 用 BorderBrush 垫底,单元格 margin 1 透出 2px 格线 —— */
@@ -874,16 +883,19 @@ const rootClass = computed(() => ({
   background: var(--wui-cv-blackout-foreground);
 }
 
-/* 月内组标签(FirstOfMonthLabel FontSize 8 / FirstOfYearDecadeLabel 同级,无 token,见 wiki) */
+/* 月内组标签(FirstOfMonthLabel:FontSize 8、垂直 Top、水平 Center、
+   Margin 0,2,0,0 —— 源 CalendarViewFirstOfMonthLabelMargin;FIX2 更正:原实现 bottom:2px 贴底,方向反了)。
+   前景色不单独指定,继承 .cv-day 的状态色(源 chrome 的 main/label 两个 TextBlock 共用同一前景:
+   今日格 → TodayForeground、邻月 → OutOfScopeForeground、禁选 → BlackoutForeground、选中 → SelectedForeground)。 */
 .cv-group-label {
   position: absolute;
+  top: 2px; /* 源 CalendarViewFirstOfMonthLabelMargin = 0,2,0,0(贴顶) */
   right: 0;
-  bottom: 2px;
   left: 0;
   overflow: hidden;
   font-size: 8px;
   line-height: 1;
-  color: var(--wui-calendar-view-calendar-item-foreground);
+  text-align: center; /* 源 m_horizontalFirstOfMonthLabelAlignment = Center */
   white-space: nowrap;
 }
 
