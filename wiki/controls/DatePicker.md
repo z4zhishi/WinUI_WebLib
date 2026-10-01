@@ -56,7 +56,7 @@
 | 操作 | 作用 |
 | --- | --- |
 | 鼠标滚轮(列上) | 按 40px 一档逐项步进,累积平滑 |
-| 点击列上/下箭头 | 该列步进一项(对照 LoopingSelector 展开钮,E70E/E70D glyph) |
+| 点击列上/下箭头 | 该列步进一项(对照 LoopingSelector 展开钮,E76B/E76C glyph) |
 | 按住上下拖拽 | 列条目跟手滚动,松手吸附最近项(触摸同等,指针捕获) |
 | 点击列项 | 直接选中该项 |
 | ↑ / ↓ | 聚焦列步进一项 |
@@ -95,8 +95,8 @@ function onDateChanged(newDate: Date | null, oldDate: Date | null): void {
 - **形态**:WinUI DatePicker 默认是「收起按钮(2px 描边,三段文本)→ 点击弹出三列飞出层」;本实现按任务规格做成**常驻 inline 三列滚轮选择器**,外层面板取飞出层形态(`DatePickerFlyoutPresenterBackground`/`Border` 1px + 8px 弹层圆角),`--wui-date-picker-button-*`(收起按钮)token 未使用。
 - **列序**:源模板静态列序为 日 | 月 | 年(`DayColumn`/`MonthColumn`/`YearColumn`),运行时按区域文化重排(如 en-US 显示为 月/日/年);本实现按任务规格固定为 月/日/年。
 - **颜色 / 字号**:全部取自 `theme.css` 的 `--wui-date-picker-*`(标头/分割线/禁用)、`--wui-date-picker-flyout-presenter-*`(面板底色/描边/分割线/高亮带)与 `--wui-looping-selector-*`(项前景/选中/悬停/按压/按钮底色)token,浅 / 深主题随 `data-theme` 切换;空值态文字取 `--wui-text-control-placeholder-foreground`(源 HasNoDate 态)。
-- **无 token 的结构值**(源 generic.xaml 键,按源值直接使用):三列宽比 78\*/132\*/78\*(日/月/年)、分割线宽 2px、项高与高亮带高 40px(`DatePickerFlyoutPresenterItemHeight`/`HighlightHeight`)、项内边距 0,3,0,6(月列 9,3,0,6)、可见行数 3(源弹层约 4-5 行,取 3 行贴合 inline 高度)、面板圆角 8px(源 `OverlayCornerRadius`,theme.css 无同名 token,取弹层基建的 `--wui-popup-corner-radius`)。面板宽度:下限 296 取源 `DatePickerFlyoutPresenter` 的 `Width`/`MinWidth`;上限 456 为**借用**收起按钮的 `DatePickerThemeMaxWidth`(源飞出层为固定 296 宽、并无 456 约束,此为 inline 形态的适配选择)。
-- **上下箭头按钮**:源 LoopingSelector 的展开钮(Uwp 展开形态)在 generic.xaml 无模板与尺寸 token;本实现取常驻 20px 高按钮 + `--wui-looping-selector-button-background` 底色 + Segoe Fluent `E70E`/`E70D` chevron,作为滚轮/拖拽之外的可点步进入口(WinUI 原生无滚轮,此为 web 增强)。
+- **无 token 的结构值**(源 generic.xaml 键,按源值直接使用):三列宽比 78\*/132\*/78\*(日/月/年)、分割线宽 2px、项高与高亮带高 40px(`DatePickerFlyoutPresenterItemHeight`/`HighlightHeight`;条目 `box-sizing: border-box`,内边距计入 40px 行高盒,对齐源项高语义)、项内边距 0,3,0,6(月列 9,3,0,6)、可见行数 3(源弹层约 4-5 行,取 3 行贴合 inline 高度)、面板圆角 8px(源 `OverlayCornerRadius`,theme.css 无同名 token,取弹层基建的 `--wui-popup-corner-radius`)。面板宽度:下限 296 取源 `DatePickerFlyoutPresenter` 的 `Width`/`MinWidth`;上限 456 为**借用**收起按钮的 `DatePickerThemeMaxWidth`(源飞出层为固定 296 宽、并无 456 约束,此为 inline 形态的适配选择)。
+- **上下箭头按钮**:源 LoopingSelector 的展开钮在 generic.xaml 无模板与尺寸 token;本实现取常驻 20px 高按钮 + `--wui-looping-selector-button-background` 底色 + Segoe Fluent chevron 码点 **`E76B`(上)/ `E76C`(下)**(ChevronUp/Down 现代码点;V6 视觉 QA 核对早先码点在 MS 字形表中为 ChevronLeft/Right,语义错位,统一改用现码点),作为滚轮/拖拽之外的可点步进入口(WinUI 原生无滚轮,此为 web 增强)。
 - **列不循环**:源 LoopingSelector 到首/末项后无限回绕;本实现为有界列表,到边界停住(再向下不动)。
 - **MinYear / MaxYear**:WinUI 为 `DateTimeOffset`;web 版收窄为 `number` 年份,按年粒度约束年列(与源「约束年列、日/月不受限」的语义一致);区间收窄挤出当前选中年份时自动收敛。
 - **日按年月联动**:日列项数随年月变化(28–31,闰年 2/29);改月/年导致日越界时自动收敛(如 1/31 → 2/28),与 WinUI 行为一致。

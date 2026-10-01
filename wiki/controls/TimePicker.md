@@ -44,7 +44,7 @@
 | 操作 | 作用 |
 | --- | --- |
 | 鼠标滚轮(列上) | 按 40px 一档逐项步进,累积平滑 |
-| 点击列上/下箭头 | 该列步进一项(对照 LoopingSelector 展开钮,E70E/E70D glyph) |
+| 点击列上/下箭头 | 该列步进一项(对照 LoopingSelector 展开钮,E76B/E76C glyph) |
 | 按住上下拖拽 | 列条目跟手滚动,松手吸附最近项(触摸同等,指针捕获) |
 | 点击列项 | 直接选中该项 |
 | ↑ / ↓ | 聚焦列步进一项 |
@@ -83,8 +83,8 @@ function onTimeChanged(newTime: string | null, oldTime: string | null): void {
 - **形态**:WinUI TimePicker 默认是「收起按钮(2px 描边,时:分:AM/PM 三段文本)→ 点击弹出三列飞出层」;本实现按任务规格做成**常驻 inline 三列滚轮选择器**(与 DatePicker 同款约定),外层面板取飞出层形态(`TimePickerFlyoutPresenterBackground`/`Border` 1px + 8px 弹层圆角),收起按钮的 `--wui-time-picker-button-*` 背景/描边 token 未使用,仅 Disabled 前景色被复用。
 - **time 值类型**:WinUI `SelectedTime` 为 `IReference<TimeSpan>`;web 版收窄为 `"HH:mm"` 字符串(见属性节选型说明),`null` 语义与 WinUI 一致(未选择,触发 HasNoTime 空值态)。
 - **颜色 / 字号**:全部取自 `theme.css` 的 `--wui-time-picker-*`(标头/分割线/禁用/飞出层底色/描边/高亮带)、`--wui-looping-selector-*`(项前景/选中/悬停/按压/按钮底色)与 `--wui-text-control-placeholder-foreground`(源 HasNoTime 态)token,浅 / 深主题随 `data-theme` 切换。
-- **无 token 的结构值**(源 generic.xaml 键,按源值直接使用):面板宽 242 / 最大 456(`TimePickerThemeMinWidth`/`TimePickerThemeMaxWidth`)、三列等宽(源模板 First/Second/ThirdPickerHostColumn 均为 1 等分,与 DatePicker 的 78/132/78 不等宽不同)、分割线 2px、项高与高亮带高 40px(`TimePickerFlyoutPresenterItemHeight`/`HighlightHeight`)、项内边距 0,3,0,6、可见行数 3(源弹层 MaxHeight 398 约 4-5 行,取 3 行贴合 inline 高度)、面板圆角 8px(源 `OverlayCornerRadius`,theme.css 无同名 token,取弹层基建的 `--wui-popup-corner-radius`)。
-- **上下箭头按钮**:源 LoopingSelector 的展开钮(PointerOver 才显示,高 22)在 inline 形态下改为常驻 20px 高按钮 + `--wui-looping-selector-button-background` 底色 + Segoe Fluent `E70E`/`E70D` chevron,作为滚轮/拖拽之外的可点步进入口(WinUI 原生无滚轮,此为 web 增强)。
+- **无 token 的结构值**(源 generic.xaml 键,按源值直接使用):面板宽 242 / 最大 456(`TimePickerThemeMinWidth`/`TimePickerThemeMaxWidth`)、三列等宽(源模板 First/Second/ThirdPickerHostColumn 均为 1 等分,与 DatePicker 的 78/132/78 不等宽不同)、分割线 2px、项高与高亮带高 40px(`TimePickerFlyoutPresenterItemHeight`/`HighlightHeight`;条目 `box-sizing: border-box`,内边距计入 40px 行高盒,对齐源项高语义)、项内边距 0,3,0,6、可见行数 3(源弹层 MaxHeight 398 约 4-5 行,取 3 行贴合 inline 高度)、面板圆角 8px(源 `OverlayCornerRadius`,theme.css 无同名 token,取弹层基建的 `--wui-popup-corner-radius`)。
+- **上下箭头按钮**:源 LoopingSelector 的展开钮(PointerOver 才显示,高 22)在 inline 形态下改为常驻 20px 高按钮 + `--wui-looping-selector-button-background` 底色 + Segoe Fluent chevron 码点 **`E76B`(上)/ `E76C`(下)**(ChevronUp/Down 现代码点;V6 视觉 QA 核对早先码点在 MS 字形表中为 ChevronLeft/Right,语义错位,统一改用现码点),作为滚轮/拖拽之外的可点步进入口(WinUI 原生无滚轮,此为 web 增强)。
 - **列不循环**:源 LoopingSelector `ShouldLoop=True` 到首/末项后无限回绕;本实现为有界列表,到边界停住(23 后不再 +1、AM/PM 不跨列翻转)。
 - **小时/分钟显示宽度**:小时列不补零(0-23 或 1-12,对应源 `{hour.integer}`),分钟列恒两位(`05`,对应源 `{minute.integer}`CultureData 补零行为);AM/PM 文案固定 `AM`/`PM` 英文(WinUI 跟随系统语言本地化,如中文环境显示"上午/下午")。
 - **MinuteIncrement**:WinUI 允许 1-30 任意值;本实现同样收敛到 1-30,列表从 0 起按步进生成(`0,15,30,45`)。与 WinUI 不同的是:**变更步进时会把已选分钟就近吸附到网格并写回模型**(WinUI 保留离网的 `SelectedTime` 不动,仅飞出层显示取整);程序化传入离网值(如 `13:08` + 步进 15)同理吸附为 `13:15`(就近四舍五入,`13:07` 吸附为 `13:00`)。

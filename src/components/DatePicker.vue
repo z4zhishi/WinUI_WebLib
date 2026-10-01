@@ -459,7 +459,7 @@ function optionId(key: ColumnKey, index: number): string {
             :disabled="disabled"
             @click="stepColumn(col.key, -1)"
           >
-            <span class="wui-date-picker-nav-glyph" aria-hidden="true">&#xE70E;</span>
+            <span class="wui-date-picker-nav-glyph" aria-hidden="true">&#xE76B;</span>
           </button>
           <div
             class="wui-date-picker-window"
@@ -503,7 +503,7 @@ function optionId(key: ColumnKey, index: number): string {
             :disabled="disabled"
             @click="stepColumn(col.key, 1)"
           >
-            <span class="wui-date-picker-nav-glyph" aria-hidden="true">&#xE70D;</span>
+            <span class="wui-date-picker-nav-glyph" aria-hidden="true">&#xE76C;</span>
           </button>
         </div>
         <div
@@ -592,10 +592,13 @@ function optionId(key: ColumnKey, index: number): string {
 }
 
 .wui-date-picker-item {
+  /* border-box:源 ItemHeight 40 为含内边距的行高盒;缺省 content-box 会把 3+6 内边距加到 49px,
+     令条目按 49px 步距累积偏移、选中项被推出 40px 高亮带(V6 视觉 QA F1) */
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 40px; /* DatePickerFlyoutPresenterItemHeight */
+  height: 40px; /* DatePickerFlyoutPresenterItemHeight(含内边距) */
   padding: 3px 0 6px; /* DatePickerFlyoutPresenterItemPadding 0,3,0,6 */
   color: var(--wui-looping-selector-item-foreground);
   text-align: center;

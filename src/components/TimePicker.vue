@@ -427,7 +427,7 @@ function optionId(key: ColumnKey, index: number): string {
             :disabled="disabled"
             @click="stepColumn(col.key, -1)"
           >
-            <span class="wui-time-picker-nav-glyph" aria-hidden="true">&#xE70E;</span>
+            <span class="wui-time-picker-nav-glyph" aria-hidden="true">&#xE76B;</span>
           </button>
           <div
             class="wui-time-picker-window"
@@ -468,7 +468,7 @@ function optionId(key: ColumnKey, index: number): string {
             :disabled="disabled"
             @click="stepColumn(col.key, 1)"
           >
-            <span class="wui-time-picker-nav-glyph" aria-hidden="true">&#xE70D;</span>
+            <span class="wui-time-picker-nav-glyph" aria-hidden="true">&#xE76C;</span>
           </button>
         </div>
         <div
@@ -558,10 +558,13 @@ function optionId(key: ColumnKey, index: number): string {
 }
 
 .wui-time-picker-item {
+  /* border-box:源 ItemHeight 40 为含内边距的行高盒;缺省 content-box 会把 3+6 内边距加到 49px,
+     令条目按 49px 步距累积偏移、选中项被推出 40px 高亮带(V6 视觉 QA F1,与 DatePicker 同修) */
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 40px; /* TimePickerFlyoutPresenterItemHeight */
+  height: 40px; /* TimePickerFlyoutPresenterItemHeight(含内边距) */
   padding: 3px 0 6px; /* TimePickerFlyoutPresenterItemPadding 0,3,0,6 */
   color: var(--wui-looping-selector-item-foreground);
   text-align: center;
