@@ -209,8 +209,8 @@ const usageCode = `<!-- WinUI 原生:在应用 / 页面 / 控件级引入紧凑�
           <p class="form-header">{{ isCompactMode ? 'Compact Size' : 'Standard Size' }}</p>
           <WuiTextBox v-model:text="firstName" header="First Name:" placeholder-text="Enter your first name" />
           <WuiTextBox v-model:text="lastName" header="Last Name:" placeholder-text="Enter your last name" />
-          <WuiPasswordBox v-model:text="password" header="Password:" />
-          <WuiPasswordBox v-model:text="confirmPassword" header="Confirm Password:" />
+          <WuiPasswordBox v-model:password="password" header="Password:" />
+          <WuiPasswordBox v-model:password="confirmPassword" header="Confirm Password:" />
           <WuiDatePicker v-model:date="chosenDate" header="Pick a date" />
         </div>
       </div>
@@ -229,7 +229,7 @@ const usageCode = `<!-- WinUI 原生:在应用 / 页面 / 控件级引入紧凑�
             </div>
             <div class="ctl-row">
               <div class="ctl-label">PasswordBox <span class="ctl-badge">min 32px</span></div>
-              <WuiPasswordBox v-model:text="compareSecret" header="Password:" placeholder-text="密码" />
+              <WuiPasswordBox v-model:password="compareSecret" header="Password:" placeholder-text="密码" />
             </div>
             <div class="ctl-row">
               <div class="ctl-label">AutoSuggestBox <span class="ctl-badge">min 32px / 行 40px</span></div>
@@ -280,7 +280,7 @@ const usageCode = `<!-- WinUI 原生:在应用 / 页面 / 控件级引入紧凑�
             </div>
             <div class="ctl-row">
               <div class="ctl-label">PasswordBox <span class="ctl-badge">min 24px</span></div>
-              <WuiPasswordBox v-model:text="compareSecret" header="Password:" placeholder-text="密码" />
+              <WuiPasswordBox v-model:password="compareSecret" header="Password:" placeholder-text="密码" />
             </div>
             <div class="ctl-row">
               <div class="ctl-label">AutoSuggestBox <span class="ctl-badge">min 24px / 行 32px</span></div>

@@ -1,4 +1,7 @@
 // 主项目(控件库)公共出口。
+// 非公共件清单(FINAL 评审 I-2:刻意不导出,与遗漏区分):demo/内部演示件
+// ThemeShadowDemo.vue、RatingRecipe.vue,以及 richtext/ 目录 8 子件
+// (RichTextBlock 的内部解析/渲染件,经 RichTextBlock.vue 间接使用)。
 export * as standardUiCommands from './utils/standardUiCommands'
 export * as uiCommand from './utils/uiCommand'
 export * as themeShadow from './utils/themeShadow'
@@ -101,3 +104,30 @@ export { default as ToggleMenuFlyoutItem } from './components/ToggleMenuFlyoutIt
 export { default as ToggleSwitch } from './components/ToggleSwitch.vue'
 export { default as TeachingTip } from './components/TeachingTip.vue'
 export { default as Viewbox } from './components/Viewbox.vue'
+
+// —— FINAL 评审 I-2 出口缺口补齐(控件 7)——
+export { default as AnimatedVisualPlayer } from './components/AnimatedVisualPlayer.vue'
+export { default as AppBarToggleButton } from './components/AppBarToggleButton.vue'
+export { default as ItemsRepeater } from './components/ItemsRepeater.vue'
+export { default as RichEditBox } from './components/RichEditBox.vue'
+export { default as TitleBar } from './components/TitleBar.vue'
+export { default as WebView2 } from './components/WebView2.vue'
+// TreeViewItem:源中为 TreeView 行部件,一并导出供自定义树结构组合(FINAL I-2)。
+export { default as TreeViewItem } from './components/TreeViewItem.vue'
+
+// —— utils 7(沿用 export * as 命名空间风格)——
+export * as collectionLayouts from './utils/collectionLayouts'
+export * as colorConvert from './utils/colorConvert'
+export * as elementSound from './utils/elementSound'
+export * as geometryBounds from './utils/geometryBounds'
+export * as popup from './utils/popup'
+export * as shapeGeometry from './utils/shapeGeometry'
+export * as symbolIcons from './utils/symbolIcons'
+
+// —— composables 2(Vue 惯例:函数直接平铺,import { useSelection } 可用)——
+export * from './composables/usePopup'
+export * from './composables/useSelection'
+
+// —— components/*.ts 助手 2(命名空间风格,避免平铺污染顶层名)——
+export * as animatedIconSource from './components/AnimatedIconSource'
+export * as radioButtonGroups from './components/radioButtonGroups'

@@ -451,10 +451,10 @@ const layerClass = computed(() =>
  * SplitButton_themeresources.xaml,浅色为基线、深色用 html[data-theme] 档位覆盖)
  * ====================================================================== */
 .wui-splitbutton {
-  --wui-splitbutton-fill: #b3ffffff; /* ControlFillColorDefault(Light) */
-  --wui-splitbutton-fill-pointer-over: #80f9f9f9; /* ControlFillColorSecondary */
-  --wui-splitbutton-fill-pressed: #4df9f9f9; /* ControlFillColorTertiary */
-  --wui-splitbutton-fill-disabled: #4df9f9f9; /* ControlFillColorDisabled(= Tertiary 同值) */
+  --wui-splitbutton-fill: #ffffffb3; /* ControlFillColorDefault(Light #B3FFFFFF → 70% 白) */
+  --wui-splitbutton-fill-pointer-over: #f9f9f980; /* ControlFillColorSecondary(#80F9F9F9 → 50% #F9F9F9) */
+  --wui-splitbutton-fill-pressed: #f9f9f94d; /* ControlFillColorTertiary(#4DF9F9F9 → 30% #F9F9F9) */
+  --wui-splitbutton-fill-disabled: #f9f9f94d; /* ControlFillColorDisabled(#4DF9F9F9 = Tertiary 同值 → 30% #F9F9F9) */
   --wui-splitbutton-foreground: #000000e4; /* TextFillColorPrimary(Light #E4000000) */
   --wui-splitbutton-foreground-pointer-over: #000000e4; /* SplitButtonForegroundPointerOver = TextFillColorPrimary */
   --wui-splitbutton-foreground-pressed: #0000009e; /* SplitButtonForegroundPressed = TextFillColorSecondary */
@@ -687,10 +687,10 @@ const layerClass = computed(() =>
  * ControlFillColor 系 / TextFillColor 系 / ControlStrokeColor 系的 Default 值换档。
  * ====================================================================== */
 html[data-theme='dark'] .wui-splitbutton {
-  --wui-splitbutton-fill: #0fffffff; /* ControlFillColorDefault(Default #0FFFFFFF) */
-  --wui-splitbutton-fill-pointer-over: #15ffffff; /* ControlFillColorSecondary */
-  --wui-splitbutton-fill-pressed: #08ffffff; /* ControlFillColorTertiary */
-  --wui-splitbutton-fill-disabled: #0bffffff; /* ControlFillColorDisabled */
+  --wui-splitbutton-fill: #ffffff0f; /* ControlFillColorDefault(Default #0FFFFFFF → 6% 白) */
+  --wui-splitbutton-fill-pointer-over: #ffffff15; /* ControlFillColorSecondary(#15FFFFFF → 8% 白) */
+  --wui-splitbutton-fill-pressed: #ffffff08; /* ControlFillColorTertiary(#08FFFFFF → 3% 白) */
+  --wui-splitbutton-fill-disabled: #ffffff0b; /* ControlFillColorDisabled(#0BFFFFFF → 4% 白) */
   --wui-splitbutton-foreground: #ffffff; /* TextFillColorPrimary */
   --wui-splitbutton-foreground-pointer-over: #ffffff;
   --wui-splitbutton-foreground-pressed: #ffffffc5; /* TextFillColorSecondary #C5FFFFFF */

@@ -349,9 +349,9 @@ const NEXT_LABEL = 'Next page'
 }
 
 html[data-theme='dark'] .wui-pips-pager {
-  --wui-pips-indicator: #8bffffff;
-  --wui-pips-indicator-hover: #c5ffffff;
-  --wui-pips-indicator-disabled: #3fffffff;
+  --wui-pips-indicator: #ffffff8b; /* ControlStrongFillColorDefault Dark #8BFFFFFF → 54.5% 白 */
+  --wui-pips-indicator-hover: #ffffffc5; /* TextFillColorSecondary Dark #C5FFFFFF → 77% 白 */
+  --wui-pips-indicator-disabled: #ffffff3f; /* ControlStrongFillColorDisabled Dark #3FFFFFFF → 24.7% 白 */
 }
 
 .wui-pips-pager--vertical {

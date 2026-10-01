@@ -1157,12 +1157,12 @@ const rootClass = computed(() => ({
   max-width: 392px; /* ColorPickerVerticalOrientationMaxWidth */
   padding: 4px 0; /* RootGrid Padding 0,4 */
 
-  /* 视觉 fix(V7):ColorPickerSliderThumbBackground = TextFillColorPrimaryBrush,平台画刷
-     theme.css 暂缺 --wui-text-fill-color-primary(并行 token 层补齐中),局部携带源实值
-     (CommonStyles/Common_themeresources_any.xaml:light #E4000000 / dark #FFFFFF);
-     引用写成 var(--wui-text-fill-color-primary, var(--wui-cp-thumb-inner-fill)),
-     token 落地后自动切换到全局 token。 */
-  --wui-cp-thumb-inner-fill: #e4000000;
+  /* 视觉 fix(V7):ColorPickerSliderThumbBackground = TextFillColorPrimaryBrush。
+     theme.css 已有 --wui-text-fill-color-primary(明 #000000e4 / 暗 #ffffff),
+     引用 var(--wui-text-fill-color-primary, var(--wui-cp-thumb-inner-fill)) 恒命中全局
+     token;此处仅留同值兜底(FINAL M-1:按 CSS 字节序 #000000e4,防 token 改名时
+     误落未翻转的全透明红)。来源:CommonStyles/Common_themeresources_any.xaml。 */
+  --wui-cp-thumb-inner-fill: #000000e4;
 }
 
 html[data-theme='dark'] .wui-color-picker {
