@@ -104,7 +104,7 @@ import WuiRichTextHyperlink from '@/components/richtext/RichTextHyperlink.vue'
 WinUI 的 RichTextBlock 支持内置溢出模型:把 `RichTextBlock.OverflowContentTarget` 指向 `RichTextBlockOverflow` 元素,装不下的内容会自动「流」到下一个容器,多级链接可实现多栏排版与分页(官方示例三)。这依赖排版引擎对「逐行测量 + 跨容器续排」的支持,**Web 排版模型不提供该能力**,因此本站按以下方式简化:
 
 - 容器提供 `maxHeight` + `overflowBehavior`(`Scroll` 单容器内滚动 / `Clip` 裁剪 / `Visible` 溢出显示),覆盖「内容超出可视区域」的常见诉求;
-- 多栏观感可用 CSS 多栏(`columns`)近似——示例页「示例 4」即用 `columns: 3` 复刻官方三栏排版,但这是静态多栏,**不是**溢出链接(内容不会被裁掉挪去下一容器,超出部分按 CSS 溢出处理);
+- 多栏观感可用 CSS 多栏(`columns`)近似——示例页「示例 4」即用定高 300px 的 `columns: 3` 容器复刻官方三栏排版(容器 `overflow: hidden` 裁掉超出定高的尾部内容,并把组件默认的 `overflow: hidden` 根节点放开为 `visible` 以允许跨栏分片;细节见示例页注释),但这是静态多栏,**不是**溢出链接(内容不会被裁掉挪去下一容器,超出部分按 CSS 溢出处理);
 - 未提供 `RichTextBlockOverflow` 组件:Web 侧没有可复刻的测量/续排语义,做壳组件只会造成「能分页」的错觉。
 
 ## 与 TextBlock 的分工

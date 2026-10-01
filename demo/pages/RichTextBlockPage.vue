@@ -349,11 +349,21 @@ const usageCode = computed(() => {
   color: var(--wui-application-secondary-foreground-theme);
 }
 
-/* 官方示例三的三栏布局在 Web 用 CSS 多栏近似(非溢出链接,见 wiki) */
+/* 官方示例三的三栏布局在 Web 用 CSS 多栏近似(非溢出链接,见 wiki):
+   300px 定高容器 + overflow hidden 承载「多栏 + 溢出裁剪」的教学意图,
+   超出定高的尾部内容按 CSS 溢出裁剪(与组件 overflowBehavior=Clip 简化一致)。
+   注意:组件根节点默认 overflow:hidden(overflowBehavior 缺省 Clip),在 CSS 多栏
+   中会成为不可分片的整块(整块落入第一栏、向下溢出),故在此放开为 visible,
+   让段落文本按栏续排。 */
 .overflow-columns {
   columns: 3;
   column-gap: 24px;
   height: 300px;
+  overflow: hidden;
+}
+
+.overflow-columns :deep(.wui-richtextblock) {
+  overflow: visible;
 }
 
 .compare-grid {
