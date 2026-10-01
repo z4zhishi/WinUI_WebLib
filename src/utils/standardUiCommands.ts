@@ -121,7 +121,7 @@ export const STANDARD_UI_COMMAND_DEFS: Record<
   },
   SelectAll: {
     kind: 'SelectAll',
-    label: 'Select all',
+    label: 'Select All',
     labelZh: '全选',
     symbol: 'SelectAll',
     hotkeys: [CTRL('a')],

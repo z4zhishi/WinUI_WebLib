@@ -57,7 +57,7 @@ const deleteCommand = createStandardUICommand('Delete', {
 | `Cut` | Cut | Cut | `Ctrl+X` | Remove the selected content and put it on the clipboard |
 | `Copy` | Copy | Copy | `Ctrl+C` | Copy the selected content to the clipboard |
 | `Paste` | Paste | Paste | `Ctrl+V` | Insert the contents of the clipboard at the current location |
-| `SelectAll` | Select all | SelectAll | `Ctrl+A` | Select all content |
+| `SelectAll` | Select All | SelectAll | `Ctrl+A` | Select all content |
 | `Delete` | Delete | Delete | `Del` | Delete the selected content |
 | `Share` | Share | Share | — | Share the selected content |
 | `Save` | Save | Save | `Ctrl+S` | Save the current document |
