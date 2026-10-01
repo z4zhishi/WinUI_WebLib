@@ -261,9 +261,8 @@ function onItemTap(): void {
   background: var(--wui-system-control-background-base-medium-low);
 }
 
-/* 禁用:取既有控件禁用前景 token(rating/各控件同款),色块保留 */
+/* 禁用:源 SwipeItemStyle 的 Disabled 视觉态为空(仅不可交互,颜色与常态一致),不做禁用变灰 */
 .wui-swipeitem--disabled {
-  color: var(--wui-button-foreground-disabled);
   cursor: default;
 }
 
