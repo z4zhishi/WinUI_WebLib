@@ -108,10 +108,10 @@ function requestClose(): void {
 // —— 收尾通知(paneOpened/paneClosed 在动画结束后触发,对照 WinUI 动画完成时机)——
 // 主路径:transitionend(Overlay 认窗格内容 transform,Inline 认根元素 grid 轨道);
 // 兜底:定时器(时长 + 60ms)。两者共用 settleToken 保证每次切换只发一次。
-// 时长常量对齐 animations.css token(Overlay 开 350 / Overlay 关 167≈源 120 /
-// Inline 开 240≈源 200 / Inline 关 167≈源 100,取整见 wiki 差异节)。
-const OPEN_MS = computed(() => (isOverlay.value ? 350 : 240))
-const CLOSE_MS = 167
+// 时长取源精确值(SplitView themeresources):Inline 开/关 0.2s/0.1s,Overlay 开/关 0.35s/0.12s,
+// 与下方 CSS 的 --sv-open-ms/--sv-close-ms 保持一致。
+const OPEN_MS = computed(() => (isOverlay.value ? 350 : 200))
+const CLOSE_MS = computed(() => (isOverlay.value ? 120 : 100))
 
 const rootRef = ref<HTMLElement | null>(null)
 const paneRef = ref<HTMLElement | null>(null)
@@ -139,7 +139,7 @@ function scheduleSettle(kind: 'paneOpened' | 'paneClosed'): void {
   clearSettle()
   pendingSettle = kind
   const token = ++settleToken
-  const ms = kind === 'paneOpened' ? OPEN_MS.value : CLOSE_MS
+  const ms = kind === 'paneOpened' ? OPEN_MS.value : CLOSE_MS.value
   settleTimer = setTimeout(() => {
     if (token !== settleToken) return
     settleTimer = undefined
@@ -340,6 +340,16 @@ const attrs = useAttrs()
   width: 100%;
   height: 100%;
   overflow: hidden; /* PaneClipRectangle 语义:窗格滑入 / 滑出时被控件边界裁剪 */
+  /* 开合动画时长取源精确值(SplitView themeresources:Inline 0.2s/0.1s,Overlay 0.35s/0.12s;
+     KeySpline 与 --wui-easing-decelerate / --wui-easing-standard 同曲线)。
+     JS 侧 OPEN_MS/CLOSE_MS 与此保持一致。 */
+  --sv-open-ms: 200ms;
+  --sv-close-ms: 100ms;
+}
+
+.wui-splitview--is-overlay {
+  --sv-open-ms: 350ms;
+  --sv-close-ms: 120ms;
 }
 
 /* —— 轨道方向:Left/Top 窗格列(行)在前;Right/Bottom 在后 —— */
@@ -374,12 +384,12 @@ const attrs = useAttrs()
    关 = duration-fast + decelerate(源 0.1s 同曲线)。Overlay 系轨道不变,无需过渡。 */
 .wui-splitview:not(.wui-splitview--is-overlay) {
   transition:
-    grid-template-columns var(--wui-duration-fast) var(--wui-easing-decelerate),
-    grid-template-rows var(--wui-duration-fast) var(--wui-easing-decelerate);
+    grid-template-columns var(--sv-close-ms) var(--wui-easing-decelerate),
+    grid-template-rows var(--sv-close-ms) var(--wui-easing-decelerate);
 }
 
 .wui-splitview:not(.wui-splitview--is-overlay).wui-splitview--is-open {
-  transition-duration: var(--wui-duration-normal);
+  transition-duration: var(--sv-open-ms);
 }
 
 /* —— 内容区(ContentRoot):默认全幅;Inline 系让出窗格轨道 —— */
@@ -579,14 +589,14 @@ const attrs = useAttrs()
   height: var(--wui-splitview-open-length);
 }
 
-/* Overlay 系滑移(PaneTransform):开 = duration-slow + standard(源 0.35s KeySpline 0.1,0.9 0.2,1.0);
-   关 = duration-fast + standard(≈源 0.12s)。拖移量 --wui-splitview-drag 叠加在目标位移上。 */
+/* Overlay 系滑移(PaneTransform):开 = 0.35s + standard(源 0.35s KeySpline 0.1,0.9 0.2,1.0);
+   关 = 0.12s + standard(源 0.12s)。拖移量 --wui-splitview-drag 叠加在目标位移上。 */
 .wui-splitview--is-overlay .wui-splitview__pane-inner {
-  transition: transform var(--wui-duration-fast) var(--wui-easing-standard);
+  transition: transform var(--sv-close-ms) var(--wui-easing-standard);
 }
 
 .wui-splitview--is-overlay.wui-splitview--is-open .wui-splitview__pane-inner {
-  transition-duration: var(--wui-duration-slow);
+  transition-duration: var(--sv-open-ms);
 }
 
 .wui-splitview--is-overlay.wui-splitview--is-dragging .wui-splitview__pane-inner {

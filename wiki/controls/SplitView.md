@@ -89,7 +89,7 @@ const isPaneOpen = ref(true)
 其余无 token / 做 Web 等价替换的项:
 
 1. **Top/Bottom 方位为 Web 同构推演**:`SplitViewPanePlacement` 枚举含 Top/Bottom,但参照源模板只实现了 Left/Right(轨道列 + `TranslateX` 滑移 + `SplitViewLeftBorderThemeThickness 0,0,1,0` / `Right 1,0,0,0`)。Top/Bottom 按同一状态机把轨道换成行、滑移换成 `TranslateY`,边框厚度按位向同构推演(上边窗格描下边、下边窗格描上边),WinUI 无官方对应视觉。
-2. **开关动画取 token 近似**:源 Inline 开合为 0.2s / 0.1s + KeySpline `0.0,0.35 0.15,1.0`,取 `--wui-duration-normal`(240ms)/ `--wui-duration-fast`(167ms)+ `--wui-easing-decelerate`(同曲线精确);Overlay 开合为 0.35s / 0.12s + KeySpline `0.1,0.9 0.2,1.0`,取 `--wui-duration-slow` / `--wui-duration-fast` + `--wui-easing-standard`(同曲线精确)。
+2. **开关动画时长取源精确值**:源 Inline 开合为 0.2s / 0.1s + KeySpline `0.0,0.35 0.15,1.0`,Overlay 开合为 0.35s / 0.12s + KeySpline `0.1,0.9 0.2,1.0`;时长按组件局部 token `--sv-open-ms` / `--sv-close-ms` 精确承载(200/100、350/120,JS 收尾定时器同值),缓动取 `--wui-easing-decelerate` / `--wui-easing-standard`(同曲线精确)。VR-FIX19 曾登记的 token 取整(240/167/167)已订正。
 3. **Inline 开合的动画机制**:源对窗格同时做 `PaneClipRectangle` 裁剪揭示与 `PaneTransform` 平移(擦除 + 滑移);Web 版以根元素 `grid-template-columns/rows` 轨道过渡实现擦除揭示(内容真实重排,等同源 `ContentRoot` 换列),省略窗格自身的平移分量,视觉上为纯擦除。Compact 系关闭态的「近边条带」由窗格内容锚定近边 + 外壳裁剪呈现,与源 `ClosedCompactLeft`(露出左侧 48px)/ `ClosedCompactRight`(露出右侧 48px)语义一致。
 4. **Esc 关闭与轻扫关闭为 Web 增强**:WinUI 的 SplitView 不响应 Esc、也无内建轻扫关闭(浮层关闭依赖 LightDismiss 层点击)。按任务规格补充:Overlay / CompactOverlay 打开时按 Esc 关闭;在窗格上沿关闭方向拖动超过阈值(min(80px, openPaneLength/3))时关闭,不足则回弹。符号模型:拖移量取指针位移在窗格滑动轴上的分量(Left/Right 为水平、Top/Bottom 为垂直),仅保留关闭方向分量(Left/Top 为负轴、Right/Bottom 为正轴)并限幅至 ±openPaneLength,直接叠加在窗格滑移变换(`--wui-splitview-drag`)上,窗格恒与手指同向,松手复位后由过渡自然收尾。
 5. **事件时序**:`PaneClosing` → `paneClosed` → (下次)`PaneOpened` 与 WinUI 相同;收尾事件以 `transitionend` 为主、定时器(时长 + 60ms)兜底。
