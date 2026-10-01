@@ -126,14 +126,17 @@ export function getFocusableElements(container: HTMLElement): HTMLElement[] {
  * 聚焦容器内第一个可聚焦元素。
  * 返回被聚焦的元素;容器内无可聚焦元素时聚焦容器自身(需容器设 tabindex="-1",
  * ContentDialog 模板约定)并返回容器;完全失败返回 null。
+ * preventScroll:弹层已定位在锚旁/视口内,聚焦首件不得引发页面滚动 —— 否则
+ * focus 诱发的 document 滚动会被锚滚动 light dismiss(onAnchorScroll)误判,
+ * Flyout 刚打开即被关闭(FIX24 色井场景暴露;WinUI 打开弹层亦不滚动视图)。
  */
 export function focusFirst(container: HTMLElement): HTMLElement | null {
   const first = getFocusableElements(container)[0] ?? null
   if (first) {
-    first.focus()
+    first.focus({ preventScroll: true })
     return first
   }
-  container.focus()
+  container.focus({ preventScroll: true })
   return document.activeElement === container ? container : null
 }
 
