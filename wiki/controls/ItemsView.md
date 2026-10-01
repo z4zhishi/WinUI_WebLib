@@ -6,7 +6,7 @@
 
 ItemsView 让你以「可滚动、可切换布局」的方式呈现条目集合:布局(Stack / UniformGrid)只是数据的一种排布方式,可随时整体替换;选择、调用与空态则与布局解耦。它与 [ListView](./ListView.md)/[GridView](./GridView.md) 的差别在于:ListView/GridView 的布局内建在控件里,而 ItemsView 把布局作为独立配置暴露(对照 WinUI `ItemsView.Layout`),项容器是通用的 [ItemContainer](#属性itemcontainer) 而非 ListViewItem/GridViewItem。
 
-对应 WinUI `Microsoft.UI.Xaml.Controls.ItemsView`(WinUI 3 控件;参照库 `CK/WinUI-Reference` 为 WinUI 2/dxaml 源,其 `generic.xaml` 中**没有** `TargetType="ItemsView"` 段,项容器视觉按 WinUI 3 默认样式对照最近似 token 复刻,差异见下文「与 WinUI 的差异」)。
+对应 WinUI `Microsoft.UI.Xaml.Controls.ItemsView`(WinUI 3 控件;参照库 `CK/WinUI-Reference` 为 WinUI 2/dxaml 源,其 `generic.xaml` 中**没有** `TargetType="ItemsView"` 段。项容器视觉逐键对照 WinUI 3 在册源 `CK/WinUI-Reference/controls/dev/ItemContainer/ItemContainer.xaml` + `ItemContainer_themeresources.xaml` + `controls/dev/CommonStyles/` 复刻,源值表见 `src/components/ItemContainer.vue` 头注,差异见下文「与 WinUI 的差异」)。
 
 官方文档:
 
@@ -19,7 +19,7 @@ ItemsView 让你以「可滚动、可切换布局」的方式呈现条目集合:
 | 属性 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `items` | `unknown[]` | `[]` | 数据源数组(WinUI `ItemsSource`);元素可为字符串、数字或对象 |
-| `selectionMode` | `'None' \| 'Single' \| 'Multiple' \| 'Extended'` | `'Single'` | 选择模式(WinUI `SelectionMode`);`None` 完全禁用选择,`Multiple` 所有项显示空心勾选圈,`Extended` 支持 Ctrl/Shift 组合 |
+| `selectionMode` | `'None' \| 'Single' \| 'Multiple' \| 'Extended'` | `'Single'` | 选择模式(WinUI `SelectionMode`);`None` 完全禁用选择,`Multiple` 所有项显示勾选框(右上角),`Extended` 支持 Ctrl/Shift 组合 |
 | `selectedItems` | `unknown[]` | `[]` | 全部选中项(WinUI `SelectedItems`,原为只读列表,此处按站内约定开放为 `v-model:selected-items` 双向绑定) |
 | `layout` | `'Stack' \| 'UniformGrid'` | `'Stack'` | 布局种类(WinUI `ItemsView.Layout`;`LinedFlowLayout` 未复刻) |
 | `orientation` | `'vertical' \| 'horizontal'` | 按 layout | 排列轴:Stack 缺省 `vertical`(纵向列表);UniformGrid 缺省 `horizontal`(条目沿 X 排、满行下折、纵向滚动——WinUI 的 Orientation 指排列轴、与滚动轴相反,详见[集合公共基建](./_collection-infra.md)) |
@@ -47,8 +47,8 @@ ItemsView 让你以「可滚动、可切换布局」的方式呈现条目集合:
 | --- | --- | --- | --- |
 | `selected` | `boolean` | `false` | 是否选中(WinUI `IsSelected`) |
 | `disabled` | `boolean` | `false` | 禁用(WinUI `IsEnabled`) |
-| `multiSelect` | `boolean` | `false` | 多选模式(WinUI ItemContainer.SelectionMode=Multiple):显示勾选圈,未选为空心圈 |
-| `selectionCheckMarkVisualEnabled` | `boolean` | `true` | 是否渲染勾选圈(WinUI `SelectionCheckMarkVisualEnabled`) |
+| `multiSelect` | `boolean` | `false` | 多选模式(WinUI ItemContainer.SelectionMode=Multiple):右上角显示勾选框(PART_SelectionCheckbox),未选无勾选字形 |
+| `selectionCheckMarkVisualEnabled` | `boolean` | `true` | 是否渲染勾选框(WinUI `SelectionCheckMarkVisualEnabled`) |
 | `contentMargin` | `string` | `'0,0,0,0'` | 内容边距(WinUI `ContentMargin`,XAML Thickness:左,上,右,下) |
 | `margin` | `string` | `'0,0,0,0'` | 项外边距(WinUI `Margin`) |
 
@@ -125,14 +125,14 @@ function onSelectionChanged(selected: unknown[], added: unknown[], removed: unkn
 
 ## 与 WinUI 的差异
 
-`generic.xaml`(WinUI 2/dxaml 快照)没有 ItemsView / ItemContainer 模板段,以下视觉值按 WinUI 3 默认样式对照**最近似 token** 复刻,均为本站差异记录:
+`generic.xaml`(WinUI 2/dxaml 快照)没有 ItemsView / ItemContainer 模板段;ItemContainer 的视觉自 FIX14 起逐键对照 WinUI 3 在册源 `controls/dev/ItemContainer/ItemContainer.xaml` + `ItemContainer_themeresources.xaml` + `controls/dev/CommonStyles/Common_themeresources_any.xaml` / `CheckBox_themeresources.xaml` 复刻,以下仅记录源缺值或刻意保留的差异:
 
-1. **ControlCornerRadius=4** → `--wui-hyperlink-focus-rect-corner-radius`(站内唯一的 4px 圆角 token)。
-2. **悬停揭示边框**:WinUI 3 ItemContainer 的 `ItemContainerBorderBrushPointerOver`(ControlStrokeColorSecondary)无对应 token,取 `--wui-system-control-background-base-low`;背景 `SubtleFillColorSecondary` 与 `--wui-grid-view-item-background-pointer-over`(#00000019)同值。
-3. **选中视觉**:WinUI 3 选中背景为 Subtle 系(极淡灰)+ 描边;此处取「现代列表选择」观感的 `--wui-list-view-item-reveal-background-selected`(accent-light-3)与 `--wui-system-accent-color` 边框,选中辨识度更高。
-4. **Multiple 勾选圈**:空心圈描边取 `--wui-grid-view-item-check`(#000000cc),已选为 accent 实心圈 + 白勾(`--wui-list-view-item-check-theme` = #ffffff token);圈径 20px 对照 GridViewItem 的 Overlay 勾选标记。WinUI 3 的圈视觉源码不在本快照内,为近似复刻。
-5. **Disabled 不透明度**:取 `ListViewItemDisabledThemeOpacity` 等效 0.55(站内未提取该 token)。
-6. **焦点框**:系统双层焦点框以「2px 外框 + 3px 内圈阴影」近似,复用 `--wui-grid-view-item-focus-visual-primary/-secondary`。
+1. **ControlCornerRadius=4** → `--wui-hyperlink-focus-rect-corner-radius`(站内唯一的 4px 圆角 token,与源 ControlCornerRadius 同值)。
+2. **Subtle*/ControlSolid*/ControlOnImage*/ControlStrongStroke* design-layer token**:theme.css 仅抽取 generic.xaml,未生成该组 token;组件按 `Common_themeresources_any.xaml` 源值在组件内承载(同 ProgressBar/Slider/InfoBadge 惯例),字节序按 XAML AARRGGBB → CSS RRGGBBAA 翻转。悬停填充 = SubtleFillColorSecondary(#09000000/#0FFFFFFF)、按压 = SubtleFillColorTertiary(#06000000/#0AFFFFFF);悬停/按压**无描边**(ItemContainerPointerOverBorderBrush = SubtleFillColorTransparentBrush)。
+3. **选中视觉**(对照 ItemContainer.xaml SelectedNormal):填充保持透明(ItemContainerSelectedBackground = SubtleFillColorTransparentBrush);选择视觉由 3px `AccentFillColorDefaultBrush` 外环(浅 = SystemAccentColorDark1,深 = SystemAccentColorLight2,经 theme-hooks 系统色钩子)+ 1px `ControlSolidFillColorDefault`(#FFFFFF/#454545)内描边(PART_CommonVisual 内缩 ItemContainerSelectedInnerMargin=2)承担。
+4. **Multiple 勾选框**(PART_SelectionCheckbox + ItemContainerSelectionCheckboxStyle):右上角(Margin `4,-2` + Right/Top 对齐)、20×20、CornerRadius=4;未选底色 = ControlOnImageFillColorDefault(#C9FFFFFF/#B31C1C1C)、描边 = ControlStrongStrokeColorDefault(#72000000/#8BFFFFFF)1px、**无勾选字形**(AnimatedIcon State=NormalOff);已选底/描边 = AccentFillColorDefault + 字形色 TextOnAccentFillColorPrimary(#FFFFFF/#000000)。对勾字形以 12px SVG 路径近似 AnimatedAcceptVisualSource。
+5. **Disabled 不透明度**:ItemContainerDisabledOpacity = 0.3(整项 Opacity;Disabled 态同时折叠选中外环)。
+6. **焦点框**:系统双层焦点框以「2px 内圈阴影 + 1px 外圈」近似,复用站内系统焦点视觉 token(与站内其他项容器一致)。
 7. **布局能力面**:`layout` 仅 `Stack` / `UniformGrid`;WinUI 3 的 `LinedFlowLayout`(及其 `ItemsStretch`/`ItemsJustification` 等参数)未复刻——布局纯函数层已支持 justification/stretch,需要时可在 `src/utils/collectionLayouts.ts` 之上扩展(见[集合公共基建](./_collection-infra.md))。
 8. **虚拟化与布局测量**:WinUI ItemsView 经 ItemsRepeater/ScrollView 虚拟化;本实现为非虚拟化 CSS 载体(条目少至千级无感)。UniformGrid 的每行/列项数按**根滚动容器(视口)的实测尺寸**决定(挂载时同步取 `clientWidth/Height`,ResizeObserver 增量维护;`scrollbar-gutter: stable` 使滚动条出现/消失不影响测宽)——刻意不测 items-host 自身,避免固定轨道 + `min-width: fit-content` 把布局输出反馈进「可用宽」而自锁单行/满列;WinUI 同为「视口可用宽 → itemsPerLine」语义,`scrollbar-gutter` 不支持的浏览器在极端尺寸下可能震荡,属优雅降级。万级列表可待 ItemsRepeater 接入(`computeVisibleRange` 接口已在基建层预留)。
 9. **SelectedItems 双向**:WinUI `SelectedItems` 是只读 `IReadOnlyList<object>`;本实现按站内约定开放 `v-model:selected-items`(与 ListView/GridView 同约定)。

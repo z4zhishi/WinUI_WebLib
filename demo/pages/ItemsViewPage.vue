@@ -24,7 +24,7 @@ const PAGE_DESCRIPTION: BilingualText = {
   en: 'WinUI ItemsView examples: a scrollable collection with swappable layouts (Stack / UniformGrid), None/Single/Multiple/Extended selection, Enter/double-click invocation and an EmptyContent state. Options above, docs below.',
 }
 const GROUP_FILES: BilingualText = { zh: '文件列表式单选(Stack 布局 + ItemInvoked 实时回显)', en: 'File list with Single selection (Stack layout + ItemInvoked echo)' }
-const GROUP_GRID: BilingualText = { zh: '照片网格多选(布局与选择模式可换,勾选圈)', en: 'Photo grid (swappable layout & selection mode, check circles)' }
+const GROUP_GRID: BilingualText = { zh: '照片网格多选(布局与选择模式可换,右上角勾选框)', en: 'Photo grid (swappable layout & selection mode, corner checkboxes)' }
 const GROUP_EMPTY: BilingualText = { zh: '空态(EmptyContent slot)', en: 'Empty state (EmptyContent slot)' }
 const GROUP_KEYBOARD: BilingualText = { zh: '键盘操作', en: 'Keyboard interaction' }
 const LABEL_LAYOUT: BilingualText = { zh: 'Layout(演示二)', en: 'Layout (demo 2)' }
@@ -196,7 +196,7 @@ const emptyFiles = computed(() => (demoEmpty.value ? [] : files.slice(0, 5)))
 const propsHeaders = ['属性', '类型', '默认值', '说明']
 const propsRows: (string | number)[][] = [
   ['items', 'unknown[]', '[]', '数据源数组(WinUI ItemsSource),元素可为字符串/数字/对象'],
-  ['selectionMode', "'None' | 'Single' | 'Multiple' | 'Extended'", "'Single'", '选择模式(WinUI SelectionMode);Multiple 所有项显示空心勾选圈,Extended 支持 Ctrl/Shift 组合'],
+  ['selectionMode', "'None' | 'Single' | 'Multiple' | 'Extended'", "'Single'", '选择模式(WinUI SelectionMode);Multiple 所有项右上角显示勾选框,Extended 支持 Ctrl/Shift 组合'],
   ['selectedItems (v-model)', 'unknown[]', '[]', '全部选中项(WinUI SelectedItems),v-model:selected-items 双向绑定'],
   ['layout', "'Stack' | 'UniformGrid'", "'Stack'", '布局种类(WinUI ItemsView.Layout;LinedFlowLayout 未复刻,见 wiki)'],
   ['orientation', "'vertical' | 'horizontal'", "按 layout", '排列轴:Stack 缺省 vertical;UniformGrid 缺省 horizontal(条目沿 X 排、满行下折)'],

@@ -13,7 +13,7 @@
 //   滚轮翻页带 200ms / 方向变化节流,端点处放行页面滚动(源 OnPointerWheelChanged 同语义)。
 // PipsPager 联动预留:selectedIndex 为 defineModel 双向绑定,后续 PipsPager 组件可直接 v-model 互联。
 // WinUI 无 isHomePage 属性,未实现(见 wiki 差异节)。
-import { Comment, Text, computed, ref, useSlots, watch } from 'vue'
+import { Comment, Fragment, Text, computed, ref, useSlots, watch } from 'vue'
 import type { VNode } from 'vue'
 import WuiFontIcon from './FontIcon.vue'
 import '../styles/animations.css'
@@ -71,12 +71,23 @@ defineOptions({ inheritAttrs: false })
 const slots = useSlots()
 
 const slotItems = computed<VNode[]>(() => {
-  const children = slots.default?.()
-  return (children ?? []).filter(
-    (child) =>
-      child.type !== Comment &&
-      !(child.type === Text && typeof child.children === 'string' && child.children.trim() === ''),
-  )
+  const children = slots.default?.() ?? []
+  // 展开 Fragment:slot 内容为 v-for / <template> 时编译产物是单个 Fragment 块,直接当
+  // 子项会把整组折叠成「1 页」——全部内容挤进同一页(其余被 overflow 裁切),count===1
+  // 又使导航按钮(hasPrevious/hasNext)永不渲染。此处递归展平 Fragment 并沿用原过滤
+  // (与 Pivot.vue items / TabView.vue entries 的展平实现同法,见 src/components/Pivot.vue:68-87)。
+  const flat: VNode[] = []
+  const push = (node: VNode): void => {
+    if (node.type === Comment) return
+    if (node.type === Text && typeof node.children === 'string' && node.children.trim() === '') return
+    if (node.type === Fragment && Array.isArray(node.children)) {
+      for (const sub of node.children as VNode[]) push(sub)
+      return
+    }
+    flat.push(node)
+  }
+  for (const child of children) push(child)
+  return flat
 })
 
 const useSource = computed(() => props.itemsSource !== undefined)
@@ -344,9 +355,11 @@ const nextGlyph = computed(() => (isVertical.value ? '\uE0E5' : '\uE0E3'))
 }
 
 .wui-flipview:focus-visible {
-  /* Focus(项目惯例:单层 outline,对照源键盘焦点矩形) */
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
+  /* 系统焦点视觉:FlipView 无 FocusVisualMargin setter(generic.xaml)→ 0,
+     两环全在元素内 primary [0,2] + secondary [2,3] = 系统双环 flush 形 */
+  box-shadow: inset 0 0 0 2px var(--wui-system-control-focus-visual-primary);
+  outline: 1px solid var(--wui-system-control-focus-visual-secondary);
+  outline-offset: -3px;
 }
 
 .wui-flipview--disabled {
@@ -438,9 +451,12 @@ const nextGlyph = computed(() => (isVertical.value ? '\uE0E5' : '\uE0E3'))
   border-color: var(--wui-flip-view-next-previous-button-border-brush-pressed);
 }
 
+/* 系统焦点视觉:导航按钮(EllipsisButtonRevealStyle FocusVisualMargin=0,generic.xaml L16120)
+   → 两环全在元素内 = 系统双环 flush 形 */
 .wui-flipview-nav:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: -2px;
+  box-shadow: inset 0 0 0 2px var(--wui-system-control-focus-visual-primary);
+  outline: 1px solid var(--wui-system-control-focus-visual-secondary);
+  outline-offset: -3px;
 }
 
 .wui-flipview--disabled .wui-flipview-nav,

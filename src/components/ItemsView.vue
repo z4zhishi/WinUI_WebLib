@@ -3,7 +3,8 @@
 // 集合并支持选择 / 调用 / 空态。
 // 视觉规格:CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml 无 ItemsView 段
 //   (ItemsView 是 WinUI 3 控件,该快照为 WinUI 2/dxaml 源);项容器视觉在
-//   ItemContainer.vue 内按 WinUI 3 默认样式对照最近似 token 复刻(差异见 wiki)。
+//   ItemContainer.vue 内逐键对照 CK/WinUI-Reference/controls/dev/ItemContainer/(ItemContainer.xaml
+//   + ItemContainer_themeresources.xaml + CommonStyles)复刻(源值表见该组件头注与 wiki)。
 // 结构:根(滚动容器,对照 ItemsView 模板的 ScrollView)> items-host(布局载体)>
 //   逐项 WuiItemContainer。内容区 v-for 即「内容区接口」:待 ItemsRepeater.vue 落地后,
 //   仅需把本段替换为其 slot 化承载(布局样式仍由 collectionLayouts 产出),其余不动。
