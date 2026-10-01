@@ -750,6 +750,10 @@
   --wui-text-control-highlighter-foreground: #000000;
   --wui-text-control-highlighter-background: #ffff00;
 
+  /* WinUI 3 增补,提取源无此键:TextFillColorPrimaryBrush(CommonStyles/Common_themeresources_any.xaml
+     Light #E4000000 → #RRGGBBAA);此前仅 ColorPicker 拇指内点以局部变量兜底引用。 */
+  --wui-text-fill-color-primary: #000000e4;
+
   /* Flyout* */
   --wui-flyout-presenter-background: #f2f2f2;
   --wui-flyout-border-theme: #00000024;
@@ -2515,7 +2519,9 @@
   --wui-calendar-view-out-of-scope-background: #2b2b2b;
   --wui-calendar-view-calendar-item-background: #000000;
   --wui-calendar-view-foreground: #ffffffcc;
-  --wui-calendar-view-background: #000000;
+  /* T9 视觉 QA 更正:暗色纯黑 #000000 在深色页面上不可辨;源 CalendarViewBackground
+     dark 挂 SystemControlBackgroundAltHighBrush,按 AltHigh dark #333333 更正。 */
+  --wui-calendar-view-background: #333333;
   --wui-calendar-view-border: #1f1f1f;
   --wui-calendar-view-week-day-foreground-disabled: #ffffff66;
   --wui-calendar-view-navigation-button-background: transparent;
@@ -2639,11 +2645,18 @@
   --wui-text-control-button-border: transparent;
   --wui-text-control-button-border-brush-pointer-over: transparent;
   --wui-text-control-button-border-brush-pressed: transparent;
-  --wui-text-control-button-foreground: #000000cc;
+  /* dark 覆盖(T9 视觉 QA):提取源(dxaml generic.xaml)此键两字典同为 ChromeBlackMedium
+     黑系(#000000cc),暗色下 NumberBox spin/AutoSuggestBox 查询按钮黑字形不可见;
+     按 WinUI 3(CommonStyles)别名链 TextControlButtonForeground → TextFillColorSecondaryBrush
+     → TextFillColorSecondary(dark #C5FFFFFF)覆盖为 #ffffffc5。 */
+  --wui-text-control-button-foreground: #ffffffc5;
   --wui-text-control-button-foreground-pointer-over: var(--wui-system-accent-color);
   --wui-text-control-button-foreground-pressed: #ffffff;
   --wui-text-control-highlighter-foreground: #000000;
   --wui-text-control-highlighter-background: #ffff00;
+
+  /* WinUI 3 增补,提取源无此键:TextFillColorPrimaryBrush(dark/Default #FFFFFF)。 */
+  --wui-text-fill-color-primary: #ffffff;
 
   /* Flyout* */
   --wui-flyout-presenter-background: #2b2b2b;
