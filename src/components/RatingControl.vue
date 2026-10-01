@@ -368,19 +368,25 @@ const ariaValueText = computed(() => {
      (CommonStyles/Common_themeresources_any.xaml:TextFillColorSecondary
      light #9E000000 / dark #C5FFFFFF;ControlAltFillColorTertiary
      light #0F000000 / dark #0BFFFFFF;InfoBar 局部 token 先例)。
+     字节序 fix(V8):XAML Color 为 #AARRGGBB(alpha 在前),CSS 8 位 hex 为
+     #RRGGBBAA(alpha 在后)——上一轮把 XAML 字面值原样落进 CSS,浅色 alpha 落到
+     蓝通道且 alpha=00 全透明、深色 R 通道吃到 alpha 变 rgb(197,255,255) 青白。
+     以下均为「XAML 源值 → alpha 移到末位」的换算结果:
+       #9E000000 → #0000009e、#C5FFFFFF → #ffffffc5、
+       #0F000000 → #0000000f、#0BFFFFFF → #ffffff0b。
      token 层补齐 --wui-text-fill-color-secondary 等后可改回 var() 引用并删除本段。 */
-  --wui-rating-control-unselected-foreground: #9e000000;
-  --wui-rating-control-caption-foreground: #9e000000; /* RatingControlCaptionForeground 同为 TextFillColorSecondaryBrush */
-  --wui-rating-control-pointer-over-placeholder-foreground: #0f000000;
-  --wui-rating-control-pointer-over-unselected-foreground: #0f000000;
+  --wui-rating-control-unselected-foreground: #0000009e; /* XAML #9E000000(TextFillColorSecondary light) */
+  --wui-rating-control-caption-foreground: #0000009e; /* 同为 TextFillColorSecondaryBrush light */
+  --wui-rating-control-pointer-over-placeholder-foreground: #0000000f; /* XAML #0F000000(ControlAltFillColorTertiary light) */
+  --wui-rating-control-pointer-over-unselected-foreground: #0000000f;
 }
 
 /* 深色主题:带主题前缀以保证压过浅色基线(特异性约定,见 InfoBar 先例) */
 html[data-theme='dark'] .wui-rating {
-  --wui-rating-control-unselected-foreground: #c5ffffff;
-  --wui-rating-control-caption-foreground: #c5ffffff;
-  --wui-rating-control-pointer-over-placeholder-foreground: #0bffffff;
-  --wui-rating-control-pointer-over-unselected-foreground: #0bffffff;
+  --wui-rating-control-unselected-foreground: #ffffffc5; /* XAML #C5FFFFFF(TextFillColorSecondary dark) */
+  --wui-rating-control-caption-foreground: #ffffffc5;
+  --wui-rating-control-pointer-over-placeholder-foreground: #ffffff0b; /* XAML #0BFFFFFF(ControlAltFillColorTertiary dark) */
+  --wui-rating-control-pointer-over-unselected-foreground: #ffffff0b;
 }
 
 /* 星条:实际星 16px(FS 32 × 0.5)、间距 8(RatingControlItemSpacing) */

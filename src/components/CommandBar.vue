@@ -566,9 +566,17 @@ watch(isOpen, (value) => {
 
 .wui-commandbar__overflow :deep(.wui-appbar-button__accelerator),
 .wui-commandbar__overflow :deep(.wui-appbar-toggle-button__accelerator) {
+  /* 溢出行右对齐(源 KeyboardAcceleratorTextLabel:Grid.Column=1 + HorizontalAlignment=Right
+     + Margin 24,0,12,0,且 ContentRoot 满栏宽 —— InnerBorder 只是空覆盖层):右距 = 控件右缘 12px。
+     flex 行内 DOM 顺序为图标→角标→标签,角标默认紧跟图标;此处以 order 移到标签之后,
+     再以 margin-left:auto 吸收剩余空间贴右。右距换算:源 12px 自控件右缘起算,本行按钮以
+     padding 0 4px 等效 InnerBorderMargin(4,0,4,0),故 margin-right 取 12-4=8px,角标字形
+     距行(border box)右缘恰为 4+8=12px。标签 flex-grow 与 auto margin 谁先吸收剩余空间
+     不影响结果:标签占满中段时角标已贴右。 */
+  order: 2;
   flex: none;
   align-self: center;
-  margin: 0 12px 0 0;
+  margin: 0 8px 0 auto;
 }
 
 /* 分隔线(AppBarSeparator 溢出样式,与组件自身 useOverflowStyle 同规则):横向 1px */
