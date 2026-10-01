@@ -141,39 +141,41 @@ const usageCode = computed(
           <p class="tooltip-caption">直用式:#target 插槽指定目标,verticalOffset 上移 80px</p>
         </div>
 
-        <!-- 自定义时序 + opened/closed 事件日志(ToolTip 直用) -->
+        <!-- 自定义时序 + opened/closed 事件日志(ToolTip 直用;#target 插槽包目标按钮,
+             悬停/聚焦事件绑在真实按钮上——直用式 WuiToolTip 不吃子组件声明,与服务式不同) -->
         <div class="tooltip-example">
           <div class="timing-row">
-            <WuiButton class="tooltip-anchor">
-              自定义时序(delay {{ delayValue }}ms)
-              <WuiToolTip
-                :delay="delayValue"
-                :show-duration="showDurationValue"
-                :content="`延迟 ${delayValue}ms 出现,${showDurationValue}ms 后自动关闭`"
-                @opened="logEvent('opened')"
-                @closed="logEvent('closed')"
-              />
-            </WuiButton>
+            <WuiToolTip
+              :delay="delayValue"
+              :show-duration="showDurationValue"
+              :content="`延迟 ${delayValue}ms 出现,${showDurationValue}ms 后自动关闭`"
+              @opened="logEvent('opened')"
+              @closed="logEvent('closed')"
+            >
+              <template #target>
+                <WuiButton class="tooltip-anchor">自定义时序(delay {{ delayValue }}ms)</WuiButton>
+              </template>
+            </WuiToolTip>
             <span class="timing-log">最近事件:<code>{{ lastEvent }}</code></span>
           </div>
-          <p class="tooltip-caption">delay / showDuration 与参数面板联动;打开 / 关闭触发 opened / closed</p>
+          <p class="tooltip-caption">直用式:#target 插槽指定目标;delay / showDuration 与参数面板联动,打开 / 关闭触发 opened / closed</p>
         </div>
 
-        <!-- 富内容插槽(对照 ToolTipService.ToolTip 的 ToolTip 对象形态) -->
+        <!-- 富内容插槽(对照 ToolTipService.ToolTip 的 ToolTip 对象形态;#target 插槽包目标按钮) -->
         <div class="tooltip-example">
-          <WuiButton class="tooltip-anchor">
-            悬停查看富内容
-            <WuiToolTip :max-width="maxWidthValue">
-              <span class="rich-tooltip">
-                <strong class="rich-tooltip-title">富内容提示</strong>
-                <span>
-                  默认插槽渲染,可放任意元素;当前 maxWidth =
-                  {{ maxWidthValue }}px(源 ToolTipMaxWidth = 320)。
-                </span>
+          <WuiToolTip :max-width="maxWidthValue">
+            <template #target>
+              <WuiButton class="tooltip-anchor">悬停查看富内容</WuiButton>
+            </template>
+            <span class="rich-tooltip">
+              <strong class="rich-tooltip-title">富内容提示</strong>
+              <span>
+                默认插槽渲染,可放任意元素;当前 maxWidth =
+                {{ maxWidthValue }}px(源 ToolTipMaxWidth = 320)。
               </span>
-            </WuiToolTip>
-          </WuiButton>
-          <p class="tooltip-caption">富内容 slot:maxWidth 与参数面板联动</p>
+            </span>
+          </WuiToolTip>
+          <p class="tooltip-caption">直用式:富内容走默认插槽,#target 插槽指定目标;maxWidth 与参数面板联动</p>
         </div>
 
         <p class="tooltip-hint">

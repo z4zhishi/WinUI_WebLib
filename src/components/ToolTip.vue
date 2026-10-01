@@ -430,15 +430,16 @@ const layerStyle = computed(() => ({ maxWidth: `${props.maxWidth}px` }))
  */
 .wui-tooltip {
   box-sizing: border-box;
-  /* MUX BackgroundSizing = InnerBorderEdge:背景绘于边框内缘
-     (CSS 默认 border-box 即 OuterBorderEdge,故需显式收窄) */
-  background-clip: padding-box;
   padding: 6px 9px 8px; /* ToolTipBorderPadding = 9,6,9,8(上 6 右 9 下 8 左 9) */
   font-family: inherit; /* ContentControlThemeFontFamily(XamlAutoFontFamily 占位) */
   font-size: var(--wui-tool-tip-content-theme-font-size); /* ToolTipContentThemeFontSize = 12 */
   line-height: 1.4; /* 单行 12px 文案的行盒近似 XAML TextBlock 默认行高 */
   color: var(--wui-tool-tip-foreground); /* 皮肤类已设,显式声明防宿主 color 渗透 */
   background: var(--wui-tool-tip-background);
+  /* MUX BackgroundSizing = InnerBorderEdge:背景绘于边框内缘(CSS 默认 border-box 即
+     OuterBorderEdge,故需显式收窄)。必须声明在 background 简写之后——简写会把
+     background-clip 重置回 border-box,声明顺序颠倒会导致该值运行时失效 */
+  background-clip: padding-box;
   border: 1px solid var(--wui-tool-tip-border); /* ToolTipBorderThemeThickness = 1 */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius); /* CornerRadius ← ControlCornerRadius = 4 */
   overflow-wrap: break-word; /* TextWrapping = Wrap */
