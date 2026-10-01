@@ -68,7 +68,19 @@ function shortenWeekDay(label: string): string {
 // IsGroupLabelVisible / IsOutOfScopeEnabled / Language)与 CalendarView_Partial_*.cpp(三视图层级:
 // 头部按钮下钻 Month→Year→Decade、单元点击回退、前后翻页、键盘方向键/Enter)。
 // 颜色/字号一律 --wui-* token(theme.css 已含 --wui-calendar-view-* 全族,明暗主题自动跟随)。
+// 动效(源逐键):
+//   模式切换 = generic.xaml DisplayModeStates Transitions(L14486-14654):下钻(Month→Year、
+//   Year→Decade)旧视图 scale 1→0.84 + Opacity→0 @233ms、新视图 scale 1.29→1 / Opacity 0→1
+//   自 233ms 起至 733ms(KeySpline 0.1,0.9,0.2,1);回退(Year→Month、Decade→Year)镜像
+//   (旧 →1.29、新自 0.84)。BackgroundLayer(L14513-14515 等)透明度 0 保持 250ms(线性)后以
+//   (0.15,0.64,0.25,1) 淡入至 733ms,回退方向另有 0.84→1 缩放相;z 序随源固定 Month<Year<Decade。
+//   前后翻页 = CalendarPanel 三面板 Orientation=Horizontal(CalendarView_Partial.cpp L651-679),
+//   导航按钮经 ScrollToDateWithAnimation → ScrollViewer.ChangeViewWithOptionalAnimation
+//   (CalendarView_Partial.cpp L1608)把面板水平 pan 一页:下一页 = 旧页左滑出 / 新页右滑入,
+//   上一页镜像;源时长为平台 DManip 惯性动画(repo 无键值),Web 取 CalendarView 转换簇 233ms +
+//   standard spline 近似(登记于报告)。头部淡入 167ms(L14447)不变。
 import { computed, nextTick, ref, watch } from 'vue'
+import '../styles/animations.css'
 
 defineOptions({ name: 'WuiCalendarView', inheritAttrs: false })
 
@@ -350,6 +362,37 @@ function goNext(): void {
   else viewDate.value = new Date(decadeStart.value + 10, viewMonth.value, 1)
 }
 
+// —— 视图切换动效状态(见文件头注释的源键值)——
+const MODE_RANK: Record<CalendarViewDisplayMode, number> = { Month: 0, Year: 1, Decade: 2 }
+
+/** 模式切换过渡名:下钻 = cv-mode-down(旧 0.84 出 / 新 1.29 入)、回退 = cv-mode-up(镜像)。 */
+const modeFx = ref('')
+
+/** 背景层(BackgroundLayer)重挂载计数:0 = 初始静置(源初态无动画);每次模式切换 +1 触发重现。 */
+const modeFxTick = ref(0)
+
+watch(displayMode, (mode, prev) => {
+  modeFx.value = MODE_RANK[mode] > MODE_RANK[prev] ? 'cv-mode-down' : 'cv-mode-up'
+  modeFxTick.value++
+})
+
+/** 前后翻页过渡名:下一页 = cv-nav-next(旧左出 / 新右入),上一页镜像。 */
+const navFx = ref('')
+
+// 视图锚点跨期变化(按钮 / 键盘翻页共用)→ 按移动方向取滑动过渡;模式联动切换时
+// 整个视图经外层模式过渡重挂载,内层为初挂不播动画,不会叠播。
+watch(viewDate, (next, prev) => {
+  const nextIndex = next.getFullYear() * 12 + next.getMonth()
+  const prevIndex = prev.getFullYear() * 12 + prev.getMonth()
+  if (nextIndex === prevIndex) return
+  navFx.value = nextIndex > prevIndex ? 'cv-nav-next' : 'cv-nav-prev'
+})
+
+/** 内层翻页过渡键:期间变化触发水平滑动(月 = 年-月;年/十年 = 起始年)。 */
+const monthNavKey = computed(() => `${viewYear.value}-${viewMonth.value}`)
+const yearNavKey = computed(() => viewYear.value)
+const decadeNavKey = computed(() => decadeStart.value)
+
 /** 头部按钮下钻(Month→Year→Decade;Decade 已是最上层,按钮禁用 —— 源 HasMoreViews)。 */
 function drillDown(): void {
   if (props.disabled) return
@@ -561,80 +604,106 @@ const rootClass = computed(() => ({
       </button>
     </div>
 
-    <!-- 三层视图(源 Views Grid:BackgroundLayer 垫 BorderBrush 底,单元格间隙透出成格线)-->
+    <!-- 三层视图(源 Views Grid:BackgroundLayer 垫 BorderBrush 底,单元格 margin 1 透出 2px 格线,
+         Views 自带 Clip → overflow hidden 裁剪过渡期滑入/缩放的视图)-->
     <div class="cv-views">
-      <!-- 月视图 -->
-      <div v-if="isMonthMode" key="month" class="cv-view">
-        <div class="cv-weekdays" role="row" aria-hidden="true">
-          <span v-for="(label, i) in weekDayLabels" :key="`wd-${i}`" class="cv-weekday">
-            {{ label }}
-          </span>
+      <!-- BackgroundLayer:模式切换时按源故事板重现(0→0.25s 保持→0.733s 淡入;回退向另有缩放相) -->
+      <div
+        :key="modeFxTick"
+        class="cv-backdrop"
+        :class="{
+          'cv-backdrop--animate': modeFxTick > 0,
+          'cv-backdrop--scale-in': modeFx === 'cv-mode-up',
+        }"
+        aria-hidden="true"
+      ></div>
+
+      <!-- 模式切换过渡(DisplayModeStates;z 序随源固定:Month 底 / Year 中 / Decade 顶)-->
+      <Transition :name="modeFx">
+        <!-- 月视图 -->
+        <div v-if="isMonthMode" key="month" class="cv-view cv-view--month">
+          <div class="cv-weekdays" role="row" aria-hidden="true">
+            <span v-for="(label, i) in weekDayLabels" :key="`wd-${i}`" class="cv-weekday">
+              {{ label }}
+            </span>
+          </div>
+          <!-- 前后翻页:CalendarPanel 水平 pan(整页左出右入,键 = 年-月)-->
+          <Transition :name="navFx">
+            <div :key="monthNavKey" ref="daysGridEl" class="cv-days" role="grid" @keydown="onGridKeydown">
+              <div v-for="(week, wi) in monthWeeks" :key="`w-${wi}`" role="row" class="cv-week-row">
+                <div
+                  v-for="cell in week"
+                  :key="cell.key"
+                  role="gridcell"
+                  class="cv-cell"
+                  :aria-selected="cell.isSelected ? true : undefined"
+                >
+                  <button
+                    type="button"
+                    class="cv-day"
+                    :class="{
+                      'is-out-of-scope': !cell.inMonth && isOutOfScopeEnabled,
+                      'is-today': cell.isToday && isTodayHighlighted,
+                      'is-selected': cell.isSelected,
+                      'is-blackout': cell.isBlackout,
+                    }"
+                    :tabindex="isFocusedDay(cell) && !cell.isBlackout ? 0 : -1"
+                    :aria-label="fmtFullDate.format(cell.date)"
+                    :aria-current="cell.isToday && isTodayHighlighted ? 'date' : undefined"
+                    :aria-disabled="cell.isBlackout || disabled ? true : undefined"
+                    :data-key="cell.key"
+                    @click="onDayClick(cell)"
+                  >
+                    <span v-if="cell.isToday && isTodayHighlighted" class="cv-day-today" aria-hidden="true"></span>
+                    <span class="cv-day-number">{{ cell.date.getDate() }}</span>
+                    <span v-if="cell.groupLabel" class="cv-group-label" aria-hidden="true">{{ cell.groupLabel }}</span>
+                    <span v-if="cell.isBlackout" class="cv-blackout-line" aria-hidden="true"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </Transition>
         </div>
-        <div ref="daysGridEl" class="cv-days" role="grid" @keydown="onGridKeydown">
-          <div v-for="(week, wi) in monthWeeks" :key="`w-${wi}`" role="row" class="cv-week-row">
-            <div
-              v-for="cell in week"
-              :key="cell.key"
-              role="gridcell"
-              class="cv-cell"
-              :aria-selected="cell.isSelected ? true : undefined"
-            >
+
+        <!-- 年视图:12 个月(源 m_colsInYearDecadeView = 4,4 列栅格)-->
+        <div v-else-if="isYearMode" key="year" class="cv-view cv-view--year" role="group" aria-label="Year view">
+          <Transition :name="navFx">
+            <div :key="yearNavKey" class="cv-unit-grid">
               <button
+                v-for="(label, mi) in monthShortLabels"
+                :key="`m-${mi}`"
                 type="button"
-                class="cv-day"
-                :class="{
-                  'is-out-of-scope': !cell.inMonth && isOutOfScopeEnabled,
-                  'is-today': cell.isToday && isTodayHighlighted,
-                  'is-selected': cell.isSelected,
-                  'is-blackout': cell.isBlackout,
-                }"
-                :tabindex="isFocusedDay(cell) && !cell.isBlackout ? 0 : -1"
-                :aria-label="fmtFullDate.format(cell.date)"
-                :aria-current="cell.isToday && isTodayHighlighted ? 'date' : undefined"
-                :aria-disabled="cell.isBlackout || disabled ? true : undefined"
-                :data-key="cell.key"
-                @click="onDayClick(cell)"
+                class="cv-unit"
+                :class="{ 'is-blackout': isMonthUnitDisabled(viewYear, mi), 'is-today-unit': today.getFullYear() === viewYear && today.getMonth() === mi }"
+                :disabled="isMonthUnitDisabled(viewYear, mi) || disabled"
+                :aria-label="monthLongLabel(viewYear, mi)"
+                @click="pickMonth(mi)"
               >
-                <span v-if="cell.isToday && isTodayHighlighted" class="cv-day-today" aria-hidden="true"></span>
-                <span class="cv-day-number">{{ cell.date.getDate() }}</span>
-                <span v-if="cell.groupLabel" class="cv-group-label" aria-hidden="true">{{ cell.groupLabel }}</span>
-                <span v-if="cell.isBlackout" class="cv-blackout-line" aria-hidden="true"></span>
+                {{ label }}
               </button>
             </div>
-          </div>
+          </Transition>
         </div>
-      </div>
 
-      <!-- 年视图:12 个月(源 m_colsInYearDecadeView = 4,4 列栅格)-->
-      <div v-else-if="isYearMode" key="year" class="cv-view cv-unit-grid" role="group" aria-label="Year view">
-        <button
-          v-for="(label, mi) in monthShortLabels"
-          :key="`m-${mi}`"
-          type="button"
-          class="cv-unit"
-          :class="{ 'is-blackout': isMonthUnitDisabled(viewYear, mi), 'is-today-unit': today.getFullYear() === viewYear && today.getMonth() === mi }"
-          :disabled="isMonthUnitDisabled(viewYear, mi) || disabled"
-          :aria-label="monthLongLabel(viewYear, mi)"
-          @click="pickMonth(mi)"
-        >
-          {{ label }}
-        </button>
-      </div>
-
-      <!-- 十年视图:10 个年份(头部按钮在此层禁用,源 HasMoreViews = false)-->
-      <div v-else key="decade" class="cv-view cv-unit-grid" role="group" aria-label="Decade view">
-        <button
-          v-for="year in decadeYears"
-          :key="`y-${year}`"
-          type="button"
-          class="cv-unit"
-          :class="{ 'is-blackout': isYearUnitDisabled(year), 'is-today-unit': today.getFullYear() === year }"
-          :disabled="isYearUnitDisabled(year) || disabled"
-          @click="pickYear(year)"
-        >
-          {{ year }}
-        </button>
-      </div>
+        <!-- 十年视图:10 个年份(头部按钮在此层禁用,源 HasMoreViews = false)-->
+        <div v-else key="decade" class="cv-view cv-view--decade" role="group" aria-label="Decade view">
+          <Transition :name="navFx">
+            <div :key="decadeNavKey" class="cv-unit-grid">
+              <button
+                v-for="year in decadeYears"
+                :key="`y-${year}`"
+                type="button"
+                class="cv-unit"
+                :class="{ 'is-blackout': isYearUnitDisabled(year), 'is-today-unit': today.getFullYear() === year }"
+                :disabled="isYearUnitDisabled(year) || disabled"
+                @click="pickYear(year)"
+              >
+                {{ year }}
+              </button>
+            </div>
+          </Transition>
+        </div>
+      </Transition>
     </div>
   </div>
 </template>
@@ -749,16 +818,109 @@ const rootClass = computed(() => ({
   box-shadow: inset 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
-/* —— 视图层:BackgroundLayer 用 BorderBrush 垫底,单元格 margin 1 透出 2px 格线 —— */
+/* —— 视图层:BackgroundLayer 用 BorderBrush 垫底(移至 .cv-backdrop),单元格 margin 1 透出 2px 格线;
+      源 Views Grid 自带 Clip → overflow hidden 裁剪平移 / 缩放过渡期的视图 —— */
 .cv-views {
+  position: relative;
   flex: 1;
+  overflow: hidden;
+}
+
+/* 背景层(BackgroundLayer):静置恒显;模式切换时按源故事板重现 ——
+   透明度 0 线性保持至 250ms,再以 KeySpline (0.15,0.64,0.25,1) 淡入至 733ms(L14513-14515 等);
+   回退方向(Year→Month / Decade→Year)另有 BackgroundTransform 0.84→1 缩放(233ms 起,0.1,0.9,0.2,1)。 */
+.cv-backdrop {
+  position: absolute;
+  inset: 0;
   background: var(--wui-calendar-view-border);
 }
 
-/* 视图切换入场(源 DisplayModeStates Transitions:新视图 Opacity 0→1 + Scale 1.29→1,
-    KeySpline 0.1,0.9,0.2,1 / 233ms,L14491;此处取入场帧近似) */
+.cv-backdrop--animate {
+  animation: cv-backdrop-opacity 733ms linear both;
+}
+
+.cv-backdrop--animate.cv-backdrop--scale-in {
+  animation:
+    cv-backdrop-opacity 733ms linear both,
+    cv-backdrop-scale-in 733ms linear both;
+}
+
+/* 视图容器:模式切换经 <Transition> 双相过渡;z 序随源模板固定(MonthView 底 / YearView 中 / DecadeView 顶) */
 .cv-view {
-  animation: wui-calendar-view-view-in 233ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+  position: relative;
+}
+
+.cv-view--month {
+  z-index: 1;
+}
+
+.cv-view--year {
+  z-index: 2;
+}
+
+.cv-view--decade {
+  z-index: 3;
+}
+
+/* —— 模式切换双相(DisplayModeStates Transitions,generic.xaml L14486-14654)——
+   下钻(Month→Year / Year→Decade):旧视图 scale 1→0.84 + Opacity→0 @233ms;
+   新视图 scale 1.29→1、Opacity 0→1 自 233ms 至 733ms,KeySpline 0.1,0.9,0.2,1;
+   回退(Year→Month / Decade→Year)镜像:旧视图 →1.29、新视图自 0.84。离场视图绝对定位铺满视图区。 */
+.cv-mode-down-leave-active,
+.cv-mode-up-leave-active {
+  position: absolute;
+  inset: 0;
+}
+
+.cv-mode-down-leave-active {
+  animation: cv-mode-shrink-out 233ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+}
+
+.cv-mode-down-enter-active {
+  animation: cv-mode-grow-in 733ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+}
+
+.cv-mode-up-leave-active {
+  animation: cv-mode-grow-out 233ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+}
+
+.cv-mode-up-enter-active {
+  animation: cv-mode-shrink-in 733ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+}
+
+/* —— 前后翻页水平滑动(源 CalendarPanel Orientation=Horizontal 按页 pan;月/年/十年同构)——
+   下一页 = 旧页左滑出 / 新页右滑入;上一页镜像。两侧位移同曲线同步推进,拼成整幅平移条带
+   (ChangeViewWithOptionalAnimation 的 DManip pan 等价;时长口径见脚本注释)。 */
+.cv-nav-next-enter-active {
+  animation: cv-slide-in-next 233ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+}
+
+.cv-nav-next-leave-active {
+  animation: cv-slide-out-next 233ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+}
+
+.cv-nav-prev-enter-active {
+  animation: cv-slide-in-prev 233ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+}
+
+.cv-nav-prev-leave-active {
+  animation: cv-slide-out-prev 233ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+}
+
+/* 离场页绝对定位(月视图让出星期行 38px;年/十年铺满),与进场页对齐成条带 */
+.cv-days.cv-nav-next-leave-active,
+.cv-days.cv-nav-prev-leave-active {
+  position: absolute;
+  top: 38px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.cv-unit-grid.cv-nav-next-leave-active,
+.cv-unit-grid.cv-nav-prev-leave-active {
+  position: absolute;
+  inset: 0;
 }
 
 /* —— 星期行(38px;WeekDayNameStyle:Caption 12px 居中,Disabled 走 week-day-foreground-disabled)—— */
@@ -953,8 +1115,8 @@ const rootClass = computed(() => ({
   pointer-events: none;
 }
 
-/* —— 动画关键帧(时长/曲线取自 generic.xaml,见上方注释;token 表在 animations.css,入口未引入,
-      故以字面量书写,值与 --wui-duration-fast / --wui-easing-standard 的采样一致)—— */
+/* —— 动画关键帧(时长/曲线逐键取自 generic.xaml,见各规则注释;token 表在 animations.css,
+      入口未引入全局,故以字面量书写,值与源 KeyTime / KeySpline 一一对应)—— */
 @keyframes wui-calendar-view-header-in {
   from {
     opacity: 0;
@@ -964,14 +1126,144 @@ const rootClass = computed(() => ({
   }
 }
 
-@keyframes wui-calendar-view-view-in {
-  from {
+/* BackgroundLayer 透明度:0 线性保持至 250ms(34.107% = 250/733)→ (0.15,0.64,0.25,1) 淡入至 733ms */
+@keyframes cv-backdrop-opacity {
+  0% {
     opacity: 0;
-    transform: scale(1.08);
+    animation-timing-function: linear;
   }
-  to {
+
+  34.107% {
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.15, 0.64, 0.25, 1);
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* BackgroundTransform(回退向):scale 1 →(离散 0.84 @233ms)→ 1 @733ms,spline 0.1,0.9,0.2,1 */
+@keyframes cv-backdrop-scale-in {
+  0% {
+    transform: scale(1);
+    animation-timing-function: linear;
+  }
+
+  31.786% {
+    transform: scale(0.84);
+    animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 下钻出场(旧视图):scale 1→0.84 + 淡出,233ms */
+@keyframes cv-mode-shrink-out {
+  from {
     opacity: 1;
     transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.84);
+  }
+}
+
+/* 下钻入场(新视图):scale 1.29 保持至 233ms(31.786%)→ 1 @733ms,同步淡入 */
+@keyframes cv-mode-grow-in {
+  0% {
+    opacity: 0;
+    transform: scale(1.29);
+    animation-timing-function: linear;
+  }
+
+  31.786% {
+    opacity: 0;
+    transform: scale(1.29);
+    animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 回退出场(旧视图):scale 1→1.29 + 淡出,233ms(源 Year→Month 的 YearViewTransform) */
+@keyframes cv-mode-grow-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.29);
+  }
+}
+
+/* 回退入场(新视图):scale 0.84 保持至 233ms → 1 @733ms,同步淡入 */
+@keyframes cv-mode-shrink-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.84);
+    animation-timing-function: linear;
+  }
+
+  31.786% {
+    opacity: 0;
+    transform: scale(0.84);
+    animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 前后翻页:整页条带平移(下一页:新页自右 +100% 入、旧页向左 -100% 出;上一页镜像) */
+@keyframes cv-slide-in-next {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes cv-slide-out-next {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes cv-slide-in-prev {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes cv-slide-out-prev {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(100%);
   }
 }
 </style>
