@@ -20,6 +20,7 @@ import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
 import DemoOptionRow from '../components/DemoOptionRow.vue'
 import DemoOptions from '../components/DemoOptions.vue'
+import DemoPage from '../components/DemoPage.vue'
 
 // ============ 例 1:左窗格基本导航(与 vue-router 联动)+ 参数面板 ============
 // DemoOptionRow 的 v-model 契约要求联合类型(见 demo/components/README.md)

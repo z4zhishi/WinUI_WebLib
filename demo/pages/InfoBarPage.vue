@@ -12,6 +12,7 @@ import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
 import DemoOptionRow from '../components/DemoOptionRow.vue'
 import DemoOptions from '../components/DemoOptions.vue'
+import DemoPage from '../components/DemoPage.vue'
 
 /** 与组件一致的 closing / closed 事件参数结构。 */
 interface InfoBarEventArgs {

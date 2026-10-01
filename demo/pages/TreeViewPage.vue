@@ -15,6 +15,7 @@ import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
 import DemoOptionRow from '../components/DemoOptionRow.vue'
 import DemoOptions from '../components/DemoOptions.vue'
+import DemoPage from '../components/DemoPage.vue'
 
 // —— 示例 1:基础树(数据绑定;{label, children, expanded} 直用,键 = 路径索引)——
 const basicItems = ref<TreeViewNode[]>([

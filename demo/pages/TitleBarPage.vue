@@ -24,6 +24,7 @@ import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
 import DemoOptionRow from '../components/DemoOptionRow.vue'
 import DemoOptions from '../components/DemoOptions.vue'
+import DemoPage from '../components/DemoPage.vue'
 
 // —— 主示例:官方 TitlebarConfiguration 复刻(可调参数;DemoOptionRow 契约要求联合类型)——
 const title = ref<string | number | boolean>('WinUI Gallery')

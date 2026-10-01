@@ -12,6 +12,7 @@ import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
 import DemoOptionRow from '../components/DemoOptionRow.vue'
 import DemoOptions from '../components/DemoOptions.vue'
+import DemoPage from '../components/DemoPage.vue'
 
 // —— 可调参数(DemoOptionRow 的 v-model 契约:ref 声明为联合类型)——
 // 官方默认:DisplayMode CompactOverlay、IsPaneOpen true、OpenPaneLength 256、CompactPaneLength 48

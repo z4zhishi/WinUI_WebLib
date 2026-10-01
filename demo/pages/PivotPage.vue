@@ -13,6 +13,7 @@ import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
 import DemoOptionRow from '../components/DemoOptionRow.vue'
 import DemoOptions from '../components/DemoOptions.vue'
+import DemoPage from '../components/DemoPage.vue'
 
 // —— 示例 1:官方基础 Pivot(Title = "EMAIL",四页)——
 const MAIN_COUNT = 4

@@ -11,6 +11,7 @@ import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
 import DemoOptionRow from '../components/DemoOptionRow.vue'
 import DemoOptions from '../components/DemoOptions.vue'
+import DemoPage from '../components/DemoPage.vue'
 
 /** 与组件一致的 WinUI PopupDesiredPlacement 枚举全集。 */
 const PLACEMENT_VALUES = [

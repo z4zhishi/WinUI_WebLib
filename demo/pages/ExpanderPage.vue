@@ -9,6 +9,7 @@ import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
 import DemoOptionRow from '../components/DemoOptionRow.vue'
 import DemoOptions from '../components/DemoOptions.vue'
+import DemoPage from '../components/DemoPage.vue'
 
 // —— 可调参数(DemoOptionRow 的 v-model 契约:ref 声明为联合类型)——
 const header = ref<string | number | boolean>('This text is in the header')
