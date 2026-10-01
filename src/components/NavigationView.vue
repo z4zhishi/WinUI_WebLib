@@ -540,6 +540,7 @@ const hasFooterMenu = computed(
   position: relative;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
   min-height: 0;
@@ -586,10 +587,15 @@ const hasFooterMenu = computed(
   min-height: 0;
 }
 
-/* 窗格内容:顶部 44px 留白(4 + 36 汉堡行,NavigationViewPaneHeaderRowMinHeight 40 系) */
+/* 窗格内容:顶部 44px 留白(4 + 36 汉堡行,NavigationViewPaneHeaderRowMinHeight 40 系)。
+   flex 列布局:menu 区 flex:1 可滚,#pane-footer / 页脚菜单 flex:none 固定底部
+   (对照源 PaneContentGrid 的行结构:菜单 * / PaneFooter Auto / FooterItems Auto)。
+   box-sizing 必须 border-box:项目未设全局 border-box 重置,content-box 下
+   height:100% + padding-top 会把 footer 推出裁剪区(QA F2)。 */
 .wui-navview__pane {
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
   height: 100%;
   padding-top: 44px;
   overflow: hidden;
@@ -643,6 +649,7 @@ const hasFooterMenu = computed(
 .wui-navview__topbar {
   display: flex;
   align-items: center;
+  box-sizing: border-box; /* 底部分隔线计入 48px 高(源 TopNavGrid 同) */
   flex: none;
   height: 48px; /* NavigationViewTopPaneHeight */
   margin: 0 4px; /* TopNavigationViewTopNavGridMargin 4,0 */
@@ -678,6 +685,7 @@ const hasFooterMenu = computed(
 .wui-navview__content {
   display: flex;
   flex-direction: column;
+  box-sizing: border-box; /* 描边计入弹性高度,避免 2px 外溢 */
   flex: 1 1 auto;
   min-height: 0;
   border-top: 1px solid var(--wui-system-control-background-base-low);
@@ -722,6 +730,7 @@ const hasFooterMenu = computed(
   position: relative;
   display: flex;
   align-items: center;
+  box-sizing: border-box; /* 源 MinHeight 36 含 1px 透明描边(content-box 下会是 38px) */
   width: calc(100% - 8px);
   min-height: 36px; /* NavigationViewItemOnLeftMinHeight */
   margin: 2px 4px; /* NavigationViewItemButtonMargin 4,2 */
