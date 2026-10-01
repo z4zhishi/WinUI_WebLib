@@ -944,12 +944,37 @@ const rootClass = computed(() => ({
   background: currentColor;
 }
 
-/* —— 入场 / 离场(对照 WinUI 弹层淡入;离场快速淡出)—— */
+/* —— 入场 / 离场(弹层经 FlyoutBase 通道:PopupThemeTransition 50px 方向性位移
+   + 淡入随放置位,出场镜像滑出;关键帧与放置位选择见 popup.css 基建)—— */
 .wui-calendar-date-picker-enter-active {
-  animation: wui-flyout-in var(--wui-duration-normal) var(--wui-easing-standard) both;
+  animation: wui-popup-slide-in-bottom var(--wui-duration-normal) var(--wui-easing-standard) both;
+}
+
+.wui-calendar-date-picker-enter-active[data-wui-placement='top'] {
+  animation-name: wui-popup-slide-in-top;
+}
+
+.wui-calendar-date-picker-enter-active[data-wui-placement='left'] {
+  animation-name: wui-popup-slide-in-left;
+}
+
+.wui-calendar-date-picker-enter-active[data-wui-placement='right'] {
+  animation-name: wui-popup-slide-in-right;
 }
 
 .wui-calendar-date-picker-leave-active {
-  animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-standard) both;
+  animation: wui-popup-slide-out-bottom var(--wui-duration-fast) var(--wui-easing-standard) both;
+}
+
+.wui-calendar-date-picker-leave-active[data-wui-placement='top'] {
+  animation-name: wui-popup-slide-out-top;
+}
+
+.wui-calendar-date-picker-leave-active[data-wui-placement='left'] {
+  animation-name: wui-popup-slide-out-left;
+}
+
+.wui-calendar-date-picker-leave-active[data-wui-placement='right'] {
+  animation-name: wui-popup-slide-out-right;
 }
 </style>

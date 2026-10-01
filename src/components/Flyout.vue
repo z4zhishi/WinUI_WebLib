@@ -155,8 +155,9 @@ function showAt(target?: Element): void {
 
 defineExpose({ showAt, hide })
 
-// 入场动画档位:WinUI 弹层为纯淡入(OverlayOpeningAnimation);Full 铺满视口用纯淡入,
-// 其余档位取基建 wui-flyout-in(淡入 + 8px 位移 Web 增强,popup.css 挂接)
+// 入场动画档位:WinUI FlyoutBase 通道 = PopupThemeTransition(50px 方向性位移
+// + 淡入,随放置位,FlyoutBase_partial.cpp L68/L2011-2061,popup.css 挂接);
+// Full 铺满视口对应源 FromOffset 0,0 → 纯淡入
 const enterAnimClass = computed(() => (isFullPlacement.value ? 'wui-popup-anim-fade' : 'wui-popup-anim-flyout'))
 
 // isOpen 状态迁移的统一出口:关闭时发 close(含 light dismiss / 再点宿主 / 编程关闭);
@@ -224,9 +225,9 @@ function onLayerFocusout(event: FocusEvent): void {
     </Transition>
 
     <!-- FlyoutPresenter 容器:皮肤类(popup.css 背景/边框)+ 组件内布局类(尺寸/内边距/滚动);
-         入场动画按档位选择(Full 为纯淡入,其余为弹层淡入 + 8px 位移 Web 增强),
-         出场淡出经 Transition 挂 popup.css 的 wui-popup-anim-leave -->
-    <Transition :enter-active-class="enterAnimClass" leave-active-class="wui-popup-anim-leave">
+         入场动画按档位选择(Full 为纯淡入,其余为 PopupThemeTransition 50px 方向性位移 +
+         淡入),出场取镜像滑出(popup.css 的 wui-popup-anim-flyout-leave,随放置位) -->
+    <Transition :enter-active-class="enterAnimClass" leave-active-class="wui-popup-anim-flyout-leave">
       <div
         v-if="isOpen"
         ref="layerRef"

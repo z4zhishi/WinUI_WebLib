@@ -121,8 +121,43 @@
   animation: wui-fade-in var(--wui-duration-fast) var(--wui-easing-standard) both;
 }
 
+/*
+ * FlyoutBase 通道弹层(Flyout / CalendarDatePicker 等)的方向性位移入场:
+ * 50px 随放置位(FlyoutBase_partial.cpp L68/L2011-2061),关键帧见
+ * animations.css 的 wui-popup-slide-in-* 组;data-wui-placement 由
+ * usePopupLayer 在层根写入(首帧绘制前就位)。缺省按 bottom(最常用放置位)。
+ */
 .wui-popup-anim-flyout {
-  animation: wui-flyout-in var(--wui-duration-normal) var(--wui-easing-standard) both;
+  animation: wui-popup-slide-in-bottom var(--wui-duration-normal) var(--wui-easing-standard) both;
+}
+
+.wui-popup-anim-flyout[data-wui-placement='top'] {
+  animation-name: wui-popup-slide-in-top;
+}
+
+.wui-popup-anim-flyout[data-wui-placement='left'] {
+  animation-name: wui-popup-slide-in-left;
+}
+
+.wui-popup-anim-flyout[data-wui-placement='right'] {
+  animation-name: wui-popup-slide-in-right;
+}
+
+/* 出场 = 入场镜像(向来路滑出并淡出) */
+.wui-popup-anim-flyout-leave {
+  animation: wui-popup-slide-out-bottom var(--wui-duration-fast) var(--wui-easing-standard) both;
+}
+
+.wui-popup-anim-flyout-leave[data-wui-placement='top'] {
+  animation-name: wui-popup-slide-out-top;
+}
+
+.wui-popup-anim-flyout-leave[data-wui-placement='left'] {
+  animation-name: wui-popup-slide-out-left;
+}
+
+.wui-popup-anim-flyout-leave[data-wui-placement='right'] {
+  animation-name: wui-popup-slide-out-right;
 }
 
 .wui-popup-anim-scale {
@@ -135,4 +170,37 @@
 
 .wui-popup-anim-leave {
   animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-standard) both;
+}
+
+/* ======================================================================
+ * MenuFlyout 层出入场(MenuPopupThemeTransition,主菜单与子菜单共用;
+ * 全局书写:子菜单层在 MenuFlyoutSubItem.vue 内,scoped 类挂不到)
+ * ----------------------------------------------------------------------
+ * 入场:锚点方向展开缩放 scaleY(1−closedRatio)→1(主菜单 0.5 / 子菜单
+ * 0.67)+ 83ms 线性淡入,两条时间线并行;时长 250ms、曲线 (0,0,0,1)。
+ * 展开原点贴锚侧边:源 Direction = 锚点所贴边(placement Top → Bottom、
+ * 其余 → Top,MenuFlyout_Partial.cpp L259)—— 即除放置位 top(锚在层底缘,
+ * 自底缘向上展开)外一律自顶缘向下展开(左右放置位亦纵向展开)。
+ * 出场:线性淡出 83ms(Unload 分支)。
+ * ====================================================================== */
+
+.wui-menu-flyout-layer.wui-menu-flyout-enter-active {
+  animation:
+    wui-menu-popup-expand-in 250ms cubic-bezier(0, 0, 0, 1) both,
+    wui-fade-in 83ms linear both;
+  transform-origin: top center;
+}
+
+/* 放置位 top:锚贴层底缘(MenuFlyout 在锚上方),自底缘向上展开 */
+.wui-menu-flyout-layer[data-wui-placement='top'].wui-menu-flyout-enter-active {
+  transform-origin: bottom center;
+}
+
+/* 子菜单层(closedRatio 0.67,MenuFlyoutSubItem_Partial.cpp L741) */
+.wui-menu-flyout-layer--sub.wui-menu-flyout-enter-active {
+  animation-name: wui-menu-popup-expand-in-sub, wui-fade-in;
+}
+
+.wui-menu-flyout-layer.wui-menu-flyout-leave-active {
+  animation: wui-fade-out 83ms linear both;
 }

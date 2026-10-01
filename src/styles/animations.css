@@ -78,12 +78,14 @@
   }
 }
 
-/* 弹层入场(透明度 + 轻微上移),对应 Popup / MenuFlyout / ComboBox 下拉。
+/* 弹层入场(透明度 + 轻微上移),对应 Popup / ComboBox 下拉等自带
+   OverlayOpeningAnimation 的模板(非 FlyoutBase 通道)。
    依据:generic.xaml ComboBox 模板 <Storyboard x:Key="OverlayOpeningAnimation">
    Opacity 0→1、KeyTime 0.383s、KeySpline 0.1,0.9 0.2,1.0(纯淡入)L8920-8924;
    同键副本:L10211(AppBar)、L16223、L22903(CommandBar)。
-   注:WinUI 弹层入场为纯淡入;此处 8px 的 translateY 为 Web 适配增强
-   (纯淡入在 Web 上层次感不足),偏移量与时长取值见 motion-notes.md 偏差说明。 */
+   注:此 8px 的 translateY 为 Web 适配增强(源为纯淡入),偏移量与时长取值见
+   motion-notes.md 偏差说明。FlyoutBase 通道的弹层(Flyout / MenuFlyout /
+   CalendarDatePicker 等)请改用下方 wui-popup-slide-* 方向性位移关键帧。 */
 @keyframes wui-flyout-in {
   from {
     opacity: 0;
@@ -124,6 +126,215 @@
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+/* ======================================================================
+ * FlyoutBase 通道弹层的方向性位移(50px)+ 淡入淡出
+ * ----------------------------------------------------------------------
+ * 源:FlyoutBase 框架层为弹层挂 PopupThemeTransition 并按 MajorPlacementMode
+ * 写 FromHorizontal/VerticalOffset(dxaml/xcp/dxaml/lib/FlyoutBase_partial.cpp):
+ *   L68  g_entranceThemeOffset = 50.0;
+ *   L2011-2061 SetTransitionParameters:Top → FromVerticalOffset +50、
+ *   Bottom → −50、Left → FromHorizontalOffset +50、Right → −50、Full → 0,0
+ *   (内容自「放置方向的反侧」50px 处滑入;淡出为镜像,TAS_HIDEPOPUP)。
+ * 即放置位 bottom(锚下方弹出)时内容自上方 −50px 下滑入位,top 时自下方
+ * +50px 上升入位,以此类推。每基位一条关键帧(不使用 var() 组合,保证
+ * getAnimations() 读到已解析的位移值);时长/缓动沿用 --wui-duration-normal
+ * + --wui-easing-standard(PopupThemeTransition 的节奏为合成器内建,repo 无
+ * 显式参数,取既有弹层档,见 VR-FIX18 报告说明)。
+ * ====================================================================== */
+
+/* 放置位 top:自下方 +50px 上升入位(FlyoutBase_partial.cpp L2035) */
+@keyframes wui-popup-slide-in-top {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 放置位 bottom:自上方 −50px 下滑入位(L2040) */
+@keyframes wui-popup-slide-in-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 放置位 left:自右侧 +50px 左移入位(L2044) */
+@keyframes wui-popup-slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 放置位 right:自左侧 −50px 右移入位(L2049) */
+@keyframes wui-popup-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 出场 = 入场的镜像(TAS_HIDEPOPUP):向来路方向滑出并淡出 */
+@keyframes wui-popup-slide-out-top {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+}
+
+@keyframes wui-popup-slide-out-bottom {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+}
+
+@keyframes wui-popup-slide-out-left {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+}
+
+@keyframes wui-popup-slide-out-right {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+}
+
+/* ======================================================================
+ * MenuFlyout 锚点方向展开缩放(MenuPopupThemeTransition)
+ * ----------------------------------------------------------------------
+ * 源:MenuFlyout 为弹层挂 MenuPopupThemeTransition(MenuFlyout_Partial.cpp
+ * L250-260):closedRatio 0.5(L259 调用传 0.5,子菜单 0.67 见
+ * MenuFlyoutSubItem_Partial.cpp L741)、Direction = 锚点所贴边(placement
+ * Top → Bottom,其余 → Top,L259);展开时长 s_OpenDuration = 250ms、淡入为
+ * 线性 s_OpacityChangeDuration = 83ms(MenuPopupThemeTransition_Partial.h
+ * L23-24);曲线 cubic-bezier(0,0,0,1)(LayoutTransition_partial.cpp L445);
+ * 菜单背景 Border 的 ScaleY 自 (1−closedRatio) → 1、CenterY 贴锚边
+ * (LayoutTransition_partial.cpp L536-546)。收合(Unload)为线性淡出 83ms。
+ * ====================================================================== */
+
+/* 主菜单(closedRatio 0.5):自锚边半高展开至全高;原点由
+   popup.css 的 .wui-menu-flyout-layer 进入态规则按放置位给出 */
+@keyframes wui-menu-popup-expand-in {
+  from {
+    transform: scaleY(0.5);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* 子菜单(closedRatio 0.67):自锚边 1/3 高展开 */
+@keyframes wui-menu-popup-expand-in-sub {
+  from {
+    transform: scaleY(0.33);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* ======================================================================
+ * ContentDialog 双时间线(DialogShowing / DialogHidden VisualTransition)
+ * ----------------------------------------------------------------------
+ * 源:generic.xaml L8395-8423 —— LayoutRoot(全屏烟幕层)承担 Opacity:
+ * 显示 LinearDoubleKeyFrame 0→1 @0.167s、隐藏 1→0 @0.083s(L8401-8403、
+ * L8421-8423);BackgroundElement(对话框面板)承担 Scale:显示 1.05→1.0、
+ * 隐藏 1.0→1.05,SplineDoubleKeyFrame KeyTime 0.5s、KeySpline 0.1,0.9 0.2,1.0
+ * (L8393-8399、L8413-8419),RenderTransformOrigin 0.5,0.5(L8561)。
+ * 两条时间线并行、各走各的元素 —— 拆成独立关键帧供 ContentDialog.vue 分别
+ * 挂在层根与面板上(取代旧的 wui-dialog-in 合并单时间线)。
+ * ====================================================================== */
+
+@keyframes wui-dialog-scale-in {
+  from {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes wui-dialog-scale-out {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.05);
+  }
+}
+
+/* ======================================================================
+ * TeachingTip 缩放展开 / 收合
+ * ----------------------------------------------------------------------
+ * 源:controls/dev/TeachingTip/TeachingTip.cpp CreateExpandAnimation /
+ * CreateContractAnimation(L1627-1719)+ TeachingTip.h L234-235、L304-307:
+ *   展开:Scale 自 (Min(0.01, 20/Width), Min(0.01, 20/Height)) → 1,300ms,
+ *   cubic-bezier(0.1,0.9,0.2,1);
+ *   收合:Scale 1 → (20/Width, 20/Height),200ms,cubic-bezier(0.7,0,1,0.5)。
+ * Scale 的 CenterPoint 贴锚侧边/尾角(TeachingTip.cpp L353-422)—— Web 侧由
+ * popup.css 的 .wui-popup-layer[data-wui-placement] transform-origin 等价
+ * (锚侧边中点)。源为纯缩放、无透明度时间线。TeachingTip.vue 在开/关钩子里
+ * 把实时尺寸写入 --wui-tip-w / --wui-tip-h 以解析 20/W、20/H。
+ * ====================================================================== */
+
+/* 展开:起点 Min(0.01, 20/边) —— TeachingTip Min/Max 尺寸约束
+   (MinWidth 320 / MaxWidth 336 / MinHeight 40 / MaxHeight 520)下 20/边
+   恒 ≥ 0.038 > 0.01,故起点恒为 0.01(≈20px 视觉小块) */
+@keyframes wui-teaching-tip-expand {
+  from {
+    transform: scale(0.01, 0.01);
+  }
+  to {
+    transform: scale(1, 1);
+  }
+}
+
+/* 收合:终点恰为 (20/Width, 20/Height) 的 ~20px 小块(无 Min 钳制) */
+@keyframes wui-teaching-tip-contract {
+  from {
+    transform: scale(1, 1);
+  }
+  to {
+    transform: scale(calc(20 / var(--wui-tip-w, 336)), calc(20 / var(--wui-tip-h, 160)));
   }
 }
 

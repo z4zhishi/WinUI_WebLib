@@ -24,6 +24,7 @@
 import { computed, nextTick, onScopeDispose, provide, reactive, watch } from 'vue'
 import type { Ref } from 'vue'
 import { usePopupAnchor, usePopupLayer, type PopupPlacement } from '@/composables/usePopup'
+import '../styles/popup.css'
 
 /** 菜单层上下文(与 MenuFlyoutItem 同构,结构化类型兼容)。 */
 interface MenuFlyoutLevelContext {
@@ -297,12 +298,7 @@ onScopeDispose(() => {
   border: 1px solid var(--wui-menu-flyout-presenter-border);
 }
 
-/* 入场:8px 上滑淡入(wui-flyout-in,基建 Web 适配增强);离场快速淡出 */
-.wui-menu-flyout-enter-active {
-  animation: wui-flyout-in var(--wui-duration-normal) var(--wui-easing-standard) both;
-}
-
-.wui-menu-flyout-leave-active {
-  animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-standard) both;
-}
+/* 入出场动画(MenuPopupThemeTransition:250ms 锚点展开缩放 + 83ms 线性淡入,
+   出场 83ms 线性淡出)书写在 popup.css 全局层(与 MenuFlyoutSubItem 的子菜单层
+   共用,scoped 类挂不到跨组件层),本组件不重复定义 */
 </style>

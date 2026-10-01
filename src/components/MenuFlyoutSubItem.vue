@@ -17,6 +17,7 @@
 import { computed, inject, nextTick, onScopeDispose, provide, reactive, ref, useSlots, type Ref } from 'vue'
 import { usePopupAnchor, usePopupLayer } from '@/composables/usePopup'
 import { symbolToGlyph } from '@/utils/symbolIcons'
+import '../styles/popup.css'
 
 /** 菜单层上下文(与 MenuFlyoutItem 同构,结构化类型兼容)。 */
 interface MenuFlyoutLevelContext {
@@ -371,7 +372,7 @@ function stepFocus(container: HTMLElement | null, direction: 1 | -1): void {
       <div
         v-if="open"
         ref="layerRef"
-        class="wui-popup-layer wui-menu-flyout-layer"
+        class="wui-popup-layer wui-menu-flyout-layer wui-menu-flyout-layer--sub"
         role="menu"
         aria-orientation="vertical"
         tabindex="-1"
@@ -522,12 +523,8 @@ function stepFocus(container: HTMLElement | null, direction: 1 | -1): void {
   border: 1px solid var(--wui-menu-flyout-presenter-border);
 }
 
-/* 出入场:入场纯淡入(WinUI OverlayOpeningAnimation 等价),离场快速淡出 */
-.wui-menu-flyout-enter-active {
-  animation: wui-fade-in var(--wui-duration-fast) var(--wui-easing-standard) both;
-}
-
-.wui-menu-flyout-leave-active {
-  animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-standard) both;
-}
+/* 出入场动画(MenuPopupThemeTransition 子菜单分支:closedRatio 0.67 展开缩放
+   + 83ms 线性淡入,出场 83ms 线性淡出)书写在 popup.css 全局层
+   (.wui-menu-flyout-layer--sub 变体),此处不重复定义(scope 属性会
+   覆盖基建同名额) */
 </style>
