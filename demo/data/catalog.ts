@@ -968,6 +968,30 @@ export const CATALOG: CatalogGroup[] = [
         ],
       },
       {
+        id: 'ListBox',
+        title: 'ListBox',
+        subtitle: 'A control that presents a simple list of items the user can select from.',
+        description: 'The ListBox lets you show a simple, non-virtualized list of selectable items. It is the plain sibling of ListView: use it for short, static lists where the plainer item visuals and the built-in chrome background are enough.',
+        tags: [
+          'list',
+          'selection',
+          'collection list',
+        ],
+        docs: [
+          {
+            title: 'ListBox - API',
+            uri: 'https://learn.microsoft.com/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.controls.listbox',
+          },
+        ],
+        image: 'ListView.png',
+        related: [
+          'ListView',
+          'GridView',
+          'ItemsView',
+          'FlipView',
+        ],
+      },
+      {
         id: 'ListView',
         title: 'ListView',
         subtitle: 'A control that presents a collection of items in a vertical list.',
