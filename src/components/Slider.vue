@@ -14,10 +14,16 @@ export interface SliderValueChangedEventArgs {
 </script>
 
 <script setup lang="ts">
-// WinUI Slider 复刻。视觉对照 generic.xaml TargetType="Slider" 的 ControlTemplate:
-// 轨道 4px(轨道填充 SliderTrackFill / 已选段 SliderTrackValueFill)、拇指 8x24 圆角 4
-// (SliderThumbBackground 系列)、容器高 32(SliderHorizontalHeight)、刻度条高 4 间距 4
-// (SliderOutsideTickBarThemeHeight)。颜色一律走 --wui-slider-* token(浅/深主题各自定义)。
+// WinUI Slider 复刻。视觉对照现行 WinUI 3 样式 controls/dev/CommonStyles/Slider_themeresources.xaml
+// (Slider 为 dxaml 核心控件,controls/dev 无独立目录;该文件即现行源,generic.xaml
+// TargetType="Slider" L10879+ 为 legacy 对照,定案依据见 FIX9 报告):
+// 轨道 4px(SliderTrackThemeHeight,Default L6 / Light L110)、圆角 2(SliderTrackCornerRadius L162)、
+// 拇指 18×18 圆旋钮(SliderHorizontalThumbWidth/Height L169-170,CornerRadius 10):外圈
+// ControlSolidFillColorDefault 底 + 1px ControlElevationBorderBrush 描边 + 12×12 内圆
+// (SliderInnerThumb L198-199;内圆缩放 Normal 0.86 / PointerOver 1.167 / Pressed 0.71,
+// 呈现 12/14/10,L208-253)、容器高 32(SliderHorizontalHeight)、刻度条高 4 间距 4
+// (SliderOutsideTickBarThemeHeight)。颜色一律走 --wui-slider-* token(现行 Fluent 色阶,
+// theme.css 生成值为 legacy,故组件局部携带,见样式段注)。
 // 交互:原生 input[type=range] 承载指针/焦点,自绘轨道/填充/刻度/拇指(pointer-events:none,
 // 透过 input 的 :hover/:active/:focus-visible/:disabled 伪类驱动 PointerOver/Pressed/Focus/Disabled
 // 视觉状态);方向键按 stepFrequency(或 snapsTo=Ticks 时的 tickFrequency)步进,拖动中实时
@@ -175,13 +181,13 @@ const ratio = computed(() => {
   return (clamped - effMin.value) / span.value
 })
 
-// 填充段止于拇指中心:拇指宽 8px,故为 (100% - 8px) * ratio + 4px。
+// 填充段止于拇指中心:拇指 18px(SliderHorizontalThumbWidth),故为 (100% - 18px) * ratio + 9px。
 const fillStyle = computed<CSSProperties>(() => ({
-  width: `calc((100% - 8px) * ${ratio.value} + 4px)`,
+  width: `calc((100% - 18px) * ${ratio.value} + 9px)`,
 }))
 
 const thumbStyle = computed<CSSProperties>(() => ({
-  left: `calc((100% - 8px) * ${ratio.value})`,
+  left: `calc((100% - 18px) * ${ratio.value})`,
 }))
 
 // —— 刻度 ——
@@ -276,7 +282,9 @@ function tickLeft(r: number): string {
       </div>
       <div class="wui-slider__track" aria-hidden="true"></div>
       <div class="wui-slider__fill" aria-hidden="true" :style="fillStyle"></div>
-      <div class="wui-slider__thumb" aria-hidden="true" :style="thumbStyle"></div>
+      <div class="wui-slider__thumb" aria-hidden="true" :style="thumbStyle">
+        <span class="wui-slider__thumb-inner" aria-hidden="true"></span>
+      </div>
     </div>
   </div>
 </template>
@@ -285,6 +293,55 @@ function tickLeft(r: number): string {
 .wui-slider {
   display: block;
   width: 100%;
+
+  /* ==================================================================
+   * FIX9 色阶定案(现行 WinUI 3 Fluent,theme.css 生成的 --wui-slider-* 为
+   * legacy SystemControl 值,按 RatingControl V7 先例在此局部携带现行值):
+   * 源:controls/dev/CommonStyles/Slider_themeresources.xaml(资源映射)+
+   * CommonStyles/Common_themeresources_any.xaml(色值;light 字典 L209-243 / dark 字典 L5-39)。
+   * 字节序:XAML #AARRGGBB → CSS #RRGGBBAA(alpha 移末位)。
+   * AccentFillColorSecondary/Tertiary = SystemAccentColor Dark1(light, L330-331)/
+   * Light2(dark, L126-127)@ Opacity 0.9 / 0.8 → color-mix 等价。
+   * ================================================================== */
+  --wui-slider-track-fill: #00000072; /* SliderTrackFill = ControlStrongFillColorDefaultBrush(light #72000000,L226) */
+  --wui-slider-track-fill-pointer-over: #00000072; /* PointerOver 同值(L24-25 映射) */
+  --wui-slider-track-fill-pressed: #00000072; /* Pressed 同值 */
+  --wui-slider-track-fill-disabled: #00000051; /* ControlStrongFillColorDisabled(light #51000000,L227) */
+  --wui-slider-track-value-fill: var(--wui-system-accent-color); /* AccentFillColorDefaultBrush */
+  --wui-slider-track-value-fill-pointer-over: color-mix(in srgb, var(--wui-system-accent-color-dark-1) 90%, transparent); /* AccentFillColorSecondary(Dark1 @0.9) */
+  --wui-slider-track-value-fill-pressed: color-mix(in srgb, var(--wui-system-accent-color-dark-1) 80%, transparent); /* AccentFillColorTertiary(Dark1 @0.8) */
+  --wui-slider-track-value-fill-disabled: #00000037; /* AccentFillColorDisabled(light #37000000,L242) */
+  --wui-slider-thumb-background: var(--wui-system-accent-color); /* SliderThumbBackground = AccentFillColorDefaultBrush */
+  --wui-slider-thumb-background-pointer-over: color-mix(in srgb, var(--wui-system-accent-color-dark-1) 90%, transparent); /* AccentFillColorSecondaryBrush */
+  --wui-slider-thumb-background-pressed: color-mix(in srgb, var(--wui-system-accent-color-dark-1) 80%, transparent); /* AccentFillColorTertiaryBrush */
+  --wui-slider-thumb-background-disabled: #00000037; /* AccentFillColorDisabledBrush */
+  --wui-slider-header-foreground: #000000e4; /* SliderHeaderForeground = TextFillColorPrimaryBrush(light #E4000000,L209) */
+  --wui-slider-header-foreground-disabled: #0000005c; /* TextFillColorDisabled(light #5C000000,L212) */
+  --wui-slider-tick-bar-fill: #00000072; /* SliderTickBarFill = ControlStrongFillColorDefaultBrush */
+  --wui-slider-tick-bar-fill-disabled: #00000051; /* SliderTickBarFillDisabled = ControlStrongFillColorDisabledBrush */
+  --wui-slider-inline-tick-bar-fill: #ffffff; /* SliderInlineTickBarFill = ControlFillColorInputActiveBrush(light #FFFFFF,L225) */
+  --wui-slider-outer-thumb-background: #ffffff; /* SliderOuterThumbBackground = ControlSolidFillColorDefaultBrush(light #FFFFFF,L228) */
+  --wui-slider-thumb-border-brush: #0000000f; /* SliderThumbBorderBrush = ControlElevationBorderBrush(基色 ControlStrokeColorDefault #0F000000,L243) */
+}
+
+html[data-theme='dark'] .wui-slider {
+  --wui-slider-track-fill: #ffffff8b; /* ControlStrongFillColorDefault(dark #8BFFFFFF,L22) */
+  --wui-slider-track-fill-pointer-over: #ffffff8b;
+  --wui-slider-track-fill-pressed: #ffffff8b;
+  --wui-slider-track-fill-disabled: #ffffff3f; /* ControlStrongFillColorDisabled(dark #3FFFFFFF,L23) */
+  --wui-slider-track-value-fill-pointer-over: color-mix(in srgb, var(--wui-system-accent-color-light-2) 90%, transparent); /* AccentFillColorSecondary(dark = Light2 @0.9,L126) */
+  --wui-slider-track-value-fill-pressed: color-mix(in srgb, var(--wui-system-accent-color-light-2) 80%, transparent); /* AccentFillColorTertiary(Light2 @0.8,L127) */
+  --wui-slider-track-value-fill-disabled: #ffffff28; /* AccentFillColorDisabled(dark #28FFFFFF,L38) */
+  --wui-slider-thumb-background-pointer-over: color-mix(in srgb, var(--wui-system-accent-color-light-2) 90%, transparent);
+  --wui-slider-thumb-background-pressed: color-mix(in srgb, var(--wui-system-accent-color-light-2) 80%, transparent);
+  --wui-slider-thumb-background-disabled: #ffffff28;
+  --wui-slider-header-foreground: #ffffff; /* TextFillColorPrimary dark #FFFFFF(L5) */
+  --wui-slider-header-foreground-disabled: #ffffff5d; /* TextFillColorDisabled(dark #5DFFFFFF,L8) */
+  --wui-slider-tick-bar-fill: #ffffff8b;
+  --wui-slider-tick-bar-fill-disabled: #ffffff3f;
+  --wui-slider-inline-tick-bar-fill: #1e1e1eb3; /* ControlFillColorInputActive(dark #B31E1E1E,L21)→ #1E1E1E + alpha B3 */
+  --wui-slider-outer-thumb-background: #454545; /* ControlSolidFillColorDefault(dark #454545,L24) */
+  --wui-slider-thumb-border-brush: #ffffff12; /* ControlStrokeColorDefault(dark #12FFFFFF,L39) */
 }
 
 /* 标题:SliderHeaderForeground + SliderTopHeaderMargin(0,0,0,4)+ ControlContentThemeFontSize */
@@ -318,7 +375,8 @@ function tickLeft(r: number): string {
   outline: none;
 }
 
-/* —— 轨道:SliderTrackThemeHeight(此处取 4 系 Windows 11 观感选择,源快照三个主题字典均为 2,见 wiki 差异);
+/* —— 轨道:SliderTrackThemeHeight = 4(FIX9 定案:现行 controls/dev 值;legacy generic.xaml
+      三字典为 2,见样式段首注);圆角 SliderTrackCornerRadius = 2;
       视觉层不接收指针,交互全部交给其下的原生 input —— */
 .wui-slider__track {
   position: absolute;
@@ -326,6 +384,7 @@ function tickLeft(r: number): string {
   left: 0;
   width: 100%;
   height: 4px;
+  border-radius: 2px;
   background: var(--wui-slider-track-fill);
   transform: translateY(-50%);
   pointer-events: none;
@@ -338,29 +397,50 @@ function tickLeft(r: number): string {
   top: 50%;
   left: 0;
   height: 4px;
+  border-radius: 2px;
   background: var(--wui-slider-track-value-fill);
   transform: translateY(-50%);
   pointer-events: none;
   transition: background-color var(--wui-duration-fast, 167ms) var(--wui-easing-standard, ease);
 }
 
-/* —— 拇指:8x24、CornerRadius 4、SliderThumbBackground —— */
+/* —— 拇指:现行 18×18 圆旋钮(FIX9,定案见样式段首注):外圈
+      SliderOuterThumbBackground(ControlSolidFillColorDefault)底 + 1px
+      SliderThumbBorderBrush(ControlElevationBorderBrush)描边 +
+      CornerRadius = SliderThumbCornerRadius 10(18px 盒即整圆) —— */
 .wui-slider__thumb {
   position: absolute;
   top: 50%;
-  width: 8px;
-  height: 24px;
-  border-radius: 4px;
+  width: 18px;
+  height: 18px;
+  box-sizing: border-box;
+  border: 1px solid var(--wui-slider-thumb-border-brush);
+  border-radius: 50%;
+  background: var(--wui-slider-outer-thumb-background);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* 内圆 Ellipse SliderInnerThumb 12×12(L199);状态缩放(CompositeTransform 等价):
+   Normal 1(12px)/ PointerOver 1.1667(→14)/ Pressed 0.8333(→10)/ Disabled 1.1667 */
+.wui-slider__thumb-inner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
   background: var(--wui-slider-thumb-background);
-  transform: translateY(-50%) scale(1);
+  transform: translate(-50%, -50%) scale(1);
   pointer-events: none;
   transition:
     background-color var(--wui-duration-fast, 167ms) var(--wui-easing-standard, ease),
     transform var(--wui-duration-fast, 167ms) var(--wui-easing-standard, ease);
 }
 
-/* 刻度条:高 4(SliderOutsideTickBarThemeHeight)、与轨道边缘间距 4(TopTickBar Margin 0,0,0,4);
-   轨道半高 2 + 间距 4 = 中线 ±6 */
+/* 刻度条:高 4(SliderOutsideTickBarThemeHeight)、与轨道边缘间距 4(TopTickBar
+   VerticalAlignment=Bottom + Margin 0,0,0,4 → 容器 y 6..10,与轨道半高 2 + 间距 4 一致);
+   刻度线色 = SliderTickBarFill(ControlStrongFillColorDefault) */
 .wui-slider__ticks {
   position: absolute;
   left: 0;
@@ -397,11 +477,12 @@ function tickLeft(r: number): string {
 }
 
 /* ======================================================================
- * 视觉状态(对照 CommonStates / 焦点):
- * PointerOver —— 轨道/已选段/拇指切换 PointerOver 色,拇指放大;
- * Pressed(:active,拖动期间保持)—— Pressed 色,拇指放大保持;
- * Focus(:focus-visible)—— 拇指外围 accent 轮廓(WinUI 为控件外围系统焦点框,见 wiki);
- * Disabled —— 全套 Disabled 色 + 光标。
+ * 视觉状态(对照现行模板 CommonStates,Slider_themeresources.xaml L262-437):
+ * PointerOver —— 内圆放大至 14(0.71×12 注:1.167 = 12px to 14px)+ Secondary 色;
+ *                轨道/已选段换 PointerOver 色阶(轨道同值、已选段 AccentFillColorSecondary);
+ * Pressed(:active,拖动期间保持)—— 内圆缩至 10(0.71 = 14px to 10px)+ Tertiary 色;
+ * Focus(:focus-visible)—— 拇指外围系统焦点框(UseSystemFocusVisuals,近似,见 wiki);
+ * Disabled —— 全套 Disabled 色 + 内圆放大(源 Disabled 态 1.167)+ 光标。
  * ====================================================================== */
 
 /* —— PointerOver —— */
@@ -413,9 +494,9 @@ function tickLeft(r: number): string {
   background: var(--wui-slider-track-value-fill-pointer-over);
 }
 
-.wui-slider__input:not(:disabled):hover ~ .wui-slider__thumb {
+.wui-slider__input:not(:disabled):hover ~ .wui-slider__thumb .wui-slider__thumb-inner {
   background: var(--wui-slider-thumb-background-pointer-over);
-  transform: translateY(-50%) scale(1.4);
+  transform: translate(-50%, -50%) scale(1.1667);
 }
 
 /* —— Pressed(拖动中持续) —— */
@@ -427,15 +508,18 @@ function tickLeft(r: number): string {
   background: var(--wui-slider-track-value-fill-pressed);
 }
 
-.wui-slider__input:not(:disabled):active ~ .wui-slider__thumb {
+.wui-slider__input:not(:disabled):active ~ .wui-slider__thumb .wui-slider__thumb-inner {
   background: var(--wui-slider-thumb-background-pressed);
-  transform: translateY(-50%) scale(1.4);
+  transform: translate(-50%, -50%) scale(0.8333);
 }
 
 /* —— Focus(键盘焦点可见性) —— */
+/* 源 Slider UseSystemFocusVisuals + FocusVisualMargin=-7,0,-7,0(Thumb -14,-6):系统双环
+   primary 外环 2px + secondary 内环 1px,取系统焦点主色(黑/白),非强调色 */
 .wui-slider__input:focus-visible ~ .wui-slider__thumb {
-  outline: 2px solid var(--wui-system-accent-color);
-  outline-offset: 2px;
+  outline: 2px solid var(--wui-system-control-focus-visual-primary);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 /* —— Disabled —— */
@@ -455,7 +539,8 @@ function tickLeft(r: number): string {
   background: var(--wui-slider-track-value-fill-disabled);
 }
 
-.wui-slider__input:disabled ~ .wui-slider__thumb {
+.wui-slider__input:disabled ~ .wui-slider__thumb .wui-slider__thumb-inner {
   background: var(--wui-slider-thumb-background-disabled);
+  transform: translate(-50%, -50%) scale(1.1667); /* 源 Disabled 态内圆放大(L244-253) */
 }
 </style>

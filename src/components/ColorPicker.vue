@@ -660,11 +660,11 @@ function sliderRatio(value: number, min: number, max: number): number {
 }
 
 const thirdThumbStyle = computed<CSSProperties>(() => ({
-  [isHorizontal.value ? 'top' : 'left']: `calc((100% - 20px) * ${sliderRatio(thirdSliderValue.value, thirdAxisRange.value.min, thirdAxisRange.value.max)})`,
+  [isHorizontal.value ? 'top' : 'left']: `calc((100% - 18px) * ${sliderRatio(thirdSliderValue.value, thirdAxisRange.value.min, thirdAxisRange.value.max)})`,
 }))
 
 const alphaThumbStyle = computed<CSSProperties>(() => ({
-  [isHorizontal.value ? 'top' : 'left']: `calc((100% - 20px) * ${sliderRatio(alphaSliderValue.value, 0, 100)})`,
+  [isHorizontal.value ? 'top' : 'left']: `calc((100% - 18px) * ${sliderRatio(alphaSliderValue.value, 0, 100)})`,
 }))
 
 // ====================================================================================
@@ -988,14 +988,19 @@ const rootClass = computed(() => ({
 
     <!-- 文本输入区(TextEntryGrid) -->
     <div v-if="textEntryShown" class="wui-color-picker-entries" :style="entriesStyle">
-      <WuiComboBox
-        v-if="isColorChannelTextInputVisible"
-        class="wui-color-picker-combo"
-        :items="representationItems"
-        v-model:selected-index="representationIndex"
-        :disabled="disabled"
-        aria-label="颜色表示法"
-      />
+      <!-- FIX9:表示法下拉(ColorRepresentationComboBox Width 120)。类作用域坑:此前类直接
+           落在 WuiComboBox 根上,其根只带 ComboBox 自身作用域 id,本组件 scoped 规则
+           .wui-color-picker-combo[data-v-cp] 永不命中 → grid-area/width 双失效、被网格列
+           拉伸到 190px。改为本组件自有包裹层承载 grid-area 与 120px 定宽(源 ColorPicker.xaml
+           L363),子控件经 :deep 撑满包裹层。 -->
+      <div v-if="isColorChannelTextInputVisible" class="wui-color-picker-combo">
+        <WuiComboBox
+          :items="representationItems"
+          v-model:selected-index="representationIndex"
+          :disabled="disabled"
+          aria-label="颜色表示法"
+        />
+      </div>
 
       <div v-if="isColorChannelTextInputVisible" class="wui-color-picker-channels">
         <!-- RGB 面板 -->
@@ -1163,10 +1168,20 @@ const rootClass = computed(() => ({
      token;此处仅留同值兜底(FINAL M-1:按 CSS 字节序 #000000e4,防 token 改名时
      误落未翻转的全透明红)。来源:CommonStyles/Common_themeresources_any.xaml。 */
   --wui-cp-thumb-inner-fill: #000000e4;
+  /* 视觉 fix(FIX9):预览条描边 / 滑杆拇指外环取现行 Fluent 实值。theme.css 未生成
+     control-stroke / control-solid-fill 族 token,按 V7 先例局部携带:
+     ControlStrokeColorDefault light #0F000000 / dark #12FFFFFF(Common_themeresources_any.xaml
+     L243 / L39)→ 字节序换算(XAML AARRGGBB → CSS RRGGBBAA)#0000000f / #ffffff12;
+     ControlSolidFillColorDefault light #FFFFFF / dark #454545(同文件 L228 / L24),
+     用于 SliderOuterThumbBackground。 */
+  --wui-cp-stroke-default: #0000000f;
+  --wui-cp-outer-thumb-fill: #ffffff;
 }
 
 html[data-theme='dark'] .wui-color-picker {
   --wui-cp-thumb-inner-fill: #ffffff;
+  --wui-cp-stroke-default: #ffffff12;
+  --wui-cp-outer-thumb-fill: #454545;
 }
 
 /* —— Horizontal 排布(源 Horizontal 视觉状态:谱区居左,竖向滑杆居中,输入区居右) —— */
@@ -1328,7 +1343,10 @@ html[data-theme='dark'] .wui-color-picker {
 
 .wui-color-picker-preview-border {
   inset: 0;
-  border: 2px solid var(--wui-text-control-border); /* ColorPickerBorderBrush = ControlStrokeColorDefault */
+  /* FIX9:ColorPickerBorderBrush = ControlStrokeColorDefaultBrush(ColorPicker_themeresources
+     L11/L20)。此前误用 var(--wui-text-control-border)(legacy TextControlBorderBrush,
+     40% 不透明,浓 6~7 倍);现取 ControlStrokeColorDefault 5.9%(light)/ 7.1%(dark)。 */
+  border: 2px solid var(--wui-cp-stroke-default);
   border-radius: inherit;
 }
 
@@ -1372,22 +1390,24 @@ html[data-theme='dark'] .wui-color-picker {
   background-size: 8px 8px;
 }
 
-/* 拇指(外圈白底圆 + 内圈当前通道色,ColorPickerSliderThumb 样式) */
+/* 拇指(外圈底色圆 + 1px 描边 + 内圈当前通道色,ColorPickerSliderStyle 的 Thumb 模板
+   ColorPicker.xaml L437-447:Border(SliderOuterThumbBackground + SliderThumbBorderBrush +
+   SliderThumbCornerRadius)包 Ellipse(ColorPickerSliderInnerThumb 10×10)) */
 .wui-color-picker-slider-thumb {
   top: 50%;
-  width: 20px;
-  height: 20px;
+  width: 18px; /* FIX9:SliderHorizontalThumbWidth/Height = 18(Slider_themeresources L169-170),原 20 偏大 */
+  height: 18px;
   box-sizing: border-box;
-  border: 1px solid var(--wui-slider-thumb-border-theme);
-  border-radius: 50%;
-  background: var(--wui-system-control-background-chrome-white);
+  border: 1px solid var(--wui-cp-stroke-default); /* SliderThumbBorderBrush = ControlElevationBorderBrush(取其基色 ControlStrokeColorDefault) */
+  border-radius: 50%; /* CornerRadius = SliderThumbCornerRadius 10(18px 盒即整圆) */
+  background: var(--wui-cp-outer-thumb-fill); /* SliderOuterThumbBackground = ControlSolidFillColorDefaultBrush */
   transform: translate(0, -50%);
 }
 
 .wui-color-picker-slider-thumb::after {
   content: '';
   position: absolute;
-  inset: 4px; /* 内圈 10px(ColorPickerSliderInnerThumbWidth/Height) */
+  inset: 3px; /* 内圈 10px(ColorPickerSliderInnerThumbWidth/Height):18 - 2×1(描边)- 2×3 */
   border-radius: 50%;
   background: var(--wui-text-fill-color-primary, var(--wui-cp-thumb-inner-fill)); /* ColorPickerSliderThumbBackground */
 }
@@ -1402,8 +1422,9 @@ html[data-theme='dark'] .wui-color-picker {
 }
 
 .wui-color-picker-slider-input:focus-visible ~ .wui-color-picker-slider-thumb {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 2px;
+  outline: 2px solid var(--wui-system-control-focus-visual-primary);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 .wui-color-picker-slider-input {
@@ -1495,8 +1516,9 @@ html[data-theme='dark'] .wui-color-picker {
 }
 
 .wui-color-picker-more:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
+  outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 .wui-color-picker-more-glyph {
@@ -1511,9 +1533,14 @@ html[data-theme='dark'] .wui-color-picker {
   margin-bottom: 12px;
 }
 
+/* FIX9:类移到本组件自有包裹层(见模板注),scoped 规则可命中 → grid-area / 120px 生效 */
 .wui-color-picker-combo {
   grid-area: combo;
-  width: 120px; /* ColorRepresentationComboBox Width 120 */
+  width: 120px; /* ColorRepresentationComboBox Width 120(ColorPicker.xaml L363) */
+}
+
+.wui-color-picker-combo > :deep(.wui-combo-box) {
+  width: 100%;
 }
 
 .wui-color-picker-hex {

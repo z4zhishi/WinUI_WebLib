@@ -443,7 +443,12 @@ html[data-theme='dark'] .wui-rating {
 }
 
 .wui-rating__foreground--placeholder {
-  color: var(--wui-rating-control-placeholder-foreground);
+  /* FIX9:占位前景 = RatingControlPlaceholderForeground = TextFillColorPrimaryBrush
+     (RatingControl_themeresources.xaml L7/L14;浅 #E4000000 / 深 #FFFFFF)。theme.css 生成的
+     --wui-rating-control-placeholder-foreground 丢了 alpha(浅 #000000),V8 字节序修正段
+     也漏了本 token;改引同库已修正的全局 token(--wui-text-fill-color-primary:浅
+     #000000e4 / 深 #ffffff,theme.css L755/L2670),字节序换算 #E4000000 → #000000e4。 */
+  color: var(--wui-text-fill-color-primary, #000000e4);
 }
 
 .wui-rating__foreground--pointerOverPlaceholder {
@@ -468,9 +473,11 @@ html[data-theme='dark'] .wui-rating {
   color: var(--wui-rating-control-caption-foreground);
 }
 
-/* —— Focus(UseSystemFocusVisuals;WinUI 系统焦点框 → 2px accent 轮廓)—— */
+/* —— Focus(源 RatingControl UseSystemFocusVisuals + FocusVisualMargin -8,-7,-8,0:系统双环
+   primary 外环 2px + secondary 内环 1px,取系统焦点主色(黑/白),非强调色)—— */
 .wui-rating:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color);
-  outline-offset: 2px;
+  outline: 2px solid var(--wui-system-control-focus-visual-primary);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 </style>
