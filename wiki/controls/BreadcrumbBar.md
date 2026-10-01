@@ -76,13 +76,13 @@ function onItemClicked({ index }: { item: unknown; index: number }) {
 
 视觉按 `controls/dev/Breadcrumb/BreadcrumbBar.xaml` + `BreadcrumbBar_themeresources.xaml` 复刻(generic.xaml 本体无 `TargetType="BreadcrumbBar"` 段),以下项做了 Web 等价替换或简化:
 
-1. **TextFill* / SubtleFill* 颜色 token**:`BreadcrumbBarNormalForegroundBrush` = `TextFillColorPrimary`(取同值近似 `--wui-application-foreground-theme`,87% vs 89%)、`…HoverForegroundBrush` = `TextFillColorSecondary`(取 `--wui-application-secondary-foreground-theme`,60% vs 62%);`…PressedForegroundBrush` = `TextFillColorTertiary`(55%)无对应 token,取最近似的 Secondary 同值 —— 悬停与按压前景一致;`…DisabledForegroundBrush` = `TextFillColorDisabled`(36%)取 `--wui-system-control-foreground-base-medium-low`(40%)。
+1. **TextFill* / SubtleFill* 颜色 token**:`BreadcrumbBarNormalForegroundBrush` = `TextFillColorPrimary`(取同值近似 `--wui-application-foreground-theme`,87% vs 89%)、`…HoverForegroundBrush` = `TextFillColorSecondary`(取 `--wui-application-secondary-foreground-theme`,60% vs 62%);`…PressedForegroundBrush` = `TextFillColorTertiary`(官方现行 44.7%/53%)取最近似的 `--wui-application-pressed-foreground-theme`(40%,与 SelectorBar 对同一画刷的映射一致)—— 按压较悬停(60%)明显变淡;`…DisabledForegroundBrush` = `TextFillColorDisabled`(36%)取 `--wui-system-control-foreground-base-medium-low`(40%)。
 2. **省略号下拉项背景**:`BreadcrumbBarEllipsisDropDownItem*` 引用 `SubtleFillColorTransparent/Secondary/Tertiary`,theme.css 未提取该系列;取引用同一组资源的 `--wui-menu-flyout-item-background(-pointer-over/-pressed)` token,值完全一致。
 3. **尺寸/间距字面量**:`BreadcrumbBarChevronFontSize` 12、`BreadcrumbBarChevronPadding` "2,0"、项按钮 Padding "1,3"、行高 20、下拉项 Padding "11,7,11,9" + Margin "5,3"、层 Padding "0,2" 与 MinHeight 40、Min/MaxWidth 96/456 均为资源字面值(x:Double/Thickness 不入 token 集);圆角 `ControlCornerRadius` 4 复用 `--wui-hyperlink-focus-rect-corner-radius`(同 MenuBar/DropDownButton 约定)。
 4. **下拉层背景**:`AcrylicBackgroundFillColorDefault` + `SurfaceStrokeColorFlyout` 分别取 `--wui-flyout-presenter-background` / `--wui-flyout-border-theme`(FlyoutPresenter 同源画刷);WinUI 的亚克力材质噪声层无 Web token,取纯色近似。
 5. **`selected-item` 为 Web 增补**:WinUI BreadcrumbBar 的 IDL 只有 `ItemsSource` / `ItemTemplate` / `ItemClicked`,无选中概念;`v-model:selected-item` 是 Web 侧便利(点击任一节点时写入该项),WinUI 行为不受影响,不需要可不监听。
 6. **`disabled` / `ellipsis-aria-label` 为 Web 增补**:前者对应 WinUI `Control.IsEnabled`(模板存在 Disabled 视觉态),后者为省略号字形提供可本地化的无障碍名称(WinUI 由自动化对等项内部命名)。
-7. **RTL**:WinUI 模板含 `DefaultRTL/EllipsisRTL` 态(chevron 换字形 E973);Web 版仅按 LTR 实现,未随 `dir` 切换。
+7. **RTL / 分隔符字形**:WinUI 模板含 `DefaultRTL/EllipsisRTL` 态(chevron 换字形 E973);Web 版仅按 LTR 实现,未随 `dir` 切换。LTR 字形按源 Default 视觉态取 E974(ChevronRightSmall,`BreadcrumbBarChevronLeftToRight`)—— 模板 `PART_ChevronTextBlock` 的字面初值 E76C 会被 `UpdateInlineItemTypeVisualState` 置换;Web 版曾误用初值 E76C,已订正(VR-B20 → FIX21)。
 8. **系统焦点框 / HighContrast**:WinUI 双环焦点视觉(`FocusVisualMargin=1/-3`)近似为 primary 色单环 `outline`(同 MenuBarItem);HighContrast 主题字典未适配。
 
 ---

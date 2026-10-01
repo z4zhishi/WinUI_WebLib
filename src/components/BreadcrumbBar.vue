@@ -11,12 +11,15 @@
 // 视觉规格(对照源值 → --wui-* token):
 //   - 项字号 = BreadcrumbBarItemThemeFontSize = ControlContentThemeFontSize(14px)、
 //     字族 ContentControlThemeFontFamily、字重 Normal、行高 20、项按钮 Padding="1,3";
-//   - 分隔符 chevron:SymbolThemeFontFamily 字形 E76C(ChevronRight)、FontSize 12、
+//   - 分隔符 chevron:SymbolThemeFontFamily 字形 E974(ChevronRightSmall;模板字面初值 E76C
+//     会被 Default 视觉态经 UpdateInlineItemTypeVisualState 置换为 BreadcrumbBarChevronLeftToRight,
+//     见 wiki 差异节)、FontSize 12、
 //     Padding "2,0"(BreadcrumbBarChevronPadding);省略号节点内容为字形 E712(More)、Padding 3;
 //   - 前景:Normal = BreadcrumbBarNormalForegroundBrush(TextFillColorPrimary ≈
 //     --wui-application-foreground-theme),Hover = …HoverForegroundBrush(TextFillColorSecondary
 //     ≈ --wui-application-secondary-foreground-theme),Pressed = …PressedForegroundBrush
-//     (TextFillColorTertiary,无对应 token,取最近似的 Secondary 同值,见 wiki 差异节),
+//     (TextFillColorTertiary ≈ --wui-application-pressed-foreground-theme,同 SelectorBar
+//     对该画刷的映射,见 wiki 差异节),
 //     Disabled = …DisabledForegroundBrush(≈ --wui-system-control-foreground-base-medium-low);
 //     chevron 恒用 Normal 前景(模板 Foreground 固定);
 //   - 最后一项走 LastItem 视觉态:按钮收起、改渲染 ContentPresenter,不可点击不可悬停,
@@ -441,13 +444,13 @@ function onLayerFocusout(event: FocusEvent): void {
             <slot :item="item" :index="i">{{ itemText(item) }}</slot>
           </span>
         </span>
-        <span v-if="i < items.length - 1" class="wui-breadcrumb-chevron">&#xE76C;</span>
+        <span v-if="i < items.length - 1" class="wui-breadcrumb-chevron">&#xE974;</span>
       </span>
       <span ref="ellipsisMeasureRef" class="wui-breadcrumb-unit">
         <span class="wui-breadcrumb-item-button">
           <span class="wui-breadcrumb-item-content wui-breadcrumb-ellipsis-glyph">&#xE712;</span>
         </span>
-        <span class="wui-breadcrumb-chevron">&#xE76C;</span>
+        <span class="wui-breadcrumb-chevron">&#xE974;</span>
       </span>
     </div>
 
@@ -467,7 +470,7 @@ function onLayerFocusout(event: FocusEvent): void {
       >
         <span class="wui-breadcrumb-item-content wui-breadcrumb-ellipsis-glyph" aria-hidden="true">&#xE712;</span>
       </button>
-      <span class="wui-breadcrumb-chevron" aria-hidden="true">&#xE76C;</span>
+      <span class="wui-breadcrumb-chevron" aria-hidden="true">&#xE974;</span>
     </template>
 
     <!-- 可见节点:非末项 = 按钮(PART_ItemButton);末项 = 不可点击内容(PART_LastItemContentPresenter) -->
@@ -497,7 +500,7 @@ function onLayerFocusout(event: FocusEvent): void {
         >
           <slot :item="item" :index="i">{{ itemText(item) }}</slot>
         </span>
-        <span v-if="i < items.length - 1" class="wui-breadcrumb-chevron" aria-hidden="true">&#xE76C;</span>
+        <span v-if="i < items.length - 1" class="wui-breadcrumb-chevron" aria-hidden="true">&#xE974;</span>
       </template>
     </template>
   </nav>
@@ -590,8 +593,9 @@ function onLayerFocusout(event: FocusEvent): void {
 }
 
 .wui-breadcrumb-item-button:active:not(:disabled) {
-  /* WinUI Pressed = TextFillColorTertiary(theme.css 未提取,取最近似 Secondary 同值,见 wiki 差异节) */
-  color: var(--wui-application-secondary-foreground-theme);
+  /* WinUI Pressed = TextFillColorTertiary ≈ --wui-application-pressed-foreground-theme
+     (同 SelectorBar 对该画刷的映射,见 wiki 差异节) */
+  color: var(--wui-application-pressed-foreground-theme);
 }
 
 .wui-breadcrumb-item-button:disabled {
@@ -641,7 +645,8 @@ function onLayerFocusout(event: FocusEvent): void {
   box-shadow: inset 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
-/* 分隔符 chevron(PART_ChevronTextBlock):字形 E76C、FontSize 12、Padding="2,0";恒用 Normal 前景 */
+/* 分隔符 chevron(PART_ChevronTextBlock):字形 E974(源 Default 视觉态渲染值,见 wiki 差异节)、
+   FontSize 12、Padding="2,0";恒用 Normal 前景 */
 .wui-breadcrumb-chevron {
   display: inline-flex;
   align-items: center;
