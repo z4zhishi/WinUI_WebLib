@@ -6,8 +6,8 @@
 //   Top/BottomCornerRadiusFilterConverter 语义裁切)。颜色取 src/styles/theme.css 最近似 --wui-* token
 //   (Card*/Subtle*/TextFill* 系列 token 未生成,映射表见 wiki/controls/Expander.md 差异节);
 //   Left/Right 展开方向为任务规格要求的 Web 扩展(参照源枚举仅 Down/Up,见 Expander.idl L46-L49)。
-// 动效:展开 / 收起取 Expander.xaml Expand*/Collapse* 故事板时长(333ms / 167ms)与 KeySpline 语义,
-//   以 animations.css 的 duration-slow/fast + easing-standard/accelerate token 近似;
+// 动效:展开 / 收起按 Expander.xaml Expand*/Collapse* 故事板逐键复刻 —— 展开 333ms +
+//   KeySpline (0.0,0.0,0.0,1.0)(L44/L85)、收起 167ms + KeySpline (1.0,1.0,0.0,1.0)(L57);
 //   内容区以 grid-template-rows 过渡实现高度动画(Left/Right 时为 grid-template-columns 宽度过渡)。
 import { computed, ref, useAttrs, useId, onBeforeUnmount } from 'vue'
 import WuiFontIcon from './FontIcon.vue'
@@ -57,8 +57,8 @@ function toggle(): void {
 // 主路径:clip 元素自身的 grid-template-rows/columns transitionend(嵌套 Expander 的事件被
 // target 过滤);兜底:定时器(时长 + 60ms,覆盖 reduced-motion 下 transition 仍触发但时序漂移)。
 // 两者共用 settleToken 保证每次切换只发一次。
-const EXPAND_MS = 350 // 对齐 --wui-duration-slow(源 Expand* 333ms)
-const COLLAPSE_MS = 167 // 对齐 --wui-duration-fast(源 Collapse* 167ms)
+const EXPAND_MS = 333 // 源 Expand* KeyTime 0:0:0.333(Expander.xaml L44)
+const COLLAPSE_MS = 167 // 源 Collapse* KeyTime 0:0:0.167(Expander.xaml L57)
 
 const clipRef = ref<HTMLElement | null>(null)
 let settleToken = 0
@@ -320,31 +320,31 @@ const hasHeaderText = computed(() => props.header !== '')
   color: var(--wui-toggle-switch-content-foreground-disabled);
 }
 
-/* —— 内容裁剪区:0fr/1fr 网格过渡 ——
-   展开:duration-slow + standard(源 333ms + KeySpline 0,0,0,1 的强减速曲线,取最近似 token);
-   收起:duration-fast + accelerate(源 167ms + KeySpline 1,1,0,1 的加速曲线)。 */
+/* —— 内容裁剪区:0fr/1fr 网格过渡(Expander.xaml Expand / Collapse 故事板逐键值)——
+   展开:333ms + KeySpline (0.0,0.0,0.0,1.0)(L44 强减速曲线,精确转写 cubic-bezier(0,0,0,1));
+   收起:167ms + KeySpline (1.0,1.0,0.0,1.0)(L57,精确转写 cubic-bezier(1,1,0,1))。 */
 .wui-expander-clip {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows var(--wui-duration-fast) var(--wui-easing-accelerate);
+  transition: grid-template-rows 167ms cubic-bezier(1, 1, 0, 1);
 }
 
 .wui-expander--expanded .wui-expander-clip {
   grid-template-rows: 1fr;
-  transition-duration: var(--wui-duration-slow);
-  transition-timing-function: var(--wui-easing-standard);
+  transition-duration: 333ms;
+  transition-timing-function: cubic-bezier(0, 0, 0, 1);
 }
 
 .wui-expander--horizontal .wui-expander-clip {
   grid-template-rows: none;
   grid-template-columns: 0fr;
-  transition: grid-template-columns var(--wui-duration-fast) var(--wui-easing-accelerate);
+  transition: grid-template-columns 167ms cubic-bezier(1, 1, 0, 1);
 }
 
 .wui-expander--horizontal.wui-expander--expanded .wui-expander-clip {
   grid-template-columns: 1fr;
-  transition-duration: var(--wui-duration-slow);
-  transition-timing-function: var(--wui-easing-standard);
+  transition-duration: 333ms;
+  transition-timing-function: cubic-bezier(0, 0, 0, 1);
 }
 
 /* 收起后不可见:移出焦点序与可访问性树(过渡完成后隐藏;展开立即可见) */
