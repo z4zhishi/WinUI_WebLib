@@ -17,8 +17,9 @@ export type ViewboxStretchDirection = 'UpOnly' | 'DownOnly' | 'Both'
 // 0 0,对应 WinUI ScaleTransform 默认原点、子元素在 (0,0) 处 Arrange 的语义);某轴无可用约束
 // (测得 <= 0)时,按 WinUI MeasureOverride 的 DesiredSize 反推该轴自动尺寸——回写采用锁定式
 // (见 autoWidth/autoHeight 处注释),避免「写入 → 测得 > 0 → 撤销 → 又写入」的自激振荡。
-// 差异:WinUI 的 Viewbox 不裁剪溢出内容(UniformToFill 会画出布局边界之外),本复刻按任务规格
-// 在根元素上 overflow: hidden 默认裁剪,详见 wiki/controls/Viewbox.md。
+// 与源一致:WinUI 的 Viewbox 不裁剪溢出内容(UniformToFill / None 下内容超出容器时
+// 画出布局边界之外;源码 Viewbox.cpp 无任何 Clip 分支,UIElement 默认 Clip=null),
+// 根元素不设 overflow 裁剪,官方需要裁剪须自行包 Border + RectangleGeometry.Clip。
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { CSSProperties } from 'vue'
 
@@ -197,9 +198,8 @@ const contentStyle = computed<CSSProperties>(() => ({
 <style scoped>
 .wui-viewbox {
   position: relative;
-  /* WinUI 的 Viewbox 本身不裁剪溢出内容(UniformToFill 会画出边界之外,官方示例需 Border.Clip);
-     本复刻按任务规格默认裁剪,与 WinUI 的差异已在 wiki 记录 */
-  overflow: hidden;
+  /* WinUI 的 Viewbox 不裁剪溢出内容(UniformToFill / None 下内容画出边界之外,
+     Viewbox.cpp 无 Clip 分支);需要裁剪由使用方自包 Border + Clip,与源一致 */
 }
 
 .wui-viewbox__content {

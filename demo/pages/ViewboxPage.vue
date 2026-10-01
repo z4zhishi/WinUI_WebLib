@@ -64,7 +64,7 @@ const maxHeightValue = computed(() => {
 
 const STRETCH_CHOICES = [
   { label: 'Uniform(等比 · 取最小比例)', value: 'Uniform' },
-  { label: 'UniformToFill(等比 · 取最大比例,溢出裁剪)', value: 'UniformToFill' },
+  { label: 'UniformToFill(等比 · 取最大比例,溢出可见)', value: 'UniformToFill' },
   { label: 'Fill(拉伸填满,不保持比例)', value: 'Fill' },
   { label: 'None(原尺寸,不缩放)', value: 'None' },
 ]
@@ -81,7 +81,7 @@ const STRETCH_COMPARISONS: ViewboxStretch[] = ['None', 'Fill', 'Uniform', 'Unifo
 // —— 下半区固定开发文档 ——
 const docsHeaders = ['属性 / 事件', '类型', '默认值', '说明']
 const docsRows: (string | number)[][] = [
-  ['stretch', "'Uniform' | 'UniformToFill' | 'Fill' | 'None'", "'Uniform'", '拉伸方式:Uniform 等比取最小比例;UniformToFill 等比取最大比例(溢出部分裁剪);Fill 两轴分别拉伸;None 原尺寸'],
+  ['stretch', "'Uniform' | 'UniformToFill' | 'Fill' | 'None'", "'Uniform'", '拉伸方式:Uniform 等比取最小比例;UniformToFill 等比取最大比例(溢出部分可见,画出容器边界之外,同 WinUI);Fill 两轴分别拉伸;None 原尺寸'],
   ['stretchDirection', "'UpOnly' | 'DownOnly' | 'Both'", "'Both'", '缩放方向:UpOnly 只放大(scale >= 1);DownOnly 只缩小(scale <= 1);Both 不限'],
   ['maxWidth', 'number | string', '不限', '容器最大宽度;数字按 px,字符串原样作为 CSS 长度'],
   ['maxHeight', 'number | string', '不限', '容器最大高度;同 maxWidth'],
@@ -153,7 +153,7 @@ const usageCode = computed(() => {
           </p>
         </div>
 
-        <!-- 固定对照:同一内容分别用四档 stretch,观察等比/变形/裁剪/原尺寸的差异 -->
+        <!-- 固定对照:同一内容分别用四档 stretch,观察等比/变形/溢出(不裁剪)/原尺寸的差异 -->
         <div class="viewbox-compare">
           <p class="compare-title">{{ compareLabel }}</p>
           <div class="compare-row">

@@ -142,7 +142,7 @@ const propertyRows: (string | number)[][] = [
     'borderThickness',
     'number | string',
     '0',
-    '边框厚度;数字(px)或 "left,top,right,bottom"(两值为左右/上下配对);内绘于盒内,不挤占内容区',
+    '边框厚度;数字(px)或 "left,top,right,bottom"(两值为左右/上下配对);与 padding 共同内缩子元素区(参与布局,同 WinUI CBorder::MeasureOverride);仅设厚度不设颜色时以透明边框占位',
   ],
   ['borderBrush', 'string', 'null(不绘制)', '边框画刷;任意 CSS 颜色或 --wui-* 变量'],
   [
@@ -182,7 +182,7 @@ const usageCode = computed(() => {
 <template>
   <DemoPage wiki="Border"
     title="Border"
-    description="在单个子元素周围绘制边框线、背景或两者的装饰容器:调整四边厚度、逐角圆角、内边距与画刷,观察画在盒内、不挤占内容区的边框效果。"
+    description="在单个子元素周围绘制边框线、背景或两者的装饰容器:调整四边厚度、逐角圆角、内边距与画刷,厚度与内边距共同参与布局、向内挤压子元素区(同 WinUI Border.MeasureOverride)。"
   >
     <template #demo>
       <div class="border-stage">

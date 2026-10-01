@@ -6,8 +6,11 @@
 //   附加属性经核实只有 Left/Top/ZIndex 三个(CK/.../dxaml/lib/winrtgeneratedclasses/Canvas.g.cpp 仅这三个静态访问器,
 //   官方 API 文档的 attached properties 表一致),Right/Bottom 为本项目 Web 扩展(语义差异见 wiki/controls/Canvas.md)。
 // 附加属性方案(本组件独立选择,与 Grid 的实现互不约束):子元素写 data-canvas-top/left/right/bottom/z-index,
-//   组件渲染时经 cloneVNode 把 attr 映射为 position:absolute 内联样式,使用方无需手写定位 style。
-import { Comment, Text, cloneVNode, computed, useSlots } from 'vue'
+//   组件渲染时经 cloneVNode 把 attr 映射为 position:absolute 内联样式,使用方无需手写定位样式。
+// 默认插槽子项先展开 Fragment(v-for / template v-for 的编译产物是单个 Fragment 块,直接逐个
+//   cloneVNode 注入的样式不会落到任何元素上;先例:RelativePanel.vue flattenSlotChildren /
+//   Pivot.vue items 展平),展平后再注入定位样式。
+import { Comment, Fragment, Text, cloneVNode, computed, useSlots } from 'vue'
 import type { CSSProperties, VNode } from 'vue'
 
 const props = withDefaults(
@@ -63,12 +66,26 @@ function positionedStyle(vnode: VNode): CSSProperties {
   }
 }
 
-// —— 默认 slot 出口:克隆子 vnode 并注入定位样式;注释/文本占位(v-if 假值等)原样保留 ——
+/** 递归展开插槽子项中的 Fragment(v-for 编译产物),注释 / 文本占位剔除;限深防病态嵌套。 */
+function flattenSlotChildren(source: readonly VNode[], depth: number, output: VNode[]): void {
+  for (const vnode of source) {
+    if (vnode.type === Comment || vnode.type === Text) continue
+    if (vnode.type === Fragment) {
+      if (depth < 8 && Array.isArray(vnode.children)) {
+        flattenSlotChildren(vnode.children as VNode[], depth + 1, output)
+      }
+      continue
+    }
+    output.push(vnode)
+  }
+}
+
+// —— 默认 slot 出口:先展开 Fragment(v-for 子项),再克隆子 vnode 注入定位样式
+//      (自身 style 在前、注入样式在后:附加属性定位优先生效) ——
 const positionedChildren = computed<VNode[]>(() => {
-  const rawChildren = slots.default?.() ?? []
-  return rawChildren.map((vnode) => {
-    if (vnode.type === Comment || vnode.type === Text) return vnode
-    // 自身 style 在前、注入样式在后:附加属性定位优先生效
+  const flat: VNode[] = []
+  flattenSlotChildren(slots.default?.() ?? [], 0, flat)
+  return flat.map((vnode) => {
     return cloneVNode(vnode, { style: [vnode.props?.style, positionedStyle(vnode)] })
   })
 })

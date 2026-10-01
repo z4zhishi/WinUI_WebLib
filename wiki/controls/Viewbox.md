@@ -16,7 +16,7 @@ Viewbox 是 WinUI 中把**单个子内容放大或缩小到指定尺寸**的容�
 
 | 属性 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `stretch` | `'Uniform' \| 'UniformToFill' \| 'Fill' \| 'None'` | `'Uniform'` | 拉伸方式:`Uniform` 等比缩放取最小比例(完整显示,可能留白);`UniformToFill` 等比取最大比例(填满容器,溢出部分裁剪);`Fill` 两轴分别拉伸(可能变形);`None` 不缩放 |
+| `stretch` | `'Uniform' \| 'UniformToFill' \| 'Fill' \| 'None'` | `'Uniform'` | 拉伸方式:`Uniform` 等比缩放取最小比例(完整显示,可能留白);`UniformToFill` 等比取最大比例(填满容器,溢出部分可见、画出边界之外,同 WinUI);`Fill` 两轴分别拉伸(可能变形);`None` 不缩放 |
 | `stretchDirection` | `'UpOnly' \| 'DownOnly' \| 'Both'` | `'Both'` | 缩放方向约束:`UpOnly` 只放大(比例钳制到 >= 1);`DownOnly` 只缩小(<= 1);`Both` 不限 |
 | `maxWidth` | `number \| string` | 不限 | 容器最大宽度;数字按 px,字符串原样作为 CSS 长度 |
 | `maxHeight` | `number \| string` | 不限 | 容器最大高度;同 `maxWidth` |
@@ -49,7 +49,7 @@ import WuiViewbox from '@/components/Viewbox.vue'
     <YourWidget />
   </WuiViewbox>
 
-  <!-- 填满容器、等比、超出裁剪(适合做封面/背景画面) -->
+  <!-- 填满容器、等比、溢出部分可见(同 WinUI;需要裁剪自行包 Border + Clip) -->
   <WuiViewbox stretch="UniformToFill" :style="{ width: '100%', height: 240 }">
     <YourWidget />
   </WuiViewbox>
@@ -68,11 +68,11 @@ import WuiViewbox from '@/components/Viewbox.vue'
 
 ## 与 WinUI 的差异
 
-1. **溢出默认裁剪**:WinUI 的 Viewbox 不裁剪内容——`UniformToFill`(以及子内容大于容器的 `None`)会把内容画到布局边界之外,官方要裁剪得自己包一层 `Border` 并设置 `RectangleGeometry.Clip`(且需在 SizeChanged 里手工同步矩形)。本复刻按任务规格在根元素上默认 `overflow: hidden`:溢出部分不可见。需要在 WinUI 里复现同样观感,参考官方的 Border.Clip 包裹方案。
+1. **溢出不裁剪(与 WinUI 一致)**:Viewbox 不裁剪内容——`UniformToFill`(以及子内容大于容器的 `None`)把内容画到布局边界之外,组件根元素不设 `overflow` 裁剪;需要裁剪时与官方一致,自行包一层 `Border` 并设置 `RectangleGeometry.Clip`(且需在 SizeChanged 里手工同步矩形)。
 2. **无约束轴的自动尺寸(锁定式回写)**:WinUI 中 Viewbox 的布局尺寸由父容器决定(Measure 返回 DesiredSize)。Web 里无法得知父布局的约束意图,组件把「测得尺寸 <= 0」的轴视为无约束,按 DesiredSize(= scale × contentSize)回写该轴的 inline 尺寸并**锁定**:锁定期间持续回写当前计算值(静止后样式不再变化,无逐帧振荡),仍随内容尺寸与 stretch 变化实时重算;一旦该轴被消费方以显式尺寸接管(组件检测到测得值偏离回写值,消费方 style 优先级高于组件回写),即解锁让位。因此:双轴都无约束的裸 Viewbox 呈现子内容的自然大小(比例 1:1);只约束一轴时另一轴按等比反推(与 XAML DesiredSize 语义一致);已显式给定的尺寸永远不会被组件覆写。
 3. **子内容测量用 `width: max-content`**:内容元素以 max-content 布局来逼近 XAML「以无限尺寸 Measure」的语义——文本不再按容器宽度换行,而是取整行自然宽度后再整体缩放。因此子内容里的**百分比尺寸**(如 `width: 100%`)会相对 max-content 盒解析,跨浏览器表现略有差异;子内容建议用固定或内容驱动的尺寸。
 4. **子内容的外边距不参与自然尺寸**:绝对定位的内容盒高度不包含末个子元素的 `margin-bottom`(BFC 常规行为);XAML 的 `Margin` 会完整计入 Child 的 DesiredSize。需要留边时改用 padding 或在 slot 里包一层。
-5. **DPR 与亚像素**:缩放经 CSS transform 在合成器上完成,`UniformToFill` 裁剪发生在根元素边界;WinUI 按布局像素栅格化,放大倍数很大时文字清晰度可能略好于 Web 实现(浏览器对 transform 文本会重栅格化,通常观感接近)。
+5. **DPR 与亚像素**:缩放经 CSS transform 在合成器上完成,放大倍数很大时文字清晰度可能略逊于 WinUI 按布局像素栅格化的结果(浏览器对 transform 文本会重栅格化,通常观感接近)。
 6. **无视觉状态与模板**:与 WinUI 一致(Viewbox 无 ControlTemplate、无 PointerOver/Pressed 等视觉状态),组件因此也没有交互态样式,不需要 focus/键盘处理。
 
 ## 官方示例对照

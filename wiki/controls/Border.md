@@ -95,23 +95,23 @@ import WuiTextBlock from '@/components/TextBlock.vue'
 
 [WinUI Gallery 官方 Border 示例](https://github.com/microsoft/WinUI-Gallery)的 Background / BorderBrush 单选给出 Green / Yellow / Blue / White 四色,其 code-behind(`Samples/Border/BorderPage.xaml.cs`)的映射为:Yellow → `Colors.Gold`、Green → `Colors.DarkGreen`、Blue → `Colors.DarkBlue`、White → `Colors.White`。演示页为了**逐像素对照官方示例**,在画刷下拉与「官方示例还原」固定示例中直接使用这些字面 CSS 色(`#FFD700` / `#006400` / `#00008B` / `#FFFFFF`)——它们是演示选项的属性值而非组件样式,组件样式本身零硬编码;实际业务请优先使用 `--wui-*` 主题 token(演示页下拉的默认项即主题 token)。
 
-## 边框绘制方案选型(内绘语义)
+## 边框绘制方案选型(参与布局的内绘语义)
 
-本组件的边框**画在盒内**:不挤占 `padding` 与内容区,改变 `borderThickness` 不会引起布局抖动。实现取多重 `box-shadow: inset`(四边一致时合并为一条 `inset 0 0 0 Npx color` 内环),三种 CSS 方案的取舍:
+对照 WinUI 源码(`CK/WinUI-Reference/dxaml/xcp/core/core/elements/Border.cpp` 的 `CBorder::MeasureOverride` L211-236 与 `HelperGetCombinedThickness`):`combined = BorderThickness + Padding`,`childAvailableSize = MAX(0, availableSize - combined)`,`desiredSize = childDesired + combined` —— **边框厚度与内边距共同参与度量与排布**,子元素区按「厚度 + 内边距」共同内缩(厚度不依赖画刷:`BorderBrush = null` 只是不绘制,内缩照旧)。
+
+本组件以 CSS `border` + `box-sizing: border-box` 精确复刻该语义:边框画在盒缘内侧并向内挤压 `padding` 与内容区,绘制位置与早期 inset box-shadow 方案一致(均在盒内缘),厚度变化的内容回流行为与 WinUI 相同。三种 CSS 方案的取舍:
 
 | 方案 | 结论 | 原因 |
 | --- | --- | --- |
-| CSS `border` | 不采用 | `border` 参与盒模型(border-box 下会挤占 padding/内容区),厚度变化引起内容回流抖动;且 WinUI 的 BorderThickness 不属于 `Padding` 语义 |
-| CSS `outline` | 不采用 | 不支持四边独立厚度(只能等宽);负 `outline-offset` 内绘依赖较新浏览器的圆角跟随行为 |
-| **`box-shadow: inset`(采用)** | ✔ | 盒内绘制、零布局影响、天然跟随 `border-radius`;借多重阴影(每边一条 `inset ±Npx 0 0 color`)实现四边独立厚度。代价:同侧多层阴影在圆角处按覆盖而非斜接(miter)合并, extreme 非对称厚度 + 大圆角时拐角过渡与 WinUI 略有出入(同色画刷下肉眼几乎不可见) |
-
-与 WinUI 原生语义的差异:WinUI 的 Border 在排版时子元素区域会被 `BorderThickness + Padding` 共同内缩(边框参与布局);Web 版按本移植约定改为「内绘、不挤占」,换来的是厚度动态调节零回流。需要严格还原 WinUI 排版行为时,可把 `padding` 手动加上对应边的厚度近似(如 `border-thickness="2"` 时 `padding="2"` 与厚度叠加)。
+| **CSS `border`(采用)** | ✔ | 与 WinUI 一致地参与盒模型(border-box 下厚度挤占 padding/内容区);支持四边独立厚度、天然跟随 `border-radius`,圆角处按斜接(miter)过渡与 WinUI 一致 |
+| CSS `outline` | 不采用 | 不支持四边独立厚度(只能等宽);负 `outline-offset` 内绘依赖较新浏览器的圆角跟随行为,且不参与布局 |
+| `box-shadow: inset`(已弃用) | ✘ | 盒内绘制、零布局影响,但 WinUI 的边框**参与布局**——该方案下子元素区不随厚度内缩,与源语义不符(视觉 QA FAIL-BORDER-1 打回项),已替换 |
 
 ## 与 WinUI 的差异
 
-1. **边框内绘、不挤占内容区**(见上节):`borderThickness` 用 inset box-shadow 实现,不参与盒模型;WinUI 中 thickness 与 padding 共同内缩子元素排片区。
+1. **边框参与布局(与 WinUI 一致)**:`borderThickness` 用 CSS `border` 实现,与 `padding` 共同内缩子元素区、计入自身 desired 尺寸(`CBorder::MeasureOverride` 语义);仅设厚度不设画刷时以透明边框占位(不绘制、内缩照旧,与源一致)。
 2. **Thickness 两值形式**:XAML `"left,top"` 表示左右/上下配对,已按此语义解析(官方支持,见上节级联);XAML CornerRadius 没有两值形式,本组件遇到两值时按 CSS 对角语义(`tl/br`、`tr/bl`)透传,作为宽容扩展(官方为解析失败)。
-3. **Thickness 三值形式**:官方不支持三值 Thickness,`ThicknessFromString` 对 "1,2,3" 类输入的语义是**解析失败**(4→2→1 级联均无法精确消费全串);本组件按宽容策略**回退为首值四边一致**(旧版本曾在此处把 `undefined` 泄漏进 CSS 值,导致 padding / box-shadow 整条声明被浏览器丢弃,已修复)。官方三值与组件回退的行为差异见「官方解析语义与本组件的宽容回退」节。
+3. **Thickness 三值形式**:官方不支持三值 Thickness,`ThicknessFromString` 对 "1,2,3" 类输入的语义是**解析失败**(4→2→1 级联均无法精确消费全串);本组件按宽容策略**回退为首值四边一致**(旧版本曾在此处把 `undefined` 泄漏进 CSS 值,导致 padding / border 整条声明被浏览器丢弃,已修复)。官方三值与组件回退的行为差异见「官方解析语义与本组件的宽容回退」节。
 4. **画刷类型**:WinUI `BorderBrush`/`Background` 是 Brush(纯色、渐变、亚克力等);Web 版属性为 CSS `background`/颜色值,纯色与 CSS 渐变均可用,亚克力等系统材质无对应物。
 5. **对齐与拉伸**:WinUI Border 默认 `HorizontalAlignment/VerticalAlignment = Stretch`,块级 `div` 天然横向撑满、竖向由内容决定;WinUI 的竖向拉伸依赖父容器,Web 版如需请经 `$attrs` 传 `style="height: 100%"` 等自行控制。
 6. **单子元素约束**:WinUI `Child` 只允许一个子元素(多个会抛异常);Web 版 slot 放入多个元素时按普通文档流依次排列,不做校验。

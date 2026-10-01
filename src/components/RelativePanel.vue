@@ -5,9 +5,11 @@
 //   附加属性(RelativePanel.Xxx)→ 子元素 data-relative-* attribute:关系类(Above / Below / LeftOf /
 //     RightOf / Align*With)的值为目标子项的 data-relative-key(或 data-relative-name 别名),
 //     WithPanel 系列(Align*WithPanel)为布尔;
-//   两遍布局(对照 RPGraph::MeasureNodes/ArrangeNodes 的两遍结构):渲染时经默认插槽 vnode 收集
-//     声明(第一遍),布局求解器按依赖拓扑先解析邻居、再计算每个子项的 measureRect / arrangeRect
-//     (第二遍),产出 CSS absolute 坐标经 cloneVNode 注入子项 style,使用方无需手写定位样式;
+//   两遍布局(对照 RPGraph::MeasureNodes → ArrangeNodes):渲染时经默认插槽 vnode 收集
+//     声明并建约束图(第一遍),求解器跑两趟 —— 度量趟以 availableSize(面板自持轴 = ∞,
+//     即未内联定尺寸的轴不按实测塌缩值求解)得各子项 desired 与面板内容范围,排布趟以
+//     finalSize(自持轴 = 内容范围)重排并产出 CSS absolute 坐标经 cloneVNode 注入子项
+//     style,使用方无需手写定位样式;
 //   子项自然尺寸经 DOM 测量(offset + computed margin,DesiredSize 含 Margin 的语义一致),
 //     由 ResizeObserver 驱动重排;面板未内联指定 width/height 时按内容范围近似撑开(WinUI
 //     desired size;近似规则与限制见 wiki/controls/RelativePanel.md);
@@ -202,6 +204,12 @@ interface SolverNode {
   decl: RelativeDecl
   box: MeasuredBox | null
   links: Array<{ field: DepField; target: SolverNode; dropped: boolean }>
+  /** 节点在 decls 中的序号(排布状态按下标对齐)。 */
+  index: number
+}
+
+/** 单趟求解状态:mx/my/mw/mh = 度量矩形,ax/ay/aw/ah = 排布矩形(均为含 Margin 的 margin 盒坐标);无约束轴上为 Infinity。 */
+interface PassState {
   mx: number
   my: number
   mw: number
@@ -214,19 +222,10 @@ interface SolverNode {
   stretchV: boolean
   centerH: boolean
   centerV: boolean
-  settled: boolean
 }
 
-function solveLayout(
-  decls: RelativeDecl[],
-  measured: ReadonlyArray<MeasuredBox | null>,
-  available: { width: number; height: number },
-): SolveResult {
-  const warnings: string[] = []
-  const nodes: SolverNode[] = decls.map((decl, index) => ({
-    decl,
-    box: measured[index] ?? null,
-    links: [],
+function createPassState(available: { width: number; height: number }): PassState {
+  return {
     mx: 0,
     my: 0,
     mw: available.width,
@@ -239,7 +238,187 @@ function solveLayout(
     stretchV: false,
     centerH: false,
     centerV: false,
-    settled: false,
+  }
+}
+
+/**
+ * 一趟约束求解(对照 RPGraph::MeasureNode / ArrangeNode 中按给定 availableSize 的度量排布计算)。
+ * 同一节点集可跑两趟:度量趟(未约束轴 = ∞)产出面板 desired 尺寸,排布趟(finalSize)产出注入坐标。
+ */
+function runLayoutPass(nodes: readonly SolverNode[], available: { width: number; height: number }): PassState[] {
+  const states = nodes.map(() => createPassState(available))
+  const settled = nodes.map(() => false)
+
+  // 取依赖目标在本趟的求解状态(邻居先于当前节点解析完毕)。
+  const dep = (node: SolverNode, field: DepField): PassState | undefined => {
+    const link = node.links.find((item) => item.field === field && !item.dropped)
+    return link ? states[link.target.index] : undefined
+  }
+
+  const resolve = (index: number): void => {
+    if (settled[index]) return
+    settled[index] = true
+    const node = nodes[index]
+    const state = states[index]
+    for (const link of node.links) {
+      if (!link.dropped) resolve(link.target.index)
+    }
+
+    const panel = node.decl.panel
+    const size = node.box
+    const outerWidth = size?.outerWidth ?? 0
+    const outerHeight = size?.outerHeight ?? 0
+    const leftOf = dep(node, 'leftOf')
+    const rightOf = dep(node, 'rightOf')
+    const above = dep(node, 'above')
+    const below = dep(node, 'below')
+    const alignLeftWith = dep(node, 'alignLeftWith')
+    const alignRightWith = dep(node, 'alignRightWith')
+    const alignTopWith = dep(node, 'alignTopWith')
+    const alignBottomWith = dep(node, 'alignBottomWith')
+    const centerHWith = dep(node, 'alignHCenterWith')
+    const centerVWith = dep(node, 'alignVCenterWith')
+
+    // —— 水平度量矩形(对照 CalculateMeasureRectHorizontally)——
+    // 位置约束(x)恒计算:度量趟(自持轴 = ∞)也要靠链式坐标累计面板 desired 尺寸;
+    // 宽度约束仅在可用宽有限时施加(源码 ∞ 轴不约束,度量矩形为 ∞)。
+    let centeredFromLeft = false
+    let centeredFromRight = false
+    let mx = 0
+    let mw = available.width
+    if (!panel.left) {
+      if (alignLeftWith) {
+        mx = alignLeftWith.ax
+        mw -= mx
+      } else if (centerHWith) {
+        centeredFromLeft = true
+      } else if (rightOf) {
+        mx = rightOf.ax + rightOf.aw
+        mw -= mx
+      }
+    }
+    if (!panel.right) {
+      if (alignRightWith) {
+        mw -= available.width - (alignRightWith.ax + alignRightWith.aw)
+      } else if (centerHWith) {
+        centeredFromRight = true
+      } else if (leftOf) {
+        mw -= available.width - leftOf.ax
+      }
+    }
+    if (centeredFromLeft && centeredFromRight && centerHWith && Number.isFinite(available.width)) {
+      const center = centerHWith.ax + centerHWith.aw / 2
+      mw = Math.min(center, available.width - center) * 2
+      mx = center - mw / 2
+    }
+    // ∞ 轴上拉伸/居中锚点的无穷运算可能产生 NaN(∞ - ∞),按无约束回落
+    if (Number.isNaN(mw)) mw = Infinity
+    state.mx = mx
+    state.mw = mw
+
+    // —— 水平排布矩形(对照 CalculateArrangeRectHorizontally + RPNode 锚定判定)——
+    const leftAnchored = panel.left || alignLeftWith != null || (rightOf != null && centerHWith == null)
+    const rightAnchored = panel.right || alignRightWith != null || (leftOf != null && centerHWith == null)
+    state.centerH =
+      (panel.hCenter &&
+        !panel.left &&
+        !panel.right &&
+        alignLeftWith == null &&
+        alignRightWith == null &&
+        leftOf == null &&
+        rightOf == null) ||
+      (centerHWith != null && !panel.left && !panel.right && alignLeftWith == null && alignRightWith == null)
+    const desiredWidth = Math.min(mw, outerWidth)
+    let ax = mx
+    let aw = desiredWidth
+    if (leftAnchored) {
+      if (rightAnchored) aw = mw
+    } else if (rightAnchored) {
+      ax = mx + mw - desiredWidth
+    } else if (state.centerH) {
+      ax = mx + mw / 2 - desiredWidth / 2
+    }
+    state.ax = ax
+    state.aw = aw
+    state.stretchH = leftAnchored && rightAnchored
+
+    // —— 垂直度量矩形(对照 CalculateMeasureRectVertically;位置恒计算、尺寸仅有限轴约束)——
+    let centeredFromTop = false
+    let centeredFromBottom = false
+    let my = 0
+    let mh = available.height
+    if (!panel.top) {
+      if (alignTopWith) {
+        my = alignTopWith.ay
+        mh -= my
+      } else if (centerVWith) {
+        centeredFromTop = true
+      } else if (below) {
+        my = below.ay + below.ah
+        mh -= my
+      }
+    }
+    if (!panel.bottom) {
+      if (alignBottomWith) {
+        mh -= available.height - (alignBottomWith.ay + alignBottomWith.ah)
+      } else if (centerVWith) {
+        centeredFromBottom = true
+      } else if (above) {
+        mh -= available.height - above.ay
+      }
+    }
+    if (centeredFromTop && centeredFromBottom && centerVWith && Number.isFinite(available.height)) {
+      const center = centerVWith.ay + centerVWith.ah / 2
+      mh = Math.min(center, available.height - center) * 2
+      my = center - mh / 2
+    }
+    if (Number.isNaN(mh)) mh = Infinity
+    state.my = my
+    state.mh = mh
+
+    // —— 垂直排布矩形(对照 CalculateArrangeRectVertically)——
+    const topAnchored = panel.top || alignTopWith != null || (below != null && centerVWith == null)
+    const bottomAnchored = panel.bottom || alignBottomWith != null || (above != null && centerVWith == null)
+    state.centerV =
+      (panel.vCenter &&
+        !panel.top &&
+        !panel.bottom &&
+        alignTopWith == null &&
+        alignBottomWith == null &&
+        above == null &&
+        below == null) ||
+      (centerVWith != null && !panel.top && !panel.bottom && alignTopWith == null && alignBottomWith == null)
+    const desiredHeight = Math.min(mh, outerHeight)
+    let ay = my
+    let ah = desiredHeight
+    if (topAnchored) {
+      if (bottomAnchored) ah = mh
+    } else if (bottomAnchored) {
+      ay = my + mh - desiredHeight
+    } else if (state.centerV) {
+      ay = my + mh / 2 - desiredHeight / 2
+    }
+    state.ay = ay
+    state.ah = ah
+    state.stretchV = topAnchored && bottomAnchored
+  }
+  for (let index = 0; index < nodes.length; index += 1) resolve(index)
+
+  return states
+}
+
+function solveLayout(
+  decls: RelativeDecl[],
+  measured: ReadonlyArray<MeasuredBox | null>,
+  available: { width: number; height: number },
+  panelOwnedAxes: { width: boolean; height: boolean },
+): SolveResult {
+  const warnings: string[] = []
+  const nodes: SolverNode[] = decls.map((decl, index) => ({
+    decl,
+    box: measured[index] ?? null,
+    links: [],
+    index,
   }))
 
   const keyToNode = new Map<string, SolverNode>()
@@ -288,182 +467,55 @@ function solveLayout(
     if (!color.has(node)) detectCycle(node)
   }
 
-  const dep = (node: SolverNode, field: DepField): SolverNode | undefined =>
-    node.links.find((link) => link.field === field && !link.dropped)?.target
-
-  // 2) 拓扑求解:先解析全部邻居,再计算度量/排布矩形(对照 RPGraph::MeasureNode)。
-  const resolve = (node: SolverNode): void => {
-    if (node.settled) return
-    node.settled = true
-    for (const link of node.links) {
-      if (!link.dropped) resolve(link.target)
-    }
-
-    const panel = node.decl.panel
-    const size = node.box
-    const outerWidth = size?.outerWidth ?? 0
-    const outerHeight = size?.outerHeight ?? 0
-    const leftOf = dep(node, 'leftOf')
-    const rightOf = dep(node, 'rightOf')
-    const above = dep(node, 'above')
-    const below = dep(node, 'below')
-    const alignLeftWith = dep(node, 'alignLeftWith')
-    const alignRightWith = dep(node, 'alignRightWith')
-    const alignTopWith = dep(node, 'alignTopWith')
-    const alignBottomWith = dep(node, 'alignBottomWith')
-    const centerHWith = dep(node, 'alignHCenterWith')
-    const centerVWith = dep(node, 'alignVCenterWith')
-
-    // —— 水平度量矩形(对照 CalculateMeasureRectHorizontally)——
-    let centeredFromLeft = false
-    let centeredFromRight = false
-    let mx = 0
-    let mw = available.width
-    if (!panel.left) {
-      if (alignLeftWith) {
-        mx = alignLeftWith.ax
-        mw -= mx
-      } else if (centerHWith) {
-        centeredFromLeft = true
-      } else if (rightOf) {
-        mx = rightOf.ax + rightOf.aw
-        mw -= mx
-      }
-    }
-    if (!panel.right) {
-      if (alignRightWith) {
-        mw -= available.width - (alignRightWith.ax + alignRightWith.aw)
-      } else if (centerHWith) {
-        centeredFromRight = true
-      } else if (leftOf) {
-        mw -= available.width - leftOf.ax
-      }
-    }
-    if (centeredFromLeft && centeredFromRight && centerHWith) {
-      const center = centerHWith.ax + centerHWith.aw / 2
-      mw = Math.min(center, available.width - center) * 2
-      mx = center - mw / 2
-    }
-    node.mx = mx
-    node.mw = mw
-
-    // —— 水平排布矩形(对照 CalculateArrangeRectHorizontally + RPNode 锚定判定)——
-    const leftAnchored = panel.left || alignLeftWith != null || (rightOf != null && centerHWith == null)
-    const rightAnchored = panel.right || alignRightWith != null || (leftOf != null && centerHWith == null)
-    node.centerH =
-      (panel.hCenter &&
-        !panel.left &&
-        !panel.right &&
-        alignLeftWith == null &&
-        alignRightWith == null &&
-        leftOf == null &&
-        rightOf == null) ||
-      (centerHWith != null && !panel.left && !panel.right && alignLeftWith == null && alignRightWith == null)
-    const desiredWidth = Math.min(mw, outerWidth)
-    let ax = mx
-    let aw = desiredWidth
-    if (leftAnchored) {
-      if (rightAnchored) aw = mw
-    } else if (rightAnchored) {
-      ax = mx + mw - desiredWidth
-    } else if (node.centerH) {
-      ax = mx + mw / 2 - desiredWidth / 2
-    }
-    node.ax = ax
-    node.aw = aw
-    node.stretchH = leftAnchored && rightAnchored
-
-    // —— 垂直度量矩形(对照 CalculateMeasureRectVertically)——
-    let centeredFromTop = false
-    let centeredFromBottom = false
-    let my = 0
-    let mh = available.height
-    if (!panel.top) {
-      if (alignTopWith) {
-        my = alignTopWith.ay
-        mh -= my
-      } else if (centerVWith) {
-        centeredFromTop = true
-      } else if (below) {
-        my = below.ay + below.ah
-        mh -= my
-      }
-    }
-    if (!panel.bottom) {
-      if (alignBottomWith) {
-        mh -= available.height - (alignBottomWith.ay + alignBottomWith.ah)
-      } else if (centerVWith) {
-        centeredFromBottom = true
-      } else if (above) {
-        mh -= available.height - above.ay
-      }
-    }
-    if (centeredFromTop && centeredFromBottom && centerVWith) {
-      const center = centerVWith.ay + centerVWith.ah / 2
-      mh = Math.min(center, available.height - center) * 2
-      my = center - mh / 2
-    }
-    node.my = my
-    node.mh = mh
-
-    // —— 垂直排布矩形(对照 CalculateArrangeRectVertically)——
-    const topAnchored = panel.top || alignTopWith != null || (below != null && centerVWith == null)
-    const bottomAnchored = panel.bottom || alignBottomWith != null || (above != null && centerVWith == null)
-    node.centerV =
-      (panel.vCenter &&
-        !panel.top &&
-        !panel.bottom &&
-        alignTopWith == null &&
-        alignBottomWith == null &&
-        above == null &&
-        below == null) ||
-      (centerVWith != null && !panel.top && !panel.bottom && alignTopWith == null && alignBottomWith == null)
-    const desiredHeight = Math.min(mh, outerHeight)
-    let ay = my
-    let ah = desiredHeight
-    if (topAnchored) {
-      if (bottomAnchored) ah = mh
-    } else if (bottomAnchored) {
-      ay = my + mh - desiredHeight
-    } else if (node.centerV) {
-      ay = my + mh / 2 - desiredHeight / 2
-    }
-    node.ay = ay
-    node.ah = ah
-    node.stretchV = topAnchored && bottomAnchored
-  }
-  for (const node of nodes) resolve(node)
-
-  // 3) 产出 CSS 盒与内容范围。left/top 为 margin 盒槽位坐标(CSS left/top 语义一致);
-  //    stretch 时显式给宽高 = 槽位尺寸 - 子项自身边距(复刻 WinUI 双向锚定拉伸)。
-  const boxes: Array<SolvedBox | null> = nodes.map((node) => {
-    if (node.decl.duplicate || !node.box) return null
-    const box: SolvedBox = { left: Math.max(node.ax, 0), top: Math.max(node.ay, 0) }
-    if (node.stretchH) box.width = Math.max(node.aw - node.box.marginLeft - node.box.marginRight, 0)
-    if (node.stretchV) box.height = Math.max(node.ah - node.box.marginTop - node.box.marginBottom, 0)
-    return box
+  // 2) 度量趟:面板自持轴(未内联定尺寸)按 WinUI 无约束语义传 ∞(RPGraph::MeasureNode 以
+  //    availableSize 度量、未约束轴 = ∞,CalculateMeasureRect* 对 ∞ 轴不施加约束,子项保持
+  //    期望尺寸;排布矩形在 ∞ 下无意义,源码显式跳过)。
+  const measureStates = runLayoutPass(nodes, {
+    width: panelOwnedAxes.width ? Infinity : available.width,
+    height: panelOwnedAxes.height ? Infinity : available.height,
   })
 
-  // 内容范围(未内联定宽/高时面板按内容撑开,近似 WinUI desired size):
-  // 「面板右/下锚定」「面板居中」子项按自然尺寸计入、「左右(上下)双向面板拉伸」子项不计入,
-  // 避免面板尺寸与子项槽位互相反馈(近似规则,与 WinUI 约束链累计的差异见 wiki)。
+  // 3) 内容范围(desired size 近似,规则同前):「面板右/下锚定」子项按自然尺寸计入、
+  //    「左右(上下)双向面板拉伸」与「面板居中」子项不计入,避免面板尺寸与子项槽位互相反馈;
+  //    ∞ 度量轴上无界坐标(ax/ay 为 ∞)的子项跳过,防 Infinity/NaN 污染回写值。
   let extentWidth = 0
   let extentHeight = 0
   for (const node of nodes) {
     const size = node.box
     if (!size) continue
+    const state = measureStates[node.index]
     const panel = node.decl.panel
     if (panel.right) {
       if (!panel.left) extentWidth = Math.max(extentWidth, size.outerWidth)
-    } else if (!(node.centerH && panel.hCenter)) {
-      extentWidth = Math.max(extentWidth, node.ax + node.aw)
+    } else if (!(state.centerH && panel.hCenter)) {
+      const right = state.ax + state.aw
+      if (Number.isFinite(right)) extentWidth = Math.max(extentWidth, right)
     }
     if (panel.bottom) {
       if (!panel.top) extentHeight = Math.max(extentHeight, size.outerHeight)
-    } else if (!(node.centerV && panel.vCenter)) {
-      extentHeight = Math.max(extentHeight, node.ay + node.ah)
+    } else if (!(state.centerV && panel.vCenter)) {
+      const bottom = state.ay + state.ah
+      if (Number.isFinite(bottom)) extentHeight = Math.max(extentHeight, bottom)
     }
   }
+
+  // 4) 排布趟:自持轴以内容范围为 finalSize(对应 WinUI ArrangeNodes 用面板最终尺寸重排,
+  //    双向锚定子项在此趟拉伸到面板尺寸),受约束轴沿用实测可用尺寸。
+  const arrangeStates = runLayoutPass(nodes, {
+    width: panelOwnedAxes.width ? extentWidth : available.width,
+    height: panelOwnedAxes.height ? extentHeight : available.height,
+  })
+
+  // 5) 产出 CSS 盒:left/top 为 margin 盒槽位坐标(CSS left/top 语义一致);
+  //    stretch 时显式给宽高 = 槽位尺寸 - 子项自身边距(复刻 WinUI 双向锚定拉伸)。
+  const boxes: Array<SolvedBox | null> = nodes.map((node) => {
+    if (node.decl.duplicate || !node.box) return null
+    const state = arrangeStates[node.index]
+    const box: SolvedBox = { left: Math.max(state.ax, 0), top: Math.max(state.ay, 0) }
+    if (state.stretchH) box.width = Math.max(state.aw - node.box.marginLeft - node.box.marginRight, 0)
+    if (state.stretchV) box.height = Math.max(state.ah - node.box.marginTop - node.box.marginBottom, 0)
+    return box
+  })
 
   return { boxes, extentWidth, extentHeight, warnings }
 }
@@ -482,8 +534,26 @@ const chromeSize = ref({ width: 0, height: 0 })
 const measuredBoxes = ref<Array<MeasuredBox | null>>([])
 const hasMeasured = ref(false)
 
+// —— 容器样式:背景 / 内边距 / 边框 / 圆角 + 未内联定尺寸时的内容撑开 ——
+function styleHasLength(value: unknown, key: 'width' | 'height'): boolean {
+  if (typeof value === 'string') return new RegExp(`(?:^|;)\\s*${key}\\s*:`, 'i').test(value)
+  if (Array.isArray(value)) return value.some((item) => styleHasLength(item, key))
+  if (value !== null && typeof value === 'object') {
+    return (value as Record<string, unknown>)[key] !== undefined && (value as Record<string, unknown>)[key] !== null
+  }
+  return false
+}
+
+const hasInlineWidth = computed(() => styleHasLength(attrs.style, 'width'))
+const hasInlineHeight = computed(() => styleHasLength(attrs.style, 'height'))
+
 const layout = computed<SolveResult>(() => {
-  const result = solveLayout(renderableDecls.value, measuredBoxes.value, availableSize.value)
+  // 面板自持轴(未内联定尺寸)按 WinUI 无约束语义求解:度量传 ∞、排布以内容范围为 finalSize;
+  // 子项全部 absolute 时该轴实测必塌缩为 0,不能当作 0 可用约束(否则关系链逐级塌缩)。
+  const result = solveLayout(renderableDecls.value, measuredBoxes.value, availableSize.value, {
+    width: !hasInlineWidth.value,
+    height: !hasInlineHeight.value,
+  })
   // 告警在求解路径上直接发出(warnOnce 去重),渲染/SSR 期间同样生效;watch 不 flush 于 SSR,不可用。
   for (const message of result.warnings) warnOnce(message)
   return result
@@ -502,8 +572,16 @@ const positionedChildren = computed<VNode[]>(() => {
     if (box) {
       style.left = `${box.left}px`
       style.top = `${box.top}px`
-      if (box.width !== undefined) style.width = `${box.width}px`
-      if (box.height !== undefined) style.height = `${box.height}px`
+      if (box.width !== undefined) {
+        style.width = `${box.width}px`
+        // 拉伸宽按 WinUI 排布盒(总盒)语义注入:border-box 使 width = 子项边框盒,
+        // content-box 子项自身 padding/border 不再溢出槽位(FAIL-RELATIVE-2 修复)
+        style.boxSizing = 'border-box'
+      }
+      if (box.height !== undefined) {
+        style.height = `${box.height}px`
+        style.boxSizing = 'border-box'
+      }
     }
     return cloneVNode(decl.vnode, {
       'data-wui-relative-child': String(index),
@@ -513,18 +591,6 @@ const positionedChildren = computed<VNode[]>(() => {
 })
 
 // —— 容器样式:背景 / 内边距 / 边框 / 圆角 + 未内联定尺寸时的内容撑开 ——
-function styleHasLength(value: unknown, key: 'width' | 'height'): boolean {
-  if (typeof value === 'string') return new RegExp(`(?:^|;)\\s*${key}\\s*:`, 'i').test(value)
-  if (Array.isArray(value)) return value.some((item) => styleHasLength(item, key))
-  if (value !== null && typeof value === 'object') {
-    return (value as Record<string, unknown>)[key] !== undefined && (value as Record<string, unknown>)[key] !== null
-  }
-  return false
-}
-
-const hasInlineWidth = computed(() => styleHasLength(attrs.style, 'width'))
-const hasInlineHeight = computed(() => styleHasLength(attrs.style, 'height'))
-
 const rootStyle = computed<CSSProperties>(() => {
   const style: CSSProperties = {
     background: props.background,

@@ -4,9 +4,15 @@
 // 没有 ControlTemplate 与视觉状态树(布局类控件,无 PointerOver/Pressed/Focus 要求);
 // 视觉默认值取 Border 属性默认:BorderThickness 0 / BorderBrush null(不绘制)/
 // CornerRadius 0 / Padding 0 / Background null(透明)。
-// 边框为「内绘」语义:用多重 inset box-shadow 把边框画在盒内,不挤占 padding 与内容区,
-// 改厚度不引起布局抖动;与 CSS border / outline 的方案取舍见 wiki/controls/Border.md。
+// 布局语义对照 CK/WinUI-Reference/dxaml/xcp/core/core/elements/Border.cpp
+// CBorder::MeasureOverride(L211-236)+ HelperGetCombinedThickness:
+//   combined = BorderThickness + Padding,childAvailableSize = MAX(0, available - combined),
+//   desiredSize = childDesired + combined —— 边框厚度与内边距共同参与度量与排布,
+//   子元素区按「厚度 + 内边距」内缩(厚度不计画刷,Brush=null 只是不绘制、内缩照旧)。
+// 实现选型:CSS border + box-sizing: border-box 精确复刻该语义(边框画在盒缘内侧、
+// 挤占 padding 与内容区);绘制位置与旧 inset box-shadow 方案一致(均在盒内缘)。
 import { computed } from 'vue'
+import type { CSSProperties } from 'vue'
 
 defineOptions({ inheritAttrs: false })
 
@@ -72,28 +78,19 @@ function parseSides(value: number | string | undefined): Sides {
   return zeroSides()
 }
 
-/** 判断 CSS 长度是否为 0(仅用于跳过零厚度边)。 */
-function isZeroLength(length: string): boolean {
-  return Number.parseFloat(length) === 0
-}
-
-// —— 边框:内绘 inset box-shadow,四边独立;四边一致时用等宽内环(圆角处更贴合) ——
+// —— 边框:CSS border,四边独立厚度;Brush 缺省用透明色占位
+//      (WinUI 厚度参与度量不依赖画刷:BorderBrush=null 只是不绘制,内缩照旧) ——
 const borderSides = computed<Sides>(() => parseSides(props.borderThickness))
 
-const boxShadow = computed<string | undefined>(() => {
+const borderStyle = computed<CSSProperties>(() => {
   const brush = props.borderBrush?.trim()
-  if (!brush) return undefined
   const [left, top, right, bottom] = borderSides.value
-  const uniform = left === top && top === right && right === bottom
-  if (uniform) {
-    return isZeroLength(left) ? undefined : `inset 0 0 0 ${left} ${brush}`
+  // CSS border-width 简写序为 top/right/bottom/left,Sides 序为 left/top/right/bottom
+  return {
+    borderStyle: 'solid',
+    borderColor: brush ?? 'transparent',
+    borderWidth: `${top} ${right} ${bottom} ${left}`,
   }
-  const layers: string[] = []
-  if (!isZeroLength(left)) layers.push(`inset ${left} 0 0 0 ${brush}`)
-  if (!isZeroLength(top)) layers.push(`inset 0 ${top} 0 0 ${brush}`)
-  if (!isZeroLength(right)) layers.push(`inset -${right} 0 0 0 ${brush}`)
-  if (!isZeroLength(bottom)) layers.push(`inset 0 -${bottom} 0 0 ${brush}`)
-  return layers.length > 0 ? layers.join(', ') : undefined
 })
 
 // —— 圆角:XAML CornerRadius 四值序与 CSS border-radius 一致,直接映射;
@@ -119,11 +116,11 @@ const paddingStyle = computed<string | undefined>(() => {
   return `${top} ${right} ${bottom} ${left}`
 })
 
-const rootStyle = computed(() => ({
+const rootStyle = computed<CSSProperties>(() => ({
+  ...borderStyle.value,
   background: props.background,
   borderRadius: cornerRadiusStyle.value,
   padding: paddingStyle.value,
-  boxShadow: boxShadow.value,
 }))
 </script>
 
@@ -136,8 +133,9 @@ const rootStyle = computed(() => ({
 
 <style scoped>
 .wui-border {
-  /* padding 计入自身尺寸;WinUI Border 默认 HorizontalAlignment=Stretch:
-     块级元素天然横向撑满,竖向高度由内容决定(差异见 wiki) */
+  /* WinUI Border 默认 HorizontalAlignment=Stretch:块级元素天然横向撑满,
+     竖向高度由内容决定;border-box 使使用方给定的 Width/Height 为含边框的全盒
+     (对应 WinUI Width/Height 为外尺寸、子区按「厚度 + Padding」内缩) */
   box-sizing: border-box;
 }
 </style>

@@ -55,7 +55,7 @@ WinUI 的附加属性(如 `RelativePanel.Below`)附着在**子项**上;本组件
 行为要点(均与 WinUI 一致):
 
 - **约束优先级**:同一轴上多个约束冲突时按 WinUI 优先级取用。水平轴左缘:AlignLeftWithPanel > AlignLeftWith > AlignHorizontalCenterWith > RightOf;右缘:AlignRightWithPanel > AlignRightWith > AlignHorizontalCenterWith > LeftOf;垂直轴同理。
-- **拉伸**:左缘与右缘同时被锚定(如 `align-left-with-panel` + `align-right-with-panel`)时子项水平拉伸填满槽位(对应 XAML 默认 `HorizontalAlignment="Stretch"`);上下同理垂直拉伸。
+- **拉伸**:左缘与右缘同时被锚定(如 `align-left-with-panel` + `align-right-with-panel`)时子项水平拉伸填满槽位(对应 XAML 默认 `HorizontalAlignment="Stretch"`);上下同理垂直拉伸。拉伸注入的 `width`/`height` 按 WinUI 排布盒(总盒)语义以 `box-sizing: border-box` 生效,子项自身 padding/border 计入槽位尺寸、不溢出。拉伸注入的 `width`/`height` 按 WinUI 排布盒(总盒)语义以 `box-sizing: border-box` 生效,子项自身 padding/border 计入槽位尺寸、不溢出。
 - **居中**:仅设置 AlignHorizontalCenterWith(Panel)等居中约束时,子项在对应范围内水平居中。
 - **边距参与求解**:子项的 CSS margin 与 WinUI 的 `Margin` 语义一致(DesiredSize 含 Margin),官方示例中蓝块/黄块的 `Margin="8,0,0,0"` 直接写成 `margin-left/margin-top` 即可。
 - **无约束子项**默认落在面板左上角(保持自然尺寸)。
@@ -110,7 +110,7 @@ import WuiRelativePanel from '@/components/RelativePanel.vue'
    - 度量/排布在连续约束下是迭代收敛过程,极端环状布局(非循环依赖,如 A RightOf=B 且 B LeftOf=A 互为锚点成「环」)WinUI 直接抛异常,本组件告警并降级(见第 3 条)。
 2. **目标引用与错误处理**:`x:Name` → `data-relative-key` / `data-relative-name`。WinUI 对「名称不存在」抛 `InvalidOperationException`(`AG_E_RELATIVEPANEL_NAME_NOT_FOUND`);本组件 `console.warn` 后忽略该约束,面板保持可用。
 3. **循环依赖:告警降级而非抛异常**。WinUI 检测到环(`AG_E_RELATIVEPANEL_CIRCULAR_DEP`)抛异常中断布局;本组件用三色 DFS 找回边,对成环约束 `console.warn` 并丢弃该边后继续求解(示例页有「制造循环依赖」开关可观察降级效果)。
-4. **自动撑开是近似**。WinUI 的 desired size 按约束链累计(面板可被任意方向的链撑开);本组件在未内联指定 width/height 时按子项排布范围撑开,其中「面板右/下锚定」「面板居中」子项按其**自然尺寸**计入、「左右(上下)双向面板拉伸」子项不计入——避免面板尺寸与子项槽位互相反馈;极端情形(如仅有 AlignBottomWithPanel 子项的复杂链)可能比 WinUI 略小。另外 CSS 中 class 提供的 width/height 会被内容撑开值覆盖(内联 style 不受影响),请用内联 style 定尺寸。
+4. **自动撑开是近似**。WinUI 的 desired size 按约束链累计(面板可被任意方向的链撑开);本组件在未内联指定 width/height 时按子项排布范围撑开,其中「面板右/下锚定」「面板居中」子项按其**自然尺寸**计入、「左右(上下)双向面板拉伸」子项不计入——避免面板尺寸与子项槽位互相反馈;极端情形(如仅有 AlignBottomWithPanel 子项的复杂链)可能比 WinUI 略小。求解对照 RPGraph 的两遍结构:度量趟把面板自持轴(未内联定尺寸的轴)按**无约束(∞)**求解(子项保持期望尺寸,不按实测塌缩值压缩),排布趟以内容范围为 finalSize 重排,双向锚定子项在该趟拉伸到面板尺寸;∞ 轴上坐标无界的子项不参与内容范围累计。另外 CSS 中 class 提供的 width/height 会被内容撑开值覆盖(内联 style 不受影响),请用内联 style 定尺寸。
 5. **Stretch 的映射范围**。XAML 子项默认 `HorizontalAlignment/VerticalAlignment="Stretch"`,填满槽位是常态;本组件仅在左右(上下)**同时锚定**时给显式 `width/height` 复刻拉伸,其余情形保持自然尺寸(块级元素不被绝对定位拉伸到整行)。
 6. **HTML attribute 表达附加属性**:HTML 无附加属性机制,`RelativePanel.Below="X"` 写作 `data-relative-below="X"`;布尔用 `"true"` / 空 attribute。`data-relative-*` 保留在 DOM 上,可兼作样式与测试钩子。
 7. **`v-for` 子项支持**:与 Grid 组件不同,本组件对插槽里的 Fragment(v-for / template v-for)做了一层展开,v-for 子项可各自携带 `data-relative-*`;但多根组件子项无法承载定位属性(告警并不参与布局),请用原生元素或单根组件。`v-if` 为 false 的注释占位会安全剔除。
