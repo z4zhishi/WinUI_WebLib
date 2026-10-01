@@ -204,9 +204,13 @@ function onToggle(event: MouseEvent): void {
   font-family: inherit;
   font-size: var(--wui-control-content-theme-font-size);
   color: var(--cb-fg);
-  /* RootGrid 的 Background/BorderBrush:两套主题各态 token 均为透明,按 unchecked 态静态绑定 */
+  /* RootGrid 的 Background/BorderBrush:两套主题各态 token 均为透明,按 unchecked 态静态绑定。
+     边框厚度:源 RootGrid 为 BorderThickness="{TemplateBinding BorderThickness}",而
+     <Style TargetType="CheckBox">(generic.xaml L6743 段)**未设置** BorderThickness →
+     Control 默认 0,即控件盒本身没有边框(盒高 = 模板 32px 行 = MinHeight 32)。
+     故此处厚度必须为 0:写入 1px 会把 32px 内容顶到 34px,并使矩形/文字整体 +1px(VR-B3 §1.2)。 */
   background: var(--wui-check-box-background-unchecked);
-  border: 1px solid var(--wui-check-box-border-brush-unchecked);
+  border: 0 solid var(--wui-check-box-border-brush-unchecked);
   border-radius: 0;
   text-align: left;
   cursor: pointer;
@@ -217,13 +221,14 @@ function onToggle(event: MouseEvent): void {
 }
 
 /* 焦点(WinUI UseSystemFocusVisuals + FocusVisualMargin=-7,-3,-7,-3):
-   以单层 outline 近似系统双层焦点框,差异见 wiki */
+   以 outline(primary 外环 2px)+ box-shadow(secondary 内环 1px)实现系统双环,差异见 wiki */
 .wui-check-box:focus {
   outline: none;
 }
 .wui-check-box:focus-visible {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 2px;
+  outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 /* —— 勾选框图形区(模板:Grid VerticalAlignment=Top Height=32,列宽 20)—— */

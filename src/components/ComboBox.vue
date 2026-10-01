@@ -633,16 +633,35 @@ const rootClass = computed(() => ({
  * 关闭态输入框(源模板 Background border):BorderThickness = 2、Padding = 12,5,0,7
  * ====================================================================== */
 .wui-combo-box-input {
+  /* 关闭态边框色(源 Background Border 的 BorderBrush);各状态只覆写本变量 */
+  --cb-input-border: var(--wui-combo-box-border);
   position: relative;
   display: flex;
   align-items: stretch;
   min-width: 64px; /* ComboBoxThemeMinWidth */
-  min-height: 32px; /* 源未给 MinHeight:内容行(内边距 5+7 + 14px 文本行)自然高度 ≈ 32 */
+  min-height: 32px; /* 源未给 MinHeight:内容行(内边距 5+7 + 14px 文本行)自然高度 = 32 */
+  box-sizing: border-box;
   background: var(--wui-combo-box-background);
-  border: 2px solid var(--wui-combo-box-border); /* ComboBoxBorderThemeThickness */
+  /* 源模板里 Border x:Name="Background"(BorderThickness 2)与 ContentPresenter 是
+     LayoutRoot Grid **同一格的兄弟节点**(generic.xaml L9168-9193):2px 边框与内容重叠,
+     Padding 12,5,0,7 自控件**外缘**量起。故边框不能算进内容盒高度
+     (写 2px 边框于本元素会把关闭态撑到 32 + 2×2 = 36px,文字/箭头整体 +2/+2;VR-B3 §2.2)。
+     这里用绝对定位的 ::before 复刻「同格兄弟边框」——不参与布局,只覆盖绘制。 */
+  border: 0;
   border-radius: var(--wui-control-corner-radius); /* ControlCornerRadius = 4,仅闭合/聚焦态盒(V3 QA 打回项;下拉面板 8px 见弹层基建) */
   cursor: pointer;
   outline: none;
+}
+
+/* 边框层(源 Background Border):覆盖整个控件盒、自外缘 2px 内缩,不撑高控件 */
+.wui-combo-box-input::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  border: 2px solid var(--cb-input-border); /* ComboBoxBorderThemeThickness */
+  border-radius: inherit;
+  pointer-events: none;
 }
 
 /* 内容区:Padding = 12,5,0,7 */
@@ -682,18 +701,18 @@ const rootClass = computed(() => ({
    :active 为按住瞬间,松开后由 .is-open 接管(WinUI 开着即 pressed 底)。 */
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input:not(:focus):not(.is-open):hover {
   background: var(--wui-combo-box-background-pointer-over);
-  border-color: var(--wui-combo-box-border-brush-pointer-over);
+  --cb-input-border: var(--wui-combo-box-border-brush-pointer-over);
 }
 
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input:not(:focus):not(.is-open):active {
   background: var(--wui-combo-box-background-pressed);
-  border-color: var(--wui-combo-box-border-brush-pressed);
+  --cb-input-border: var(--wui-combo-box-border-brush-pressed);
 }
 
 /* 打开态(WinUI FocusedDropDown / Pressed 语义):pressed 底色 */
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input.is-open {
   background: var(--wui-combo-box-background-pressed);
-  border-color: var(--wui-combo-box-border-brush-pressed);
+  --cb-input-border: var(--wui-combo-box-border-brush-pressed);
 }
 
 /* 聚焦态:HighlightBackground(强调色低透明度)+ 透明边框(Focused storyboard)。
@@ -701,7 +720,7 @@ const rootClass = computed(() => ({
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input:focus,
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input:focus-within {
   background: var(--wui-combo-box-background-unfocused); /* ComboBoxBackgroundUnfocused */
-  border-color: var(--wui-combo-box-background-border-brush-focused); /* 透明 */
+  --cb-input-border: var(--wui-combo-box-background-border-brush-focused); /* 透明 */
 }
 
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input:focus .wui-combo-box-content,
@@ -720,7 +739,7 @@ const rootClass = computed(() => ({
 
 .wui-combo-box.is-disabled .wui-combo-box-input {
   background: var(--wui-combo-box-background-disabled);
-  border-color: var(--wui-combo-box-border-brush-disabled);
+  --cb-input-border: var(--wui-combo-box-border-brush-disabled);
   cursor: default;
 }
 

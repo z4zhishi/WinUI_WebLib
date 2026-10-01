@@ -257,9 +257,13 @@ function onNativeClick(event: MouseEvent): void {
   font-family: inherit;
   font-size: var(--wui-control-content-theme-font-size);
   color: var(--rb-fg);
-  /* RootGrid 的 Background/BorderBrush:两套主题各态 token 均为透明,按基础态静态绑定 */
+  /* RootGrid 的 Background/BorderBrush:两套主题各态 token 均为透明,按基础态静态绑定。
+     边框厚度:源 RootGrid 为 BorderThickness="{TemplateBinding BorderThickness}",而
+     <Style TargetType="RadioButton">(generic.xaml L6541 段)**未设置** BorderThickness →
+     Control 默认 0,即控件盒本身没有边框(盒高 = 模板 32px 行)。
+     故此处厚度必须为 0:写入 1px 会把 32px 内容顶到 34px,并使圈/内点/文字整体 +1px(VR-B3 §3.2)。 */
   background: var(--wui-radio-button-background);
-  border: 1px solid var(--wui-radio-button-border);
+  border: 0 solid var(--wui-radio-button-border);
   border-radius: 0;
   text-align: left;
   cursor: pointer;
@@ -270,11 +274,12 @@ function onNativeClick(event: MouseEvent): void {
 }
 
 /* 焦点(WinUI UseSystemFocusVisuals + FocusVisualMargin=-7,-3,-7,-3):
-   以单层 outline 近似系统双层焦点框;焦点在原生 input 上,用 :has 上浮到根。
+   以 outline(primary 外环 2px)+ box-shadow(secondary 内环 1px)实现系统双环;焦点在原生 input 上,用 :has 上浮到根。
    差异见 wiki(不支持 :has 的旧内核无焦点框,选中视觉不受影响) */
 .wui-radio-button:has(.radio-input:focus-visible) {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 2px;
+  outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 /* —— 隐藏的原生 input(视觉自绘,交互全原生)—— */
