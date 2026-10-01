@@ -536,12 +536,14 @@ watch(isOpen, (value) => {
  * HorizontalAlignment=Stretch)、InnerBorderMargin=AppBarButtonInnerBorderOverflowMargin
  * (4,0,4,0)、Overflow 态(ContentRoot.MinHeight=0)行高由内容给出;图标居左
  * 16×16、标签左对齐 14px 不换行(OverflowTextLabel / OverflowWithMenuIcons 态)。
+ * width 用 !important:AppBarButton/AppBarToggleButton 以内联 style 写 Width
+ * (prop 缺省 68px),内联优先级高于任何类选择器,须显式压过才能满宽。
  * ====================================================================== */
 .wui-commandbar__overflow :deep(.wui-appbar-button),
 .wui-commandbar__overflow :deep(.wui-appbar-toggle-button) {
   display: flex;
   align-items: center;
-  width: 100%;
+  width: 100% !important; /* 源 OverflowStyle Width=NaN + HorizontalAlignment=Stretch */
   min-height: 32px; /* MenuFlyoutThemeMinHeight(溢出行高与菜单行一致,约 32px) */
   height: auto;
   padding: 0 4px; /* AppBarButtonInnerBorderOverflowMargin 4,0,4,0 */

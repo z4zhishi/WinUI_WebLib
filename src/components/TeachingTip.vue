@@ -151,6 +151,14 @@ const slots = useSlots()
 
 const viewportAnchorRef = ref<HTMLElement | null>(null)
 
+/**
+ * 本组件自持的层元素引用。必须声明于 usePopupLayer 调用之前:基建在 setup 期
+ * 创建 watch 时即求值选项 getter(options.offset → resolvePopupOffset 在
+ * non-targeted Auto/Center 分支读层高),若直接读基建返回的 layerRef 会命中
+ * TDZ(ReferenceError,non-targeted 模式 setup 即崩,QA T-V4b)。
+ */
+const layerElRef = ref<HTMLElement | null>(null)
+
 const isTargeted = computed(() => props.target != null)
 
 const targetElement = ref<HTMLElement | null>(null)
@@ -244,7 +252,7 @@ function resolvePopupOffset(): PopupOffset {
   if (!isTargeted.value) {
     // Auto / Center:锚点在视口正中,层上移自身半高实现垂直居中
     if (props.preferredPlacement === 'Auto' || props.preferredPlacement === 'Center') {
-      const layerHeight = layerRef.value?.offsetHeight ?? 0
+      const layerHeight = layerElRef.value?.offsetHeight ?? 0
       return { mainAxis: -(layerHeight / 2) }
     }
     return { mainAxis: 0 }
@@ -303,6 +311,12 @@ const { layerRef, update } = usePopupLayer({
     if (props.isLightDismissEnabled) requestClose('LightDismiss')
   },
 })
+
+/** 模板 :ref 函数:同一层元素同时喂本组件 layerElRef 与基建 layerRef。 */
+function bindLayerRef(el: unknown): void {
+  layerElRef.value = el instanceof HTMLElement ? el : null
+  layerRef.value = layerElRef.value
+}
 
 /* -------------------------------------------------------------------------
  * 开关时序:isOpen → 层渲染;关闭统一走 Closing(可取消)→ Closed
@@ -373,7 +387,7 @@ const tailFolded = ref(false)
 const effectiveBase = ref<PopupPlacement>('bottom')
 
 function measureTail(): void {
-  const layer = layerRef.value
+  const layer = layerElRef.value
   const anchor = isTargeted.value ? targetElement.value : null
   if (!layer) return
   const base = (layer.dataset.wuiPlacement as PopupPlacement | undefined) ?? 'bottom'
@@ -384,20 +398,21 @@ function measureTail(): void {
   }
   const layerRect = layer.getBoundingClientRect()
   const anchorRect = anchor.getBoundingClientRect()
-  // 主轴:气泡与锚之间须容得下尾巴伸出(7px);Center 例外(尾巴本就插入目标)
+  // 主轴缝隙 = 锚边与层「相向边」的距离(须容得下尾巴伸出 7px);
+  // Center 例外(尾巴本就插入目标,不做主轴判定)
   let gap: number
   switch (base) {
     case 'top':
-      gap = layerRect.top - anchorRect.bottom
-      break
-    case 'bottom':
       gap = anchorRect.top - layerRect.bottom
       break
+    case 'bottom':
+      gap = layerRect.top - anchorRect.bottom
+      break
     case 'left':
-      gap = layerRect.left - anchorRect.right
+      gap = anchorRect.left - layerRect.right
       break
     default:
-      gap = anchorRect.left - layerRect.right
+      gap = layerRect.left - anchorRect.right
       break
   }
   let reachable = props.preferredPlacement === 'Center' ? true : gap >= TAIL_GAP - 1.5
@@ -564,7 +579,7 @@ const viewportAnchorClass = computed(() => {
     <Transition name="wui-teaching-tip" @after-leave="onAfterLeave">
       <div
         v-if="layerShown"
-        ref="layerRef"
+        :ref="bindLayerRef"
         v-bind="$attrs"
         class="wui-popup-layer wui-teaching-tip"
         :class="{ 'wui-teaching-tip--transient': isLightDismissEnabled }"
