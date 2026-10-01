@@ -146,7 +146,7 @@ function onItemInvoked(args: { tag: string | number; label: string }): void {
 3. **`SelectedItem` → `selectedItem`(tag 值)**:WinUI 的 SelectedItem 是条目对象;Web 版以 `tag` 字符串/数值标识选中项,`selectionChanged` 回执 `{ tag, label }`。slot 模式的条目靠 `tag` 与宿主选中模型联动。
 4. **选中指示条(pill)无位移动画**:源用 Implicit offset/opacity 动画在相邻项间滑动;Web 版做同尺寸(左窗格 3x16、圆角 2、顶栏 16x3)淡入淡出(`--wui-duration-fast` + `--wui-easing-standard`),省略滑动分量。
 5. **展开箭头为静态字形旋转**:源为 `AnimatedChevronUpDownSmallVisualSource` 动效图标;Web 版以 `\uE70D` 字形 + `rotate(180deg)` 过渡(duration-fast/standard)等价。
-6. **PaneTitle 呈现位置**:源把窗格标题文本内嵌在汉堡切换按钮内(`PaneTitleTextBlock`);Web 版以按钮旁的窗格标题行呈现(左窗格 16px 内边距、Top 模式并入顶栏左端),紧凑栏收拢时隐藏(源 `ListSizeCompact` 同)。
+6. **PaneTitle 内嵌在汉堡按钮内(与源同行)**:源把窗格标题文本作为 `TogglePaneButton` 的 Content(`PaneTitleTextBlock`,`Margin 0,-2,0,0`、`VerticalAlignment=Center`),由 `PaneToggleButtonStyle` 模板的 `ContentPresenter`(`Padding 4,0,0,0`,第二列)渲染在 40px 图标格**右侧同一行**;Web 版同——标题渲染在 `.wui-navview__toggle` 内部(图标格 40px + 标题列),窗格展开且 `paneTitle` 非空时按钮按源 `UpdatePaneToggleSize` 展宽到 `OpenPaneLength`(可见盒 `OpenPaneLength - 8`,即模板根 Grid 的 `4,2` 外边距),标题文本起点即窗格内 x=48;紧凑栏收拢 / Minimal 浮层收起时按钮收回 40px 图标格、标题隐藏(源 `ListSizeCompact` 把 `PaneTitleTextBlock.Visibility` 置 Collapsed);Top 模式标题并入顶栏左端。源 `Margin 0,-2,0,0` 是 XAML TextBlock 行框度量的光学补偿,浏览器行框本身居中表意字形,未复刻该 2px 偏移。
 7. **Minimal 页头边距**:`NavigationViewMinimalHeaderMargin = -24,44,0,0` 的负左边距依赖模板按钮占位列,Web 版近似为 `12px` 左边距;Left/Top 沿用 `NavigationViewHeaderMargin 56,44,0,0`。
 8. **层级展开的辅助行为**:紧凑栏(收拢)中点击带子项的条目会先展开窗格再切换子树(WinUI ClosedCompact 行为的近似);子项展开/收起无动画(与源一致),`ItemExpanding/ItemCollapsed` 事件未复刻。
 9. **未复刻(核心范围外)**:返回按钮与 `BackRequested`、Settings 项、`AutoSuggestBox` 搜索位、`InfoBadge`、Top 模式溢出(overflow)菜单、`PaneCustomContent`、`SelectionFollowsFocus` 与方向键焦点循环、窗格滚动条阴影。

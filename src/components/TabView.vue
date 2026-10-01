@@ -28,7 +28,7 @@
 // 组合方式:默认 slot 声明 <WuiTabViewItem header="..."> 子项(动态增删即响应式数组 v-for);
 //   selectedIndex 为 defineModel 双向绑定;tabWidthMode / isAddTabButtonVisible / closeButtonOverlayMode
 //   等参数对照官方 Gallery 示例页(CK/WinUI-Gallery/WinUIGallery/Samples/TabView/TabViewPage.xaml)。
-import { Comment, Text, computed, nextTick, onBeforeUnmount, onMounted, ref, useId, useSlots, watch } from 'vue'
+import { Comment, Fragment, Text, computed, nextTick, onBeforeUnmount, onMounted, ref, useId, useSlots, watch } from 'vue'
 import type { FunctionalComponent, VNode } from 'vue'
 import WuiFontIcon from './FontIcon.vue'
 import type { TabViewTabClosingEventArgs } from './TabViewItem.vue'
@@ -110,24 +110,34 @@ const slots = useSlots()
 
 const entries = computed<TabEntry[]>(() => {
   const children = slots.default?.() ?? []
-  return children
-    .filter(
-      (child) =>
-        typeof child === 'object' &&
-        child.type !== Comment &&
-        !(child.type === Text && typeof child.children === 'string' && child.children.trim() === ''),
-    )
-    .map((child, index) => {
-      const childProps = (child.props ?? {}) as Record<string, unknown>
-      return {
-        id: child.key !== null && child.key !== undefined ? String(child.key) : `@${index}`,
-        child,
-        header: typeof childProps['header'] === 'string' ? childProps['header'] : '',
-        headerSlot: readHeaderSlot(child),
-        icon: typeof childProps['icon'] === 'string' ? childProps['icon'] : '',
-        isClosable: childProps['isClosable'] !== false, // WinUI 默认 true
-      }
-    })
+  // 展开 Fragment:slot 内容为 v-for 时编译产物是单个 Fragment 块(v-for 渲染列表),
+  // 直接当子项会把整个列表折叠成「1 个无标题的标签」——标签条只剩一个空标题标签(无可访问名),
+  // 且全部子项内容挤进同一面板。此处展平 Fragment 并沿用原过滤(与 Pivot.vue
+  // `items` computed 的展平实现同法,见 src/components/Pivot.vue:68-87)。
+  const flat: VNode[] = []
+  const push = (node: VNode): void => {
+    if (node.type === Comment) return
+    if (node.type === Text && typeof node.children === 'string' && node.children.trim() === '') return
+    // 嵌套 Fragment(<template v-for> 的每轮即一个带 key 的 Fragment)递归展平
+    if (node.type === Fragment && Array.isArray(node.children)) {
+      for (const sub of node.children as VNode[]) push(sub)
+      return
+    }
+    flat.push(node)
+  }
+  for (const child of children) push(child)
+
+  return flat.map((child, index) => {
+    const childProps = (child.props ?? {}) as Record<string, unknown>
+    return {
+      id: child.key !== null && child.key !== undefined ? String(child.key) : `@${index}`,
+      child,
+      header: typeof childProps['header'] === 'string' ? childProps['header'] : '',
+      headerSlot: readHeaderSlot(child),
+      icon: typeof childProps['icon'] === 'string' ? childProps['icon'] : '',
+      isClosable: childProps['isClosable'] !== false, // WinUI 默认 true
+    }
+  })
 })
 
 /** 读取子项 VNode 上的 #header 具名插槽(编译产物为插槽函数对象)。 */
@@ -321,6 +331,28 @@ function measureScroll(): void {
   canScrollRight.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 1
 }
 
+/**
+ * 把选中标签带入视野(源 TabViewItem::StartBringTabIntoView,`TabViewItem.cpp` L625-631 —— 选中态变化时
+ * 由 OnIsSelectedChanged 调用;TabView::BringSelectedTabIntoView,`TabView.cpp` L744/L748-762/L945 ——
+ * 标签列尺寸变化与拖拽重排结束时同样调用)。标签条溢出时保证选中标签完整可见。
+ * 以 scrollLeft 手算而非 element.scrollIntoView:后者会连带滚动 demo 页等祖先滚动容器。
+ */
+function bringSelectedTabIntoView(index: number): void {
+  const el = tabRefs.value[index]
+  const scroller = scrollerRef.value
+  if (!el || !scroller) return
+  const elRect = el.getBoundingClientRect()
+  const scRect = scroller.getBoundingClientRect()
+  if (elRect.left < scRect.left) scroller.scrollLeft += elRect.left - scRect.left
+  else if (elRect.right > scRect.right) scroller.scrollLeft += elRect.right - scRect.right
+  measureScroll()
+}
+
+// 选中项变化即带入视野(源 StartBringTabIntoView;初始挂载后同样对齐一次)
+watch(activeIndex, (index) => {
+  void nextTick(() => bringSelectedTabIntoView(index))
+})
+
 function scrollByStep(direction: -1 | 1): void {
   const el = scrollerRef.value
   if (!el || props.disabled) return
@@ -342,6 +374,7 @@ watch(
 
 onMounted(() => {
   measureScroll()
+  void nextTick(() => bringSelectedTabIntoView(activeIndex.value)) // 初始选中项同样带入视野(源同)
   if (scrollerRef.value && typeof ResizeObserver !== 'undefined') {
     resizeObserver = new ResizeObserver(measureScroll)
     resizeObserver.observe(scrollerRef.value)
@@ -590,6 +623,15 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
   min-width: 100px; /* TabViewItemMinWidth */
 }
 
+/* SizeToContent / Compact(源 UpdateTabWidths 的 "Compact or SizeToContent" 分支,L1291-1330):该分支
+   **不给标签设宽度** —— 标签保持内容宽(max-width 240 封顶),只对标签列与 ListView 设 MaxWidth=可用宽,
+   放不下时置 ScrollBarVisibility=Visible 并显示左右滚动按钮(itemsPresenter.ActualWidth > availableWidth)。
+   故此处标签不得被 flex 压缩(flex-shrink 1 会把标签压到省略号、且永远不触发溢出 → 滚动钮不出现)。 */
+.wui-tab-view--sizetocontent .wui-tab-view-item,
+.wui-tab-view--compact .wui-tab-view-item {
+  flex: 0 0 auto;
+}
+
 /* Compact:非选中仅图标(源 Compact 态:IconMargin 0、标题收起、图标列 16px;选中恢复 StandardWidth) */
 .wui-tab-view--compact .wui-tab-view-item:not(.wui-tab-view-item--selected) .wui-tab-view-item-label {
   display: none;
@@ -631,9 +673,12 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
   cursor: default;
 }
 
+/* 系统焦点视觉:TabViewItem/TabViewButtonStyle FocusVisualMargin=-3(TabView.xaml L594/L187/L59)
+   → 两环全在元素外 secondary [0,1] + primary [1,3] = 系统双环 */
 .wui-tab-view-item:focus-visible {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: -2px;
+  outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 /* 图标(IconBox:16×16、Margin 0,0,10,0) */
@@ -708,9 +753,11 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
   cursor: default;
 }
 
+/* 系统焦点视觉:CloseButton(FocusVisualMargin=-3,TabView.xaml L187)双环在外 */
 .wui-tab-view-item-close:focus-visible {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: -2px;
+  outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 /* CloseButtonOverlayMode=OnHover 且未选中:默认隐藏,悬停标签时显示(源 UpdateCloseButton OnPointerOver 分支,
@@ -801,9 +848,11 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
   cursor: default;
 }
 
+/* 系统焦点视觉:TabViewButtonStyle(加号按钮)FocusVisualMargin=-3(TabView.xaml L59)双环在外 */
 .wui-tab-view-add-button:focus-visible {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: -2px;
+  outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 /* —— 内容区(TabContentPresenter:无边框无背景)—— */

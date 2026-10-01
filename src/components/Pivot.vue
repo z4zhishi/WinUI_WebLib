@@ -397,9 +397,13 @@ const NEXT_GLYPH = '\uE0E3'
   cursor: default;
 }
 
+/* 焦点:源 PivotHeaderItem UseSystemFocusVisuals=False(generic.xaml L12591)+ IsTabStop=False,
+   框架不画焦点框;Web 侧标题可 Tab(键盘可达性不退化),按 Margin=0 族画系统双环
+   (primary [0,2] + secondary [2,3] 全内描),差异登记于 VR-FIX8 报告 */
 .wui-pivot-header-item:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: -2px;
+  box-shadow: inset 0 0 0 2px var(--wui-system-control-focus-visual-primary);
+  outline: 1px solid var(--wui-system-control-focus-visual-secondary);
+  outline-offset: -3px;
 }
 
 /* SelectedPipe:2px 主题色下划线,距底 2px(Margin 0,0,0,2);Disabled 收起(源 Disabled 态) */

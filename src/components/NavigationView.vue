@@ -3,7 +3,12 @@
 // 视觉与状态规格(现代样式):CK/WinUI-Reference/controls/dev/NavigationView/NavigationView_themeresources.xaml
 //   与 NavigationView.xaml(注意:平台 generic.xaml L1577+ 仅存旧版 reveal 时代资源,本组件按 controls 仓库的
 //   WinUI 2.6+ 现代样式实现,见 wiki 差异节)。关键值:
-//   - 汉堡按钮 PaneToggleButtonStyle:40x36、字形 \uE700 16px、ButtonHolderGrid margin 0,4;
+//   - 汉堡按钮 PaneToggleButtonStyle:模板根 Grid 两列 [Auto: Border Width=40 内 16×16 AnimatedIcon]
+//     [*: ContentPresenter Padding 4,0,0,0],行高 PaneToggleButtonHeight 36、字形 \uE700 16px、
+//     LayoutRoot 外边距 NavigationViewItemButtonMargin(4,2);PaneTitle 是该按钮的 Content
+//     (NavigationView.xaml L205-207)→ **与 ☰ 同一行、40px 图标格右侧垂直居中**(x=48);窗格展开且
+//     PaneTitle 非空时按钮宽 = OpenPaneLength(源 UpdatePaneToggleSize),收起/紧凑态仅留 40px 图标格;
+//     窗格首行让出 PaneHeaderContentBorderRow MinHeight 40 后即为菜单(NavigationViewPaneHeaderRowMinHeight);
 //   - 紧凑栏 NavigationViewCompactPaneLength 48、展开窗格 OpenPaneLength 320、顶栏 NavigationViewTopPaneHeight 48;
 //   - 左窗格项(NavigationViewItemPresenterStyleWhenOnLeftPane):MinHeight 36、ButtonMargin 4,2、
 //     选中指示条(SelectionIndicator/"pill")3x16 圆角 2 高亮色(NavigationViewSelectionIndicatorForeground
@@ -419,6 +424,39 @@ function togglePane(): void {
 const hasFooterMenu = computed(
   () => props.footerMenuItems.length > 0 || slots['footer-menu-items'] !== undefined,
 )
+
+/** 汉堡按钮可见宽度(源 PaneToggleButtonStyle 模板根 Grid 的可见盒:MinWidth/SmallerPaneToggleButtonWidth 40)。 */
+const PANE_TOGGLE_WIDTH = 40
+
+/**
+ * PaneTitle 是否随汉堡按钮同行显示。
+ * 源 NavigationView.xaml L205-207:PaneTitleTextBlock 是 TogglePaneButton 的 Content,由
+ * PaneToggleButtonStyle(L270-335)模板的 ContentPresenter 渲染在 40px 图标格右侧同一行、垂直居中
+ * (VerticalContentAlignment=Center、Padding 4,0,0,0、Margin 0,-2,0,0);官方文档同义:
+ * 「PaneTitle … shows the text next to the menu button」(learn.microsoft.com NavigationView
+ * 「Pane title and header」节)。隐藏条件对照源:
+ *   - ListSizeCompact 态(PaneTitleTextBlock.Visibility=Collapsed):DisplayMode=Compact 且窗格收起
+ *     (NavigationView.cpp UpdateIsClosedCompact:m_isClosedCompact = !IsPaneOpen && SplitView 为
+ *     CompactInline(Expanded 态)/CompactOverlay(Compact 态));
+ *   - LeftMinimal 收起的浮层:UpdatePaneToggleSize 走「Overlay && !IsPaneOpen」分支不再展宽;
+ *   - Top 模式:PaneTitle 由 TopNavGrid 的 PaneTitleOnTopPane 承载(本组件顶栏标题,见模板)。
+ * Web 以 isPaneOpen 统一表达「展开则显示」(Expanded→CompactInline、Compact→CompactOverlay、
+ * Minimal→Overlay 三者的开态都成立),收起态一律隐藏。
+ */
+const showPaneTitle = computed(() => !isTop.value && isPaneOpen.value && props.paneTitle !== '')
+
+/**
+ * 展开态按钮宽度(源 NavigationView.cpp UpdatePaneToggleSize):窗格开启且 PaneTitle 非空时
+ * `toggleButton.Width = OpenPaneLength`(Overlay 开态减去返回/关闭按钮宽;本组件无返回按钮)。
+ * 按钮的可见盒(LayoutRoot)再由模板根 Grid 的 Margin=`NavigationViewItemButtonMargin`(4,2)
+ * 两侧各退 4px → 可见宽度 = OpenPaneLength - 8;标题起点 = 40(图标格)+ 4(ContentPresenter
+ * Padding 左)= 窗格内 x 48,与源一致。
+ */
+const toggleStyle = computed<Record<string, string> | undefined>(() =>
+  showPaneTitle.value
+    ? { width: `${Math.max(PANE_TOGGLE_WIDTH, props.openPaneLength - 8)}px` }
+    : undefined,
+)
 </script>
 
 <template>
@@ -468,15 +506,25 @@ const hasFooterMenu = computed(
 
     <!-- ============ 左窗格系(Left / LeftCompact / LeftMinimal / Auto 解析值)============ -->
     <template v-else>
-      <!-- 汉堡按钮(PaneToggleButtonGrid,Z 顶层悬浮):40x36、\uE700 16px、Holder margin 0,4 -->
+      <!-- 汉堡按钮(PaneToggleButtonStyle,PaneToggleButtonGrid Z=100 顶层悬浮):
+           源模板根 Grid 两列 [Auto: Border Width=40 内 16×16 AnimatedIcon][*: ContentPresenter
+           Padding 4,0,0,0],行高 PaneToggleButtonHeight 36,LayoutRoot 外边距
+           NavigationViewItemButtonMargin(4,2)。PaneTitle 是该 Button 的 Content
+           (NavigationView.xaml L205-207)→ 与 ☰ 同一行、在 40px 图标格右侧垂直居中;
+           窗格展开且有标题时按钮展宽到 OpenPaneLength(源 UpdatePaneToggleSize)。 -->
       <button
         type="button"
         class="wui-navview__toggle"
+        :class="{ 'wui-navview__toggle--with-title': showPaneTitle }"
+        :style="toggleStyle"
         :aria-expanded="isPaneOpen"
         aria-label="展开或折叠窗格"
         @click="togglePane"
       >
-        <FontIcon glyph="&#xE700;" :font-size="16" />
+        <span class="wui-navview__toggle-icon" aria-hidden="true">
+          <FontIcon glyph="&#xE700;" :font-size="16" />
+        </span>
+        <span v-if="showPaneTitle" class="wui-navview__pane-title">{{ paneTitle }}</span>
       </button>
 
       <WuiSplitView
@@ -493,11 +541,10 @@ const hasFooterMenu = computed(
         @pane-closed="emit('paneClosed')"
       >
         <template #pane>
-          <!-- 窗格内容(PaneContentGrid:顶部为汉堡行留白 44px,下接菜单 / PaneFooter / 页脚菜单) -->
+          <!-- 窗格内容(PaneContentGrid:首行为 PaneHeaderContentBorderRow,MinHeight =
+               NavigationViewPaneHeaderRowMinHeight 40 —— 让出汉堡按钮行;PaneTitle 已随汉堡按钮
+               同行渲染,故此处不再有独立标题行)。 -->
           <div class="wui-navview__pane">
-            <div v-if="paneTitle" class="wui-navview__pane-header">
-              <span class="wui-navview__pane-title">{{ paneTitle }}</span>
-            </div>
             <nav class="wui-navview__menu" :aria-label="menuNavLabel">
               <slot name="menu-items">
                 <WuiNavigationViewItem
@@ -553,24 +600,43 @@ const hasFooterMenu = computed(
   color: var(--wui-application-foreground-theme);
 }
 
-/* ============ 汉堡按钮(PaneToggleButtonStyle:40x36,\uE700 16px,Subtle 悬停)============ */
+/* ============ 汉堡按钮(PaneToggleButtonStyle:LayoutRoot 40x36,\uE700 16px,Subtle 悬停)============
+   LayoutRoot = 模板根 Grid(Height=PaneToggleButtonHeight 36、Margin=Padding 4,2)。
+   展开态由 toggleStyle 绑定展宽到 OpenPaneLength - 8(源 UpdatePaneToggleSize)。 */
 .wui-navview__toggle {
   position: absolute;
-  top: 4px; /* ButtonHolderGrid margin 0,4 */
+  top: 4px; /* ButtonHolderGrid margin 0,4 + LayoutRoot margin 2(源垂直 4+2=6,可见盒按 QA 口径 4) */
   left: 4px;
   z-index: 3;
   display: inline-flex;
+  box-sizing: border-box;
   align-items: center;
   justify-content: center;
-  width: 40px; /* PaneToggleButtonWidth */
+  width: 40px; /* PaneToggleButtonWidth(源 SmallerPaneToggleButtonWidth = CompactPaneLength - 8) */
   height: 36px; /* PaneToggleButtonHeight */
   padding: 0;
+  overflow: hidden;
   font: inherit;
   color: var(--wui-application-foreground-theme);
   background: transparent;
   border: 0;
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
   cursor: pointer;
+}
+
+/* 展开态:两列 [40px 图标格 | 标题],不再居中(对照源模板 Grid.ColumnDefinitions Auto/*) */
+.wui-navview__toggle--with-title {
+  justify-content: flex-start;
+}
+
+/* 图标格(源模板第一列 Border Width=PaneToggleButtonWidth 40,内 16×16 AnimatedIcon 居中) */
+.wui-navview__toggle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 40px;
+  height: 36px;
 }
 
 .wui-navview__toggle:hover {
@@ -582,9 +648,12 @@ const hasFooterMenu = computed(
   background: var(--wui-system-control-background-list-medium);
 }
 
+/* 系统焦点视觉:TogglePaneButton FocusVisualMargin=0(NavigationView.xaml L197)
+   → 两环全在元素内 primary [0,2] + secondary [2,3] = 系统双环 flush 形 */
 .wui-navview__toggle:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
+  box-shadow: inset 0 0 0 2px var(--wui-system-control-focus-visual-primary);
+  outline: 1px solid var(--wui-system-control-focus-visual-secondary);
+  outline-offset: -3px;
 }
 
 /* ============ 左窗格系:SplitView 承载 ============ */
@@ -593,7 +662,10 @@ const hasFooterMenu = computed(
   min-height: 0;
 }
 
-/* 窗格内容:顶部 44px 留白(4 + 36 汉堡行,NavigationViewPaneHeaderRowMinHeight 40 系)。
+/* 窗格内容:首行让出汉堡按钮行(PaneHeaderContentBorderRow MinHeight =
+   NavigationViewPaneHeaderRowMinHeight 40;源 NavigationView.cpp UpdateBackAndCloseButtonsVisibility
+   在汉堡按钮可见时把该行 MinHeight 设为 PaneToggleButtonHeight 36,并由 VisualState
+   TogglePaneButtonVisible 提升到 40)。
    flex 列布局:menu 区 flex:1 可滚,#pane-footer / 页脚菜单 flex:none 固定底部
    (对照源 PaneContentGrid 的行结构:菜单 * / PaneFooter Auto / FooterItems Auto)。
    box-sizing 必须 border-box:项目未设全局 border-box 重置,content-box 下
@@ -603,24 +675,23 @@ const hasFooterMenu = computed(
   flex-direction: column;
   box-sizing: border-box;
   height: 100%;
-  padding-top: 44px;
+  padding-top: 40px; /* PaneHeaderContentBorderRow MinHeight 40(不再有独立标题行) */
   overflow: hidden;
 }
 
-.wui-navview__pane-header {
-  display: flex;
-  align-items: center;
-  flex: none;
-  min-height: 40px;
-  padding: 0 16px; /* NavigationViewItemInnerHeaderMargin 16,0 */
-}
-
+/* 窗格标题(PaneTitle):源中为汉堡按钮的 Content(TextBlock HorizontalAlignment=Left
+   Margin 0,-2,0,0 VerticalAlignment=Center,NavigationViewItemHeaderTextStyle = 14 SemiBold)
+   → 渲染在按钮内、图标格右侧同行垂直居中。 */
 .wui-navview__pane-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-left: 4px; /* ContentPresenter Padding 4,0,0,0 */
   overflow: hidden;
   font-size: var(--wui-control-content-theme-font-size);
-  font-weight: 600; /* NavigationViewItemHeaderTextStyle */
+  font-weight: 600; /* NavigationViewItemHeaderTextStyle:SemiBold */
+  text-align: left; /* TextBlock HorizontalAlignment=Left(button 的 UA text-align:center 需抵消) */
   text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: nowrap; /* NavigationViewItemHeaderTextStyle:TextWrapping=NoWrap */
 }
 
 .wui-navview__menu {
@@ -642,8 +713,8 @@ const hasFooterMenu = computed(
   overflow-x: hidden;
 }
 
-/* 紧凑栏收拢:标题 / 标签 / 箭头 / 组头隐藏,仅留图标栏(ClosedCompact + ListSizeCompact setter 组) */
-.wui-navview--compact-closed .wui-navview__pane-header,
+/* 紧凑栏收拢:标题 / 标签 / 箭头 / 组头隐藏,仅留图标栏(ClosedCompact + ListSizeCompact setter 组;
+   PaneTitleTextBlock.Visibility=Collapsed —— 本实现的标题随汉堡按钮渲染,由 showPaneTitle 收起) */
 .wui-navview--compact-closed .wui-navview__pane-footer,
 .wui-navview--compact-closed :deep(.wui-nav-item__label),
 .wui-navview--compact-closed :deep(.wui-nav-item__chevron),
@@ -706,11 +777,12 @@ const hasFooterMenu = computed(
   border-top-left-radius: 0;
 }
 
-/* 页头(NavigationViewTitleHeaderContentControlTextStyle:28px SemiBold;字号取最近似 token) */
+/* 页头(NavigationViewTitleHeaderContentControlTextStyle:28px SemiBold;字号取最近似 token;
+   NavigationViewHeaderMargin 56,44,0,0 —— 右 0) */
 .wui-navview__header {
   flex: none;
   min-height: 36px; /* PaneToggleButtonHeight 基线 */
-  margin: 44px 24px 0 56px; /* NavigationViewHeaderMargin 56,44,0,0 */
+  margin: 44px 0 0 56px; /* NavigationViewHeaderMargin 56,44,0,0 */
   font-size: var(--wui-text-style-extra-large-font-size);
   font-weight: 600;
   color: var(--wui-application-foreground-theme);
@@ -718,7 +790,7 @@ const hasFooterMenu = computed(
 
 .wui-navview--minimal .wui-navview__header {
   /* Minimal 抬头左移贴近汉堡(NavigationViewMinimalHeaderMargin -24,44,0,0 的 Web 近似) */
-  margin: 44px 24px 0 12px;
+  margin: 44px 0 0 12px;
 }
 
 .wui-navview__body {
@@ -765,6 +837,7 @@ const hasFooterMenu = computed(
 .wui-navview :deep(.wui-nav-item:focus-visible) {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 .wui-navview :deep(.wui-nav-item--selected) {
