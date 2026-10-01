@@ -662,6 +662,20 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
   min-height: 0;
 }
 
+/* 窗格开合时长(源精确值覆写):SplitViewPaneAnimationOpenDuration = 0.2s /
+   SplitViewPaneAnimationCloseDuration = 0.1s(generic.xaml L1305-1307,Inline 系窗格动画
+   由 NavigationView 与 SplitView 共用同一资源键)。SplitView 基类取 --wui-duration-normal/fast
+   token(240/167ms);此处按源 KeyTime 逐值覆写,缓动 KeySpline (0.0,0.35 0.15,1.0)
+   与 SplitView 侧保持一致(L15291),不改。Overlay 分支(0.35s/0.12s,NavigationView.xaml
+   L99/L113)不在本覆盖范围(SplitView 基类值,开 350ms 已吻合)。 */
+.wui-navview .wui-navview__split:not(.wui-splitview--is-overlay) {
+  transition-duration: 100ms; /* 关:源 0.1s */
+}
+
+.wui-navview .wui-navview__split:not(.wui-splitview--is-overlay).wui-splitview--is-open {
+  transition-duration: 200ms; /* 开:源 0.2s */
+}
+
 /* 窗格内容:首行让出汉堡按钮行(PaneHeaderContentBorderRow MinHeight =
    NavigationViewPaneHeaderRowMinHeight 40;源 NavigationView.cpp UpdateBackAndCloseButtonsVisibility
    在汉堡按钮可见时把该行 MinHeight 设为 PaneToggleButtonHeight 36,并由 VisualState
