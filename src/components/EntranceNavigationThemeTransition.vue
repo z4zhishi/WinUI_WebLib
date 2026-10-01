@@ -131,12 +131,16 @@ function observeChildList(): void {
   const root = container.value
   if (!root || typeof MutationObserver === 'undefined') return
   observer = new MutationObserver((mutations) => {
+    // 先汇总整批 mutations 的新增元素,再一次 animateChildren:Vue 的 v-for
+    // 批量插入逐节点落 DOM,一批 5 个节点 = 5 条 record × 各 1 节点;若逐 record
+    // 调用,每条的 stagger 索引都从 0 重算,批次错峰失效(delay 全 0ms)。
+    const added: Element[] = []
     for (const mutation of mutations) {
-      const added = Array.from(mutation.addedNodes).filter(
-        (node): node is Element => node.nodeType === Node.ELEMENT_NODE,
-      )
-      if (added.length > 0) animateChildren(added)
+      for (const node of mutation.addedNodes) {
+        if (node instanceof Element) added.push(node)
+      }
     }
+    if (added.length > 0) animateChildren(added)
   })
   observer.observe(root, { childList: true })
 }

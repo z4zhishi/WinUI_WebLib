@@ -123,7 +123,7 @@ Theme transitions 是 WinUI 预打包的即用型动画;官方 ThemeTransitionPa
 3. **opacity 分段差异**:源的进页 opacity 多为离散翻转(150/250/128ms 处 0→1);CSS 关键帧按段渐变,前段时长内完成淡入,观感差异可忽略。
 4. **纵滑 FromTop 为镜像实现**:CK 手机版源码的纵滑分支未按 FromTop/FromBottom 区分符号(L1594 起共用同一分支);Web 按 API 语义镜像(FromBottom 从下方 +200px,FromTop 从上方 −200px)。
 5. **Continuum 仅映射页面层**:源中 continuum 目标元素的 3D 翻转/飞行与 PlaneProjection 强耦合,且语义上需 ConnectedAnimation 协同;Web 端只做背景层 scale 0.9→1 + 淡入。
-6. **Common(Turnstile)的 3D 手性**:源用 PlaneProjection RotationY(轴心 X=0);Web 用 `perspective(1200px) + rotateY`,绕轴手性可能与 XAML 镜像,取观感一致为准。
+6. **Common(Turnstile)的 3D 手性**:源用 PlaneProjection RotationY,轴心 CenterOfRotationX = −0.1、CenterOfRotationZ = −100(源常量 `TURNSTILE_AXIS_X/Z`,ThemeTransitions.cpp L8-9);Web 用 `perspective(1200px) + rotateY`,轴心取 left/right center 原点,绕轴手性可能与 XAML 镜像,取观感一致为准。
 7. **方向显式化**:WinUI 的进/退由 `NavigationMode`(Navigate/GoBack)内部决定;Web 组件经 `direction` prop 显式传入,vue-router 场景需业务在守卫里维护方向。
 8. **reduced-motion 全局降级**:`animations.css` 的 `prefers-reduced-motion` 块把动画/过渡的时长与延迟都压至 0.01ms,转场与 stagger 均近似瞬时完成。
 

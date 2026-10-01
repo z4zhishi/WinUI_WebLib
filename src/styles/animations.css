@@ -591,7 +591,9 @@
 
 /* ---- Common(Turnstile 旋转门,源 L557-L880、TURNSTILE_* 常量):绕左/右缘
    rotateY 三维翻转 —— 进页 -80°→0(128ms 隐藏后至 556ms 指数缓出)、128ms 淡入;
-   离页 0→50°(128ms 指数缓入)后淡出。透视 1200px 与绕轴手性为 Web 近似。 */
+   离页 0→50°(128ms 指数缓入)后淡出;退进 +50°→0(L958-960)、退离 0→−80°
+   (L1020-1021)—— 源规则:进页与退离用 OFFSET_IN=80、离页与退进用 OFFSET_OUT=50。
+   透视 1200px 与绕轴手性为 Web 近似;源轴心 TURNSTILE_AXIS_X = -0.1(L8)。 */
 @keyframes wui-nav-common-fwd-in {
   from {
     opacity: 0;
@@ -621,11 +623,11 @@
 @keyframes wui-nav-common-back-in {
   from {
     opacity: 0;
-    transform: perspective(1200px) rotateY(80deg);
+    transform: perspective(1200px) rotateY(50deg);
   }
   23.022% {
     opacity: 1;
-    transform: perspective(1200px) rotateY(80deg);
+    transform: perspective(1200px) rotateY(50deg);
   }
   to {
     opacity: 1;
@@ -640,7 +642,7 @@
   }
   to {
     opacity: 0;
-    transform: perspective(1200px) rotateY(-50deg);
+    transform: perspective(1200px) rotateY(-80deg);
   }
 }
 
