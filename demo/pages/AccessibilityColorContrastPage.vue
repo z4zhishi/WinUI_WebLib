@@ -8,6 +8,9 @@
 // (GetRelativeLuminance / CalculateContrastRatio,WCAG 2.x 官方公式)。
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import WuiButton from '@/components/Button.vue'
+import WuiColorPicker from '@/components/ColorPicker.vue'
+import WuiFlyout from '@/components/Flyout.vue'
+import WuiTextBox from '@/components/TextBox.vue'
 import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
 import DemoOptionRow from '../components/DemoOptionRow.vue'
@@ -396,17 +399,20 @@ const usageCode = `<AccessibilityColorContrastPage />
             <div class="picker-group">
               <label class="picker-label" for="acc-cc-text-color">{{ labelTextColor }}</label>
               <div class="picker-row">
-                <input
-                  id="acc-cc-text-color"
-                  v-model="textColor"
-                  type="color"
-                  class="color-well"
-                  aria-describedby="acc-cc-text-hex"
-                />
-                <input
-                  id="acc-cc-text-hex"
-                  v-model="textColor"
-                  type="text"
+                <!-- 色井:改用 WuiButton 色板 + WuiFlyout 内嵌 WuiColorPicker(FIX24,等价原生取色器) -->
+                <WuiFlyout>
+                  <template #target>
+                    <WuiButton
+                      id="acc-cc-text-color"
+                      class="color-well"
+                      :style="{ background: textColor }"
+                      :aria-label="labelTextColor"
+                    />
+                  </template>
+                  <WuiColorPicker v-model:color="textColor" :is-color-spectrum-visible="false" />
+                </WuiFlyout>
+                <WuiTextBox
+                  v-model:text="textColor"
                   class="hex-input"
                   spellcheck="false"
                   aria-label="HEX"
@@ -417,17 +423,19 @@ const usageCode = `<AccessibilityColorContrastPage />
             <div class="picker-group">
               <label class="picker-label" for="acc-cc-bg-color">{{ labelBgColor }}</label>
               <div class="picker-row">
-                <input
-                  id="acc-cc-bg-color"
-                  v-model="bgColor"
-                  type="color"
-                  class="color-well"
-                  aria-describedby="acc-cc-bg-hex"
-                />
-                <input
-                  id="acc-cc-bg-hex"
-                  v-model="bgColor"
-                  type="text"
+                <WuiFlyout>
+                  <template #target>
+                    <WuiButton
+                      id="acc-cc-bg-color"
+                      class="color-well"
+                      :style="{ background: bgColor }"
+                      :aria-label="labelBgColor"
+                    />
+                  </template>
+                  <WuiColorPicker v-model:color="bgColor" :is-color-spectrum-visible="false" />
+                </WuiFlyout>
+                <WuiTextBox
+                  v-model:text="bgColor"
                   class="hex-input"
                   spellcheck="false"
                   aria-label="HEX"
@@ -621,37 +629,15 @@ const usageCode = `<AccessibilityColorContrastPage />
   gap: 8px;
 }
 
+/* 色井:WuiButton 色板(底色由内联 style 注入),只管尺寸;点击弹出 WuiColorPicker */
 .color-well {
   width: 48px;
   height: 32px;
-  padding: 2px;
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.color-well:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
 }
 
 .hex-input {
   min-width: 0;
   flex: 1;
-  padding: 4px 8px;
-  font-family: inherit;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-text-box-foreground-theme);
-  background: var(--wui-text-box-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-bottom-color: var(--wui-system-control-background-base-medium);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-}
-
-.hex-input:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
 }
 
 .swap-button {

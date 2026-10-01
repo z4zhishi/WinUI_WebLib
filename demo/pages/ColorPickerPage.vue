@@ -4,6 +4,7 @@
 // (Orientation=Horizontal + ColorSpectrumComponents=SaturationValue:竖向 hue 滑杆 + 饱和度/亮度谱区)
 // 与新旧色对比(previewColor)。
 import { computed, ref } from 'vue'
+import WuiButton from '@/components/Button.vue'
 import WuiColorPicker from '@/components/ColorPicker.vue'
 import type {
   ColorPickerOrientation,
@@ -206,10 +207,13 @@ const usageCode = computed(
             :previous-color="previousColor"
           />
           <div class="change-actions">
-            <button type="button" class="action-button" @click="snapshotPrevious">{{ snapshotLabel }}</button>
-            <button type="button" class="action-button" :disabled="previousColor === null" @click="clearPrevious">
-              {{ clearPreviousLabel }}
-            </button>
+            <WuiButton class="action-button" :content="snapshotLabel" @click="snapshotPrevious" />
+            <WuiButton
+              class="action-button"
+              :disabled="previousColor === null"
+              :content="clearPreviousLabel"
+              @click="clearPrevious"
+            />
           </div>
         </section>
       </div>
@@ -349,37 +353,9 @@ const usageCode = computed(
   gap: 8px;
 }
 
+/* 动作按钮:WuiButton 标准观感,此处只保留最小布局 */
 .action-button {
   min-height: 32px;
-  padding: 5px 12px;
-  font-family: inherit;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.action-button:hover:not(:disabled) {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.action-button:active:not(:disabled) {
-  color: var(--wui-button-pressed-foreground-theme);
-  background: var(--wui-button-pressed-background-theme);
-}
-
-.action-button:disabled {
-  color: var(--wui-button-foreground-disabled);
-  background: var(--wui-button-background-disabled);
-  cursor: default;
-}
-
-.action-button:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 1px;
 }
 
 .docs-subtitle {

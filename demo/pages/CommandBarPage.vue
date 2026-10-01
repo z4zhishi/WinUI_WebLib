@@ -9,6 +9,7 @@ import { computed, ref } from 'vue'
 import WuiAppBarButton from '@/components/AppBarButton.vue'
 import WuiAppBarSeparator from '@/components/AppBarSeparator.vue'
 import WuiAppBarToggleButton from '@/components/AppBarToggleButton.vue'
+import WuiButton from '@/components/Button.vue'
 import WuiCommandBar from '@/components/CommandBar.vue'
 import WuiSymbolIcon from '@/components/SymbolIcon.vue'
 import DemoCode from '../components/DemoCode.vue'
@@ -215,11 +216,11 @@ const usageCode = computed(
             </template>
           </WuiCommandBar>
           <div class="cb-row">
-            <button type="button" class="cb-action" @click="openOfficial">Open command bar</button>
-            <button type="button" class="cb-action" @click="closeOfficial">Close command bar</button>
-            <button type="button" class="cb-action" @click="hasExtraSecondary = !hasExtraSecondary">
+            <WuiButton class="cb-action" content="Open command bar" @click="openOfficial" />
+            <WuiButton class="cb-action" content="Close command bar" @click="closeOfficial" />
+            <WuiButton class="cb-action" @click="hasExtraSecondary = !hasExtraSecondary">
               {{ hasExtraSecondary ? 'Remove secondary commands' : 'Add secondary commands' }}
-            </button>
+            </WuiButton>
             <span class="cb-state">{{ labelOpenState }}: {{ officialOpen ? 'true' : 'false' }} · isSticky: {{ officialSticky ? 'true' : 'false' }}</span>
             <p class="cb-hint">
               {{ labelLastAction }}:<template v-if="officialAction !== ''">{{ officialAction }}</template><template v-else>{{ noActionHint }}</template>
@@ -254,9 +255,9 @@ const usageCode = computed(
             </template>
           </WuiCommandBar>
           <div class="cb-row">
-            <button type="button" class="cb-action" @click="overflowOpen = !overflowOpen">
+            <WuiButton class="cb-action" @click="overflowOpen = !overflowOpen">
               {{ overflowOpen ? '收起溢出区' : '展开溢出区' }}
-            </button>
+            </WuiButton>
             <span class="cb-state">Shuffle: {{ shuffleOn ? 'on' : 'off' }} · Favorite: {{ favoriteOn ? 'on' : 'off' }}</span>
             <p class="cb-hint">
               {{ labelLastAction }}:<template v-if="overflowAction !== ''">{{ overflowAction }}</template><template v-else>{{ noActionHint }}</template>
@@ -382,26 +383,8 @@ const usageCode = computed(
   gap: 12px;
 }
 
-/* Open/Close/Add/Remove 动作按钮(对照官方示例的选项按钮) */
-.cb-action {
-  padding: 5px 12px;
-  font-family: var(--wui-content-control-theme-font-family);
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-button-foreground);
-  background: var(--wui-button-background);
-  border: 2px solid var(--wui-button-border);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);
-  cursor: default;
-  user-select: none;
-}
-
-.cb-action:hover {
-  background: var(--wui-button-background-pointer-over);
-}
-
-.cb-action:active {
-  background: var(--wui-button-background-pressed);
-}
+/* Open/Close/Add/Remove 动作按钮:改用库内 WuiButton(FIX24),原仿制样式已删除
+  (.cb-action 类仅为语义标记,观感由 wui-button 提供) */
 
 .cb-state {
   font-size: var(--wui-tool-tip-content-theme-font-size);

@@ -9,6 +9,8 @@
 //      主题文件重生成后本页自动跟随,页面内不出现任何硬编码色值。
 import { computed, ref } from 'vue'
 import type { CSSProperties } from 'vue'
+import WuiButton from '@/components/Button.vue'
+import WuiTextBox from '@/components/TextBox.vue'
 import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
 import DemoOptionRow from '../components/DemoOptionRow.vue'
@@ -396,16 +398,16 @@ const usageCode = `/* 颜色一律经 token 引用,随 html[data-theme] 明暗�
           <h3 class="section-title">{{ secBrowse }}</h3>
           <p class="guide-text">{{ browseGuide }}</p>
           <div class="browse-toolbar">
-            <input
-              v-model="query"
+            <WuiTextBox
+              :text="String(query)"
               class="browse-search"
-              type="search"
-              :placeholder="browsePlaceholder"
+              :placeholder-text="String(browsePlaceholder)"
               :aria-label="secBrowse"
+              @update:text="query = $event"
             />
             <span class="browse-summary">{{ summaryText }}</span>
-            <button type="button" class="toolbar-button" @click="expandAllGroups">{{ expandAllLabel }}</button>
-            <button type="button" class="toolbar-button" @click="collapseAllGroups">{{ collapseAllLabel }}</button>
+            <WuiButton class="toolbar-button" :content="expandAllLabel" @click="expandAllGroups" />
+            <WuiButton class="toolbar-button" :content="collapseAllLabel" @click="collapseAllGroups" />
           </div>
           <div class="col-head" aria-hidden="true">
             <span></span>
@@ -415,8 +417,7 @@ const usageCode = `/* 颜色一律经 token 引用,随 html[data-theme] 明暗�
           </div>
           <div class="group-list">
             <div v-for="group in visibleGroups" :key="group.id" class="token-group">
-              <button
-                type="button"
+              <WuiButton
                 class="group-head"
                 :aria-expanded="group.expanded"
                 @click="toggleGroup(group.id)"
@@ -424,7 +425,7 @@ const usageCode = `/* 颜色一律经 token 引用,随 html[data-theme] 明暗�
                 <span class="group-chevron" aria-hidden="true">{{ group.expanded ? '▾' : '▸' }}</span>
                 <span class="group-title">{{ pickText(i18n, group.label) }}</span>
                 <span class="group-count">{{ group.total }}{{ group.diffCount < group.total ? ` · ${group.diffCount}±` : '' }}</span>
-              </button>
+              </WuiButton>
               <div v-if="group.expanded" class="group-rows">
                 <div v-for="token in group.visible" :key="token.cssVar" class="token-row">
                   <span
@@ -433,14 +434,13 @@ const usageCode = `/* 颜色一律经 token 引用,随 html[data-theme] 明暗�
                     :title="colCurrent"
                     aria-hidden="true"
                   ></span>
-                  <button
-                    type="button"
+                  <WuiButton
                     class="token-name"
                     :title="token.cssVar"
                     @click="copyTokenName(token.cssVar)"
                   >
                     {{ token.cssVar }}
-                  </button>
+                  </WuiButton>
                   <span class="pair" :title="token.light">
                     <span class="swatch" :style="{ background: token.light }" aria-hidden="true"></span>
                     <span class="value-text">{{ token.light }}</span>
@@ -625,20 +625,9 @@ const usageCode = `/* 颜色一律经 token 引用,随 html[data-theme] 明暗�
   margin-bottom: 8px;
 }
 
+/* 搜索框:改用库内 WuiTextBox(FIX24),观感由 wui-text-box 提供,这里只管尺寸 */
 .browse-search {
   min-width: 260px;
-  padding: 5px 12px;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-text-control-foreground);
-  background: var(--wui-text-control-background);
-  border: 1px solid var(--wui-text-control-border);
-  border-bottom-width: 2px;
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  outline: none;
-}
-
-.browse-search:focus-visible {
-  border-color: var(--wui-text-control-border-brush-focused);
 }
 
 .browse-summary {
@@ -647,25 +636,7 @@ const usageCode = `/* 颜色一律经 token 引用,随 html[data-theme] 明暗�
   color: var(--wui-application-secondary-foreground-theme);
 }
 
-.toolbar-button {
-  padding: 4px 12px;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.toolbar-button:hover {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.toolbar-button:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 1px;
-}
+/* 展开全部/收起全部:改用库内 WuiButton(FIX24),观感由 wui-button 提供 */
 
 /* 列头与行同网格,保证对齐 */
 .col-head,

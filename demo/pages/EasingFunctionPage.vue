@@ -24,6 +24,7 @@ import {
   sampleEasingProgress,
 } from '@/utils/easingFunctions'
 import type { EasingFunctionDef, EasingFunctionKind, EasingMode, EasingParams } from '@/utils/easingFunctions'
+import WuiButton from '@/components/Button.vue'
 import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
 import DemoOptionRow from '../components/DemoOptionRow.vue'
@@ -488,7 +489,7 @@ getEasingFunction('bounce').cssEasing.easeOut // null`
           <div class="group-head">
             <h3 class="group-title">全族 × 三模式对照网格</h3>
             <div class="play-row">
-              <button type="button" class="host-button" @click="playGrid">重放(同屏)</button>
+              <WuiButton class="host-button" content="重放(同屏)" @click="playGrid" />
               <span class="state-chip" aria-live="polite">时长 {{ gridDurationMs }}ms · 每格为族默认参数</span>
             </div>
           </div>
@@ -503,10 +504,9 @@ getEasingFunction('bounce').cssEasing.easeOut // null`
               <span class="family-zh">{{ family.def.labelZh }} · {{ family.def.description }}</span>
             </h4>
             <div class="family-cells">
-              <button
+              <WuiButton
                 v-for="cell in family.cells"
                 :key="cell.key"
-                type="button"
                 class="ease-cell"
                 :class="{ selected: cell.key === selectedKey }"
                 :aria-pressed="cell.key === selectedKey"
@@ -520,7 +520,7 @@ getEasingFunction('bounce').cssEasing.easeOut // null`
                   <span class="mover" :ref="(el) => setMoverEl(cell.key, el)"><span class="ball"></span></span>
                 </span>
                 <span class="cell-mode">{{ MODE_LABELS[cell.mode] }}</span>
-              </button>
+              </WuiButton>
             </div>
           </div>
         </section>
@@ -573,14 +573,13 @@ getEasingFunction('bounce').cssEasing.easeOut // null`
             当前位置 → To 另一端)。
           </p>
           <div v-for="demo in OFFICIAL_DEMOS" :key="demo.key" class="official-row">
-            <button
-              type="button"
+            <WuiButton
               class="host-button"
               :aria-label="`Animate rectangle using ${demo.title} Easing Function`"
               @click="playOfficial(demo.key)"
             >
               Animate
-            </button>
+            </WuiButton>
             <span class="official-track">
               <span class="mover mover-official" :ref="(el) => setOfficialEl(demo.key, el)">
                 <span class="official-rect"></span>
@@ -678,34 +677,13 @@ getEasingFunction('bounce').cssEasing.easeOut // null`
   gap: 12px;
 }
 
+/* 重放/Animate 按钮:改用库内 WuiButton(FIX24),标准观感由 wui-button 提供,这里只管布局 */
 .host-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 75px;
   height: 32px;
-  padding: 5px 12px;
-  font-family: inherit;
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.host-button:hover {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.host-button:active {
-  color: var(--wui-button-pressed-foreground-theme);
-  background: var(--wui-button-pressed-background-theme);
-}
-
-.host-button:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
 }
 
 .state-chip {
@@ -742,6 +720,7 @@ getEasingFunction('bounce').cssEasing.easeOut // null`
   width: 100%;
 }
 
+/* 曲线格:改用库内 WuiButton(FIX24),这里覆盖为卡片式外观(非标准按钮仿制) */
 .ease-cell {
   display: flex;
   flex-direction: column;

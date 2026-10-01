@@ -5,6 +5,9 @@
 // 主题默认值取自 CK/WinUI-Reference/controls/dev/Materials/Acrylic/AcrylicBrush_themeresources.xaml
 // 的 AcrylicInAppFillColorDefaultBrush(Light / Default 两套)。
 import { computed, ref } from 'vue'
+import WuiButton from '@/components/Button.vue'
+import WuiColorPicker from '@/components/ColorPicker.vue'
+import WuiFlyout from '@/components/Flyout.vue'
 import WuiAcrylicBrush, {
   useAcrylic,
   supportsAcrylic,
@@ -318,36 +321,52 @@ background-color: ${customLayers.value.fallbackColor};`,
           <DemoOptionRow label="TintTransitionDuration(ms)" type="slider" v-model="transitionDuration" :min="0" :max="1000" :step="50" />
         </DemoOptions>
 
-        <!-- 颜色选择:官方同名色板 + 原生取色器(自绘,DemoOptionRow 无此形态) -->
+        <!-- 颜色选择:官方同名色板 + 取色器(色板/色井/预设均用库内 Wui 组件构建,FIX24) -->
         <div class="swatch-editor">
           <h3 class="swatch-title">{{ tintSwatchesLabel }}</h3>
           <div class="swatch-row">
-            <button
+            <WuiButton
               v-for="swatch in TINT_SWATCHES"
               :key="swatch.name"
-              type="button"
               class="swatch"
               :class="{ 'swatch--active': tintHex === swatch.hex }"
               :style="{ backgroundColor: swatch.hex }"
               :aria-label="`TintColor ${swatch.name}`"
               @click="tintHex = swatch.hex"
             />
-            <input v-model="tintHex" type="color" class="swatch-input" aria-label="TintColor 自定义" />
+            <WuiFlyout>
+              <template #target>
+                <WuiButton
+                  class="swatch swatch-input"
+                  :style="{ backgroundColor: tintHex }"
+                  :aria-label="'TintColor 自定义'"
+                />
+              </template>
+              <WuiColorPicker v-model:color="tintHex" :is-color-spectrum-visible="false" />
+            </WuiFlyout>
             <code class="swatch-value">{{ tintHex }}</code>
           </div>
           <h3 class="swatch-title">{{ fallbackSwatchesLabel }}</h3>
           <div class="swatch-row">
-            <button
+            <WuiButton
               v-for="swatch in FALLBACK_SWATCHES"
               :key="swatch.name"
-              type="button"
               class="swatch"
               :class="{ 'swatch--active': fallbackHex === swatch.hex }"
               :style="{ backgroundColor: swatch.hex }"
               :aria-label="`FallbackColor ${swatch.name}`"
               @click="fallbackHex = swatch.hex"
             />
-            <input v-model="fallbackHex" type="color" class="swatch-input" aria-label="FallbackColor 自定义" />
+            <WuiFlyout>
+              <template #target>
+                <WuiButton
+                  class="swatch swatch-input"
+                  :style="{ backgroundColor: fallbackHex }"
+                  :aria-label="'FallbackColor 自定义'"
+                />
+              </template>
+              <WuiColorPicker v-model:color="fallbackHex" :is-color-spectrum-visible="false" />
+            </WuiFlyout>
             <code class="swatch-value">{{ fallbackHex }}</code>
           </div>
         </div>
@@ -356,10 +375,10 @@ background-color: ${customLayers.value.fallbackColor};`,
         <div class="preset-editor">
           <h3 class="swatch-title">{{ presetLabel }}</h3>
           <div class="preset-row">
-            <button type="button" class="preset" @click="applyPreset(PRESETS[0])">{{ presetCustom }}</button>
-            <button type="button" class="preset" @click="applyPreset(PRESETS[1])">{{ presetLuminosity }}</button>
-            <button type="button" class="preset" @click="applyPreset(PRESETS[2])">{{ presetLight }}</button>
-            <button type="button" class="preset" @click="applyPreset(PRESETS[3])">{{ presetDark }}</button>
+            <WuiButton class="preset" :content="presetCustom" @click="applyPreset(PRESETS[0])" />
+            <WuiButton class="preset" :content="presetLuminosity" @click="applyPreset(PRESETS[1])" />
+            <WuiButton class="preset" :content="presetLight" @click="applyPreset(PRESETS[2])" />
+            <WuiButton class="preset" :content="presetDark" @click="applyPreset(PRESETS[3])" />
           </div>
         </div>
 
@@ -517,13 +536,13 @@ background-color: ${customLayers.value.fallbackColor};`,
   gap: 8px;
 }
 
+/* 色板/色井:改用库内 WuiButton(FIX24),底色由内联 style 注入,这里只管尺寸与描边 */
 .swatch {
   width: 32px;
   height: 28px;
   padding: 0;
   border: 1px solid var(--wui-system-control-background-base-medium);
   border-radius: 4px;
-  cursor: pointer;
 }
 
 .swatch--active {
@@ -531,14 +550,13 @@ background-color: ${customLayers.value.fallbackColor};`,
   outline-offset: 1px;
 }
 
+/* 色井:WuiFlyout 锚点色板(点击弹出 WuiColorPicker),尺寸略窄以示「自定义」 */
 .swatch-input {
   width: 36px;
   height: 28px;
   padding: 0;
   border: 1px solid var(--wui-system-control-background-base-medium);
   border-radius: 4px;
-  background: none;
-  cursor: pointer;
 }
 
 .swatch-value {
@@ -554,28 +572,10 @@ background-color: ${customLayers.value.fallbackColor};`,
   gap: 8px;
 }
 
+/* 预设按钮:改用库内 WuiButton(FIX24),这里只保留紧凑排版 */
 .preset {
   padding: 4px 10px;
   font-size: var(--wui-tool-tip-content-theme-font-size);
-  font-family: inherit;
-  color: var(--wui-application-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.preset:hover {
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.preset:active {
-  background: var(--wui-button-pressed-background-theme);
-}
-
-.preset:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 1px;
 }
 
 /* —— 下半区文档 —— */

@@ -12,6 +12,7 @@
 // 与官方一致,页面切换本身不加转场(等价 SuppressNavigationTransitionInfo)。
 import { computed, nextTick, ref } from 'vue'
 import type { CSSProperties } from 'vue'
+import WuiButton from '@/components/Button.vue'
 import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
 import DemoOptionRow from '../components/DemoOptionRow.vue'
@@ -316,10 +317,9 @@ ${SCRIPT_CLOSE}
           </p>
           <div class="ca-frame">
             <div v-if="view === 'list'" class="ca-list">
-              <button
+              <WuiButton
                 v-for="item in ITEMS"
                 :key="item.id"
-                type="button"
                 class="ca-item"
                 :disabled="busy"
                 @click="openItem(item)"
@@ -329,7 +329,7 @@ ${SCRIPT_CLOSE}
                   <strong class="ca-item-title">{{ item.title }}</strong>
                   <span class="ca-item-meta">Views: {{ item.views }} · Likes: {{ item.likes }}</span>
                 </span>
-              </button>
+              </WuiButton>
             </div>
             <div v-else-if="detailItem" class="ca-detail">
               <div class="ca-detail-header">
@@ -340,7 +340,7 @@ ${SCRIPT_CLOSE}
                 </div>
               </div>
               <p class="ca-detail-desc">{{ detailItem.description }}</p>
-              <button type="button" class="host-button" :disabled="busy" @click="goBack">Go Back</button>
+              <WuiButton class="host-button" :disabled="busy" content="Go Back" @click="goBack" />
             </div>
           </div>
           <div class="trigger-row">
@@ -362,17 +362,16 @@ ${SCRIPT_CLOSE}
           </p>
           <div class="ca-grid-wrap">
             <div class="ca-grid">
-              <button
+              <WuiButton
                 v-for="item in ITEMS"
                 :key="item.id"
-                type="button"
                 class="ca-card"
                 :disabled="busy"
                 @click="openCard(item)"
               >
                 <span class="ca-card-thumb" :class="toneClass(item.tone)" :style="gridCardStyle(item)"></span>
                 <span class="ca-card-caption">{{ item.title }}</span>
-              </button>
+              </WuiButton>
             </div>
             <div v-if="overlayItem" class="ca-overlay" @click.self="closeCard">
               <div class="ca-overlay-card" :style="overlayCardStyle(overlayItem)">
@@ -381,7 +380,7 @@ ${SCRIPT_CLOSE}
                   <h4 class="ca-detail-title">{{ overlayItem.title }}</h4>
                   <p class="ca-detail-desc">{{ overlayItem.description }}</p>
                 </div>
-                <button type="button" class="mini-button ca-overlay-close" @click="closeCard">关闭</button>
+                <WuiButton class="mini-button ca-overlay-close" content="关闭" @click="closeCard" />
               </div>
             </div>
           </div>
@@ -596,29 +595,13 @@ ${SCRIPT_CLOSE}
   color: var(--wui-application-foreground-theme);
 }
 
+/* Go Back 按钮:改用库内 WuiButton(FIX24),标准观感由 wui-button 提供,这里只管布局 */
 .host-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 96px;
   height: 32px;
-  padding: 5px 12px;
-  font-family: inherit;
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.host-button:hover {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.host-button:active {
-  color: var(--wui-button-pressed-foreground-theme);
-  background: var(--wui-button-pressed-background-theme);
 }
 
 .host-button:disabled,
@@ -707,26 +690,11 @@ ${SCRIPT_CLOSE}
   right: 8px;
 }
 
+/* 关闭按钮:改用库内 WuiButton(FIX24),这里只保留紧凑尺寸 */
 .mini-button {
   height: 28px;
   padding: 3px 10px;
-  font-family: inherit;
   font-size: var(--wui-tool-tip-content-theme-font-size);
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.mini-button:hover {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.mini-button:active {
-  color: var(--wui-button-pressed-foreground-theme);
-  background: var(--wui-button-pressed-background-theme);
 }
 
 .trigger-row {

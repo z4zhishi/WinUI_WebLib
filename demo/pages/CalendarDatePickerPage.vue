@@ -4,6 +4,7 @@
 // firstDayOfWeek 切换、dateFormat 显示格式与空值回填。上半区交互演示 + 参数面板实时调节,
 // 下半区为属性、事件、键盘交互与用法代码(结构照抄已通过 QA 的 ComboBoxPage 母版)。
 import { computed, ref, watch } from 'vue'
+import WuiButton from '@/components/Button.vue'
 import WuiCalendarDatePicker from '@/components/CalendarDatePicker.vue'
 import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
@@ -252,7 +253,7 @@ const usageCode = computed(
               placeholder-text="Pick a date"
               style="width: 200px"
             />
-            <button type="button" class="demo-clear" @click="emptyDate = null">{{ labelClear }}</button>
+            <WuiButton class="demo-clear" :content="labelClear" @click="emptyDate = null" />
             <span class="demo-output">date = {{ dayLabel(emptyDate) }}</span>
           </div>
         </section>
@@ -333,22 +334,7 @@ const usageCode = computed(
   color: var(--wui-application-secondary-foreground-theme);
 }
 
-/* 清空按钮:对照 WinUI 标准按钮观感(演示辅助,非控件本体) */
-.demo-clear {
-  padding: 5px 12px;
-  font-family: inherit;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.demo-clear:hover {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
+/* 清空按钮:直接用 WuiButton 标准观感(.demo-clear 类仅为语义标记) */
 
 .keyboard-list {
   display: flex;

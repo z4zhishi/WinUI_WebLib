@@ -5,6 +5,7 @@
 // 另提供:三内置源自治演示(hover/press 直接观察)、FallbackIconSource 降级对照(字形 / SVG)。
 import { computed, ref } from 'vue'
 import WuiAnimatedIcon from '@/components/AnimatedIcon.vue'
+import WuiButton from '@/components/Button.vue'
 import {
   ANIMATED_ICON_BUILTIN_SOURCES,
   AnimatedChevronUpDownSmallVisualSource,
@@ -179,8 +180,7 @@ const usageCode = computed(
             Kind 下拉切换内置源、尺寸 / Disabled / 强制降级见参数面板。
           </p>
           <div class="stage-row">
-            <button
-              type="button"
+            <WuiButton
               class="host-button"
               aria-label="AnimatedIcon 演示按钮"
               :disabled="hostDisabledValue"
@@ -195,7 +195,7 @@ const usageCode = computed(
                 :disabled="hostDisabledValue"
                 :force-fallback="hostForceFallbackValue"
               />
-            </button>
+            </WuiButton>
             <span class="state-chip" aria-live="polite">state = {{ hostState }}</span>
           </div>
         </section>
@@ -223,8 +223,7 @@ const usageCode = computed(
             state prop,降级源为 FontIconSource Glyph \uE713(与官方一致)。
           </p>
           <nav class="nav-demo">
-            <button
-              type="button"
+            <WuiButton
               class="nav-item"
               @pointerenter="navEnter"
               @pointerleave="navLeave"
@@ -238,7 +237,7 @@ const usageCode = computed(
                 :size="20"
               />
               <span>Game Settings</span>
-            </button>
+            </WuiButton>
             <span class="state-chip" aria-live="polite">state = {{ navState }}</span>
           </nav>
         </section>
@@ -328,42 +327,13 @@ const usageCode = computed(
   gap: 16px;
 }
 
-/* 宿主按钮:WinUI Button 观感(承载图标,与官方示例 1 的 Button 同构) */
+/* 宿主按钮:改用库内 WuiButton(FIX24)承载图标,标准观感由 wui-button 提供,这里只管布局 */
 .host-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 75px;
   height: 32px;
-  padding: 5px 12px;
-  font-family: inherit;
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.host-button:hover:not(:disabled) {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.host-button:active:not(:disabled) {
-  color: var(--wui-button-pressed-foreground-theme);
-  background: var(--wui-button-pressed-background-theme);
-}
-
-.host-button:disabled {
-  color: var(--wui-system-control-disabled-base-medium-low);
-  background: var(--wui-button-background-theme);
-  border-color: var(--wui-system-control-background-base-low);
-  cursor: default;
-}
-
-.host-button:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
 }
 
 .state-chip {
@@ -413,6 +383,7 @@ const usageCode = computed(
   gap: 16px;
 }
 
+/* 列表项宿主:改用库内 WuiButton(FIX24),这里覆盖为 NavigationViewItem 式透明观感 */
 .nav-item {
   display: inline-flex;
   align-items: center;

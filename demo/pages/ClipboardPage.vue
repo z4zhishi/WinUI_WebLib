@@ -633,30 +633,27 @@ onBeforeUnmount(() => {
           <p class="example-note">{{ ex3Note }}</p>
           <WuiRichEditBox v-model:document="richDocument" class="rich-editor" aria-label="剪贴板富文本编辑器">
             <template #toolbar="{ exec, active }">
-              <button
-                type="button"
+              <WuiButton
                 class="toolbar-button"
                 :class="{ 'is-active': active.bold }"
                 title="粗体"
                 aria-label="粗体"
                 @click="exec('bold')"
-              >B</button>
-              <button
-                type="button"
+              >B</WuiButton>
+              <WuiButton
                 class="toolbar-button"
                 :class="{ 'is-active': active.italic }"
                 title="斜体"
                 aria-label="斜体"
                 @click="exec('italic')"
-              >I</button>
-              <button
-                type="button"
+              >I</WuiButton>
+              <WuiButton
                 class="toolbar-button"
                 :class="{ 'is-active': active.underline }"
                 title="下划线"
                 aria-label="下划线"
                 @click="exec('underline')"
-              >U</button>
+              >U</WuiButton>
             </template>
           </WuiRichEditBox>
           <div class="example-row">
@@ -850,31 +847,11 @@ onBeforeUnmount(() => {
 }
 
 /* 富文本工具栏按钮(极简 B / I / U) */
+/* B/I/U 工具栏按钮:改用库内 WuiButton(FIX24)——标准观感与悬停/按下/焦点态由
+   wui-button 提供,此处仅保留紧凑尺寸与命令激活高亮 */
 .toolbar-button {
   min-width: 32px;
   padding: 3px 10px;
-  font-family: inherit;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.toolbar-button:hover {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.toolbar-button:active {
-  color: var(--wui-button-pressed-foreground-theme);
-  background: var(--wui-button-pressed-background-theme);
-}
-
-.toolbar-button:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 1px;
 }
 
 .toolbar-button.is-active {
