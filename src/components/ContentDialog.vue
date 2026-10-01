@@ -39,7 +39,8 @@ export interface ContentDialogButtonClickEventArgs {
 //   - z-index 用基建 dialog 档 var(--wui-z-popup-dialog)(wiki/controls/_popup-infra.md)。
 //
 // 弹层基建:对话框为视口居中模态,不锚定宿主,故不走 usePopupLayer 定位;层注册 / 焦点陷阱
-//   / z-index 档 / 动画关键帧(popup.css 已 @import animations.css 的 wui-dialog-in)均取基建。
+//   / z-index 档 / 动画关键帧(popup.css 已 @import animations.css 的 wui-dialog-scale-*)
+//   均取基建。
 import { computed, nextTick, onBeforeUnmount, ref, useId, useSlots, watch } from 'vue'
 import { getTopmostPopupLayer, registerPopupLayer, releaseFocus, trapFocus } from '@/utils/popup'
 import WuiButton from '@/components/Button.vue'
@@ -234,9 +235,12 @@ function onPanelKeydown(event: KeyboardEvent): void {
 
 <template>
   <Teleport to="body">
-    <!-- 出入场:遮罩淡入 + 面板 scale 1.05→1 淡入(源 DialogShowing 双时间线合并为
-         wui-dialog-in 慢速档,依据 animations.css 注释);出场整层快速淡出 -->
-    <Transition name="wui-content-dialog">
+    <!-- 出入场(源 DialogShowing / DialogHidden 双时间线,各走各的元素):
+         层根(LayoutRoot)= Opacity 线性 167ms 开 / 83ms 关;面板(BackgroundElement)
+         = scale 1.05↔1 500ms spline(0.1,0.9,0.2,1)。:duration 显式给 500ms:
+         面板缩放时间线长于层根淡变,Vue 须等最长时间线结束再摘类/卸层,
+         关闭途中 pointer-events:none(源 IsHitTestVisible=False 等价) -->
+    <Transition name="wui-content-dialog" :duration="{ enter: 500, leave: 500 }">
       <div v-if="isOpen" class="wui-content-dialog">
         <!-- 面板(BackgroundElement):$attrs(class/style/aria-*)透传到对话框本体 -->
         <div
@@ -318,7 +322,8 @@ function onPanelKeydown(event: KeyboardEvent): void {
   place-items: center;
 }
 
-/* 烟幕层(SmokeLayerBackground):伪元素承载,入场单独淡入 */
+/* 烟幕层(SmokeLayerBackground):伪元素承载;透明度跟随层根
+   (源 LayoutRoot 既画烟幕又承担 Opacity 时间线) */
 .wui-content-dialog::before {
   content: '';
   position: absolute;
@@ -470,20 +475,30 @@ function onPanelKeydown(event: KeyboardEvent): void {
 }
 
 /*
- * 出入场(引用 popup.css 已引入的 animations.css 关键帧与 token,本组件不定义关键帧):
- *   入场:烟幕快速淡入 + 面板 wui-dialog-in(慢速档,源 DialogShowing 的 scale 1.05→1 与
- *   167ms 线性淡入双时间线合并,取整说明见 animations.css / wiki 差异节);
- *   出场:整层快速淡出(源 DialogHidden:淡出 + scale 1→1.05,Web 取纯淡出近似)。
+ * 出入场(generic.xaml L8395-8423 DialogShowing / DialogHidden 双时间线,
+ * 关键帧见 animations.css 的 wui-dialog-scale-* / wui-fade-*):
+ *   入场:层根 Opacity 0→1 线性 167ms(LinearDoubleKeyFrame L8421-8423)+
+ *         面板 scale 1.05→1 500ms spline(0.1,0.9,0.2,1)(L8413-8419,
+ *         RenderTransformOrigin 0.5,0.5 = CSS 缺省原点);
+ *   出场:层根 Opacity 1→0 线性 83ms(L8401-8403)+ 面板 scale 1→1.05
+ *         500ms 同 spline(L8393-8399),层根 pointer-events:none
+ *         (源 IsHitTestVisible=False @0s 等价)。
+ * 两条时间线并行、淡变先于缩放完成;Vue 经 Transition :duration 等最长时间线。
  */
-.wui-content-dialog-enter-active::before {
-  animation: wui-fade-in var(--wui-duration-fast) var(--wui-easing-standard) both;
+.wui-content-dialog-enter-active {
+  animation: wui-fade-in 167ms linear both;
 }
 
 .wui-content-dialog-enter-active .wui-content-dialog__panel {
-  animation: wui-dialog-in var(--wui-duration-slow) var(--wui-easing-standard) both;
+  animation: wui-dialog-scale-in 500ms var(--wui-easing-standard) both;
 }
 
 .wui-content-dialog-leave-active {
-  animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-accelerate) both;
+  animation: wui-fade-out 83ms linear both;
+  pointer-events: none;
+}
+
+.wui-content-dialog-leave-active .wui-content-dialog__panel {
+  animation: wui-dialog-scale-out 500ms var(--wui-easing-standard) both;
 }
 </style>
