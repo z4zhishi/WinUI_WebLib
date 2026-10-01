@@ -111,6 +111,12 @@ const isValueKind = computed(() => kind.value === 'value')
   --wui-info-badge-color-critical: #c42b1c; /* SystemFillColorCritical(Light) */
   --wui-info-badge-icon-height: 9px; /* InfoBadgeIconHeight(Light) */
   --wui-info-badge-value-font-size: 11px; /* InfoBadgeValueFontSize */
+  /* InfoBadgeBackground = AccentFillColorDefaultBrush(Light)= SystemAccentColorDark1,
+     经 theme-hooks.css 的系统色钩子取值,未定义时回退源值 #0067C0 */
+  --wui-info-badge-background: var(--wui-system-accent-color-dark-1, #0067c0);
+  /* InfoBadgeForeground = TextOnAccentFillColorPrimaryBrush(Light):theme.css 无同名 token,
+     按源值在组件内承载 */
+  --wui-info-badge-foreground: #ffffff;
 
   box-sizing: border-box;
   display: inline-flex;
@@ -122,11 +128,10 @@ const isValueKind = computed(() => kind.value === 'value')
   padding: 0; /* InfoBadgePadding */
   /* 源以 ActualHeight/2 动态计算胶囊圆角;border-radius 会自动 cap 到半边长,效果等价 */
   border-radius: 9999px;
-  /* InfoBadgeForeground = TextOnAccentFillColorPrimaryBrush:theme.css 无同名 token,
-     取强调色系前景最近似 token(AccentButton 前景,两主题均解析为白) */
-  color: var(--wui-info-badge-local-foreground, var(--wui-accent-button-foreground));
-  /* InfoBadgeBackground = AccentFillColorDefaultBrush:最近似 token 为系统强调色 */
-  background: var(--wui-info-badge-local-background, var(--wui-system-accent-color));
+  /* InfoBadgeForeground = TextOnAccentFillColorPrimaryBrush(按主题经局部 token 取源值) */
+  color: var(--wui-info-badge-local-foreground, var(--wui-info-badge-foreground));
+  /* InfoBadgeBackground = AccentFillColorDefaultBrush(按主题经局部 token 取源值) */
+  background: var(--wui-info-badge-local-background, var(--wui-info-badge-background));
   font-family: var(--wui-content-control-theme-font-family);
   line-height: 1;
   overflow: hidden;
@@ -141,6 +146,10 @@ html[data-theme='dark'] .wui-info-badge {
   --wui-info-badge-color-warning: #fce100;
   --wui-info-badge-color-critical: #ff99a4;
   --wui-info-badge-icon-height: 8px;
+  /* AccentFillColorDefaultBrush(Default)= SystemAccentColorLight2,未定义时回退源值 #4CC2FF */
+  --wui-info-badge-background: var(--wui-system-accent-color-light-2, #4cc2ff);
+  /* TextOnAccentFillColorPrimaryBrush(Default)= #000000 */
+  --wui-info-badge-foreground: #000000;
 }
 
 /* —— 档位底色(源 Attention/Informational/Success/Caution/Critical …DotInfoBadgeStyle 的 Background);

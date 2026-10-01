@@ -66,8 +66,8 @@ const emit = defineEmits<{
   valueChanged: [event: ProgressRingValueChangedEventArgs]
 }>()
 
-/** 当前值(WinUI Value,双向)。 */
-const value = defineModel<number>({ default: 0 })
+/** 当前值(WinUI Value,双向,v-model:value)。 */
+const value = defineModel<number>('value', { default: 0 })
 
 // —— 有效取值范围(同 ProgressBar 口径:maximum < minimum 时收敛为相同值,区间塌缩) ——
 const effMin = computed(() => props.minimum)
