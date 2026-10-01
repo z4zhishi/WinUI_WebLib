@@ -256,11 +256,12 @@ onBeforeUnmount(() => {
   cursor: default;
 }
 
-/* 系统焦点视觉:WinUI 双环(FocusVisualPrimary 内环 + FocusVisualSecondary 外环,
-   FocusVisualMargin=-3)近似为 primary 色单环 outline */
+/* 系统焦点视觉:WinUI 双环(primary 外环 2px + secondary 内环 1px,
+   FocusVisualMargin=-3)按双环实现 */
 .wui-repeat-button:focus-visible {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 .wui-repeat-button:focus:not(:focus-visible) {

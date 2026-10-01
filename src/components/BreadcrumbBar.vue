@@ -599,10 +599,14 @@ function onLayerFocusout(event: FocusEvent): void {
   cursor: default;
 }
 
-/* 系统焦点视觉:WinUI 双环(FocusVisualMargin=1)近似为 primary 色单环 outline(同 MenuBarItem) */
+/* 系统焦点视觉:BreadcrumbBarItem FocusVisualMargin=1(controls/dev/Breadcrumb/
+   BreadcrumbBar.xaml L6,正值内缩)→ primary 内缩 [1,3] = outline 2px offset -1;
+   secondary 源在 primary 内侧 [3,4],CSS 单 outline 无法表达,以元素内缘 [0,1] 近似
+   (双环结构/颜色/厚度不变,整体内移 1px,登记于 VR-FIX8 报告) */
 .wui-breadcrumb-item-button:focus-visible {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
+  outline-offset: -1px;
+  box-shadow: inset 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 .wui-breadcrumb-item-button:focus:not(:focus-visible) {
@@ -630,9 +634,11 @@ function onLayerFocusout(event: FocusEvent): void {
   user-select: none;
 }
 
+/* 系统焦点视觉:当前项同为 BreadcrumbBarItem(FocusVisualMargin=1)→ 同上内缩双环 */
 .wui-breadcrumb-current:focus-visible {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
+  outline-offset: -1px;
+  box-shadow: inset 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 /* 分隔符 chevron(PART_ChevronTextBlock):字形 E76C、FontSize 12、Padding="2,0";恒用 Normal 前景 */
@@ -700,9 +706,12 @@ function onLayerFocusout(event: FocusEvent): void {
   background: var(--wui-menu-flyout-item-background-pressed); /* SubtleFillColorTertiary */
 }
 
+/* 系统焦点视觉:省略号下拉项 PART_LayoutRoot.FocusVisualMargin=-3(BreadcrumbBar.xaml L33)
+   → 两环全在元素外 secondary [0,1] + primary [1,3] = 系统双环 */
 .wui-breadcrumb-dropdown-item:focus-visible {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: -1px;
+  outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 .wui-breadcrumb-dropdown-item:focus:not(:focus-visible) {

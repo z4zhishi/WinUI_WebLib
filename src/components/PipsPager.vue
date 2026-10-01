@@ -421,10 +421,12 @@ html[data-theme='dark'] .wui-pips-pager {
   cursor: default;
 }
 
-/* 系统焦点视觉(UseSystemFocusVisuals):单环 outline 近似(与既有控件一致) */
+/* 系统焦点视觉:PipsPager 按钮无 FocusVisualMargin setter(PipsPager_themeresources.xaml
+   L118/L207)→ 0:两环全在元素内 primary [0,2] + secondary [2,3] = 系统双环 flush 形 */
 .wui-pip:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
+  box-shadow: inset 0 0 0 2px var(--wui-system-control-focus-visual-primary);
+  outline: 1px solid var(--wui-system-control-focus-visual-secondary);
+  outline-offset: -3px;
 }
 
 .wui-pip:focus:not(:focus-visible) {
@@ -475,8 +477,9 @@ html[data-theme='dark'] .wui-pips-pager {
 }
 
 .wui-pips-nav:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
+  box-shadow: inset 0 0 0 2px var(--wui-system-control-focus-visual-primary);
+  outline: 1px solid var(--wui-system-control-focus-visual-secondary);
+  outline-offset: -3px;
 }
 
 .wui-pips-nav:focus:not(:focus-visible) {

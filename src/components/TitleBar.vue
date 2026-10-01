@@ -338,10 +338,11 @@ onBeforeUnmount(() => {
   cursor: default;
 }
 
-/* 焦点视觉:UseSystemFocusVisuals(系统双环)近似为 primary 色单环 outline(项目既有约定) */
+/* 焦点视觉:UseSystemFocusVisuals(系统双环)按双环实现(项目既有约定) */
 .wui-title-bar__button:focus-visible {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 .wui-title-bar__button:focus:not(:focus-visible) {
@@ -475,9 +476,12 @@ onBeforeUnmount(() => {
   background: var(--wui-grid-view-item-background-pressed);
 }
 
+/* 系统焦点视觉:标题栏标题按钮贴边排布(FocusVisualMargin=0 族)→ 两环全在元素内
+   primary [0,2] + secondary [2,3] = 系统双环 flush 形 */
 .wui-title-bar__caption-button:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: -2px;
+  box-shadow: inset 0 0 0 2px var(--wui-system-control-focus-visual-primary);
+  outline: 1px solid var(--wui-system-control-focus-visual-secondary);
+  outline-offset: -3px;
 }
 
 .wui-title-bar__caption-button:focus:not(:focus-visible) {

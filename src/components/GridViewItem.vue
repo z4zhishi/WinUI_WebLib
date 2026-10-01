@@ -177,11 +177,18 @@ function onClick(event: MouseEvent): void {
   cursor: default;
 }
 
-/* 焦点(FocusVisualMargin=-2;系统双层焦点框以 outline + 内圈阴影近似,差异见 wiki) */
+/* 焦点(FocusVisualMargin=-2 → primary [0,2] 在元素外贴缘、secondary [0,1] 在元素内,
+   两环贴边缘相邻 = 系统双环;ConfigureFocusElement Inner=Outer 内缩 primary 厚度) */
 .wui-grid-view-item:focus-visible {
   outline: 2px solid var(--wui-grid-view-item-focus-visual-primary);
-  outline-offset: -2px;
-  box-shadow: inset 0 0 0 3px var(--wui-grid-view-item-focus-visual-secondary);
+  outline-offset: 0;
+  box-shadow: inset 0 0 0 1px var(--wui-grid-view-item-focus-visual-secondary);
+}
+
+/* 选中项焦点框反色(GridViewItemPresenter FocusBorderBrush=GridViewItemFocusBorderBrush
+   =SystemControlForegroundAltHighBrush / FocusSecondaryBorderBrush=BaseHigh) */
+.wui-grid-view-item.is-selected:focus-visible {
+  outline-color: var(--wui-grid-view-item-focus-border);
 }
 
 /* —— 揭示边框(RevealBorderThickness=1)—— */

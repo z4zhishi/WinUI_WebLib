@@ -297,10 +297,11 @@ const overlayVisible = computed(() => status.value !== 'loaded')
   background: var(--wui-application-page-background-theme);
 }
 
-/* 帧内获得焦点时的系统焦点视觉(与交互控件的单环 outline 约定一致) */
+/* 帧内获得焦点时的系统焦点视觉(与交互控件的双环 outline 约定一致) */
 .wui-webview2:focus-within {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 .wui-webview2__frame {

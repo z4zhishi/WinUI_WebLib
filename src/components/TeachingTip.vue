@@ -890,6 +890,7 @@ const viewportAnchorClass = computed(() => {
 .wui-teaching-tip__alt-close:focus-visible {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 /* —— 出入场:纯透明度(对照 OverlayOpeningAnimation / 收缩关闭动画的 Web 近似) —— */

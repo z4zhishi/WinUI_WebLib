@@ -524,12 +524,15 @@ const layerClass = computed(() =>
   touch-action: manipulation;
 }
 
-/* 系统焦点视觉:WinUI 双环(FocusVisualMargin=-1)近似为 primary 色单环 outline。
+/* 系统焦点视觉:SplitButton FocusVisualMargin=-1(SplitButton.xaml L14)→ primary 跨缘
+   [0,1]外+[1,2]内、secondary [1,2]内;CSS 近似取贴缘形:primary [0,2] 外 + secondary
+   [0,1] 内(offset 0 + inset,总外扩 2px,源 1px,登记于 VR-FIX8 报告)。
    焦点在主区按钮上(嵌套交互修复后根元素不再可聚焦),经 :has 折回整钮画环,
    规避根元素 overflow:hidden 裁剪内钮 outline */
 .wui-splitbutton:has(.wui-splitbutton-primary:focus-visible) {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
+  outline-offset: 0;
+  box-shadow: inset 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 .wui-splitbutton-primary:focus-visible {

@@ -1,0 +1,68 @@
+/*
+ * WinUI_WebLib — 系统焦点视觉(双环)共享层(focus-visual.css)
+ *
+ * 权威源:CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml
+ *   SystemControlFocusVisualPrimaryBrush   = SystemBaseHighColor    (Light #FF000000 / Dark #FFFFFFFF) L257 / L4182
+ *   SystemControlFocusVisualSecondaryBrush = SystemAltMediumColor   (Light #99FFFFFF / Dark #99000000) L258 / L4183
+ * 几何源:CK/WinUI-Reference/dxaml/xcp/components/FocusRect/FocusRectManager.cpp
+ *   L173-174 「primary brush/thickness is for the outer stroke, and the secondary brush/thickness is for the inner stroke」
+ *   L383-384 / L407-408 primaryThickness = 2, secondaryThickness = 1
+ *   CK/WinUI-Reference/dxaml/xcp/components/DependencyObject/DependencyProperty.cpp L25
+ *     DefaultFocusVisualSecondaryThickness = {1,1,1,1}
+ *
+ * 结构(自元素边缘向外):secondary 1px(紧贴 primary 内侧)→ primary 2px(最外环)。
+ * 颜色取通用资源 token,随 html[data-theme] 明暗自动切换;字节序已按 CSS RRGGBBAA 校正
+ * (源 XAML #AARRGGBB:#99FFFFFF → CSS #ffffff99;源 #99000000 → CSS #00000099)。
+ *
+ * 三种标准几何(按各控件 generic.xaml 的 FocusVisualMargin 取整族):
+ *   FocusVisualMargin=-3(Button/RepeatButton/ToggleButton/HyperlinkButton/TabViewItem/
+ *     MenuBarItem/DropDownButton 族)→ 两环全在元素外:secondary [0,1] + primary [1,3]。
+ *     = .wui-focus-visible(outline 2px offset 1 + box-shadow 0 0 0 1px)。
+ *   FocusVisualMargin=-2(GridViewItem/CalendarViewDayItem/SelectorBarItem 族)→ primary
+ *     [0,2] 在元素外、secondary [0,1] 在元素内,两环贴元素边缘相邻。
+ *     = .wui-focus-visible--inset(outline 2px offset 0 + box-shadow inset 0 0 0 1px)。
+ *   FocusVisualMargin=0(ListViewItem/TreeViewItem/MenuFlyoutItem/PipsPager/DatePicker/
+ *     FlipView/ScrollViewer/CalendarDatePicker 族)→ 两环全在元素内:primary [0,2] +
+ *     secondary [2,3]。
+ *     = .wui-focus-visible--flush(box-shadow inset 0 0 0 2px primary +
+ *       outline 1px secondary offset -3)。
+ * 几何推导源:CK/WinUI-Reference/dxaml/xcp/components/FocusRect/FocusRectManager.cpp
+ *   ConfigureFocusElement L431-457(Inner 矩形 = Outer 矩形按 primary 厚度内缩,描边画在
+ *   矩形内侧)——负 margin 外扩、正 margin 内缩,primary 恒为外侧描边。
+ *
+ * 用法:控件既有 outline 规则按 FocusVisualMargin 换算的 outline-offset 保持不变,仅追加
+ *   box-shadow 承载 secondary 内环(offset>=1 时外描 1px,offset<=0 时 inset 1px),即为双环。
+ * 需要现成定义的控件也可直接加 class="wui-focus-visible"(外描)、
+ *   "wui-focus-visible wui-focus-visible--inset"(跨界)或 "wui-focus-visible wui-focus-visible--flush"(全内描)。
+ */
+
+:root {
+  /* 厚度 / 偏移(与主题无关;offset 对应 FocusVisualMargin=-3,即 Button 族默认) */
+  --wui-focus-visual-primary-thickness: 2px;
+  --wui-focus-visual-secondary-thickness: 1px;
+  --wui-focus-visual-offset: 1px;
+  /* 颜色别名:指向逐主题 token,随 html[data-theme] 自动切换 */
+  --wui-focus-visual-primary: var(--wui-system-control-focus-visual-primary);
+  --wui-focus-visual-secondary: var(--wui-system-control-focus-visual-secondary);
+}
+
+/* 共享工具类:主环在外(offset 1px)+ secondary 内环紧贴元素外缘 */
+.wui-focus-visible:focus-visible {
+  outline: var(--wui-focus-visual-primary-thickness) solid var(--wui-focus-visual-primary);
+  outline-offset: var(--wui-focus-visual-offset);
+  box-shadow: 0 0 0 var(--wui-focus-visual-secondary-thickness) var(--wui-focus-visual-secondary);
+}
+
+/* 贴边 / 内缩场景(offset<=0):secondary 落在元素内侧 */
+.wui-focus-visible--inset:focus-visible {
+  outline: var(--wui-focus-visual-primary-thickness) solid var(--wui-focus-visual-primary);
+  outline-offset: 0;
+  box-shadow: inset 0 0 0 var(--wui-focus-visual-secondary-thickness) var(--wui-focus-visual-secondary);
+}
+
+/* FocusVisualMargin=0 族(两环全在元素内):primary 占内缘 [0,2],secondary 紧贴其内 [2,3] */
+.wui-focus-visible--flush:focus-visible {
+  box-shadow: inset 0 0 0 var(--wui-focus-visual-primary-thickness) var(--wui-focus-visual-primary);
+  outline: var(--wui-focus-visual-secondary-thickness) solid var(--wui-focus-visual-secondary);
+  outline-offset: -3px;
+}

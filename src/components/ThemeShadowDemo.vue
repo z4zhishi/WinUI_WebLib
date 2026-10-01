@@ -270,8 +270,11 @@ function onKeydown(event: KeyboardEvent): void {
   transition: none;
 }
 
+/* 系统焦点视觉:浮空卡片按 Button 族约定画系统双环(primary 黑/白外环 2px +
+   secondary 1px,FocusVisualMargin=-3),禁用强调蓝 */
 .wui-theme-shadow-card--draggable:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 2px;
+  outline: 2px solid var(--wui-system-control-focus-visual-primary);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 </style>

@@ -251,6 +251,14 @@ onScopeDispose(() => {
   outline: none;
 }
 
+/* 系统焦点视觉:UseSystemFocusVisuals=True + 默认 FocusVisualMargin=0 →
+   键盘聚焦 = 高亮底 + 元素内双环(primary [0,2] + secondary [2,3]) */
+.wui-toggle-menu-flyout-item:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--wui-system-control-focus-visual-primary);
+  outline: 1px solid var(--wui-system-control-focus-visual-secondary);
+  outline-offset: -3px;
+}
+
 .menu-col {
   flex: none;
   display: inline-flex;

@@ -267,9 +267,11 @@ function onItemTap(): void {
   cursor: default;
 }
 
-/* 键盘焦点:accent 轮廓内缩(满高色块用负偏移贴合边缘) */
+/* 系统焦点视觉:SwipeItem 非 Control(generic.xaml 无焦点模板),按全内描瓦片约定
+   画系统双环(primary 黑/白 inset 2px + secondary 1px),禁用强调蓝 */
 .wui-swipeitem:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color);
-  outline-offset: -2px;
+  box-shadow: inset 0 0 0 2px var(--wui-system-control-focus-visual-primary);
+  outline: 1px solid var(--wui-system-control-focus-visual-secondary);
+  outline-offset: -3px;
 }
 </style>

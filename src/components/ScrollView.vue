@@ -589,9 +589,12 @@ defineExpose({
   scrollbar-color: var(--wui-scroll-bar-thumb-fill) transparent;
 }
 
+/* 系统焦点视觉:ScrollView 无 FocusVisualMargin setter(generic.xaml)→ 0,
+   两环全在元素内 primary [0,2] + secondary [2,3] = 系统双环 flush 形 */
 .wui-scroll-view:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color);
-  outline-offset: 1px;
+  box-shadow: inset 0 0 0 2px var(--wui-system-control-focus-visual-primary);
+  outline: 1px solid var(--wui-system-control-focus-visual-secondary);
+  outline-offset: -3px;
 }
 
 .wui-scroll-view--disabled {

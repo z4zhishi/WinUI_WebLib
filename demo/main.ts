@@ -7,6 +7,7 @@ import router from './router'
 import '../src/styles/theme.css'
 import '../src/styles/theme-hooks.css' // 系统色钩子默认值层(需在 theme.css 之后)
 import '../src/styles/popup.css' // 弹层公共层(层级 token/皮肤/动画类)
+import '../src/styles/focus-visual.css' // 系统焦点视觉(双环)共享层 token/工具类
 
 const app = createApp(App)
 

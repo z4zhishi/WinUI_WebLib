@@ -268,10 +268,11 @@ const hasHeaderText = computed(() => props.header !== '')
   outline: none;
 }
 
-/* Focus(项目惯例:Button/ToggleButton 的 :focus-visible 单层 outline) */
+/* Focus(项目惯例:Button/ToggleButton 的 :focus-visible 双环 outline) */
 .wui-expander-header:focus-visible {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 .wui-expander-header-content {

@@ -489,10 +489,11 @@ onScopeDispose(() => {
 }
 
 /* 系统焦点视觉:WinUI UseSystemFocusVisuals=True(FocusVisualMargin=-3)近似为
-   primary 色单环 outline(同 DropDownButton 约定) */
+   primary/secondary 双环 outline(同 DropDownButton 约定) */
 .wui-menu-bar-item:focus-visible {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 .item-title {

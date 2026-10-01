@@ -146,18 +146,20 @@ function onRootClick(event: MouseEvent): void {
 }
 
 /* ======================================================================
- * 焦点框(UseSystemFocusVisuals:外 2px primary + 内 1px secondary 的系统双线框)
+ * 焦点框(ListViewItemRevealStyle:UseSystemFocusVisuals=True + FocusVisualMargin=0
+ * → 两环全在元素内:primary [0,2] + secondary [2,3] 紧贴相邻 = 系统双线框)
  * ====================================================================== */
 .wui-list-view-item:focus-visible {
-  outline: 2px solid var(--wui-list-view-item-focus-visual-primary);
-  outline-offset: 1px;
-  box-shadow: inset 0 0 0 1px var(--wui-list-view-item-focus-visual-secondary);
+  box-shadow: inset 0 0 0 2px var(--wui-list-view-item-focus-visual-primary);
+  outline: 1px solid var(--wui-list-view-item-focus-visual-secondary);
+  outline-offset: -3px;
 }
 
-/* 选中项焦点框反色(FocusBorderBrush / FocusSecondaryBorderBrush) */
+/* 选中项焦点框反色(FocusBorderBrush=ListViewItemFocusBorderBrush=AltHigh、
+ * FocusSecondaryBorderBrush=BaseHigh,角色与未选中互换后仍按环位取色) */
 .wui-list-view-item.is-selected:focus-visible {
-  outline-color: var(--wui-list-view-item-focus-border);
-  box-shadow: inset 0 0 0 1px var(--wui-list-view-item-focus-secondary-border);
+  box-shadow: inset 0 0 0 2px var(--wui-list-view-item-focus-border);
+  outline-color: var(--wui-list-view-item-focus-secondary-border);
 }
 
 /* ======================================================================

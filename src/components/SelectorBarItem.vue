@@ -269,6 +269,7 @@ html[data-theme='dark'] .wui-selector-bar-item {
 .wui-selector-bar-item:focus-visible {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 0;
+  box-shadow: inset 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 .wui-selector-bar-item:focus:not(:focus-visible) {

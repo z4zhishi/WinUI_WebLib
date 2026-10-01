@@ -410,10 +410,11 @@ html[data-theme='dark'] .wui-infobar--error {
   outline: none;
 }
 
-/* Focus(项目惯例:交互元素 :focus-visible 单层 outline) */
+/* Focus(项目惯例:交互元素 :focus-visible 双环 outline) */
 .wui-infobar-close:focus-visible {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 /* —— 关闭动画:透明度淡出(animations.css token;源 VSM 为瞬时 Collapsed,Web 增强见差异节)。
