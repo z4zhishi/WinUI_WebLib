@@ -747,12 +747,22 @@
   --wui-text-control-button-foreground: #000000cc;
   --wui-text-control-button-foreground-pointer-over: var(--wui-system-accent-color);
   --wui-text-control-button-foreground-pressed: #ffffff;
+  /* helper(Delete/Reveal)按钮专用(FIX12,与上一键拆分语境):源 TextControlButtonForeground
+     两字典均为 ChromeBlackMedium(#CC000000 → #RRGGBBAA #000000cc),明暗同值;该按钮仅在
+     聚焦(ChromeWhite 白底)时出现,黑字形恒可见。暗底语境的 NumberBox spin / AutoSuggestBox
+     查询按钮继续消费上一键(dark 块另有 T9 覆写)。 */
+  --wui-text-control-helper-button-foreground: #000000cc;
   --wui-text-control-highlighter-foreground: #000000;
   --wui-text-control-highlighter-background: #ffff00;
 
   /* WinUI 3 增补,提取源无此键:TextFillColorPrimaryBrush(CommonStyles/Common_themeresources_any.xaml
      Light #E4000000 → #RRGGBBAA);此前仅 ColorPicker 拇指内点以局部变量兜底引用。 */
   --wui-text-fill-color-primary: #000000e4;
+  /* WinUI 3 增补,提取源无此键:TextFillColorSecondary/TertiaryBrush
+     (CommonStyles/Common_themeresources_any.xaml Light TextFillColorSecondary #9E000000 /
+     TextFillColorTertiary #72000000);DropDownButton 箭头各态前景直接消费。 */
+  --wui-text-fill-color-secondary: #0000009e;
+  --wui-text-fill-color-tertiary: #00000072;
 
   /* Flyout* */
   --wui-flyout-presenter-background: #f2f2f2;
@@ -1703,7 +1713,10 @@
   --wui-list-box-item-selected-pointer-over-background-theme: #5f37be;
 
   /* Command* */
-  --wui-command-bar-background: #e6e6e6;
+  /* CommandBarBackground:WinUI 3 = ControlFillColorTransparentBrush(#00FFFFFF 全透明;
+     CommandBar_themeresources.xaml Light L53 / Default L9);UWP generic.xaml 为
+     SystemControlBackgroundChromeMediumBrush(#E6E6E6)。基准取 WinUI 3 → transparent。 */
+  --wui-command-bar-background: transparent;
   --wui-command-bar-foreground: #000000;
   --wui-command-bar-high-contrast-border: transparent;
   --wui-command-bar-ellipsis-icon-foreground-disabled: #00000066;
@@ -2519,9 +2532,12 @@
   --wui-calendar-view-out-of-scope-background: #2b2b2b;
   --wui-calendar-view-calendar-item-background: #000000;
   --wui-calendar-view-foreground: #ffffffcc;
-  /* T9 视觉 QA 更正:暗色纯黑 #000000 在深色页面上不可辨;源 CalendarViewBackground
-     dark 挂 SystemControlBackgroundAltHighBrush,按 AltHigh dark #333333 更正。 */
-  --wui-calendar-view-background: #333333;
+  /* FIX2 视觉 QA 更正:T9 曾把此值记为 #333333 并声称是 AltHigh dark —— 溯源为误记,
+     generic.xaml 的 SystemAltHighColor 在 Default(暗色)字典为 #FF000000(L202),
+     #FF333333 实为 SystemChromeDisabledHighColor(L217),非 CalendarViewBackground 来源。
+     CalendarViewBackground 与 CalendarItemBackground 同挂 SystemControlBackgroundAltHighBrush,
+     dark 均为 #000000(generic.xaml L766/L768;与上方 calendar-item-background 一致)。 */
+  --wui-calendar-view-background: #000000;
   --wui-calendar-view-border: #1f1f1f;
   --wui-calendar-view-week-day-foreground-disabled: #ffffff66;
   --wui-calendar-view-navigation-button-background: transparent;
@@ -2648,15 +2664,26 @@
   /* dark 覆盖(T9 视觉 QA):提取源(dxaml generic.xaml)此键两字典同为 ChromeBlackMedium
      黑系(#000000cc),暗色下 NumberBox spin/AutoSuggestBox 查询按钮黑字形不可见;
      按 WinUI 3(CommonStyles)别名链 TextControlButtonForeground → TextFillColorSecondaryBrush
-     → TextFillColorSecondary(dark #C5FFFFFF)覆盖为 #ffffffc5。 */
+     → TextFillColorSecondary(dark #C5FFFFFF)覆盖为 #ffffffc5。
+     FIX12:该覆写只服务暗底语境按钮(spin/查询);helper(Delete/Reveal)按钮仅在聚焦白底
+     出现,不能跟随此覆写,改消费 --wui-text-control-helper-button-foreground(两主题同值,
+     = 源 ChromeBlackMedium)。 */
   --wui-text-control-button-foreground: #ffffffc5;
   --wui-text-control-button-foreground-pointer-over: var(--wui-system-accent-color);
   --wui-text-control-button-foreground-pressed: #ffffff;
+  /* helper(Delete/Reveal)按钮专用:同 light 块 #000000cc(源两字典同值),聚焦白底上
+     恒可见;不随 T9 覆写变白。 */
+  --wui-text-control-helper-button-foreground: #000000cc;
   --wui-text-control-highlighter-foreground: #000000;
   --wui-text-control-highlighter-background: #ffff00;
 
   /* WinUI 3 增补,提取源无此键:TextFillColorPrimaryBrush(dark/Default #FFFFFF)。 */
   --wui-text-fill-color-primary: #ffffff;
+  /* WinUI 3 增补,提取源无此键:TextFillColorSecondary/TertiaryBrush
+     (CommonStyles/Common_themeresources_any.xaml Default TextFillColorSecondary #C5FFFFFF /
+     TextFillColorTertiary #87FFFFFF)。 */
+  --wui-text-fill-color-secondary: #ffffffc5;
+  --wui-text-fill-color-tertiary: #ffffff87;
 
   /* Flyout* */
   --wui-flyout-presenter-background: #2b2b2b;
@@ -3607,7 +3634,10 @@
   --wui-list-box-item-selected-pointer-over-background-theme: #5f37be;
 
   /* Command* */
-  --wui-command-bar-background: #1f1f1f;
+  /* CommandBarBackground:WinUI 3 = ControlFillColorTransparentBrush(全透明;
+     CommandBar_themeresources.xaml Default L9 / Light L53);UWP generic.xaml 为
+     SystemControlBackgroundChromeMediumBrush(#1F1F1F)。基准取 WinUI 3 → transparent。 */
+  --wui-command-bar-background: transparent;
   --wui-command-bar-foreground: #ffffff;
   --wui-command-bar-high-contrast-border: transparent;
   --wui-command-bar-ellipsis-icon-foreground-disabled: #ffffff66;
