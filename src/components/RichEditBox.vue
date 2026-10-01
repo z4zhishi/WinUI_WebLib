@@ -373,9 +373,8 @@ const rootClass = computed(() => ({
   min-height: 32px; /* TextControlThemeMinHeight */
   background: var(--wui-text-control-background);
   border: 2px solid var(--wui-text-control-border);
+  border-radius: var(--wui-control-corner-radius); /* ControlCornerRadius = 4(BorderElement CornerRadius 模板绑定;T9 补修批次) */
 }
-
-/* 源模板无 CornerRadius 设置,默认直角;不做圆角(差异见 wiki)。 */
 
 /* —— PointerOver:与 TextBox 家族一致 —— */
 .wui-rich-edit-box:not(.is-disabled) .wui-rich-edit-box-border:not(:focus-within):hover {

@@ -557,6 +557,8 @@ const rootClass = computed(() => ({
   min-height: 32px; /* TextControlThemeMinHeight */
   background: var(--wui-text-control-background);
   border: 2px solid var(--wui-text-control-border);
+  /* 圆角:源模板闭合态即内嵌 TextBox(x:Name="TextBox"),随 ControlCornerRadius = 4(T9 补修批次) */
+  border-radius: var(--wui-control-corner-radius);
 }
 
 /* —— PointerOver / Focused / Disabled:与 TextBox 同源四态(hover 规则加

@@ -106,6 +106,10 @@ function onClick(event: MouseEvent): void {
      HyperlinkButtonBorderThemeThickness = 0 */
   background: var(--wui-hyperlink-button-background);
   border: none;
+  /* 圆角:模板根 ContentPresenter CornerRadius={TemplateBinding CornerRadius},
+     WinUI 3 默认取 ControlCornerRadius(4px);常态背景透明不可见,
+     hover/pressed 底板(T9 批次)随此圆角 */
+  border-radius: var(--wui-control-corner-radius);
   /* HyperlinkUnderlineVisible = True:默认下划线,状态切换仅变色、下划线不消失 */
   text-decoration: underline;
   /* WinUI 超链接悬停为手型光标(区别于普通 Button 的箭头) */

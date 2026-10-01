@@ -140,7 +140,7 @@ function onTextChanged(value: string): void {
 - **文档模型**:WinUI 的 `Document` 是 `ITextDocument`(RTF/纯文本流、Selection/Range、字符格式对象),Web 复刻简化为 HTML 字符串(选型理由见上文);`LoadFromStream` / `SaveToStream` / RTF 均不适用。
 - **颜色 / 字号**:四态颜色全部取自 `theme.css` 的 `--wui-text-control-*` token(与 TextBox 共族);聚焦边框、选区高亮、清除按钮强调色最终落到 `--wui-system-accent-color`。
 - **无 token 的结构值**(源 generic.xaml 键,按源值直接使用):`TextControlBorderThemeThickness` = 2px、`TextControlThemePadding` = 10,3,6,6、`TextControlThemeMinHeight` / `MinWidth` = 32 / 64、`RichEditBoxTopHeaderMargin` = 0,0,0,4、清除按钮 `MinWidth` = 34。
-- **圆角**:源模板未设置 `CornerRadius`,为直角(Windows 11 新模板为 4px,可自行覆盖)。
+- **圆角**:按 WinUI 3 默认 `ControlCornerRadius`(4px)取 4px 圆角(引用 theme-hooks.css 的 `--wui-control-corner-radius`,源模板 BorderElement 为 `CornerRadius="{TemplateBinding CornerRadius}"`,与 TextBox 家族同款;T9 补修批次修正);应用可在同名变量上按层叠覆盖(如改 0 恢复直角)。
 - **清除按钮**:WinUI RichEditBox 模板没有 DeleteButton;本实现按任务约定提供与 TextBox 家族一致的清除语义(`clearButtonEnabled`,默认 `true`,可见条件 = 启用 + 聚焦 + 有内容,点击清空并立即触发 `textChanged`),不需要时置 `false`。
 - **TextChanged 防抖**:WinUI `TextChanged` 逐次即时触发;Web 复刻按项目约定默认 300ms 防抖(`textChangedDelay` 可调,`0` = 立即),IME 组合期间静默、组合结束补发一次。
 - **数学模式**:官方示例的 `SetMathMode` / `SetMathML` / `GetMathML`(RichEditMathMode)依赖 WinUI 富编辑引擎,Web 侧未实现。
