@@ -505,10 +505,13 @@ defineExpose({
   outline: none;
 }
 
-/* 聚焦可达:isTabStop(或 Chrome 原生可聚焦滚动容器)时显示 WinUI 风格焦点环 */
+/* 聚焦可达:isTabStop(或 Chrome 原生可聚焦滚动容器)时显示 WinUI 风格焦点环。
+   ScrollViewer 无 FocusVisualMargin setter(generic.xaml)→ 0:
+   两环全在元素内 primary [0,2] + secondary [2,3] = 系统双环 flush 形 */
 .wui-scrollviewer__scroller:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
+  box-shadow: inset 0 0 0 2px var(--wui-system-control-focus-visual-primary);
+  outline: 1px solid var(--wui-system-control-focus-visual-secondary);
+  outline-offset: -3px;
 }
 
 .wui-scrollviewer__content {
@@ -533,11 +536,17 @@ defineExpose({
 }
 
 .wui-scrollviewer__scroller::-webkit-scrollbar-thumb {
-  background: var(--wui-scroll-bar-thumb-background);
+  /* 静置 thumb = WinUI Visible 滚动条收起态色 ScrollBarPanningThumbBackground
+     (SystemChromeDisabledLowColor #7A7A7A/#858585),与 ScrollView 组件同用
+     --wui-scroll-bar-thumb-fill;#00000033/#FFFFFF33(--wui-scroll-bar-thumb-background,
+     SystemBaseLow)是源「展开态」色,不作静置色(VR-B6 FIX11 定案) */
+  background: var(--wui-scroll-bar-thumb-fill);
   /* 透明边框做「细拇指」:12px 栏 - 2×4px = 4px 可见厚度,无布局跳动 */
   border: 4px solid transparent;
   background-clip: padding-box;
-  border-radius: 8px;
+  /* 源 thumb 为无圆角 Rectangle,半径无 token 依据 → 按 ScrollView 口径取满圆pill
+     (999px,4px 厚下即半圆端),观感与同库 ScrollView 一致(wiki 差异 1 登记) */
+  border-radius: 999px;
 }
 
 .wui-scrollviewer__scroller:hover::-webkit-scrollbar-thumb {
@@ -587,7 +596,8 @@ defineExpose({
 @supports not selector(::-webkit-scrollbar) {
   .wui-scrollviewer__scroller {
     scrollbar-width: thin;
-    scrollbar-color: var(--wui-scroll-bar-thumb-background) transparent;
+    /* 静置色与 webkit 路径同 token(--wui-scroll-bar-thumb-fill,SystemChromeDisabledLow) */
+    scrollbar-color: var(--wui-scroll-bar-thumb-fill) transparent;
   }
 
   .wui-scrollviewer__scroller:hover {

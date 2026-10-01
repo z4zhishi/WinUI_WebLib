@@ -298,10 +298,13 @@ const usageCode = [
         <!-- 场景 3:照片查看器 -->
         <section class="stage-section">
           <h3 class="stage-title">{{ s3Label }}</h3>
-          <WuiScrollView class="stage-box" content-orientation="None" zoom-mode="Enabled" is-tab-stop @view-changed="onView3">
-            <!-- None:内容双向约束到视口(SVG preserveAspectRatio = WinUI Image Stretch=Uniform 的对应物);
-                 缩放后内容超出视口才可滚动 -->
-            <svg class="poster" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid meet" role="img" aria-label="山景示例海报">
+          <WuiScrollView ref="scrollView3Ref" class="stage-box stage-box--photo" content-orientation="None" zoom-mode="Enabled" is-tab-stop @view-changed="onView3">
+            <!-- None:内容双向约束到视口。官方示例 1 = 400×266 定尺寸 ScrollView + Stretch=Uniform 图像
+                 (ScrollViewPage.xaml L24-39),此处海报取同款定 px 尺寸 + preserveAspectRatio=Uniform 对应物。
+                 取定 px 的原因:标准化 CSS zoom(Chromium 128+)下,wrapper 内的百分比尺寸按「包含块/zoom」
+                 反向解析,100%×100% 内容被 zoom 后视觉尺寸不变;定 px 内容才会被组件写到内容盒上的 zoom
+                 真实放大,放大溢出使滚动范围增长 → scroll 事件 → viewChanged → 读数联动(VR-B6 FIX11) -->
+            <svg class="poster" width="400" height="266" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid meet" role="img" aria-label="山景示例海报">
               <rect width="1200" height="800" fill="var(--wui-system-control-background-chrome-medium-low)" />
               <circle cx="950" cy="180" r="90" fill="var(--wui-system-accent-color, #5f37be)" opacity="0.85" />
               <path d="M0 620 L260 380 L430 560 L610 330 L820 620 Z" fill="var(--wui-system-control-foreground-chrome-gray)" />
@@ -588,11 +591,21 @@ const usageCode = [
   background: var(--wui-system-control-background-chrome-medium);
 }
 
-/* —— 场景 3:海报(None 语义下 SVG 以 Uniform 语义适配视口)—— */
+/* —— 场景 3:照片查看器视口 —— */
+/* 官方示例 1 的定尺寸 400×266(ScrollViewPage.xaml L26-27);去 demo 描边框 = WinUI ScrollView
+   默认 BorderThickness 0,同时保证 1× 时海报恰好充满视口、无静态滚动条 */
+.stage-box--photo {
+  width: 400px;
+  max-width: none;
+  height: 266px;
+  border: 0;
+}
+
+/* 海报:定 px 尺寸(zoom 放大的载体,1× 恰好铺满视口;viewBox 内 preserveAspectRatio 兜底形变) */
 .poster {
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 400px;
+  height: 266px;
 }
 
 .docs-subtitle {
