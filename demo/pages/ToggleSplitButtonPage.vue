@@ -12,6 +12,7 @@
 // 演示三为参数面板 + 事件日志(click / ischeckedchanged / open / close 全程回显)。
 // 文案暂用中文双语文案常量(全站六语言在阶段 8 统一)。
 import { computed, ref } from 'vue'
+import WuiButton from '@/components/Button.vue'
 import WuiFontIcon from '@/components/FontIcon.vue'
 import WuiSymbolIcon from '@/components/SymbolIcon.vue'
 import WuiToggleSplitButton from '@/components/ToggleSplitButton.vue'
@@ -272,13 +273,13 @@ const bold = ref(false)
               <span class="bold-m" :class="{ 'is-on': boldChecked }">M</span>
               <template #flyout>
                 <div class="flyout-actions">
-                  <button type="button" class="flyout-btn" @click="applyBold(true)">
+                  <WuiButton class="flyout-btn" @click="applyBold(true)">
                     <WuiFontIcon glyph="&#xE8DD;" :font-size="16" />
                     {{ labelApplyBold }}
-                  </button>
-                  <button type="button" class="flyout-btn" @click="applyBold(false)">
+                  </WuiButton>
+                  <WuiButton class="flyout-btn" @click="applyBold(false)">
                     {{ labelApplyRegular }}
-                  </button>
+                  </WuiButton>
                 </div>
               </template>
             </WuiToggleSplitButton>
@@ -310,23 +311,21 @@ const bold = ref(false)
               <WuiSymbolIcon :symbol="currentMarker === 'Bullet' ? 'List' : 'Bullets'" />
               <template #flyout>
                 <div class="flyout-actions">
-                  <!-- 官方弹层两钮:Button(Padding 4 / Margin 6 / CornerRadius 4)+ SymbolIcon -->
-                  <button
-                    type="button"
+                  <!-- 官方弹层两钮:WuiButton(Padding 4 / Margin 6 / CornerRadius 4)+ SymbolIcon -->
+                  <WuiButton
                     class="flyout-btn is-icon"
                     :aria-label="labelBulletList"
                     @click="pickMarker('Bullet')"
                   >
                     <WuiSymbolIcon symbol="List" :font-size="16" />
-                  </button>
-                  <button
-                    type="button"
+                  </WuiButton>
+                  <WuiButton
                     class="flyout-btn is-icon"
                     :aria-label="labelRomanList"
                     @click="pickMarker('UppercaseRoman')"
                   >
                     <WuiSymbolIcon symbol="Bullets" :font-size="16" />
-                  </button>
+                  </WuiButton>
                 </div>
               </template>
             </WuiToggleSplitButton>
@@ -465,30 +464,12 @@ const bold = ref(false)
   gap: 6px;
 }
 
+/* 弹层动作钮:WuiButton 承担视觉状态(官方弹层内放的是 Button 控件),保留行内图标布局密度 */
 .flyout-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin: 0;
   padding: 4px 8px;
-  border: none;
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);
-  background: transparent;
-  font-family: var(--wui-content-control-theme-font-family);
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-application-foreground-theme);
-  cursor: default;
-  user-select: none;
-  touch-action: manipulation;
-}
-
-/* 悬停 / 按压:官方弹层内放的是 Button 控件,取 Button 状态 token(ControlFillColor 系) */
-.flyout-btn:hover {
-  background: var(--wui-button-background-pointer-over);
-}
-
-.flyout-btn:active {
-  background: var(--wui-button-background-pressed);
 }
 
 .flyout-btn.is-icon {

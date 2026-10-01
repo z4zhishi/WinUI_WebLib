@@ -19,6 +19,8 @@
 import { computed, onBeforeUnmount, ref } from 'vue'
 import WuiButton from '@/components/Button.vue'
 import WuiInfoBar from '@/components/InfoBar.vue'
+import WuiTextBox from '@/components/TextBox.vue'
+import WuiTextBlock from '@/components/TextBlock.vue'
 import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
 import DemoOptionRow from '../components/DemoOptionRow.vue'
@@ -851,14 +853,12 @@ onBeforeUnmount(() => {
           </dl>
           <div class="content-block">
             <span class="content-caption">{{ contentHeader }}</span>
-            <textarea
-              v-model="singleText"
-              class="content-editor"
-              :placeholder="textPlaceholder"
-              readonly
-              rows="4"
+            <WuiTextBlock
+              class="content-editor content-editor--view"
+              :class="{ 'is-empty': singleText === '' }"
+              :text="singleText || textPlaceholder"
               aria-label="文本文件内容"
-            ></textarea>
+            />
           </div>
           <WuiInfoBar
             v-if="singleStatus !== null"
@@ -902,12 +902,11 @@ onBeforeUnmount(() => {
           </p>
           <div class="content-block">
             <span class="content-caption">{{ contentHeader }}</span>
-            <textarea
-              v-model="saveContent"
-              class="content-editor"
-              rows="4"
+            <WuiTextBox
+              v-model:text="saveContent"
+              class="content-editor content-editor--input"
               aria-label="要保存的文件内容"
-            ></textarea>
+            />
           </div>
           <div class="example-row">
             <WuiButton :content="saveButtonLabel" :disabled="saveLoading" @click="saveFile" />
@@ -1151,17 +1150,30 @@ onBeforeUnmount(() => {
   color: var(--wui-application-secondary-foreground-theme);
 }
 
+/* 文件内容预览:WuiTextBlock 多行展示(空态显示占位文案);保存内容:WuiTextBox 输入 */
 .content-editor {
   width: 100%;
+}
+
+.content-editor--view {
+  min-height: 96px;
   padding: 8px 12px;
-  font-family: inherit;
   font-size: var(--wui-control-content-theme-font-size);
   line-height: 1.6;
-  color: var(--wui-text-box-foreground-theme);
-  background: var(--wui-text-box-background-theme);
-  border: 1px solid var(--wui-text-box-border-theme);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  resize: vertical;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--wui-text-control-foreground);
+  background: var(--wui-text-control-background);
+  border: 2px solid var(--wui-text-control-border);
+  border-radius: var(--wui-control-corner-radius);
+}
+
+.content-editor--view.is-empty {
+  color: var(--wui-application-secondary-foreground-theme);
+}
+
+.content-editor--input {
+  min-width: 0;
 }
 
 .content-editor:focus-visible {

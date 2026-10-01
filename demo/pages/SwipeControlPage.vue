@@ -8,6 +8,7 @@
 //          模式/高度/禁用实时可调,事件回显)。
 // 结构照抄已通过 QA 的 RatingControlPage 母版。
 import { computed, ref } from 'vue'
+import WuiButton from '@/components/Button.vue'
 import WuiSwipeControl from '@/components/SwipeControl.vue'
 import type { SwipeControlInvokedEventArgs } from '@/components/SwipeControl.vue'
 import WuiSwipeItem from '@/components/SwipeItem.vue'
@@ -297,7 +298,7 @@ ${'</'}script>
               <span class="demo-event">{{ mailToast }}</span>
             </template>
           </p>
-          <button type="button" class="demo-button" @click="resetMails">{{ labelReset }}</button>
+          <WuiButton class="demo-button" @click="resetMails">{{ labelReset }}</WuiButton>
         </section>
 
         <!-- 演示二:Reveal 揭示点选(slot 式) -->
@@ -487,30 +488,9 @@ ${'</'}script>
   font-family: ui-monospace, Consolas, 'Courier New', monospace;
 }
 
+/* 重置按钮:WuiButton 承担视觉状态,这里仅约束密度 */
 .demo-button {
-  padding: 5px 12px;
-  font-family: inherit;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.demo-button:hover {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.demo-button:active {
-  color: var(--wui-button-pressed-foreground-theme);
-  background: var(--wui-button-pressed-background-theme);
-}
-
-.demo-button:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color);
-  outline-offset: 1px;
+  padding: 4px 12px;
 }
 
 .gesture-list {

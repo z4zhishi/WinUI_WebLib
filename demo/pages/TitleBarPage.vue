@@ -17,6 +17,7 @@
 //   依赖 Win32 窗口,浏览器内不可复刻,以说明文案代替。
 import { computed, ref } from 'vue'
 import WuiAutoSuggestBox from '@/components/AutoSuggestBox.vue'
+import WuiButton from '@/components/Button.vue'
 import WuiFontIcon from '@/components/FontIcon.vue'
 import WuiPersonPicture from '@/components/PersonPicture.vue'
 import WuiTitleBar from '@/components/TitleBar.vue'
@@ -194,7 +195,7 @@ const usageCode = computed(
                   query-icon="Find"
                   class="demo-drag-search"
                 />
-                <button type="button" class="demo-status-badge" @click="onStatusClick">Status</button>
+                <WuiButton class="demo-status-badge" @click="onStatusClick">Status</WuiButton>
               </div>
             </WuiTitleBar>
           </div>
@@ -323,23 +324,12 @@ const usageCode = computed(
 }
 
 /* 源 StatusBadge:AccentButtonStyle 徽章按钮(内容区交互控件,自动排除出拖拽区) */
+/* 状态徽标按钮:WuiButton accent 变体(经 WuiButton background/foreground 表达),仅保留布局约束 */
 .demo-status-badge {
   flex: 0 0 auto;
-  padding: 4px 12px;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-accent-button-foreground, var(--wui-system-control-foreground-alt-high));
-  background: var(--wui-accent-button-background, var(--wui-system-accent-color));
-  border: none;
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.demo-status-badge:hover {
-  filter: brightness(1.08);
-}
-
-.demo-status-badge:active {
-  filter: brightness(0.92);
+  --wui-button-local-background: var(--wui-accent-button-background, var(--wui-system-accent-color));
+  --wui-button-local-foreground: var(--wui-accent-button-foreground, var(--wui-system-control-foreground-alt-high));
+  --wui-button-local-border: transparent;
 }
 
 .titlebar-note {

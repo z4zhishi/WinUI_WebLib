@@ -6,6 +6,7 @@
 // 由 RichTextBlock 实时渲染预览 —— 不走 v-html(避免 XSS,方法见 wiki「XSS 安全说明」)。
 // 下半区:固定呈现属性、事件与用法代码。
 import { computed, defineComponent, h, ref } from 'vue'
+import WuiButton from '@/components/Button.vue'
 import WuiRichEditBox from '@/components/RichEditBox.vue'
 import WuiRichTextBlock from '@/components/RichTextBlock.vue'
 import RichTextParagraph from '@/components/richtext/RichTextParagraph.vue'
@@ -336,102 +337,92 @@ const usageCode = computed(
           @text-changed="onTextChanged"
         >
           <template #toolbar="{ exec, active }">
-            <button
-              type="button"
+            <WuiButton
               class="toolbar-button"
               :class="{ 'is-active': active.bold }"
               title="粗体 (Ctrl+B)"
               aria-label="粗体"
               @click="exec('bold')"
-            >&#xE8DD;</button>
-            <button
-              type="button"
+            >&#xE8DD;</WuiButton>
+            <WuiButton
               class="toolbar-button"
               :class="{ 'is-active': active.italic }"
               title="斜体 (Ctrl+I)"
               aria-label="斜体"
               @click="exec('italic')"
-            >&#xE8DB;</button>
-            <button
-              type="button"
+            >&#xE8DB;</WuiButton>
+            <WuiButton
               class="toolbar-button"
               :class="{ 'is-active': active.underline }"
               title="下划线 (Ctrl+U)"
               aria-label="下划线"
               @click="exec('underline')"
-            >&#xE8DC;</button>
+            >&#xE8DC;</WuiButton>
 
             <span class="toolbar-divider" aria-hidden="true"></span>
 
-            <button
-              type="button"
+            <WuiButton
               class="toolbar-button"
               :class="{ 'is-active': active.insertUnorderedList }"
               title="项目符号列表"
               aria-label="项目符号列表"
               @click="exec('insertUnorderedList')"
-            >&#xE8FD;</button>
-            <button
-              type="button"
+            >&#xE8FD;</WuiButton>
+            <WuiButton
               class="toolbar-button toolbar-button-text"
               :class="{ 'is-active': active.insertOrderedList }"
               title="编号列表"
               aria-label="编号列表"
               @click="exec('insertOrderedList')"
-            >1.</button>
+            >1.</WuiButton>
 
             <span class="toolbar-divider" aria-hidden="true"></span>
 
-            <button
-              type="button"
+            <WuiButton
               class="toolbar-button"
               :class="{ 'is-active': active.justifyLeft }"
               title="左对齐"
               aria-label="左对齐"
               @click="exec('justifyLeft')"
-            >&#xE8E4;</button>
-            <button
-              type="button"
+            >&#xE8E4;</WuiButton>
+            <WuiButton
               class="toolbar-button"
               :class="{ 'is-active': active.justifyCenter }"
               title="居中"
               aria-label="居中"
               @click="exec('justifyCenter')"
-            >&#xE8E3;</button>
-            <button
-              type="button"
+            >&#xE8E3;</WuiButton>
+            <WuiButton
               class="toolbar-button"
               :class="{ 'is-active': active.justifyRight }"
               title="右对齐"
               aria-label="右对齐"
               @click="exec('justifyRight')"
-            >&#xE8E2;</button>
+            >&#xE8E2;</WuiButton>
 
             <span class="toolbar-divider" aria-hidden="true"></span>
 
             <!-- 字体颜色:对照官方示例的八色下拉(内容色,非主题 token) -->
             <span class="toolbar-colors" role="group" aria-label="字体颜色">
-              <button
+              <WuiButton
                 v-for="color in FONT_COLORS"
                 :key="color.css"
-                type="button"
                 class="toolbar-color"
                 :title="color.name"
                 :aria-label="`字体颜色 ${color.name}`"
-                :style="{ background: color.css }"
+                :background="color.css"
                 @click="exec('foreColor', color.css)"
-              ></button>
+              />
             </span>
 
             <span class="toolbar-divider" aria-hidden="true"></span>
 
-            <button
-              type="button"
+            <WuiButton
               class="toolbar-button toolbar-button-text"
               title="清除格式"
               aria-label="清除格式"
               @click="exec('removeFormat')"
-            >清除格式</button>
+            >清除格式</WuiButton>
           </template>
         </WuiRichEditBox>
 
@@ -498,7 +489,7 @@ const usageCode = computed(
   height: 200px;
 }
 
-/* —— 工具栏按钮(对照官方示例:无边框透明按钮 + FontIcon glyph)—— */
+/* —— 工具栏按钮(WuiButton 紧凑密度;图标列用图标字体)—— */
 .toolbar-button {
   display: inline-flex;
   align-items: center;
@@ -508,24 +499,6 @@ const usageCode = computed(
   padding: 0;
   font-family: var(--wui-symbol-theme-font-family);
   font-size: 16px;
-  color: var(--wui-application-foreground-theme);
-  background: transparent;
-  border: none;
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.toolbar-button:hover {
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.toolbar-button:active {
-  background: var(--wui-system-control-background-base-low);
-}
-
-.toolbar-button:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color);
-  outline-offset: 1px;
 }
 
 /* 文本型按钮(编号列表 / 清除格式):正文字体而非图标字体 */
@@ -536,8 +509,8 @@ const usageCode = computed(
 
 /* 激活态(光标所在位置的命令状态,由 active 跟踪) */
 .toolbar-button.is-active {
-  color: var(--wui-system-accent-color);
-  background: var(--wui-system-control-background-base-low);
+  --wui-button-local-background: var(--wui-system-control-background-base-low);
+  --wui-button-local-foreground: var(--wui-system-accent-color);
 }
 
 /* 分隔线 */
@@ -559,14 +532,7 @@ const usageCode = computed(
   width: 16px;
   height: 16px;
   padding: 0;
-  border: 1px solid var(--wui-system-control-background-base-low);
   border-radius: 50%;
-  cursor: pointer;
-}
-
-.toolbar-color:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color);
-  outline-offset: 1px;
 }
 
 /* —— 预览面板 —— */

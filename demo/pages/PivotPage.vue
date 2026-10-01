@@ -7,6 +7,7 @@
 //   selectedIndex / selectedItem 双向绑定读数。
 import { computed, ref } from 'vue'
 import type { VNode } from 'vue'
+import WuiButton from '@/components/Button.vue'
 import WuiPivot from '@/components/Pivot.vue'
 import WuiPivotItem from '@/components/PivotItem.vue'
 import DemoCode from '../components/DemoCode.vue'
@@ -166,11 +167,11 @@ const usageCode = computed(
             </WuiPivotItem>
           </WuiPivot>
           <div class="pivot-toolbar" role="group" aria-label="动态增删操作">
-            <button type="button" class="pivot-tool" @click="addSectionAtEnd">尾部添加页</button>
-            <button type="button" class="pivot-tool" @click="insertSectionBeforeCurrent">当前页前插入</button>
-            <button type="button" class="pivot-tool" :disabled="sections.length === 0" @click="removeCurrentSection">
+            <WuiButton class="pivot-tool" @click="addSectionAtEnd">尾部添加页</WuiButton>
+            <WuiButton class="pivot-tool" @click="insertSectionBeforeCurrent">当前页前插入</WuiButton>
+            <WuiButton class="pivot-tool" :disabled="sections.length === 0" @click="removeCurrentSection">
               删除当前页
-            </button>
+            </WuiButton>
           </div>
           <p class="pivot-caption">
             共 {{ sections.length }} 页 · SelectedIndex = {{ dynamicIndex }}(删除当前页时下标自动收敛到有效区间)
@@ -183,7 +184,7 @@ const usageCode = computed(
             <WuiPivotItem v-for="(itemTitle, index) in keepTitles" :key="itemTitle" :title="itemTitle">
               <div class="pivot-keep">
                 <span class="pivot-keep-count">{{ keepCounts[index] }}</span>
-                <button type="button" class="pivot-tool" @click="keepCounts[index] += 1">点我 +1({{ itemTitle }})</button>
+                <WuiButton class="pivot-tool" @click="keepCounts[index] += 1">点我 +1({{ itemTitle }})</WuiButton>
               </div>
             </WuiPivotItem>
           </WuiPivot>
@@ -277,35 +278,9 @@ const usageCode = computed(
   gap: 8px;
 }
 
+/* 操作按钮:WuiButton 承担视觉状态,这里仅约束密度 */
 .pivot-tool {
-  padding: 5px 12px;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.pivot-tool:hover:not(:disabled) {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.pivot-tool:active:not(:disabled) {
-  color: var(--wui-button-pressed-foreground-theme);
-  background: var(--wui-button-pressed-background-theme);
-}
-
-.pivot-tool:disabled {
-  color: var(--wui-button-foreground-disabled);
-  background: var(--wui-button-background-disabled);
-  cursor: default;
-}
-
-.pivot-tool:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
+  padding: 4px 12px;
 }
 
 .pivot-keep {

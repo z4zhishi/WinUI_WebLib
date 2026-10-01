@@ -8,6 +8,7 @@
 //   3) 自定义模板树(#item 作用域插槽按节点类型换图标;对应
 //      TreeviewItemtemplateselector.txt 的 FolderTemplate/FileTemplate)。
 import { computed, ref } from 'vue'
+import WuiButton from '@/components/Button.vue'
 import WuiTreeView from '@/components/TreeView.vue'
 import WuiFontIcon from '@/components/FontIcon.vue'
 import type { TreeViewNode } from '@/components/TreeViewItem.vue'
@@ -190,8 +191,8 @@ const usageCode = computed(
             @selection-changed="onSelectionChanged"
           />
           <div class="treeview-toolbar">
-            <button type="button" class="demo-button" @click="expandAll">全部展开</button>
-            <button type="button" class="demo-button" @click="collapseAll">全部收起</button>
+            <WuiButton class="demo-button" @click="expandAll">全部展开</WuiButton>
+            <WuiButton class="demo-button" @click="collapseAll">全部收起</WuiButton>
           </div>
           <p class="treeview-state">
             itemInvoked:<code>{{ lastInvoked }}</code> · selectionChanged:<code>{{ lastSelection }}</code>
@@ -278,25 +279,9 @@ const usageCode = computed(
   gap: 8px;
 }
 
+/* 工具按钮:WuiButton 承担视觉状态,这里仅约束密度 */
 .demo-button {
-  padding: 5px 12px;
-  font-family: inherit;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.demo-button:hover {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.demo-button:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 1px;
+  padding: 4px 12px;
 }
 
 .treeview-state {

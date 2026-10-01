@@ -8,6 +8,7 @@
 // 色板使用官方示例的字面色值(样例内容,非控件视觉,不适用 --wui-* token 规则)。
 // 文案暂用中文双语文案常量(全站六语言在阶段 8 统一)。
 import { computed, ref } from 'vue'
+import WuiButton from '@/components/Button.vue'
 import WuiFontIcon from '@/components/FontIcon.vue'
 import WuiMenuFlyoutItem from '@/components/MenuFlyoutItem.vue'
 import WuiMenuFlyoutSeparator from '@/components/MenuFlyoutSeparator.vue'
@@ -230,12 +231,11 @@ const usageCode = computed(
               <span class="swatch" :style="{ background: currentColor }" />
               <template #flyout>
                 <div class="swatch-grid">
-                  <button
+                  <WuiButton
                     v-for="swatch in SWATCHES"
                     :key="swatch.value"
-                    type="button"
                     class="swatch"
-                    :style="{ background: swatch.value }"
+                    :background="swatch.value"
                     :aria-label="swatch.name"
                     @click="onSwatchClick(swatch.value)"
                   />
@@ -361,16 +361,14 @@ const usageCode = computed(
   color: var(--wui-application-secondary-foreground-theme);
 }
 
-/* 主区色块:官方 Border Width/Height 32、CornerRadius 4,0,0,4(根圆角裁切兜底) */
+/* 主区色块(span)与弹层色板(WuiButton background 变体):尺寸约束官方 32×32 */
 .swatch {
   display: inline-block;
   flex: none;
   width: 32px;
   height: 32px;
   padding: 0;
-  border: none;
   border-radius: 4px;
-  cursor: pointer;
 }
 
 /* 弹层色板网格:3 列(官方 ItemsWrapGrid MaximumRowsOrColumns=3) */

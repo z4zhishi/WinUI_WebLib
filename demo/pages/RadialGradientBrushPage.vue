@@ -3,12 +3,15 @@
 // MappingMode / Center / RadiusX / RadiusY / GradientOrigin / SpreadMethod 全参数联动,
 // 停止点增删改(色板 + offset),实时预览 + 生成的 CSS 串读出(useRadialGradient 第二用途)。
 import { computed, ref, useId, watch } from 'vue'
+import WuiButton from '@/components/Button.vue'
 import WuiRadialGradientBrush, {
   useRadialGradient,
   type WuiBrushMappingMode,
   type WuiBrushSpreadMethod,
   type WuiGradientStop,
 } from '@/components/RadialGradientBrush.vue'
+import WuiSlider from '@/components/Slider.vue'
+import WuiTextBox from '@/components/TextBox.vue'
 import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
 import DemoOptionRow from '../components/DemoOptionRow.vue'
@@ -421,22 +424,22 @@ const css = useRadialGradient(() => ({
           <h3 class="stops-title">{{ stopsLabel }}</h3>
           <div v-for="(stop, index) in stops" :key="index" class="stop-row">
             <span class="stop-index">#{{ index + 1 }}</span>
-            <input v-model="stop.color" type="color" class="stop-color" :aria-label="`${colorLabel} #${index + 1}`" />
-            <input
-              v-model.number="stop.offset"
-              type="range"
+            <WuiTextBox v-model:text="stop.color" class="stop-color" :aria-label="`${colorLabel} #${index + 1}`" placeholder-text="#RRGGBB" />
+            <span class="stop-swatch" :style="{ background: stop.color }" aria-hidden="true" />
+            <WuiSlider
+              v-model:value="stop.offset"
               class="stop-offset"
-              min="0"
-              max="1"
-              step="0.05"
+              :minimum="0"
+              :maximum="1"
+              :step-frequency="0.05"
               :aria-label="`${offsetLabel} #${index + 1}`"
             />
             <code class="stop-value">{{ (stop.offset ?? 0).toFixed(2) }}</code>
-            <button type="button" class="stop-remove" :aria-label="`${removeStopLabel} #${index + 1}`" @click="removeStop(index)">
+            <WuiButton class="stop-remove" :aria-label="`${removeStopLabel} #${index + 1}`" @click="removeStop(index)">
               ×
-            </button>
+            </WuiButton>
           </div>
-          <button type="button" class="stop-add" @click="addStop">+ {{ addStopLabel }}</button>
+          <WuiButton class="stop-add" @click="addStop">+ {{ addStopLabel }}</WuiButton>
         </div>
       </div>
     </template>
@@ -638,19 +641,22 @@ const css = useRadialGradient(() => ({
   color: var(--wui-application-secondary-foreground-theme);
 }
 
+/* 色值输入:WuiTextBox + 只读色样 span;偏移滑块:WuiSlider */
 .stop-color {
-  width: 36px;
-  height: 28px;
-  padding: 0;
+  width: 92px;
+}
+
+.stop-swatch {
+  flex: none;
+  width: 20px;
+  height: 20px;
   border: 1px solid var(--wui-system-control-background-base-medium);
   border-radius: 4px;
-  background: none;
-  cursor: pointer;
 }
 
 .stop-offset {
   flex: 1;
-  accent-color: var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
+  min-width: 120px;
 }
 
 .stop-value {
@@ -661,32 +667,11 @@ const css = useRadialGradient(() => ({
   color: var(--wui-application-secondary-foreground-theme);
 }
 
+/* 增删钮:WuiButton 承担视觉状态,这里仅约束密度 */
 .stop-remove,
 .stop-add {
-  padding: 4px 10px;
+  padding: 2px 10px;
   font-size: var(--wui-tool-tip-content-theme-font-size);
-  font-family: inherit;
-  color: var(--wui-application-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.stop-remove:hover,
-.stop-add:hover {
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.stop-remove:active,
-.stop-add:active {
-  background: var(--wui-button-pressed-background-theme);
-}
-
-.stop-remove:focus-visible,
-.stop-add:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 1px;
 }
 
 .stop-add {

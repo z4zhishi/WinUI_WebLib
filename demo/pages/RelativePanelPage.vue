@@ -3,6 +3,7 @@
 // 官方示例为 300 宽面板内红/蓝/绿/黄四个 50x50 矩形,以 RightOf / AlignRightWithPanel /
 // Below + AlignHorizontalCenterWith 构成关系图;此处另加关系切换按钮组与实时调整演示)。
 import { computed, ref } from 'vue'
+import WuiButton from '@/components/Button.vue'
 import WuiRelativePanel from '@/components/RelativePanel.vue'
 import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
@@ -217,31 +218,29 @@ const usageCode = computed(() => {
           <div class="relation-groups">
             <div class="relation-group" role="group" aria-label="目标块水平关系">
               <span class="relation-group-label">水平关系</span>
-              <button
+              <WuiButton
                 v-for="choice in horizontalChoices"
                 :key="choice.value"
-                type="button"
                 class="relation-button"
                 :title="choice.hint"
                 :aria-pressed="horizontalRelation === choice.value"
                 @click="horizontalRelation = choice.value"
               >
                 {{ choice.label }}
-              </button>
+              </WuiButton>
             </div>
             <div class="relation-group" role="group" aria-label="目标块垂直关系">
               <span class="relation-group-label">垂直关系</span>
-              <button
+              <WuiButton
                 v-for="choice in verticalChoices"
                 :key="choice.value"
-                type="button"
                 class="relation-button"
                 :title="choice.hint"
                 :aria-pressed="verticalRelation === choice.value"
                 @click="verticalRelation = choice.value"
               >
                 {{ choice.label }}
-              </button>
+              </WuiButton>
             </div>
           </div>
         </div>
@@ -465,30 +464,16 @@ const usageCode = computed(() => {
   color: var(--wui-application-secondary-foreground-theme);
 }
 
+/* 关系切换钮:WuiButton 紧凑密度;选中态经 aria-pressed 覆盖 WuiButton 主题色 */
 .relation-button {
-  padding: 3px 10px;
+  padding: 2px 10px;
   font-size: var(--wui-tool-tip-content-theme-font-size);
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.relation-button:hover {
-  background: var(--wui-button-pointer-over-background-theme);
-  color: var(--wui-button-pointer-over-foreground-theme);
 }
 
 .relation-button[aria-pressed='true'] {
-  color: var(--wui-system-control-foreground-alt-high);
-  background: var(--wui-toggle-switch-curtain-background-theme);
-  border-color: var(--wui-system-control-transparent);
-}
-
-.relation-button:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 1px;
+  --wui-button-local-background: var(--wui-toggle-switch-curtain-background-theme);
+  --wui-button-local-foreground: var(--wui-system-control-foreground-alt-high);
+  --wui-button-local-border: var(--wui-system-control-transparent);
 }
 
 /* 循环依赖演示链路小块 */

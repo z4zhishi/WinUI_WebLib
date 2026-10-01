@@ -8,6 +8,7 @@
 // 明暗默认值来源:Common_themeresources_any.xaml 的 SolidBackgroundFillColorBase/BaseAlt、
 // AcrylicBrush_themeresources.xaml 的 in-app 亚克力默认值(来源细节见 wiki/controls/SystemBackdrops.md)。
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import WuiButton from '@/components/Button.vue'
 import WuiSystemBackdrop, {
   ACRYLIC_DEFAULTS,
   getSystemBackdropDefaults,
@@ -16,6 +17,7 @@ import WuiSystemBackdrop, {
   type WuiSystemBackdropKind,
   type WuiSystemBackdropTheme,
 } from '@/components/SystemBackdrop.vue'
+import WuiTextBox from '@/components/TextBox.vue'
 import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
 import DemoOptionRow from '../components/DemoOptionRow.vue'
@@ -302,14 +304,13 @@ const xamlCode = computed(() => {
           <DemoOptionRow label="TintOpacity" type="slider" v-model="tintOpacity" :min="0" :max="1" :step="0.01" />
         </DemoOptions>
 
-        <!-- TintColor:六组默认值对照 + 原生取色器(自绘,DemoOptionRow 无此形态) -->
+        <!-- TintColor:六组默认值对照 + 自定义 hex 输入(WuiTextBox,DemoOptionRow 无此形态) -->
         <div class="tint-editor">
           <h3 class="editor-title">{{ tintPresetsLabel }}</h3>
           <div class="tint-row">
-            <button
+            <WuiButton
               v-for="preset in TINT_PRESETS"
               :key="preset.key"
-              type="button"
               class="tint-preset"
               :aria-label="`应用 ${preset.key} 默认 tint`"
               @click="applyTintPreset(preset)"
@@ -319,11 +320,11 @@ const xamlCode = computed(() => {
                 <span class="tint-name">{{ preset.key }}</span>
                 <span class="tint-value">{{ preset.defaults.tintColor.toUpperCase() }} · {{ preset.defaults.tintOpacity }}</span>
               </span>
-            </button>
+            </WuiButton>
           </div>
           <h3 class="editor-title">{{ customTintLabel }}</h3>
           <div class="tint-row">
-            <input v-model="tintHex" type="color" class="tint-input" aria-label="TintColor 自定义" />
+            <WuiTextBox v-model:text="tintHex" class="tint-input" aria-label="TintColor 自定义" placeholder-text="#RRGGBB" />
             <code class="tint-value">{{ tintHex }}</code>
           </div>
         </div>
@@ -537,23 +538,12 @@ const xamlCode = computed(() => {
   gap: 8px;
 }
 
+/* 预设钮:WuiButton 承担视觉状态,保留色块 + 元信息行布局 */
 .tint-preset {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 4px 8px;
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.tint-preset:hover {
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.tint-preset:active {
-  background: var(--wui-button-pressed-background-theme);
 }
 
 .tint-preset:focus-visible {
@@ -586,14 +576,9 @@ const xamlCode = computed(() => {
   color: var(--wui-application-secondary-foreground-theme);
 }
 
+/* 自定义 tint 输入:WuiTextBox,宽度对齐色值文本 */
 .tint-input {
-  width: 36px;
-  height: 28px;
-  padding: 0;
-  border: 1px solid var(--wui-system-control-background-base-medium);
-  border-radius: 4px;
-  background: none;
-  cursor: pointer;
+  width: 96px;
 }
 
 /* —— 下半区文档 —— */

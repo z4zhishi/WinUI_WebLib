@@ -4,9 +4,11 @@
 // 另提供 Segoe 字形全量表浏览(数据:CK IconsData.json,1533 条;简单分页,点击复制 \uXXXX 并联动上方演示)。
 import { computed, ref, watch } from 'vue'
 import WuiBitmapIcon from '@/components/BitmapIcon.vue'
+import WuiButton from '@/components/Button.vue'
 import WuiFontIcon from '@/components/FontIcon.vue'
 import WuiPathIcon from '@/components/PathIcon.vue'
 import WuiSymbolIcon from '@/components/SymbolIcon.vue'
+import WuiTextBox from '@/components/TextBox.vue'
 import { SYMBOL_DEFAULT, SYMBOL_GLYPHS, SYMBOL_NAMES, symbolToGlyph, type SymbolValue } from '@/utils/symbolIcons'
 import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
@@ -295,18 +297,21 @@ const usageCode = computed(
             缺失字体的环境将显示空心方块(tofu)。
           </p>
           <div class="browse-toolbar">
-            <input v-model="browseQuery" class="browse-search" type="search" placeholder="按名称或码点搜索,如 Setting / E713" />
+            <WuiTextBox
+              v-model:text="browseQuery"
+              class="browse-search"
+              placeholder-text="按名称或码点搜索,如 Setting / E713"
+            />
             <div class="browse-pager">
-              <button type="button" class="pager-button" :disabled="browsePageClamped <= 1" @click="browseGo(-1)">上一页</button>
+              <WuiButton class="pager-button" :disabled="browsePageClamped <= 1" @click="browseGo(-1)">上一页</WuiButton>
               <span class="pager-status">第 {{ browsePageClamped }} / {{ browsePageCount }} 页 · 共 {{ filteredGlyphs.length }} 条</span>
-              <button type="button" class="pager-button" :disabled="browsePageClamped >= browsePageCount" @click="browseGo(1)">下一页</button>
+              <WuiButton class="pager-button" :disabled="browsePageClamped >= browsePageCount" @click="browseGo(1)">下一页</WuiButton>
             </div>
           </div>
           <div class="glyph-grid">
-            <button
+            <WuiButton
               v-for="glyph in browsedGlyphs"
               :key="glyph.code"
-              type="button"
               class="glyph-cell"
               :title="`${glyph.name}(${glyph.code})`"
               @click="selectGlyph(glyph.code)"
@@ -314,7 +319,7 @@ const usageCode = computed(
               <span class="glyph-preview">{{ toGlyphChar(glyph.code) }}</span>
               <span class="glyph-code">{{ glyph.code }}</span>
               <span class="glyph-name">{{ glyph.name }}</span>
-            </button>
+            </WuiButton>
           </div>
           <p class="copy-hint" role="status">{{ copyHint }}</p>
         </section>
@@ -431,50 +436,12 @@ const usageCode = computed(
 
 .browse-search {
   min-width: 240px;
-  padding: 5px 12px;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-text-control-foreground);
-  background: var(--wui-text-control-background);
-  border: 1px solid var(--wui-text-control-border);
-  border-bottom-width: 2px;
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  outline: none;
-}
-
-.browse-search:focus-visible {
-  border-color: var(--wui-text-control-border-brush-focused);
 }
 
 .browse-pager {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.pager-button {
-  padding: 4px 12px;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.pager-button:hover:not(:disabled) {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.pager-button:disabled {
-  color: var(--wui-text-control-foreground-disabled);
-  background: var(--wui-text-control-background-disabled);
-  cursor: default;
-}
-
-.pager-button:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 1px;
 }
 
 .pager-status {
@@ -489,6 +456,7 @@ const usageCode = computed(
   gap: 4px;
 }
 
+/* 字形单元:WuiButton 紧凑栅格密度(视觉状态交由 wui-button 主题) */
 .glyph-cell {
   display: flex;
   flex-direction: column;
@@ -496,26 +464,8 @@ const usageCode = computed(
   gap: 2px;
   min-width: 0;
   padding: 8px 4px;
-  font-family: inherit;
-  color: var(--wui-application-foreground-theme);
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.glyph-cell:hover {
-  background: var(--wui-system-control-background-list-low);
-  border-color: var(--wui-system-control-background-base-low);
-}
-
-.glyph-cell:active {
-  background: var(--wui-system-control-background-base-medium-low);
-}
-
-.glyph-cell:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 1px;
+  white-space: normal;
+  line-height: 1.2;
 }
 
 .glyph-preview {

@@ -12,6 +12,7 @@
 // 另加 Web 增强的「明暗切换元素过渡」:切换 html[data-theme] 时主题色经过渡渐变
 // (DemoPage 顶部预览切换的同机制,站点级预览)。
 import { computed, nextTick, ref } from 'vue'
+import WuiButton from '@/components/Button.vue'
 import WuiNavigationThemeTransition from '@/components/NavigationThemeTransition.vue'
 import WuiEntranceNavigationThemeTransition from '@/components/EntranceNavigationThemeTransition.vue'
 import DemoCode from '../components/DemoCode.vue'
@@ -421,10 +422,10 @@ const entranceUsageCode = computed(
             </WuiNavigationThemeTransition>
           </div>
           <div class="trigger-row">
-            <button type="button" class="host-button" @click="navigateForward">前进 Navigate</button>
-            <button type="button" class="host-button" :disabled="!frameCanGoBack" @click="navigateBackward">
+            <WuiButton class="host-button" @click="navigateForward">前进 Navigate</WuiButton>
+            <WuiButton class="host-button" :disabled="!frameCanGoBack" @click="navigateBackward">
               后退 GoBack
-            </button>
+            </WuiButton>
             <span class="state-chip" aria-live="polite">
               当前 {{ frameCurrent === 0 ? 'SamplePage 1' : 'SamplePage 2' }} · 返回栈深度
               {{ frameBackStack.length }}
@@ -465,10 +466,10 @@ const entranceUsageCode = computed(
               ></span>
             </WuiEntranceNavigationThemeTransition>
             <div class="trigger-row">
-              <button type="button" class="mini-button" @click="entranceAddOne">Add one</button>
-              <button type="button" class="mini-button" @click="entranceAddFive">Add five</button>
-              <button type="button" class="mini-button" @click="entranceClear">Clear all</button>
-              <button type="button" class="mini-button" @click="entranceReplay">重放</button>
+              <WuiButton class="mini-button" @click="entranceAddOne">Add one</WuiButton>
+              <WuiButton class="mini-button" @click="entranceAddFive">Add five</WuiButton>
+              <WuiButton class="mini-button" @click="entranceClear">Clear all</WuiButton>
+              <WuiButton class="mini-button" @click="entranceReplay">重放</WuiButton>
               <span class="state-chip" aria-live="polite">当前 {{ entranceBlocks.length }} 个方块</span>
             </div>
           </div>
@@ -490,8 +491,8 @@ const entranceUsageCode = computed(
               ></span>
             </div>
             <div class="trigger-row">
-              <button type="button" class="mini-button" @click="flipReposition">Reposition</button>
-              <button type="button" class="mini-button" @click="repositionOrder = [0, 1, 2]">复原</button>
+              <WuiButton class="mini-button" @click="flipReposition">Reposition</WuiButton>
+              <WuiButton class="mini-button" @click="repositionOrder = [0, 1, 2]">复原</WuiButton>
             </div>
           </div>
 
@@ -516,7 +517,7 @@ const entranceUsageCode = computed(
               </Transition>
             </div>
             <div class="trigger-row">
-              <button type="button" class="mini-button" @click="contentRefresh">Refresh data</button>
+              <WuiButton class="mini-button" @click="contentRefresh">Refresh data</WuiButton>
               <span class="state-chip" aria-live="polite">已刷新 {{ contentEpoch }} 次</span>
             </div>
           </div>
@@ -542,11 +543,11 @@ const entranceUsageCode = computed(
               </TransitionGroup>
             </div>
             <div class="trigger-row">
-              <button type="button" class="mini-button" @click="adAdd">Add</button>
-              <button type="button" class="mini-button" :disabled="adItems.length === 0" @click="adDelete">
+              <WuiButton class="mini-button" @click="adAdd">Add</WuiButton>
+              <WuiButton class="mini-button" :disabled="adItems.length === 0" @click="adDelete">
                 Delete
-              </button>
-              <button type="button" class="mini-button" @click="adAddAndDelete">Add and Del</button>
+              </WuiButton>
+              <WuiButton class="mini-button" @click="adAddAndDelete">Add and Del</WuiButton>
               <span class="state-chip" aria-live="polite">当前 {{ adItems.length }} 条</span>
             </div>
           </div>
@@ -568,24 +569,22 @@ const entranceUsageCode = computed(
                 <span class="swap-chip">token 驱动的渐变</span>
               </div>
               <div class="theme-toggle" role="group" aria-label="明暗切换预览">
-                <button
-                  type="button"
+                <WuiButton
                   class="mini-button"
                   :class="{ active: swapTheme === 'light' }"
                   :aria-pressed="swapTheme === 'light'"
                   @click="applySwapTheme('light')"
                 >
                   明
-                </button>
-                <button
-                  type="button"
+                </WuiButton>
+                <WuiButton
                   class="mini-button"
                   :class="{ active: swapTheme === 'dark' }"
                   :aria-pressed="swapTheme === 'dark'"
                   @click="applySwapTheme('dark')"
                 >
                   暗
-                </button>
+                </WuiButton>
               </div>
             </div>
           </div>
@@ -759,68 +758,20 @@ const entranceUsageCode = computed(
   gap: 12px;
 }
 
+/* 触发按钮:WuiButton 承担视觉状态;host 主按钮加宽,mini 行内紧凑密度 */
 .host-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   min-width: 96px;
-  height: 32px;
-  padding: 5px 12px;
-  font-family: inherit;
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.host-button:hover {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.host-button:active {
-  color: var(--wui-button-pressed-foreground-theme);
-  background: var(--wui-button-pressed-background-theme);
-}
-
-.host-button:disabled {
-  color: var(--wui-application-secondary-foreground-theme);
-  background: var(--wui-system-control-background-base-low);
-  cursor: default;
-}
-
-.host-button:focus-visible,
-.mini-button:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
 }
 
 .mini-button {
   height: 28px;
-  padding: 3px 10px;
-  font-family: inherit;
+  padding: 2px 10px;
   font-size: var(--wui-tool-tip-content-theme-font-size);
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.mini-button:hover {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.mini-button:active {
-  color: var(--wui-button-pressed-foreground-theme);
-  background: var(--wui-button-pressed-background-theme);
 }
 
 .mini-button.active {
-  color: var(--wui-system-control-foreground-accent);
-  border-color: var(--wui-system-accent-color);
+  --wui-button-local-foreground: var(--wui-system-control-foreground-accent);
+  --wui-button-local-border: var(--wui-system-accent-color);
 }
 
 .state-chip {

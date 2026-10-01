@@ -6,6 +6,7 @@
 //   另补充:内容区汉堡按钮开关(导航栏惯用法)、事件日志(PaneClosing/PaneClosed/PaneOpened)、
 //   内置空 pane 示例(不提供 #pane slot 时仅呈现窗格背景)。
 import { computed, ref } from 'vue'
+import WuiButton from '@/components/Button.vue'
 import WuiFontIcon from '@/components/FontIcon.vue'
 import WuiSplitView from '@/components/SplitView.vue'
 import DemoCode from '../components/DemoCode.vue'
@@ -153,16 +154,15 @@ const usageCode = computed(
               <div class="splitview-pane-content">
                 <p class="splitview-pane-title">窗格内容</p>
                 <nav class="splitview-nav">
-                  <button
+                  <WuiButton
                     v-for="link in NAV_LINKS"
                     :key="link.label"
-                    type="button"
                     class="splitview-nav-item"
                     @click="onNavLinkClick(link)"
                   >
                     <WuiFontIcon :glyph="link.glyph" :font-size="16" />
                     <span class="splitview-nav-label">{{ link.label }}</span>
-                  </button>
+                  </WuiButton>
                 </nav>
               </div>
             </template>
@@ -170,15 +170,14 @@ const usageCode = computed(
             <!-- 主内容区:汉堡开关 + 点击回显(对照官方 content TextBlock) -->
             <div class="splitview-content">
               <div class="splitview-content-bar">
-                <button
-                  type="button"
+                <WuiButton
                   class="splitview-hamburger"
                   :aria-expanded="openBool"
                   aria-label="开关窗格"
                   @click="openBool = !openBool"
                 >
                   <WuiFontIcon glyph="&#xE700;" :font-size="16" />
-                </button>
+                </WuiButton>
                 <span class="splitview-content-title">主内容区</span>
               </div>
               <p class="splitview-content-body">窗格打开:{{ openBool }} · 最近事件:<code>{{ lastEvent }}</code></p>
@@ -198,9 +197,9 @@ const usageCode = computed(
             :open-pane-length="160"
             class="splitview-demo"
           >
-            <button type="button" class="splitview-inline-toggle" @click="emptyBool = !emptyBool">
+            <WuiButton class="splitview-inline-toggle" @click="emptyBool = !emptyBool">
               {{ emptyBool ? '关闭空窗格' : '展开空窗格' }}
-            </button>
+            </WuiButton>
           </WuiSplitView>
         </div>
         <p class="splitview-caption">未提供 #pane slot:内置空 pane,展开后仅呈现窗格背景色(Inline 推挤内容)。</p>
@@ -301,34 +300,15 @@ const usageCode = computed(
   gap: 2px;
 }
 
+/* 导航项:WuiButton 承担视觉状态,保留窗格导航的行内密度 */
 .splitview-nav-item {
   display: flex;
   align-items: center;
   gap: 16px;
   margin: 0 2px;
-  padding: 10px 12px 10px 16px;
-  font: inherit;
-  color: var(--wui-default-text-foreground-theme);
+  padding: 8px 12px 8px 16px;
   text-align: left;
   white-space: nowrap;
-  background: transparent;
-  border: 0;
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-/* 导航项交互四态(ListView/ListBox 项的 Subtle 系 token 最近似) */
-.splitview-nav-item:hover {
-  background: var(--wui-grid-view-item-background-pointer-over);
-}
-
-.splitview-nav-item:active {
-  background: var(--wui-grid-view-item-background-pressed);
-}
-
-.splitview-nav-item:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
 }
 
 .splitview-nav-label {
@@ -351,6 +331,7 @@ const usageCode = computed(
   gap: 12px;
 }
 
+/* 汉堡开关:WuiButton 40×36 密度 */
 .splitview-hamburger {
   display: inline-flex;
   align-items: center;
@@ -358,27 +339,6 @@ const usageCode = computed(
   width: 40px;
   height: 36px;
   padding: 0;
-  font: inherit;
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.splitview-hamburger:hover {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.splitview-hamburger:active {
-  color: var(--wui-button-pressed-foreground-theme);
-  background: var(--wui-button-pressed-background-theme);
-}
-
-.splitview-hamburger:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
 }
 
 .splitview-content-title {
@@ -397,21 +357,10 @@ const usageCode = computed(
   color: var(--wui-default-text-foreground-theme);
 }
 
+/* 空窗格开关:WuiButton 承担视觉状态,这里仅保留布局 */
 .splitview-inline-toggle {
   align-self: flex-start;
   margin: 12px;
-  padding: 5px 12px;
-  font: inherit;
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.splitview-inline-toggle:hover {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
 }
 
 .splitview-inline-toggle:focus-visible {

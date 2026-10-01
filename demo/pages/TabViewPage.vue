@@ -11,6 +11,7 @@
 //   5. closing 可取消(Deferral 简化):「说明」页 @closing 内置 cancel 演示取消,「确认后关闭」页
 //      getDeferral() 异步判定后放行(对照 TabViewItem.Closing + Deferral 语义)。
 import { computed, ref } from 'vue'
+import WuiButton from '@/components/Button.vue'
 import type { TabViewTabClosingEventArgs } from '@/components/TabViewItem.vue'
 import type { TabViewTabCloseRequestedEventArgs } from '@/components/TabView.vue'
 import WuiTabView from '@/components/TabView.vue'
@@ -278,8 +279,8 @@ const usageCode = computed(
               <p class="tabview-body">{{ tab.body }}</p>
               <div v-if="pendingClose && pendingClose.id === tab.id" class="tabview-confirm" role="group" aria-label="确认关闭标签">
                 <span class="tabview-confirm-text">确认关闭「{{ tab.header }}」?(closing Deferral 挂起中)</span>
-                <button type="button" class="tabview-tool" @click="confirmClose">确认关闭</button>
-                <button type="button" class="tabview-tool" @click="cancelClose">取消</button>
+                <WuiButton class="tabview-tool" @click="confirmClose">确认关闭</WuiButton>
+                <WuiButton class="tabview-tool" @click="cancelClose">取消</WuiButton>
               </div>
             </WuiTabViewItem>
           </WuiTabView>
@@ -410,28 +411,8 @@ const usageCode = computed(
   min-width: 0;
 }
 
+/* 确认/取消按钮:WuiButton 承担视觉状态,这里仅约束密度 */
 .tabview-tool {
-  padding: 5px 12px;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.tabview-tool:hover:not(:disabled) {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.tabview-tool:active:not(:disabled) {
-  color: var(--wui-button-pressed-foreground-theme);
-  background: var(--wui-button-pressed-background-theme);
-}
-
-.tabview-tool:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
+  padding: 4px 12px;
 }
 </style>

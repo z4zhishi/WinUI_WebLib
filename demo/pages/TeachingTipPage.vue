@@ -8,6 +8,7 @@
 // 另按任务补充:14 值 placement 全枚举轮播(targeted)、Closing 可取消演示、事件日志。
 import { computed, ref } from 'vue'
 import WuiButton from '@/components/Button.vue'
+import WuiCheckBox from '@/components/CheckBox.vue'
 import WuiTeachingTip from '@/components/TeachingTip.vue'
 import type {
   TeachingTipCloseReasonValue,
@@ -114,8 +115,8 @@ function onActionButtonClick(): void {
   appendLog('actionButtonClick(不关泡)')
 }
 
-// Closing 可取消演示:开关打开时,下一次关闭一律被取消
-const cancelNextClose = ref<string | number | boolean>(false)
+// Closing 可取消演示:开关打开时,下一次关闭一律被取消(WuiCheckBox 要求 boolean)
+const cancelNextClose = ref<boolean>(false)
 
 // —— 各示例开关状态 ——
 const basicOpen = ref(false) // 官方示例 ①
@@ -312,10 +313,9 @@ ${SCRIPT_CLOSE}
         <div class="teaching-example">
           <div class="log-row">
             <span class="log-title">事件日志</span>
-            <label class="log-cancel-label">
-              <input v-model="cancelNextClose" type="checkbox" />
+            <WuiCheckBox v-model:checked="cancelNextClose" class="log-cancel-label">
               取消下一次 closing(Cancel = true)
-            </label>
+            </WuiCheckBox>
             <WuiButton @click="eventLog = []">清空</WuiButton>
           </div>
           <ul class="event-log">
@@ -437,12 +437,7 @@ ${SCRIPT_CLOSE}
 }
 
 .log-cancel-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
   font-size: var(--wui-tool-tip-content-theme-font-size);
-  color: var(--wui-application-secondary-foreground-theme);
-  cursor: pointer;
 }
 
 .event-log {
