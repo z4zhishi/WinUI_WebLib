@@ -2,7 +2,10 @@
 // 示例页外壳(定稿项目规范):页头 → 交互演示区(#demo)→ 参数面板区(#options)→ 文档区(#docs)。
 // 「上半区可交互、下半区固定开发文档」由本组件承载;控件示例页只需按名填充三个 slot。
 // 依赖的真实控件落地后仅替换 slot 内的演示对象,本模板不动。
-import { ref } from 'vue'
+// FIX23(构成检查):壳层自身控件(主题预览按钮)亦用库内 WuiToggleButton——
+// 激活态 = 组件内置 checked 视觉(强调色底白字,与原 aria-pressed 语义一致)。
+import { computed, ref } from 'vue'
+import WuiToggleButton from '@/components/ToggleButton.vue'
 import { LABEL_OPTIONS, LABEL_THEME_PREVIEW, LABEL_WIKI_DOC, useBilingual, useDemoI18n } from './labels'
 
 defineProps<{
@@ -36,6 +39,22 @@ function applyPreview(theme: PreviewTheme): void {
   previewTheme.value = theme
   document.documentElement.dataset.theme = theme
 }
+
+// WuiToggleButton 的 checked 双向模型:互斥(选中其一)。set(false)(点击已选中档)不落底,
+// 档位保持不变,与原 aria-pressed 按钮的行为一致。
+const lightChecked = computed<boolean>({
+  get: () => previewTheme.value === 'light',
+  set: (checked) => {
+    if (checked) applyPreview('light')
+  },
+})
+
+const darkChecked = computed<boolean>({
+  get: () => previewTheme.value === 'dark',
+  set: (checked) => {
+    if (checked) applyPreview('dark')
+  },
+})
 </script>
 
 <template>
@@ -53,22 +72,12 @@ function applyPreview(theme: PreviewTheme): void {
       <div class="section-head">
         <h2 class="section-title">{{ i18n.t('examples') }}</h2>
         <div class="theme-toggle" role="group" :aria-label="themePreviewLabel">
-          <button
-            type="button"
-            class="theme-option"
-            :aria-pressed="previewTheme === 'light'"
-            @click="applyPreview('light')"
-          >
+          <WuiToggleButton v-model:checked="lightChecked" class="theme-option">
             {{ i18n.t('themeLight') }}
-          </button>
-          <button
-            type="button"
-            class="theme-option"
-            :aria-pressed="previewTheme === 'dark'"
-            @click="applyPreview('dark')"
-          >
+          </WuiToggleButton>
+          <WuiToggleButton v-model:checked="darkChecked" class="theme-option">
             {{ i18n.t('themeDark') }}
-          </button>
+          </WuiToggleButton>
         </div>
       </div>
       <div class="demo-canvas">
@@ -172,34 +181,17 @@ function applyPreview(theme: PreviewTheme): void {
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
 }
 
-/* 浅/深主题预览切换(写 html[data-theme],站点级预览) */
+/* 浅/深主题预览切换(写 html[data-theme],站点级预览)。
+   控件本体是 WuiToggleButton(FIX23):视觉/悬停/激活(checked = 强调色底白字,
+   aria-pressed 由组件给出)全部走组件内置状态,壳层仅保留原紧凑排版约束
+   (12px 小字号 + 窄内边距;带父级限定稳定压过组件根 padding)。 */
 .theme-toggle {
   display: flex;
   gap: 4px;
 }
 
-.theme-option {
+.theme-toggle .theme-option {
   padding: 3px 12px;
   font-size: var(--wui-tool-tip-content-theme-font-size);
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.theme-option:hover {
-  background: var(--wui-button-pointer-over-background-theme);
-  color: var(--wui-button-pointer-over-foreground-theme);
-}
-
-.theme-option[aria-pressed='true'] {
-  /* 选中态前景:高亮底(curtain 紫)上的白字。原用 --wui-system-control-foreground-alt-high
-     在深色主题解析为 #000000,对 --wui-toggle-switch-curtain-background-theme #5729C1
-     仅 2.5:1(axe color-contrast);浅色本就是白字(#4617B4 上 10.3:1),统一改用
-     高亮文字色 token(两主题均 #FFFFFF,深色对 #5729C1 为 8.4:1)。 */
-  color: var(--wui-system-color-highlight-text-color, #ffffff);
-  background: var(--wui-toggle-switch-curtain-background-theme);
-  border-color: var(--wui-system-control-transparent);
 }
 </style>

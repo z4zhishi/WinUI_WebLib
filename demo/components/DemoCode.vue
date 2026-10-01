@@ -1,7 +1,11 @@
 <script setup lang="ts">
 // 代码块:等宽字体、深色底(chrome-black token,两种主题下均为黑底白字)、右上角复制按钮。
 // 复制:navigator.clipboard 优先,失败降级 document.execCommand('copy')。
+// FIX23(构成检查):复制按钮用库内 WuiButton——配色经其 background/foreground/
+// borderBrush/fontSize 属性注入(贴代码栏黑底白字原视觉),悬停/按下/焦点态走组件
+// 内置 VSM,壳层不再手写裸 <button>。
 import { computed, ref } from 'vue'
+import WuiButton from '@/components/Button.vue'
 import { LABEL_COPIED, LABEL_COPY, pickText, useDemoI18n } from './labels'
 
 const props = defineProps<{
@@ -62,7 +66,16 @@ async function writeClipboard(text: string): Promise<boolean> {
     <figcaption class="code-bar">
       <span v-if="language" class="code-language">{{ language }}</span>
       <span v-else class="code-language-placeholder" aria-hidden="true"></span>
-      <button type="button" class="copy-button" @click="copyCode">{{ copyLabel }}</button>
+      <WuiButton
+        class="copy-button"
+        background="var(--wui-system-control-transparent)"
+        foreground="var(--wui-system-control-foreground-chrome-white)"
+        border-brush="var(--wui-menu-flyout-separator-theme)"
+        :font-size="'var(--wui-tool-tip-content-theme-font-size)'"
+        @click="copyCode"
+      >
+        {{ copyLabel }}
+      </WuiButton>
     </figcaption>
     <!-- tabindex=0:横向滚动的代码区键盘可达(a11y QA scrollable-region-focusable) -->
     <pre class="code-pre" tabindex="0"><code>{{ displayCode }}</code></pre>
@@ -98,24 +111,8 @@ async function writeClipboard(text: string): Promise<boolean> {
   flex: 1;
 }
 
-.copy-button {
-  padding: 3px 10px;
-  font-size: var(--wui-tool-tip-content-theme-font-size);
-  color: var(--wui-system-control-foreground-chrome-white);
-  background: var(--wui-system-control-transparent);
-  border: 1px solid var(--wui-menu-flyout-separator-theme);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.copy-button:hover {
-  background: var(--wui-media-button-pointer-over-background-theme);
-}
-
-.copy-button:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 1px;
-}
+/* 复制按钮视觉全部由 WuiButton 提供(配色经其属性注入,悬停/按下/焦点走组件 VSM);
+   类名 copy-button 仅作壳层钩子保留,不再承担样式。 */
 
 .code-pre {
   margin: 0;
