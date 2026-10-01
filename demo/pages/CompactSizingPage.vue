@@ -570,7 +570,7 @@ const usageCode = `<!-- WinUI 原生:在应用 / 页面 / 控件级引入紧凑�
 
 /* 滚轮项内边距:DatePickerHostPadding / TimePickerHostPadding 0,3,0,6 → 0,1,0,2
    (注:官方未覆盖项高 DatePickerFlyoutPresenterItemHeight=40,本站滚轮项高保持 40,
-   因此此项覆盖在本站常驻展开形态下视觉差异细微,详见 wiki) */
+   因此此项覆盖在飞出层内视觉差异细微,详见 wiki) */
 .wui-density-compact :deep(.wui-date-picker-item),
 .wui-density-compact :deep(.wui-time-picker-item) {
   padding: 1px 0 2px;

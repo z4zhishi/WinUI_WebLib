@@ -1,15 +1,31 @@
 <script setup lang="ts">
-// DatePicker —— WinUI DatePicker 的 Web 复刻(inline 三列滚轮选择器,月/日/年)。
+// DatePicker —— WinUI DatePicker 的 Web 复刻(收起字段 + 点击弹出三列 LoopingSelector 飞出层)。
 // 视觉规格:CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml
-//   - TargetType="DatePicker"(L8668 起):Header 边距 0,0,0,4、HasNoDate 态占位前景、
-//     分割线 DatePickerSpacerFill(2px)、Disabled 各色;
-//   - TargetType="DatePickerFlyoutPresenter"(L12801 起,LoopingSelector 三列的宿主):
-//     宽 296、三列宽 78*/132*/78*(日/月/年)、分割线 2px、高亮带 40px
-//     (DatePickerFlyoutPresenterHighlightFill)、项高 40、项内边距 0,3,0,6(月列 9,3,0,6);
-//   - LoopingSelector 资源(L857 起):项前景/选中前景/上下按钮底色。
-// 颜色/字号一律取 src/styles/theme.css 的 --wui-* token;动效取 animations.css token。
-// 注意:本组件不是日历弹层,是常驻 inline 的三列选择器(WinUI 弹层内的 LoopingSelector 形态)。
-import { computed, reactive, ref, useAttrs, useId, watch } from 'vue'
+//   - TargetType="DatePicker"(L8668 起)收起态:
+//     · FlyoutButton = 单行字段按钮,内嵌 3 段文本(月/日/年)+ 2 条 2px 分割线;
+//       按钮 MinWidth 296(DatePickerThemeMinWidth)、MaxWidth 456(DatePickerThemeMaxWidth)、
+//       ContentPresenter BorderThickness 2、圆角 ControlCornerRadius(4px);
+//       文本内边距 DatePickerFlyoutPresenterItemPadding 0,3,0,6(月列 9,3,0,6 + Margin 1,0,0,0),
+//       月列 TextAlignment Left、日/年列 Center;
+//       HasNoDate 态三段前景转 TextControlPlaceholderForeground;
+//       按钮各态画刷 DatePickerButtonBackground/BorderBrush/Foreground ×
+//       Normal/PointerOver/Pressed/Disabled + Focused 组;
+//       Header 边距 DatePickerTopHeaderMargin 0,0,0,4。
+//   - TargetType="DatePickerFlyoutPresenter"(L12801 起)弹出层:
+//     · Width/MinWidth 296、BorderThickness 1(DateTimeFlyoutBorderThickness)、
+//       圆角 OverlayCornerRadius(8px)、Padding 0(DateTimeFlyoutBorderPadding)、MaxHeight 398;
+//     · 三列宽 78*/132*/78*(日/月/年)+ 两条 2px DatePickerFlyoutPresenterSpacerFill 分割线;
+//       中央 DatePickerFlyoutPresenterHighlightFill 高亮带 40(跨全部列)、项高 40、项内边距 0,3,0,6(月列 9,3,0,6);
+//     · AcceptDismissHostGrid 高 41(DatePickerFlyoutPresenterAcceptDismissHostGridHeight):
+//       顶部 2px 分割线 + Accept(E8FB)/ Dismiss(E711)各占 1*,FontSize 16,
+//       DateTimePickerFlyoutButtonStyle(透明底 + HighlightListLow/Medium 的 hover/pressed)。
+//   - LoopingSelector 资源(L13102 起):上下展开钮 Height 22、FontSize 8、
+//     码点 E70E(上)/E70D(下)、底色 LoopingSelectorButtonBackground,默认 Collapsed、
+//     PointerOver 才显示;项前景/选中前景/悬停/按压底(LoopingSelectorItem* 资源)。
+// 颜色/字号一律取 src/styles/theme.css 的 --wui-* token(本次启用原先未用的
+// --wui-date-picker-button-* 与 --wui-date-time-picker-flyout-button-*);动效取 animations.css。
+import { computed, nextTick, reactive, ref, useAttrs, useId, watch } from 'vue'
+import { usePopupAnchor, usePopupLayer } from '@/composables/usePopup'
 import '../styles/animations.css'
 
 defineOptions({ name: 'WuiDatePicker', inheritAttrs: false })
@@ -58,8 +74,15 @@ const props = withDefaults(
 // —— Date 双向绑定(WinUI Date,可为 null 表示未选择)——
 const date = defineModel<Date | null>('date', { default: null })
 
-// —— 事件(WinUI DateChanged;程序化赋值同样触发,与 ComboBox selectionChanged 语义一致)——
-const emit = defineEmits<{ dateChanged: [newDate: Date | null, oldDate: Date | null] }>()
+// —— 弹出层开关(WinUI DatePickerFlyout.IsOpen),支持 v-model:is-open ——
+const isOpen = defineModel<boolean>('isOpen', { default: false })
+
+// —— 事件(WinUI DateChanged + 弹出层 Opened / Closed)——
+const emit = defineEmits<{
+  dateChanged: [newDate: Date | null, oldDate: Date | null]
+  opened: []
+  closed: []
+}>()
 
 // —— $attrs 透传(单根,inheritAttrs: false)——
 const attrs = useAttrs()
@@ -67,7 +90,7 @@ const attrs = useAttrs()
 // 实例唯一 id 前缀(aria-activedescendant/option id 用;多实例不串号)
 const uid = useId()
 
-// —— 结构常量(源:DatePickerFlyoutPresenterHighlightHeight/ItemHeight = 40)——
+// —— 结构常量(源:DatePickerFlyoutPresenterItemHeight/HighlightHeight = 40)——
 const ITEM_HEIGHT = 40
 /** 可见行数:窗口高度 = 3 × 40(中央选中行 + 上下各一行相邻项)。 */
 const WINDOW_HEIGHT = ITEM_HEIGHT * 3
@@ -78,12 +101,12 @@ type ColumnKey = 'month' | 'day' | 'year'
 
 interface ColumnSpec {
   key: ColumnKey
-  /** 源模板列宽比例:日 78* / 月 132* / 年 78*(generic.xaml DayColumn/MonthColumn/YearColumn)。 */
+  /** 源模板列宽比例:月 132* / 日 78* / 年 78*(generic.xaml MonthColumn/DayColumn/YearColumn)。 */
   flexGrow: number
   ariaLabel: string
   items: string[]
   selectedIndex: number
-  /** 月列左对齐并带 9px 内边距(DatePickerFlyoutPresenterMonthPadding)。 */
+  /** 月列左对齐并带 9px 内边距(DatePickerFlyoutPresenterMonthPadding / DatePickerHostMonthPadding)。 */
   leftAlign: boolean
 }
 
@@ -200,6 +223,22 @@ const columns = computed<ColumnSpec[]>(() => {
   return list
 })
 
+/**
+ * 收起字段 / 飞出层共用的列轨道模板:
+ * `<比例>fr 2px <比例>fr …`,2px 即列间分割线(FlyoutButtonContentGrid 的 Auto 分隔列,宽 2)。
+ */
+const columnsTemplate = computed(() => columns.value.map((col) => `${col.flexGrow}fr`).join(' 2px '))
+
+// —— 收起字段三段文本(取各列当前选中项文本,与飞出层列项完全一致)——
+const segments = computed(() =>
+  columns.value.map((col) => ({
+    key: col.key,
+    text: col.items[col.selectedIndex] ?? '',
+    leftAlign: col.leftAlign,
+    flexGrow: col.flexGrow,
+  })),
+)
+
 // —— 归一工具:任意年月日钳制进 min/max 与当月天数(本地 12:00,规避 DST/UTC 日界)——
 function clampToValidDate(year: number, month: number, day: number): Date {
   const y = clampYear(year)
@@ -293,6 +332,90 @@ function selectIndex(key: ColumnKey, index: number): void {
 
 const hasDate = computed(() => date.value !== null)
 
+/* -------------------------------------------------------------------------
+ * 弹出层:bottom 对齐锚左缘(WinUI 飞出层自字段下方垂直展开)+ light dismiss 三手势
+ * ---------------------------------------------------------------------- */
+
+const { anchorRef } = usePopupAnchor()
+const { layerRef, update } = usePopupLayer({
+  anchor: anchorRef,
+  placement: 'bottom-start',
+  offset: { mainAxis: 4 },
+  onOutsidePress: () => closeFlyout(false, false),
+  onEscape: () => closeFlyout(true, false),
+  onAnchorScroll: () => closeFlyout(false, false), // WinUI:锚滚动链滚动即 light dismiss(CalendarDatePicker 同约定)
+})
+
+/** 打开瞬间的值快照(Dismiss 按钮 = 取消,回滚到该值)。 */
+let openedSnapshot: Date | null = null
+/** 飞出层是否由键盘打开(决定是否显示列焦点框,对齐 WinUI 仅键盘焦点可见焦点视觉)。 */
+const keyboardOpened = ref(false)
+
+function openFlyout(byKeyboard = false): void {
+  if (props.disabled || isOpen.value) return
+  openedSnapshot = date.value === null ? null : new Date(date.value.getTime())
+  keyboardOpened.value = byKeyboard
+  isOpen.value = true
+  void nextTick(() => {
+    update()
+    layerRef.value?.focus()
+    focusColumn(columns.value[0]?.key)
+    emit('opened')
+  })
+}
+
+/**
+ * 关闭飞出层。
+ * @param restoreFocus 是否把焦点还给收起字段(Escape / 确认走 true)
+ * @param revert 是否回滚到打开时的值(Dismiss 按钮 = 取消)
+ */
+function closeFlyout(restoreFocus: boolean, revert: boolean): void {
+  if (!isOpen.value) return
+  isOpen.value = false
+  if (revert) {
+    suppressModelWatchEmit = false
+    date.value = openedSnapshot === null ? null : new Date(openedSnapshot.getTime())
+    syncFromModel()
+  }
+  if (restoreFocus) anchorRef.value?.focus()
+  emit('closed')
+}
+
+// 禁用即收起
+watch(
+  () => props.disabled,
+  (value) => {
+    if (value) closeFlyout(false, false)
+  },
+)
+
+/** 收起字段:点击开关(键盘触发的 click detail===0);Enter/Space 由原生 button click 覆盖,↓/↑ 显式开。 */
+function onFieldClick(event: MouseEvent): void {
+  if (props.disabled) return
+  if (isOpen.value) closeFlyout(false, false)
+  else openFlyout(event.detail === 0)
+}
+
+function onFieldKeydown(event: KeyboardEvent): void {
+  if (props.disabled) return
+  if (event.ctrlKey || event.altKey || event.metaKey) return
+  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    event.preventDefault()
+    openFlyout(true)
+  }
+}
+
+/** 打开后落焦到某一列(listbox),让 ↑/↓/PageUp/PageDown/Home/End 立即可用。 */
+function focusColumn(key: ColumnKey | undefined): void {
+  if (key === undefined) return
+  const column = layerRef.value?.querySelector<HTMLElement>(`[data-col="${key}"]`)
+  column?.focus()
+}
+
+/* -------------------------------------------------------------------------
+ * 飞出层内部交互:滚轮 / 箭头 / 拖拽 / 键盘 / 点选(沿用原三列滚轮交互)
+ * ---------------------------------------------------------------------- */
+
 // —— 滚轮:按 40px 一档累积,步进期间禁用页面滚动 ——
 let wheelAccum = 0
 let wheelTimer: ReturnType<typeof setTimeout> | undefined
@@ -338,13 +461,29 @@ function onColumnKeydown(event: KeyboardEvent, key: ColumnKey): void {
     case 'End':
       selectIndex(key, col.items.length - 1)
       break
+    case 'Enter':
+    case ' ':
+      // WinUI:在列上回车/空格 = 确认当前项并收起
+      event.preventDefault()
+      closeFlyout(true, false)
+      return
     default:
       return // 未命中的按键交还浏览器
   }
   event.preventDefault()
 }
 
-// —— 拖拽(触摸/鼠标按住上下拖,松手按最近项吸附;加分项)——
+/** 层内键盘兜底:Escape 收起(常规路径由 usePopupLayer 栈顶收口);Tab = light dismiss。 */
+function onLayerKeydown(event: KeyboardEvent): void {
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    closeFlyout(true, false)
+  } else if (event.key === 'Tab') {
+    closeFlyout(false, false)
+  }
+}
+
+// —— 拖拽(触摸/鼠标按住上下拖,松手按最近项吸附)——
 const drag = reactive({
   key: null as ColumnKey | null,
   pointerId: -1,
@@ -382,13 +521,17 @@ function onPointerDown(event: PointerEvent, key: ColumnKey): void {
   drag.startY = event.clientY
   drag.dy = 0
   drag.moved = false
-  ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
+  // 不在 pointerdown 立即 setPointerCapture:捕获会把合成 click 的目标改成滚动窗口,
+  // 令列项自身的 click 永不触发(点选失效);判定为拖拽后才捕获(见 onPointerMove)。
 }
 
 function onPointerMove(event: PointerEvent): void {
   if (drag.key === null || event.pointerId !== drag.pointerId) return
   drag.dy = event.clientY - drag.startY
-  if (!drag.moved && Math.abs(drag.dy) > DRAG_THRESHOLD_PX) drag.moved = true
+  if (!drag.moved && Math.abs(drag.dy) > DRAG_THRESHOLD_PX) {
+    drag.moved = true
+    ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
+  }
 }
 
 function endDrag(): void {
@@ -424,10 +567,12 @@ function onPointerCancel(event: PointerEvent): void {
   suppressClickUntil = Date.now() + 400
 }
 
+/** 点选列项:提交并收起(WinUI 飞出层内点选即生效;确认/取消见 Accept / Dismiss)。 */
 function onItemClick(key: ColumnKey, index: number): void {
   if (props.disabled) return
   if (Date.now() < suppressClickUntil) return // 拖拽松手后的合成 click,吞掉
   selectIndex(key, index)
+  closeFlyout(true, false)
 }
 
 function optionId(key: ColumnKey, index: number): string {
@@ -442,91 +587,152 @@ function optionId(key: ColumnKey, index: number): string {
     :class="{
       'wui-date-picker--empty': !hasDate,
       'wui-date-picker--disabled': disabled,
+      'wui-date-picker--open': isOpen,
     }"
     role="group"
     :aria-label="header || 'Date picker'"
     :aria-disabled="disabled || undefined"
   >
+    <!-- HeaderContentPresenter:DatePickerTopHeaderMargin = 0,0,0,4 -->
     <div v-if="header" class="wui-date-picker-header">{{ header }}</div>
-    <div class="wui-date-picker-board">
-      <template v-for="(col, colIndex) in columns" :key="col.key">
-        <div class="wui-date-picker-col" :style="{ flexGrow: col.flexGrow }">
-          <button
-            type="button"
-            class="wui-date-picker-nav"
-            tabindex="-1"
-            aria-hidden="true"
-            :disabled="disabled"
-            @click="stepColumn(col.key, -1)"
+
+    <!-- 收起态字段(FlyoutButton):2px 描边 + 三段文本 + 2px 分割线,MinHeight 32 -->
+    <button
+      ref="anchorRef"
+      type="button"
+      class="wui-date-picker-field"
+      :disabled="disabled"
+      aria-haspopup="dialog"
+      :aria-expanded="isOpen"
+      @click="onFieldClick"
+      @keydown="onFieldKeydown"
+    >
+      <span class="wui-date-picker-field-grid" :style="{ gridTemplateColumns: columnsTemplate }">
+        <template v-for="(seg, index) in segments" :key="seg.key">
+          <span
+            class="wui-date-picker-seg"
+            :class="{ 'wui-date-picker-seg--left': seg.leftAlign }"
+            >{{ seg.text }}</span
           >
-            <span class="wui-date-picker-nav-glyph" aria-hidden="true">&#xE76B;</span>
-          </button>
-          <div
-            class="wui-date-picker-window"
-            role="listbox"
-            :aria-label="col.ariaLabel"
-            :aria-activedescendant="optionId(col.key, col.selectedIndex)"
-            :tabindex="disabled ? -1 : 0"
-            @keydown="onColumnKeydown($event, col.key)"
-            @wheel="onWheel($event, col.key)"
-            @pointerdown="onPointerDown($event, col.key)"
-            @pointermove="onPointerMove"
-            @pointerup="onPointerUp"
-            @pointercancel="onPointerCancel"
-          >
-            <div class="wui-date-picker-highlight" aria-hidden="true"></div>
-            <!-- presentation:滚轮条仅为位移容器,不暴露角色,保证 option 归属于上方 listbox -->
-            <div class="wui-date-picker-strip" role="presentation" :style="stripStyle(col)">
-              <div
-                v-for="(item, index) in col.items"
-                :id="optionId(col.key, index)"
-                :key="index"
-                role="option"
-                class="wui-date-picker-item"
-                :class="{
-                  'wui-date-picker-item--selected': index === col.selectedIndex,
-                  'wui-date-picker-item--left': col.leftAlign,
-                }"
-                :style="{ opacity: itemOpacity(col, index) }"
-                :aria-selected="index === col.selectedIndex"
-                @click="onItemClick(col.key, index)"
-              >
-                {{ item }}
-              </div>
-            </div>
-          </div>
-          <button
-            type="button"
-            class="wui-date-picker-nav"
-            tabindex="-1"
-            aria-hidden="true"
-            :disabled="disabled"
-            @click="stepColumn(col.key, 1)"
-          >
-            <span class="wui-date-picker-nav-glyph" aria-hidden="true">&#xE76C;</span>
-          </button>
-        </div>
-        <div
-          v-if="colIndex < columns.length - 1"
-          class="wui-date-picker-spacer"
-          aria-hidden="true"
-        ></div>
-      </template>
-    </div>
+          <span v-if="index < segments.length - 1" class="wui-date-picker-sep" aria-hidden="true"></span>
+        </template>
+      </span>
+    </button>
   </div>
+
+  <!-- 飞出层:Teleport 到 body,复用 .wui-popup-layer 外壳(圆角/阴影/层级) -->
+  <Teleport to="body">
+    <Transition name="wui-date-picker">
+      <div
+        v-if="isOpen && !disabled"
+        ref="layerRef"
+        class="wui-popup-layer wui-date-picker-layer"
+        :class="{ 'is-keyboard': keyboardOpened }"
+        role="dialog"
+        tabindex="-1"
+        :aria-label="header || 'Date picker'"
+        @keydown="onLayerKeydown"
+      >
+        <!-- PickerHostGrid:78*/132*/78* 三列 + 2px 分割线,中央 40px 高亮带 -->
+        <div class="wui-date-picker-host">
+          <div class="wui-date-picker-highlight" aria-hidden="true"></div>
+          <div class="wui-date-picker-columns" :style="{ gridTemplateColumns: columnsTemplate }">
+            <template v-for="(col, colIndex) in columns" :key="col.key">
+              <div class="wui-date-picker-col">
+                <!-- LoopingSelector 展开钮:E70E/E70D,Height 22,FontSize 8,PointerOver 才显示 -->
+                <button
+                  type="button"
+                  class="wui-date-picker-nav wui-date-picker-nav--up"
+                  tabindex="-1"
+                  aria-hidden="true"
+                  :disabled="disabled"
+                  @click="stepColumn(col.key, -1)"
+                >&#xE70E;</button>
+                <div
+                  class="wui-date-picker-window"
+                  role="listbox"
+                  :aria-label="col.ariaLabel"
+                  :data-col="col.key"
+                  :aria-activedescendant="optionId(col.key, col.selectedIndex)"
+                  :tabindex="disabled ? -1 : 0"
+                  @keydown="onColumnKeydown($event, col.key)"
+                  @wheel="onWheel($event, col.key)"
+                  @pointerdown="onPointerDown($event, col.key)"
+                  @pointermove="onPointerMove"
+                  @pointerup="onPointerUp"
+                  @pointercancel="onPointerCancel"
+                >
+                  <!-- presentation:滚轮条仅为位移容器,不暴露角色,保证 option 归属于上方 listbox -->
+                  <div class="wui-date-picker-strip" role="presentation" :style="stripStyle(col)">
+                    <div
+                      v-for="(item, index) in col.items"
+                      :id="optionId(col.key, index)"
+                      :key="index"
+                      role="option"
+                      class="wui-date-picker-item"
+                      :class="{
+                        'wui-date-picker-item--selected': index === col.selectedIndex,
+                        'wui-date-picker-item--left': col.leftAlign,
+                      }"
+                      :style="{ opacity: itemOpacity(col, index) }"
+                      :aria-selected="index === col.selectedIndex"
+                      @click="onItemClick(col.key, index)"
+                    >
+                      {{ item }}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="wui-date-picker-nav wui-date-picker-nav--down"
+                  tabindex="-1"
+                  aria-hidden="true"
+                  :disabled="disabled"
+                  @click="stepColumn(col.key, 1)"
+                >&#xE70D;</button>
+              </div>
+              <div
+                v-if="colIndex < columns.length - 1"
+                class="wui-date-picker-spacer"
+                aria-hidden="true"
+              ></div>
+            </template>
+          </div>
+        </div>
+
+        <!-- AcceptDismissHostGrid:高 41,顶部 2px 分割线,Accept(E8FB)/ Dismiss(E711) -->
+        <div class="wui-date-picker-acceptdismiss">
+          <div class="wui-date-picker-ad-divider" aria-hidden="true"></div>
+          <button
+            type="button"
+            class="wui-date-picker-ad"
+            aria-label="确定"
+            @click="closeFlyout(true, false)"
+          >&#xE8FB;</button>
+          <button
+            type="button"
+            class="wui-date-picker-ad"
+            aria-label="取消"
+            @click="closeFlyout(true, true)"
+          >&#xE711;</button>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <style scoped>
 /*
  * 结构对照 generic.xaml:
- * - 宿主面板:DatePickerFlyoutPresenter Background/BorderBrush(1px)+ 弹层圆角 8px;
- * - 三列宽度比 78 : 132 : 78(日/月/年),列间 2px DatePickerFlyoutPresenterSpacerFill 分割线;
- * - 每列 = 上箭头 + 3 行窗口(中央 40px 高亮带)+ 下箭头(LoopingSelector 展开钮形态)。
+ * - 收起字段 = DatePickerFlyoutButtonStyle 的 ContentPresenter(BorderThickness 2、三段文本);
+ * - 飞出层 = DatePickerFlyoutPresenter 的 Border(1px 描边 + 8px 圆角)+ PickerHostGrid
+ *   (78 / 132 / 78 三列 + 2px 分割线 + 中央 40px 高亮带)+ AcceptDismissHostGrid(41px);
+ * - 每列 = 3 行 40px 视口 + 常驻 PointerOver 才显示的 22px 展开钮(LoopingSelector 模板)。
  */
 .wui-date-picker {
   display: inline-flex;
   flex-direction: column;
-  max-width: 456px; /* DatePickerThemeMaxWidth */
+  align-items: flex-start;
   font-family: inherit; /* ContentControlThemeFontFamily 占位,回退浏览器默认 */
   font-size: var(--wui-control-content-theme-font-size);
   user-select: none;
@@ -539,26 +745,160 @@ function optionId(key: ColumnKey, index: number): string {
   color: var(--wui-date-picker-header-foreground);
 }
 
-/* —— 三列面板:飞出层底色 + 1px 描边(等效常驻展开的 LoopingSelector 宿主)—— */
-.wui-date-picker-board {
-  display: flex;
-  align-items: stretch;
-  min-width: 296px; /* DatePickerFlyoutPresenter Width/MinWidth */
-  padding: 4px 0;
-  background: var(--wui-date-picker-flyout-presenter-background);
-  border: 1px solid var(--wui-date-picker-flyout-presenter-border);
-  border-radius: var(--wui-popup-corner-radius, 8px); /* OverlayCornerRadius,theme.css 无同名 token */
+/* ======================================================================
+ * 收起字段(FlyoutButton):Border 2、MinHeight 32(XAML MinHeight 含边框,故 border-box)、
+ * MinWidth 296(DatePickerThemeMinWidth)、MaxWidth 456(DatePickerThemeMaxWidth)、圆角 4
+ * ====================================================================== */
+.wui-date-picker-field {
+  box-sizing: border-box; /* 源 MinHeight 32 含 2px 边框 */
+  display: block;
+  min-width: 296px; /* DatePickerThemeMinWidth */
+  max-width: 456px; /* DatePickerThemeMaxWidth */
+  min-height: 32px; /* 源 FlyoutButton 高度 */
+  padding: 0;
+  font: inherit;
+  color: var(--wui-date-picker-button-foreground);
+  text-align: inherit;
+  background: var(--wui-date-picker-button-background);
+  border: 2px solid var(--wui-date-picker-button-border); /* ContentPresenter BorderThickness 2 */
+  border-radius: 4px; /* CornerRadius = ControlCornerRadius(theme.css 无同名 token) */
+  cursor: pointer;
+  outline: none;
 }
 
-/* —— 列:上箭头 / 窗口 / 下箭头 —— */
+/* —— 状态优先级(对照 VSM):Disabled > Focused > Pressed/Open > PointerOver > Normal —— */
+.wui-date-picker:not(.wui-date-picker--disabled) .wui-date-picker-field:hover {
+  color: var(--wui-date-picker-button-foreground-pointer-over);
+  background: var(--wui-date-picker-button-background-pointer-over);
+  border-color: var(--wui-date-picker-button-border-brush-pointer-over);
+}
+
+.wui-date-picker:not(.wui-date-picker--disabled) .wui-date-picker-field:active,
+.wui-date-picker:not(.wui-date-picker--disabled).wui-date-picker--open .wui-date-picker-field {
+  color: var(--wui-date-picker-button-foreground-pressed);
+  background: var(--wui-date-picker-button-background-pressed);
+  border-color: var(--wui-date-picker-button-border-brush-pressed);
+}
+
+/* 聚焦态(FocusStates.Focused 只动 Background / Foreground,边框保持) */
+.wui-date-picker:not(.wui-date-picker--disabled) .wui-date-picker-field:focus-visible {
+  color: var(--wui-date-picker-button-foreground-focused);
+  background: var(--wui-date-picker-button-background-focused);
+}
+
+/* —— 三段文本 + 2px 分割线(FlyoutButtonContentGrid)—— */
+.wui-date-picker-field-grid {
+  display: grid;
+  align-items: center;
+  height: 28px; /* 32 - 2×2 边框 */
+}
+
+.wui-date-picker-seg {
+  min-width: 0;
+  padding: 3px 0 6px; /* DatePickerHostPadding 0,3,0,6 */
+  overflow: hidden;
+  line-height: 19px; /* 19 + 3 + 6 = 28 = 32 - 2×2 边框 */
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 月列:DatePickerHostMonthPadding 9,3,0,6 + Margin 1,0,0,0,左对齐 */
+.wui-date-picker-seg--left {
+  padding-left: 10px; /* 9px 内边距 + 1px Margin */
+  text-align: left;
+}
+
+.wui-date-picker-sep {
+  width: 2px; /* FirstPickerSpacing / SecondPickerSpacing Width = 2 */
+  height: 100%;
+  background: var(--wui-date-picker-spacer-fill);
+}
+
+/* 空值态(HasNoDate):三段前景转占位前景 */
+.wui-date-picker--empty .wui-date-picker-seg {
+  color: var(--wui-text-control-placeholder-foreground);
+}
+
+/* 禁用态(Disabled:字段背景/边框/前景 + 标头 + 分割线) */
+.wui-date-picker--disabled .wui-date-picker-header {
+  color: var(--wui-date-picker-header-foreground-disabled);
+}
+
+.wui-date-picker--disabled .wui-date-picker-field {
+  color: var(--wui-date-picker-button-foreground-disabled);
+  background: var(--wui-date-picker-button-background-disabled);
+  border-color: var(--wui-date-picker-button-border-brush-disabled);
+  cursor: default;
+}
+
+.wui-date-picker--disabled .wui-date-picker-sep {
+  background: var(--wui-date-picker-spacer-fill-disabled);
+}
+
+/* 禁用 + 空值:禁用前景优先(与源 Disabled/ HasNoDate 状态优先级一致) */
+.wui-date-picker--disabled .wui-date-picker-seg {
+  color: var(--wui-date-picker-button-foreground-disabled);
+}
+
+/* ======================================================================
+ * 飞出层(DatePickerFlyoutPresenter):Width 296、Border 1、圆角 8、Padding 0
+ * ====================================================================== */
+.wui-date-picker-layer {
+  box-sizing: border-box;
+  width: 296px; /* DatePickerFlyoutPresenter Width / MinWidth */
+  overflow: hidden;
+  font-size: var(--wui-control-content-theme-font-size); /* FlyoutPresenter FontSize = ControlContentThemeFontSize */
+  color: var(--wui-looping-selector-item-foreground);
+  background: var(--wui-date-picker-flyout-presenter-background);
+  border: 1px solid var(--wui-date-picker-flyout-presenter-border); /* DateTimeFlyoutBorderThickness */
+  border-radius: var(--wui-popup-corner-radius, 8px); /* OverlayCornerRadius */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.wui-date-picker-layer:focus {
+  outline: none; /* 焦点由各列 listbox 承担,层根只做键盘事件宿主 */
+}
+
+/* —— PickerHostGrid:高 120(3 × 40),中央 40px 高亮带跨全部列 —— */
+.wui-date-picker-host {
+  position: relative;
+  height: 120px;
+}
+
+/* DatePickerFlyoutPresenterHighlightFill,VerticalAlignment Center,Height 40 */
+.wui-date-picker-highlight {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 40px; /* DatePickerFlyoutPresenterHighlightHeight */
+  background: var(--wui-date-picker-flyout-presenter-highlight-fill);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.wui-date-picker-columns {
+  position: relative;
+  display: grid;
+  align-items: stretch;
+  height: 100%;
+}
+
+/* —— 列:窗口(3 × 40 视口)+ 22px 悬停展开钮 —— */
 .wui-date-picker-col {
+  position: relative;
   display: flex;
   flex-direction: column;
-  flex-basis: 0; /* 宽度完全由 78 : 132 : 78 比例决定 */
   min-width: 0;
 }
 
-/* —— 窗口:3 行视口(3 × 40px 项高),中央为选中行 —— */
+.wui-date-picker-col:hover .wui-date-picker-nav {
+  visibility: visible;
+}
+
+/* —— 窗口:3 行视口,中央为选中行 —— */
 .wui-date-picker-window {
   position: relative;
   height: 120px;
@@ -572,18 +912,6 @@ function optionId(key: ColumnKey, index: number): string {
   cursor: grabbing;
 }
 
-/* 中央高亮带(DatePickerFlyoutPresenterHighlightFill,高 40) */
-.wui-date-picker-highlight {
-  position: absolute;
-  top: 50%;
-  right: 0;
-  left: 0;
-  height: 40px;
-  background: var(--wui-date-picker-flyout-presenter-highlight-fill);
-  transform: translateY(-50%);
-  pointer-events: none;
-}
-
 /* —— 项条:整体 translateY 滚动 —— */
 .wui-date-picker-strip {
   position: relative;
@@ -592,13 +920,13 @@ function optionId(key: ColumnKey, index: number): string {
 }
 
 .wui-date-picker-item {
-  /* border-box:源 ItemHeight 40 为含内边距的行高盒;缺省 content-box 会把 3+6 内边距加到 49px,
-     令条目按 49px 步距累积偏移、选中项被推出 40px 高亮带(V6 视觉 QA F1) */
+  /* border-box:源 ItemHeight 40 为含内边距的行高盒 */
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 40px; /* DatePickerFlyoutPresenterItemHeight(含内边距) */
+  height: 40px; /* DatePickerFlyoutPresenterItemHeight */
+  margin: 0 2px; /* LoopingSelectorItem ContentPresenter Margin 2,0,2,0 */
   padding: 3px 0 6px; /* DatePickerFlyoutPresenterItemPadding 0,3,0,6 */
   color: var(--wui-looping-selector-item-foreground);
   text-align: center;
@@ -623,24 +951,35 @@ function optionId(key: ColumnKey, index: number): string {
   background: var(--wui-looping-selector-item-background-pressed);
 }
 
-/* —— 上下箭头(LoopingSelectorButtonBackground + Segoe Fluent chevron)—— */
+/* —— 展开钮(LoopingSelector UpButton/DownButton:E70E/E70D,Height 22,FontSize 8,
+     默认 Collapsed,PointerOver 才显示)—— */
 .wui-date-picker-nav {
+  position: absolute;
+  right: 0;
+  left: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 20px;
+  height: 22px;
   margin: 0;
   padding: 0;
+  font-family: var(--wui-symbol-theme-font-family);
+  font-size: 8px;
+  line-height: 1;
   color: var(--wui-looping-selector-item-foreground);
   background: var(--wui-looping-selector-button-background);
   border: none;
+  visibility: hidden; /* 源 VSM:仅 PointerOver 可见 */
   cursor: pointer;
 }
 
-.wui-date-picker-nav-glyph {
-  font-family: var(--wui-symbol-theme-font-family);
-  font-size: var(--wui-tool-tip-content-theme-font-size);
-  line-height: 1;
+.wui-date-picker-nav--up {
+  top: 0;
+}
+
+.wui-date-picker-nav--down {
+  bottom: 0;
 }
 
 .wui-date-picker-nav:hover:not(:disabled) {
@@ -661,33 +1000,71 @@ function optionId(key: ColumnKey, index: number): string {
   background: var(--wui-date-picker-flyout-presenter-spacer-fill);
 }
 
-/* —— 键盘焦点(:focus-visible accent 描边,项目惯例)—— */
-.wui-date-picker-window:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color);
-  outline-offset: -2px;
+/* —— 键盘焦点(仅键盘打开时显示,鼠标打开不显示焦点框):弹层窗口无 FocusVisualMargin
+      键 → Margin 0 族,两环全在元素内 primary [0,2] + secondary [2,3] = 系统双环 —— */
+.wui-date-picker-layer.is-keyboard .wui-date-picker-window:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--wui-system-control-focus-visual-primary);
+  outline: 1px solid var(--wui-system-control-focus-visual-secondary);
+  outline-offset: -3px;
 }
 
-/* —— 空值态(HasNoDate):三列文字转占位前景 —— */
-.wui-date-picker--empty .wui-date-picker-item {
-  color: var(--wui-text-control-placeholder-foreground);
+/* ======================================================================
+ * AcceptDismissHostGrid:高 41;顶部 2px 分割线;Accept / Dismiss 各占 1*
+ * ====================================================================== */
+.wui-date-picker-acceptdismiss {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 41px; /* DatePickerFlyoutPresenterAcceptDismissHostGridHeight */
 }
 
-/* —— 禁用态(Disabled:前景/分割线/标头转禁用色,交互封死)—— */
-.wui-date-picker--disabled .wui-date-picker-header {
-  color: var(--wui-date-picker-header-foreground-disabled);
+.wui-date-picker-ad-divider {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: var(--wui-date-picker-flyout-presenter-spacer-fill);
 }
 
-.wui-date-picker--disabled .wui-date-picker-item {
-  color: var(--wui-date-picker-button-foreground-disabled);
-  cursor: default;
+/* DateTimePickerFlyoutButtonStyle:透明底,FontSize 16,SymbolThemeFontFamily */
+.wui-date-picker-ad {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-family: var(--wui-symbol-theme-font-family);
+  font-size: 16px;
+  line-height: 1;
+  color: inherit;
+  background: var(--wui-date-time-picker-flyout-button-background);
+  border: none;
+  cursor: pointer;
 }
 
-.wui-date-picker--disabled .wui-date-picker-spacer {
-  background: var(--wui-date-picker-spacer-fill-disabled);
+.wui-date-picker-ad:hover {
+  color: var(--wui-date-time-picker-flyout-button-foreground-pointer-over);
+  background: var(--wui-date-time-picker-flyout-button-background-pointer-over);
 }
 
-.wui-date-picker--disabled .wui-date-picker-window,
-.wui-date-picker--disabled .wui-date-picker-item {
-  pointer-events: none;
+.wui-date-picker-ad:active {
+  color: var(--wui-date-time-picker-flyout-button-foreground-pressed);
+  background: var(--wui-date-time-picker-flyout-button-background-pressed);
+}
+
+/* 系统焦点视觉:确定/取消按钮为 Button 族(FocusVisualMargin=-3)双环在外 */
+.wui-date-picker-ad:focus-visible {
+  outline: 2px solid var(--wui-system-control-focus-visual-primary);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
+}
+
+/* —— 入场 / 离场(对照 WinUI 飞出层淡入;离场快速淡出)—— */
+.wui-date-picker-enter-active {
+  animation: wui-flyout-in var(--wui-duration-normal) var(--wui-easing-standard) both;
+}
+
+.wui-date-picker-leave-active {
+  animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-standard) both;
 }
 </style>

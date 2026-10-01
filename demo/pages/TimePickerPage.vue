@@ -6,6 +6,7 @@
 // 下半区为属性、事件、交互与用法代码(结构照抄已通过 QA 的 DatePickerPage 母版)。
 import { computed, ref } from 'vue'
 import WuiTimePicker from '@/components/TimePicker.vue'
+import WuiButton from '@/components/Button.vue'
 import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
 import DemoOptionRow from '../components/DemoOptionRow.vue'
@@ -19,15 +20,15 @@ const i18n = useDemoI18n()
 // —— 页面文案 ——
 const PAGE_TITLE: BilingualText = { zh: 'TimePicker', en: 'TimePicker' }
 const PAGE_DESCRIPTION: BilingualText = {
-  zh: 'WinUI TimePicker 控件示例:常驻 inline 的时/分/AM-PM 三列滚轮选择器,支持 12/24 小时制切换、分钟步进与空值占位态。上半区参数实时调节,下半区为控件文档。',
-  en: 'WinUI TimePicker examples: inline hour/minute/AM-PM looping columns with 12/24-hour clock, minute increments and an empty placeholder state. Options above, docs below.',
+  zh: 'WinUI TimePicker 控件示例:单行字段显示「时 | 分 | AM-PM」三段文本,点击后弹出三列滚轮选择飞出层,支持 12/24 小时制切换、分钟步进与空值占位态。上半区参数实时调节,下半区为控件文档。',
+  en: 'WinUI TimePicker examples: a single-line field showing “hour | minute | AM/PM” that opens a three-column looping-selector flyout, with 12/24-hour clock, minute increments and an empty placeholder state. Options above, docs below.',
 }
 const GROUP_BASIC: BilingualText = { zh: '基础选择(参数面板实时调节)', en: 'Basic selection (live options)' }
 const GROUP_INCREMENT: BilingualText = { zh: '分钟步进(MinuteIncrement = 15)', en: 'Minute increments (MinuteIncrement = 15)' }
 const GROUP_24H: BilingualText = { zh: '24 小时制(初值 = 当前时间)', en: '24-hour clock (initialized to current time)' }
 const GROUP_CONVERT: BilingualText = { zh: '12/24 制换算对照(同一 time 值)', en: '12/24-hour conversion (same time value)' }
 const GROUP_EMPTY: BilingualText = { zh: '空值态(Time = null,三列显示占位前景色)', en: 'Empty state (Time = null, placeholder foreground)' }
-const GROUP_INTERACT: BilingualText = { zh: '滚轮交互', en: 'Wheel interaction' }
+const GROUP_INTERACT: BilingualText = { zh: '打开与滚轮交互', en: 'Open & wheel interaction' }
 const LABEL_HEADER: BilingualText = { zh: '标头(Header)', en: 'Header' }
 const LABEL_DISABLED: BilingualText = { zh: '禁用(Disabled)', en: 'Disabled' }
 const LABEL_CLOCK: BilingualText = { zh: '时钟制式(ClockIdentifier)', en: 'ClockIdentifier' }
@@ -40,7 +41,7 @@ const BTN_CLEAR: BilingualText = { zh: '清空(Time = null)', en: 'Clear (Time =
 const BTN_NOW: BilingualText = { zh: '设为当前时间', en: 'Set to current time' }
 const DOCS_PROPS_TITLE: BilingualText = { zh: '属性', en: 'Properties' }
 const DOCS_EVENTS_TITLE: BilingualText = { zh: '事件', en: 'Events' }
-const DOCS_INTERACT_TITLE: BilingualText = { zh: '滚轮交互', en: 'Interaction' }
+const DOCS_INTERACT_TITLE: BilingualText = { zh: '打开与滚轮交互', en: 'Interaction' }
 const DOCS_USAGE_TITLE: BilingualText = { zh: '用法', en: 'Usage' }
 
 const pageTitle = useBilingual(i18n, PAGE_TITLE)
@@ -157,6 +158,7 @@ function setEmptyTimeToNow(): void {
 const propsHeaders = ['属性', '类型', '默认值', '说明']
 const propsRows: (string | number)[][] = [
   ['time (v-model)', 'string | null', 'null', '选中时间,"HH:mm" 24 小时制零填充字符串(WinUI SelectedTime 为 TimeSpan,此处选型字符串);null 为未选择'],
+  ['isOpen (v-model)', 'boolean', 'false', '飞出层开关(WinUI TimePickerFlyout.IsOpen);点击字段 / Enter / Space / ↑ / ↓ 打开'],
   ['header', 'string', "''", '选择器上方标头文本(WinUI Header)'],
   ['clockStyle', "'12HourClock' | '24HourClock'", "'12HourClock'", '时钟制式(WinUI ClockIdentifier);12 制显示 时(1-12)+ AM/PM 列,24 制显示 0-23'],
   ['minuteIncrement', 'number', '1', '分钟列步进(WinUI MinuteIncrement,收敛 1-30);变更时已选分钟就近吸附到网格(13:08 → 15 步进吸附为 13:15)'],
@@ -165,19 +167,21 @@ const propsRows: (string | number)[][] = [
 ]
 const eventHeaders = ['事件', '参数', '触发时机']
 const eventRows: (string | number)[][] = [
-  ['timeChanged', '(newTime: string | null, oldTime: string | null)', '选中时间变化时(滚轮/箭头/拖拽/点击列项/程序化赋值均触发)'],
+  ['timeChanged', '(newTime: string | null, oldTime: string | null)', '选中时间变化时(飞出层内滚轮/箭头/拖拽/点击列项/程序化赋值均触发)'],
   ['update:time', '(value: string | null)', 'v-model:time 双向绑定更新时'],
+  ['opened', '—', '飞出层已打开(首次定位完成后)'],
+  ['closed', '—', '飞出层已关闭(点选 / 确定 / 取消 / Escape / 点击外部)'],
 ]
 const interactHeaders = ['操作', '作用']
 const interactRows: (string | number)[][] = [
+  ['点击收起字段 / Enter / Space / ↑ / ↓', '弹出三列选择飞出层'],
   ['鼠标滚轮(列上)', '按 40px 一档逐项步进,累积平滑'],
-  ['点击上/下箭头', '该列步进一项(对照 LoopingSelector 展开钮)'],
+  ['悬停列后点击上/下箭头', '该列步进一项(对照 LoopingSelector 展开钮,悬停才显示)'],
   ['按住上下拖拽', '列条目跟手滚动,松手吸附最近项(触摸同等)'],
-  ['点击列项', '直接选中该项'],
-  ['↑ / ↓', '聚焦列步进一项'],
-  ['PageUp / PageDown', '聚焦列步进 5 项'],
-  ['Home / End', '聚焦列跳到首 / 末项'],
-  ['Tab', '在时/分/AM-PM 三列间移动焦点'],
+  ['点击列项', '选中该项并收起'],
+  ['↑ / ↓、PageUp / PageDown、Home / End', '聚焦列步进 / 跳首末项'],
+  ['飞出层内 Enter / Space', '确认当前项并收起'],
+  ['飞出层内 Escape / 确定 / 取消 / 点击外部', '收起(取消 = 回滚到打开时的值)'],
 ]
 
 const usageCode = computed(
@@ -237,8 +241,8 @@ const usageCode = computed(
           <div class="demo-row">
             <WuiTimePicker v-model:time="convertTime" clock-style="12HourClock" header="12 hour clock" />
             <WuiTimePicker v-model:time="convertTime" clock-style="24HourClock" header="24 hour clock" />
-            <button type="button" class="demo-button" @click="setConvertNoon">{{ btnNoon12 }}</button>
-            <button type="button" class="demo-button" @click="setConvertMidnight">{{ btnMidnight }}</button>
+            <WuiButton :content="btnNoon12" @click="setConvertNoon" />
+            <WuiButton :content="btnMidnight" @click="setConvertMidnight" />
           </div>
           <p class="demo-output">{{ convertEcho }}</p>
         </section>
@@ -248,16 +252,17 @@ const usageCode = computed(
           <h3 class="group-title">{{ groupEmpty }}</h3>
           <div class="demo-row">
             <WuiTimePicker v-model:time="emptyTime" header="Pick a time" />
-            <button type="button" class="demo-button" @click="clearEmptyTime">{{ btnClear }}</button>
-            <button type="button" class="demo-button" @click="setEmptyTimeToNow">{{ btnNow }}</button>
+            <WuiButton :content="btnClear" @click="clearEmptyTime" />
+            <WuiButton :content="btnNow" @click="setEmptyTimeToNow" />
           </div>
           <p class="demo-output">{{ labelSelected }}: {{ emptyTime ?? '—' }}</p>
         </section>
 
-        <!-- 滚轮交互说明 -->
+        <!-- 打开与滚轮交互说明 -->
         <section class="demo-group">
           <h3 class="group-title">{{ groupInteract }}</h3>
           <ul class="interact-list">
+            <li>{{ i18n.locale.value.startsWith('zh') ? '点击字段(或 Enter / Space / ↑ / ↓)弹出三列飞出层,选中即收起' : 'Click the field (or Enter / Space / ↑ / ↓) to open the three-column flyout; selecting collapses it' }}</li>
             <li>滚轮 / 上下箭头 / 拖拽 / 点击列项 {{ i18n.locale.value.startsWith('zh') ? '任选其一改变时间' : 'change the time' }}</li>
             <li>{{ i18n.locale.value.startsWith('zh') ? '聚焦列后用 ↑/↓、PageUp/PageDown、Home/End 键盘步进' : 'Focus a column, then ↑/↓, PageUp/PageDown, Home/End' }}</li>
             <li>{{ i18n.locale.value.startsWith('zh') ? '12/24 制共用内部 24 小时制状态,切换制式不改值(12AM=00:00、12PM=12:00)' : '12/24 modes share one internal 24h state; switching keeps the value (12AM=00:00, 12PM=12:00)' }}</li>
@@ -323,32 +328,6 @@ const usageCode = computed(
   margin: 0;
   font-size: var(--wui-tool-tip-content-theme-font-size);
   color: var(--wui-application-secondary-foreground-theme);
-}
-
-.demo-button {
-  padding: 5px 12px;
-  font-size: var(--wui-control-content-theme-font-size);
-  font-family: inherit;
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.demo-button:hover {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.demo-button:active {
-  color: var(--wui-button-pressed-foreground-theme);
-  background: var(--wui-button-pressed-background-theme);
-}
-
-.demo-button:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 1px;
 }
 
 .interact-list {

@@ -5,6 +5,7 @@
 // 下半区为属性、事件、交互与用法代码(结构照抄已通过 QA 的 ComboBoxPage 母版)。
 import { computed, ref } from 'vue'
 import WuiDatePicker from '@/components/DatePicker.vue'
+import WuiButton from '@/components/Button.vue'
 import DemoCode from '../components/DemoCode.vue'
 import DemoDocsTable from '../components/DemoDocsTable.vue'
 import DemoOptionRow from '../components/DemoOptionRow.vue'
@@ -18,15 +19,15 @@ const i18n = useDemoI18n()
 // —— 页面文案 ——
 const PAGE_TITLE: BilingualText = { zh: 'DatePicker', en: 'DatePicker' }
 const PAGE_DESCRIPTION: BilingualText = {
-  zh: 'WinUI DatePicker 控件示例:常驻 inline 的月/日/年三列滚轮选择器(非日历弹层),支持列显隐、年区间约束、显示格式模板与空值占位态。上半区参数实时调节,下半区为控件文档。',
-  en: 'WinUI DatePicker examples: inline month/day/year looping columns with column visibility, year range, format templates and an empty placeholder state. Options above, docs below.',
+  zh: 'WinUI DatePicker 控件示例:单行字段显示「月 | 日 | 年」三段文本,点击后弹出三列滚轮选择飞出层,支持列显隐、年区间约束、显示格式模板与空值占位态。上半区参数实时调节,下半区为控件文档。',
+  en: 'WinUI DatePicker examples: a single-line field showing “Month | Day | Year” that opens a three-column looping-selector flyout, with column visibility, year range, format templates and an empty placeholder state. Options above, docs below.',
 }
 const GROUP_BASIC: BilingualText = { zh: '基础选择(参数面板实时调节,占位日期 = 今天)', en: 'Basic selection (live options, placeholder = today)' }
 const GROUP_RANGE: BilingualText = { zh: '年区间约束(MinYear = 今年,MaxYear = +5 年)', en: 'Year range (MinYear = this year, MaxYear = +5 years)' }
 const GROUP_NO_YEAR: BilingualText = { zh: '隐藏年列(YearVisible = False)', en: 'Year column hidden (YearVisible = False)' }
 const GROUP_FORMAT: BilingualText = { zh: '显示格式(DayFormat 含星期缩写,月列数值)', en: 'Formats (DayFormat with weekday, numeric month)' }
 const GROUP_EMPTY: BilingualText = { zh: '空值态(Date = null,三列显示占位前景色)', en: 'Empty state (Date = null, placeholder foreground)' }
-const GROUP_INTERACT: BilingualText = { zh: '滚轮交互', en: 'Wheel interaction' }
+const GROUP_INTERACT: BilingualText = { zh: '打开与滚轮交互', en: 'Open & wheel interaction' }
 const NOTE_OFFICIAL_SPLIT: BilingualText = {
   zh: '说明:官方示例 2 为「DayFormat 带星期缩写 + YearVisible=False」的组合,本页拆为演示三(隐藏年列)与演示四(星期格式)分别演示。',
   en: 'Note: official example 2 combines weekday DayFormat with YearVisible=False; this page splits it into demos 3 (hidden year) and 4 (weekday format).',
@@ -44,7 +45,7 @@ const BTN_CLEAR: BilingualText = { zh: '清空(Date = null)', en: 'Clear (Date =
 const BTN_TODAY: BilingualText = { zh: '设为今天', en: 'Set to today' }
 const DOCS_PROPS_TITLE: BilingualText = { zh: '属性', en: 'Properties' }
 const DOCS_EVENTS_TITLE: BilingualText = { zh: '事件', en: 'Events' }
-const DOCS_INTERACT_TITLE: BilingualText = { zh: '滚轮交互', en: 'Interaction' }
+const DOCS_INTERACT_TITLE: BilingualText = { zh: '打开与滚轮交互', en: 'Interaction' }
 const DOCS_USAGE_TITLE: BilingualText = { zh: '用法', en: 'Usage' }
 
 const pageTitle = useBilingual(i18n, PAGE_TITLE)
@@ -161,7 +162,8 @@ function setEmptyDateToToday(): void {
 // —— 下半区固定开发文档 ——
 const propsHeaders = ['属性', '类型', '默认值', '说明']
 const propsRows: (string | number)[][] = [
-  ['date (v-model)', 'Date | null', 'null', '选中日期(WinUI Date);null 为未选择,三列显示占位日期与占位前景色'],
+  ['date (v-model)', 'Date | null', 'null', '选中日期(WinUI Date);null 为未选择,收起字段显示占位日期与占位前景色'],
+  ['isOpen (v-model)', 'boolean', 'false', '飞出层开关(WinUI DatePickerFlyout.IsOpen);点击字段 / Enter / Space / ↑ / ↓ 打开'],
   ['header', 'string', "''", '选择器上方标头文本(WinUI Header)'],
   ['yearVisible', 'boolean', 'true', '是否显示年列(WinUI YearVisible)'],
   ['dayVisible', 'boolean', 'true', '是否显示日列(WinUI DayVisible)'],
@@ -176,19 +178,21 @@ const propsRows: (string | number)[][] = [
 ]
 const eventHeaders = ['事件', '参数', '触发时机']
 const eventRows: (string | number)[][] = [
-  ['dateChanged', '(newDate: Date | null, oldDate: Date | null)', '选中日期变化时(滚轮/箭头/拖拽/点击列项/程序化赋值均触发;越界赋值先收敛为钳制值再触发一次)'],
+  ['dateChanged', '(newDate: Date | null, oldDate: Date | null)', '选中日期变化时(飞出层内滚轮/箭头/拖拽/点击列项/程序化赋值均触发;越界赋值先收敛为钳制值再触发一次)'],
   ['update:date', '(value: Date | null)', 'v-model:date 双向绑定更新时'],
+  ['opened', '—', '飞出层已打开(首次定位完成后)'],
+  ['closed', '—', '飞出层已关闭(点选 / 确定 / 取消 / Escape / 点击外部)'],
 ]
 const interactHeaders = ['操作', '作用']
 const interactRows: (string | number)[][] = [
+  ['点击收起字段 / Enter / Space / ↑ / ↓', '弹出三列选择飞出层'],
   ['鼠标滚轮(列上)', '按 40px 一档逐项步进,累积平滑'],
-  ['点击上/下箭头', '该列步进一项(对照 LoopingSelector 展开钮)'],
+  ['悬停列后点击上/下箭头', '该列步进一项(对照 LoopingSelector 展开钮,悬停才显示)'],
   ['按住上下拖拽', '列条目跟手滚动,松手吸附最近项(触摸同等)'],
-  ['点击列项', '直接选中该项'],
-  ['↑ / ↓', '聚焦列步进一项'],
-  ['PageUp / PageDown', '聚焦列步进 5 项'],
-  ['Home / End', '聚焦列跳到首 / 末项'],
-  ['Tab', '在月/日/年三列间移动焦点'],
+  ['点击列项', '选中该项并收起'],
+  ['↑ / ↓、PageUp / PageDown、Home / End', '聚焦列步进 / 跳首末项'],
+  ['飞出层内 Enter / Space', '确认当前项并收起'],
+  ['飞出层内 Escape / 确定 / 取消 / 点击外部', '收起(取消 = 回滚到打开时的值)'],
 ]
 
 const usageCode = computed(
@@ -278,16 +282,17 @@ const usageCode = computed(
           <h3 class="group-title">{{ groupEmpty }}</h3>
           <div class="demo-row">
             <WuiDatePicker v-model:date="emptyDate" header="Pick a date" />
-            <button type="button" class="demo-button" @click="clearEmptyDate">{{ btnClear }}</button>
-            <button type="button" class="demo-button" @click="setEmptyDateToToday">{{ btnToday }}</button>
+            <WuiButton :content="btnClear" @click="clearEmptyDate" />
+            <WuiButton :content="btnToday" @click="setEmptyDateToToday" />
           </div>
           <p class="demo-output">{{ labelSelected }}: {{ formatDate(emptyDate) }}</p>
         </section>
 
-        <!-- 滚轮交互说明 -->
+        <!-- 打开与滚轮交互说明 -->
         <section class="demo-group">
           <h3 class="group-title">{{ groupInteract }}</h3>
           <ul class="interact-list">
+            <li>{{ i18n.locale.value.startsWith('zh') ? '点击字段(或 Enter / Space / ↑ / ↓)弹出三列飞出层,选中即收起' : 'Click the field (or Enter / Space / ↑ / ↓) to open the three-column flyout; selecting collapses it' }}</li>
             <li>滚轮 / 上下箭头 / 拖拽 / 点击列项 {{ i18n.locale.value.startsWith('zh') ? '任选其一改变日期' : 'change the date' }}</li>
             <li>{{ i18n.locale.value.startsWith('zh') ? '聚焦列后用 ↑/↓、PageUp/PageDown、Home/End 键盘步进' : 'Focus a column, then ↑/↓, PageUp/PageDown, Home/End' }}</li>
             <li>{{ i18n.locale.value.startsWith('zh') ? '改月/年时日自动收敛(如 1/31 → 2/28,闰年按 2/29)' : 'Day clamps on month/year change (1/31 → 2/28, leap 2/29)' }}</li>
@@ -356,32 +361,6 @@ const usageCode = computed(
   margin: 0;
   font-size: var(--wui-tool-tip-content-theme-font-size);
   color: var(--wui-application-secondary-foreground-theme);
-}
-
-.demo-button {
-  padding: 5px 12px;
-  font-size: var(--wui-control-content-theme-font-size);
-  font-family: inherit;
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.demo-button:hover {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.demo-button:active {
-  color: var(--wui-button-pressed-foreground-theme);
-  background: var(--wui-button-pressed-background-theme);
-}
-
-.demo-button:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 1px;
 }
 
 .interact-list {
