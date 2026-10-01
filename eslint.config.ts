@@ -14,4 +14,10 @@ export default defineConfigWithVueTs(
   pluginVue.configs['flat/essential'],
   vueTsConfigs.recommended,
   oxlint.configs['flat/recommended'],
+  {
+    // WinUI 控件官方名即契约(Canvas/Pivot/Slider 等单词名不改)
+    name: 'app/allow-official-single-word-control-names',
+    files: ['src/components/**/*.vue'],
+    rules: { 'vue/multi-word-component-names': 'off' },
+  },
 )
