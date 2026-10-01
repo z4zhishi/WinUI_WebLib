@@ -16,7 +16,7 @@ TreeView 是一种**分层列表模式**:节点可以展开 / 收起,以显隐�
 | 属性 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `itemsSource` | `TreeViewNode[]` | `[]` | 嵌套节点数组:`{ label, children, expanded?, disabled?, id?, ... }`;`expanded` 仅作初始种子(后续由 `expandedIds` 管理);`id` 提供时作为状态键,缺省用路径索引(`"0.1.2"`) |
-| `selectionMode` | `'None' \| 'Single' \| 'Multiple'` | `'Single'` | 选择模式(WinUI `SelectionMode`):Single 选中行带强调色指示条;Multiple 每行复选框、整行即开关(点击 / Space 切换) |
+| `selectionMode` | `'None' \| 'Single' \| 'Multiple'` | `'Single'` | 选择模式(WinUI `SelectionMode`):Single 选中行带强调色指示条;Multiple 每行三态复选框(已选 / 半选 / 未选)、整行即开关(点击 / Space 切换并级联子树) |
 | `childrenPath` | `string` | `'children'` | 子节点字段名(泛型数据),支持点路径(如 `'meta.children'`) |
 | `labelPath` | `string` | `'label'` | 标签字段名(泛型数据),支持点路径 |
 | `expandedIds` (v-model) | `string[]` | `[]` | 展开键集双向绑定(`v-model:expanded-ids`);不绑定则组件内部自管 |
@@ -131,7 +131,7 @@ function onItemInvoked(node: TreeViewNode, key: string) {
 3. **展开字形动画**:源为两个静态字形 E76C(收起)/ E70D(展开)按 `CollapsedGlyphVisibility` / `ExpandedGlyphVisibility` 切换;本组件取单个 E70D 字形 + `rotate()` 过渡(收起 -90deg 朝右),旋转时长 `--wui-duration-normal` + `--wui-easing-standard`。字形默认继承 `GlyphSize = 8`(12x12 盒 Padding 2),字体栈 `--wui-symbol-theme-font-family`(Segoe Fluent Icons / Segoe MDL2 Assets,按 R1 不做网络字体加载)。
 4. **字形点击展开为 Web 适配**:源模板字形 `IsHitTestVisible="False"`(展开靠双击 / 键盘);Web 上字形区可点击(仅切换展开,不触发 `itemInvoked`),另补双击行切换展开。
 5. **状态键**:WinUI 以 TreeViewNode 对象为身份;本组件用字符串键 = `node.id ?? 路径索引`,兄弟节点增删会改变路径索引型键,层级结构动态变化时建议为节点提供显式 `id`。
-6. **多选复选框视觉**:源选中态为「透明底 + TextFillColorSecondary 边框与勾选字形」(非强调色填充),已按源复刻;未选态边框取 `--wui-check-box-check-background-stroke-unchecked`。父节点无半选(tri-state)态,与 WinUI TreeView 一致。
+6. **多选复选框视觉(三态)**:源选中态为「透明底 + TextFillColorSecondary 边框与勾选字形」(非强调色填充),已按源复刻;未选态边框取 `--wui-check-box-check-background-stroke-unchecked`。**父节点有半选(indeterminate)态**:选中 / 取消一个节点会级联其整棵子树,父节点状态由子级自底向上聚合 —— 子级全选则父为已选、部分选中则父为半选(WinUI `TreeViewItem.cpp` L480-491 `UpdateMultipleSelection`:`PartialSelected → m_selectionBox.IsChecked(nullptr)`;`ViewModel.cpp` L836-866 `SelectionStateBasedOnChildren`)。本组件半选与已选共用 TreeView 自身声明的画刷口径,仅以字形区分(已选 `E73E` 勾 / 半选 `E73C` 实心方块,后者同 Fluent 字典 `CheckBoxIndeterminateGlyph` 的 `E9AE`)。`selectedIds` 只存完全选中的键(等价 WinUI `SelectedNodes`),半选父节点不入集合。
 7. **属性命名**:`ItemsSource` → `itemsSource`;`SelectionMode` → `selectionMode`;`IsExpanded` → `expandedIds` / `node.expanded`(集中式管理,非逐节点组件);`ItemInvoked` → `@item-invoked`。
 8. **拖拽重排 / 虚拟化**:源 DefaultTreeViewStyle 启用 CanDragItems/CanReorderItems 且基于 ListView 虚拟化;Web 版未实现拖拽重排与虚拟化(WinUI-Gallery 两例亦未涉及),大数据量场景由使用方自行分页。
 9. **紧凑密度**:Compact.xaml 下 `TreeViewItemMinHeight = 24`、PresenterMargin/Padding = 0,本组件按标准密度(MinHeight 28)实现。

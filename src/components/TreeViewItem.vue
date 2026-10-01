@@ -17,7 +17,14 @@
 //     token,取最近似 --wui-* 映射,对照表见 wiki/controls/TreeView.md 差异节)。
 // 展开/收起动画:WinUI 用 ListView 容器布局变化,Web 以 grid-template-rows 0fr/1fr 过渡等价
 //   (同 Expander 方案);字形旋转过渡为 AnimatedVisualPlayer 翻面的 Web 等价。
-// 多选复选框无父级半态:WinUI TreeView 多选为逐项开关(无 tri-state),保持一致。
+// 多选复选框为三态(WinUI TreeView 多选沿用模板内的原生 CheckBox,CheckBox 本身即三态):
+//   已选 → IsChecked(true) / 半选 → IsChecked(nullptr) / 未选 → IsChecked(false)
+//   (TreeViewItem.cpp L480-491 UpdateMultipleSelection);半选由「部分子级被选」派生
+//   (ViewModel.cpp L836-866 SelectionStateBasedOnChildren),见 TreeView.vue 的 selectionStates。
+//   半选字形取源 CheckBox 的 Indeterminate 字形(实心方块):generic.xaml CheckBox 模板
+//   L7003 Value="&#xE73C;",Fluent 字典 CheckBoxIndeterminateGlyph = &#xE9AE;(同义异码点)。
+//   画刷沿用 TreeView 自身声明的资源口径(TreeViewItemCheckBoxBackgroundSelected=透明 /
+//   BorderSelected=CheckGlyphSelected=TextFillColorSecondary),三态共用该口径,仅字形区分。
 
 import type { InjectionKey, Ref } from 'vue'
 
@@ -45,6 +52,8 @@ export interface TreeViewItemSlotProps {
   hasChildren: boolean
   expanded: boolean
   selected: boolean
+  /** 半选(Multiple 模式的 indeterminate:部分子级被选)。 */
+  partial: boolean
 }
 
 /** TreeView 向递归 TreeViewItem 下发的上下文。 */
@@ -58,6 +67,8 @@ export interface TreeViewContext {
   childrenOf: (node: TreeViewNode) => TreeViewNode[]
   hasChildren: (node: TreeViewNode) => boolean
   isSelected: (key: string) => boolean
+  /** 半选态查询(WinUI TreeNodeSelectionState::PartialSelected)。 */
+  isPartial: (key: string) => boolean
   isExpanded: (key: string) => boolean
   selectByRow: (key: string, additive: boolean) => void
   selectByKeyboard: (key: string, additive: boolean) => void
@@ -115,6 +126,10 @@ const expanded = computed(() => {
 })
 const selected = computed(() =>
   selectable.value && !rowDisabled.value ? (ctx?.isSelected(props.itemKey) ?? false) : false,
+)
+/** 半选(Multiple 的 indeterminate):部分子级被选而自身未全部选中。 */
+const partial = computed(() =>
+  multiple.value && !rowDisabled.value ? (ctx?.isPartial(props.itemKey) ?? false) : false,
 )
 const focused = computed(() => ctx?.focusedKey.value === props.itemKey)
 const showGuides = computed(() => ctx?.showIndentGuides.value ?? false)
@@ -178,6 +193,7 @@ const slotProps = computed<TreeViewItemSlotProps>(() => ({
   hasChildren: hasChildren.value,
   expanded: expanded.value,
   selected: selected.value,
+  partial: partial.value,
 }))
 
 const ariaExpanded = computed(() => (hasChildren.value ? expanded.value : undefined))
@@ -205,16 +221,23 @@ const ariaSelected = computed(() => (selectable.value ? selected.value : undefin
       <span class="wui-treeview-item-indicator" aria-hidden="true"></span>
 
       <div class="wui-treeview-item-grid">
-        <!-- 多选复选框(32 槽位 + Margin 10,0,0,0;仅 Multiple 渲染) -->
+        <!-- 多选复选框(32 槽位 + Margin 10,0,0,0;仅 Multiple 渲染;三态:勾 / 半选方块 / 空) -->
         <span
           v-if="multiple"
           class="wui-treeview-item-checkbox"
-          :class="{ 'wui-treeview-item-checkbox--checked': selected }"
+          :class="{
+            'wui-treeview-item-checkbox--checked': selected,
+            'wui-treeview-item-checkbox--partial': partial,
+          }"
+          :data-check-state="selected ? 'checked' : partial ? 'partial' : 'unchecked'"
           aria-hidden="true"
           @click="onCheckboxClick"
         >
           <span class="wui-treeview-item-checkbox-box">
             <WuiFontIcon v-if="selected" glyph="&#xE73E;" :font-size="12" />
+            <!-- 半选:源 CheckBox 的 Indeterminate 字形(实心方块)——generic.xaml L7003 取
+                 E73C(经典字典)/ Fluent 字典 CheckBoxIndeterminateGlyph 取 E9AE -->
+            <WuiFontIcon v-else-if="partial" glyph="&#xE73C;" :font-size="12" />
           </span>
         </span>
 
@@ -326,10 +349,13 @@ const ariaSelected = computed(() => (selectable.value ? selected.value : undefin
   color: var(--wui-toggle-switch-content-foreground-disabled); /* ForegroundDisabled ← TextFillColorDisabled */
 }
 
-/* Focus(:focus-visible 单层 outline,项目惯例) */
+/* 系统焦点视觉:TreeViewItem FocusVisualMargin="0,-1,0,-1"(controls/dev/TreeView/
+   TreeViewItem.xaml L11)≈ Margin 0 族 → 两环全在行内 primary [0,2] + secondary [2,3]
+   = 系统双环 flush 形(垂直 ±1 外扩为登记近似) */
 .wui-treeview-item-row:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
+  box-shadow: inset 0 0 0 2px var(--wui-system-control-focus-visual-primary);
+  outline: 1px solid var(--wui-system-control-focus-visual-secondary);
+  outline-offset: -3px;
 }
 
 /* —— 选择指示条(3x16、圆角 2、贴左缘;AccentFill → 系统强调色钩子)—— */
@@ -418,7 +444,10 @@ const ariaSelected = computed(() => (selectable.value ? selected.value : undefin
   background: var(--wui-system-control-transparent); /* CheckBoxBackgroundSelected ← 透明 */
 }
 
-.wui-treeview-item-checkbox--checked .wui-treeview-item-checkbox-box {
+/* 已选 / 半选共用边框与字形口径(TreeViewItemCheckBoxBorderSelected = CheckGlyphSelected
+   = TextFillColorSecondary),两态仅以字形区分:E73E 勾(Selected)/ E73C 实心方块(Partial) */
+.wui-treeview-item-checkbox--checked .wui-treeview-item-checkbox-box,
+.wui-treeview-item-checkbox--partial .wui-treeview-item-checkbox-box {
   border-color: var(--wui-application-secondary-foreground-theme); /* CheckBoxBorderSelected ← TextFillColorSecondary */
 }
 

@@ -5,6 +5,9 @@
 //   横向禁用)> ItemsPresenter(Padding=0,0,0,10);项容器默认 GridViewItemRevealStyle。
 // 布局承载:UniformGridLayout / ItemsWrapGrid(横向换行、MaximumRowsOrColumns 上限、
 //   ItemWidth/ItemHeight 定格)以 CSS Grid 等价实现(cell 尺寸可配;差异见 wiki)。
+//   源 ItemsWrapGrid Orientation=Horizontal 以「可用宽」逐格填满后换行,故控件根须有定宽:
+//   按 FrameworkElement 默认 HorizontalAlignment=Stretch,根元素显式 width:100%,否则在
+//   flex 列容器(align-items:flex-start)中收缩为 fit-content,auto-fill 会退化为 1 轨。
 // 选择核心:selectionMode(None/Single/Multiple/Extended)+ selectedItems/selectedIndex/
 //   selectedItem 模型 + selectionChanged(AddedItems/RemovedItems 语义),内联实现 ——
 //   预留替换点:阶段 5 公共层 src/composables/useSelection.ts(任务 T5.0)落地后,
@@ -342,6 +345,9 @@ const paddingCss = computed(() => {
   return `${t} ${r} ${b} ${l}`
 })
 
+/** GridViewItemMinWidth/MinHeight = 44(generic.xaml L109-110):无 ItemHeight 时行高下限。 */
+const ITEM_MIN_SIZE = 44
+
 const layoutStyle = computed<Record<string, string>>(() => {
   const style: Record<string, string> = {}
   const cellW = props.itemWidth && props.itemWidth > 0 ? `${Math.round(props.itemWidth)}px` : ''
@@ -361,14 +367,16 @@ const layoutStyle = computed<Record<string, string>>(() => {
       maxCols > 0
         ? `repeat(${maxCols}, ${cellW})`
         : `repeat(auto-fill, minmax(${cellW}, ${cellW}))`
-    if (cellH) style['grid-auto-rows'] = cellH
+    // auto-fill 需要「可用宽」才能解出多轨;无 ItemHeight 时行高下限取 GridViewItemMinHeight
+    // (ItemsWrapGrid 的单元格统一高度近似,差异见 wiki)
+    style['grid-auto-rows'] = cellH || `minmax(${ITEM_MIN_SIZE}px, auto)`
   } else if (maxCols > 0) {
     style['grid-template-columns'] = `repeat(${maxCols}, minmax(0px, 1fr))`
-    if (cellH) style['grid-auto-rows'] = cellH
+    style['grid-auto-rows'] = cellH || `minmax(${ITEM_MIN_SIZE}px, auto)`
   } else {
     // 无定格:按 160px 基准均分换行(近似 ItemsWrapGrid 按内容宽换行,差异见 wiki)
     style['grid-template-columns'] = 'repeat(auto-fill, minmax(160px, 1fr))'
-    if (cellH) style['grid-auto-rows'] = cellH
+    style['grid-auto-rows'] = cellH || `minmax(${ITEM_MIN_SIZE}px, auto)`
   }
   return style
 })
@@ -428,6 +436,12 @@ const root = ref<HTMLElement | null>(null)
 .wui-grid-view {
   position: relative;
   box-sizing: border-box;
+  /* FrameworkElement 默认 HorizontalAlignment=Stretch:GridView 铺满父级可用宽,再由
+     ItemsWrapGrid(auto-fill)按可用宽填行换行。显式 width:100% 以免作为 flex 项落入
+     align-items:flex-start 的列容器时收缩为 fit-content —— 此时 auto-fill 在不定宽下
+     会退化为 1 轨(整个网格压成单列),与源「横向填满换行」不符。 */
+  width: 100%;
+  min-width: 0;
   overflow-y: auto;
   overflow-x: hidden;
   font-family: inherit;

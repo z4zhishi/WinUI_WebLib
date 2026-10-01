@@ -2,8 +2,12 @@
 // TreeView —— WinUI TreeView 的 Web 复刻:带展开/收起的分层列表(hierarchical list pattern)。
 // 结构与行为规格:CK/WinUI-Reference/controls/dev/TreeView/TreeView.xaml(DefaultTreeViewStyle:
 //   IsTabStop=false 的外壳 + 内部 TreeViewList)与 TreeViewItem.xaml(行模板,见 TreeViewItem.vue);
-//   键盘与多选语义对照 WinUI TreeView/TreeViewList:
-//   - SelectionMode = None/Single/Multiple(Multiple 整行即开关,单击切换选中);
+//   键盘与多选语义对照 WinUI TreeView/TreeViewList/ViewModel:
+//   - SelectionMode = None/Single/Multiple(Multiple 显示复选框,单击行/复选框切换选中);
+//   - Multiple 为三态:选中 / 半选(indeterminate) / 未选。选中或取消一个节点会级联其整棵
+//     子树,父节点状态由子级自底向上聚合 —— 子级全选则父选中、部分选中则父半选
+//     (TreeViewItem.cpp L480-491 UpdateMultipleSelection,PartialSelected → IsChecked(nullptr);
+//      ViewModel.cpp L836-866 SelectionStateBasedOnChildren);
 //   - Single 选中行带 3x16 强调色指示条(SelectedItem 的 SelectionIndicator,hover/按压隐藏);
 //   - ItemInvoked:用户与条目交互(单击/Enter)时触发,与选中与否无关。
 // 键盘(ARIA tree pattern + WinUI 语义):↑/↓ 移动、→ 展开(已展开进子级)、← 收起(已收起回父级)、
@@ -25,6 +29,9 @@ defineOptions({ name: 'WuiTreeView', inheritAttrs: false })
 
 /** WinUI TreeView SelectionMode 枚举。 */
 type TreeSelectionMode = 'None' | 'Single' | 'Multiple'
+
+/** 节点选择态(WinUI TreeNodeSelectionState:Selected/PartialSelected/UnSelected)。 */
+type TreeSelectionState = 'selected' | 'partial' | 'unselected'
 
 const props = withDefaults(
   defineProps<{
@@ -185,10 +192,66 @@ function collapseAll(): void {
   expandedIds.value = []
 }
 
-// —— 选择状态 ——
+// —— 选择状态(三态 + 父子级联)——
+// selectedIds 只保存「完全选中」的键(= WinUI ViewModel 的 m_selectedNodes:半选父节点不入
+// 集合,参见 ViewModel.cpp UpdateNodeSelection 的 PartialSelected 分支);「半选」由后代状态
+// 自底向上派生,不写入模型 —— 与 TreeViewNode::SelectionState 的递归推导同构。
 const selectedSet = computed(() => new Set(selectedIds.value))
+
+/** 键 → 直接子键(键规则与 TreeViewItem 递归一致:keyFor(parentKey, index, child))。 */
+const childrenKeysMap = computed(() => {
+  const map = new Map<string, string[]>()
+  const walk = (nodes: TreeViewNode[], parentKey: string): void => {
+    const keys = nodes.map((node, index) => keyFor(parentKey, index, node))
+    map.set(parentKey, keys)
+    nodes.forEach((node, index) => {
+      const key = keys[index]
+      const children = childrenOf(node)
+      if (children.length > 0) walk(children, key)
+      else map.set(key, [])
+    })
+  }
+  walk(props.itemsSource, '')
+  return map
+})
+
+/** 每键的三态:自底向上聚合(ViewModel.cpp SelectionStateBasedOnChildren L836-866)。 */
+const selectionStates = computed(() => {
+  const states = new Map<string, TreeSelectionState>()
+  const visit = (key: string): TreeSelectionState => {
+    const cached = states.get(key)
+    if (cached !== undefined) return cached
+    let hasSelected = false
+    let hasPartial = false
+    let hasUnselected = false
+    for (const child of childrenKeysMap.value.get(key) ?? []) {
+      const childState = visit(child)
+      if (childState === 'selected') hasSelected = true
+      else if (childState === 'partial') hasPartial = true
+      else hasUnselected = true
+    }
+    // 任一子级半选,或子级同时存在已选与未选 → 半选;否则有子级已选 → 已选(无子级 → 未选)。
+    let state: TreeSelectionState
+    if (hasPartial || (hasSelected && hasUnselected)) state = 'partial'
+    else if (hasSelected) state = 'selected'
+    else state = 'unselected'
+    // 自身在选中集合内 → 已选(源中 SelectNode 会把整棵子树置 Selected;外部直接写入
+    // selectedIds 时以显式集合为准,与派生结果一致)。
+    if (selectedSet.value.has(key)) state = 'selected'
+    states.set(key, state)
+    return state
+  }
+  for (const key of childrenKeysMap.value.get('') ?? []) visit(key)
+  return states
+})
+
 function isSelected(key: string): boolean {
   return selectedSet.value.has(key)
+}
+
+/** 半选(indeterminate):未完全选中,但有后代处于已选/半选。 */
+function isPartial(key: string): boolean {
+  return selectionStates.value.get(key) === 'partial'
 }
 
 function commitSelected(next: string[]): void {
@@ -196,11 +259,39 @@ function commitSelected(next: string[]): void {
   emit('selectionChanged', next)
 }
 
-/** 行点击:Single = 替换(Ctrl/⌘ 点击可反选);Multiple = 切换。 */
+/** 子树键(含自身),用于级联选中 / 取消。 */
+function subtreeKeys(key: string): string[] {
+  const keys: string[] = [key]
+  const stack: string[] = [...(childrenKeysMap.value.get(key) ?? [])]
+  while (stack.length > 0) {
+    const child = stack.pop() as string
+    keys.push(child)
+    stack.push(...(childrenKeysMap.value.get(child) ?? []))
+  }
+  return keys
+}
+
+/**
+ * Multiple 模式:切换整棵子树(TreeViewItem::ToggleSelection + ViewModel::UpdateSelection)。
+ * 半选节点不算「已选」(源 CheckBoxSelectionState 只把 true 视为 Selected),故点击后转为
+ * 全选并级联子树;父节点状态随后由 selectionStates 向上聚合,无需手工回写。
+ */
+function toggleSubtree(key: string): void {
+  const selectSubtree = !selectedSet.value.has(key)
+  const next = new Set(selectedIds.value)
+  for (const descendant of subtreeKeys(key)) {
+    if (selectSubtree) next.add(descendant)
+    else next.delete(descendant)
+  }
+  // 过滤已不存在的键(数据源变化后残留的旧键),保持声明顺序。
+  commitSelected([...next].filter((item) => nodeMap.value.has(item)))
+}
+
+/** 行点击:Single = 替换(Ctrl/⌘ 点击可反选);Multiple = 整行开关并级联子树。 */
 function selectByRow(key: string, additive: boolean): void {
   if (props.selectionMode === 'None') return
   if (props.selectionMode === 'Multiple') {
-    commitSelected(toggleInList(key))
+    toggleSubtree(key)
     return
   }
   if (additive) {
@@ -208,12 +299,6 @@ function selectByRow(key: string, additive: boolean): void {
   } else if (!isSelected(key)) {
     commitSelected([key])
   }
-}
-
-function toggleInList(key: string): string[] {
-  return isSelected(key)
-    ? selectedIds.value.filter((k) => k !== key)
-    : [...selectedIds.value, key]
 }
 
 /** 键盘 Space:Multiple 切换;Single 选中(Ctrl+Space 反选,同 WinUI Ctrl+Space 语义)。 */
@@ -350,6 +435,7 @@ const context: TreeViewContext = {
   childrenOf,
   hasChildren,
   isSelected,
+  isPartial,
   isExpanded,
   selectByRow,
   selectByKeyboard,
