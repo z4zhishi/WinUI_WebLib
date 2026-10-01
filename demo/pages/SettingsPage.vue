@@ -67,7 +67,7 @@ const aboutRows = computed<{ label: string; value?: string }[]>(() => [
 <template>
   <section class="settings-page">
     <header class="settings-header">
-      <h2 class="settings-title">{{ i18n.t('settingsTitle') }}</h2>
+      <h1 class="settings-title">{{ i18n.t('settingsTitle') }}</h1>
     </header>
 
     <!-- 偏好持久化说明(不可关闭的提示条) -->
@@ -80,7 +80,7 @@ const aboutRows = computed<{ label: string; value?: string }[]>(() => [
 
     <!-- 主题三档 -->
     <section class="settings-section" :aria-label="i18n.t('settingsTheme')">
-      <h3 class="settings-section-title">{{ i18n.t('settingsTheme') }}</h3>
+      <h2 class="settings-section-title">{{ i18n.t('settingsTheme') }}</h2>
       <p class="settings-section-hint">{{ i18n.t('settingsThemeHint') }}</p>
       <div
         class="settings-radio-row"
@@ -100,20 +100,21 @@ const aboutRows = computed<{ label: string; value?: string }[]>(() => [
 
     <!-- 语言下拉 -->
     <section class="settings-section" :aria-label="i18n.t('settingsLanguage')">
-      <h3 class="settings-section-title">{{ i18n.t('settingsLanguage') }}</h3>
+      <h2 class="settings-section-title">{{ i18n.t('settingsLanguage') }}</h2>
       <WuiComboBox
         class="settings-combo"
         style="width: 240px; max-width: 100%"
         :items="localeOptions"
         display-member-path="label"
         :selected-index="selectedLocaleIndex"
+        :aria-label="i18n.t('settingsLanguage')"
         @selection-changed="onLocaleSelectionChanged"
       />
     </section>
 
     <!-- 关于区:静态指标 + 外部链接 -->
     <section class="settings-section" :aria-label="i18n.t('settingsAbout')">
-      <h3 class="settings-section-title">{{ i18n.t('settingsAbout') }}</h3>
+      <h2 class="settings-section-title">{{ i18n.t('settingsAbout') }}</h2>
       <dl class="settings-about">
         <div v-for="row in aboutRows" :key="row.label" class="settings-about-row">
           <dt class="settings-about-label">{{ row.label }}</dt>

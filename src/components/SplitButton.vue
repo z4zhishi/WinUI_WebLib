@@ -40,13 +40,15 @@
 //   FlyoutPresenter 皮肤(role="dialog"),等效 WinUI「SplitButton.Flyout 可挂 Flyout 或
 //   MenuFlyout」。
 //
-// 键盘可达:根元素为唯一 Tab 停靠点(IsTabStop=True,内层两钮 IsTabStop=False 的映射),
-//   role="button" + aria-haspopup + aria-expanded;Space / Enter 主区,Alt+Down / F4 次区,
-//   与源 AutomationPeer(Invoke + ExpandCollapse 双 pattern)语义一致。
+// 键盘可达:主区按钮为真实控件(原生焦点 / Space / Enter 激活;嵌套交互修复 —— 旧实现
+//   的「根元素唯一 Tab 停靠点 + role=button 内嵌双钮」触犯 axe nested-interactive /
+//   aria-command-name / button-name),aria-haspopup + aria-expanded 表示 ExpandCollapse
+//   pattern;Alt+Down / F4 开 Flyout,与源 AutomationPeer(Invoke + ExpandCollapse 双
+//   pattern)语义一致。
 //
 // ★ ToggleSplitButton 扩展预留(后续任务):见文件末尾「ToggleSplitButton 扩展预留」注释块。
 
-import { computed, nextTick, onScopeDispose, provide, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onScopeDispose, provide, reactive, ref, useAttrs, watch } from 'vue'
 import type { CSSProperties } from 'vue'
 import { usePopupAnchor, usePopupLayer } from '@/composables/usePopup'
 import type { PopupPlacement } from '@/composables/usePopup'
@@ -92,8 +94,43 @@ const emit = defineEmits<{
 
 defineOptions({
   name: 'WuiSplitButton',
-  // class/style 等 attrs 由根 span 的 v-bind="$attrs" 透传。
+  // class/style 等 attrs 由根 span 的 v-bind="rootAttrs" 透传(aria-label / aria-labelledby /
+  // aria-pressed 除外 —— 它们迁移到主区按钮上,见下)。
   inheritAttrs: false,
+})
+
+/* -------------------------------------------------------------------------
+ * 无障碍(a11y QA:nested-interactive / aria-command-name / button-name):
+ * 根元素不再是 role=button 的唯一 Tab 停靠点(可聚焦容器内嵌按钮即嵌套交互),
+ * 主区按钮本身成为真实控件 —— 原生焦点 / Space / Enter 激活、aria-label、
+ * aria-haspopup + aria-expanded(Alt+Down / F4 开弹层)、ToggleSplitButton 的
+ * aria-pressed 都落在主钮上;根元素降级为纯布局容器。调用方经 attrs 传入的
+ * aria-label / aria-labelledby / aria-pressed 从根元素迁移到主钮。
+ * ---------------------------------------------------------------------- */
+
+const attrs = useAttrs()
+
+/** 主钮可访问名(色块 / 图标等内容无文本时由调用方经 aria-label 提供)。 */
+const primaryAriaLabel = computed(() =>
+  typeof attrs['aria-label'] === 'string' ? attrs['aria-label'] : undefined,
+)
+const primaryAriaLabelledBy = computed(() =>
+  typeof attrs['aria-labelledby'] === 'string' ? attrs['aria-labelledby'] : undefined,
+)
+/** ToggleSplitButton 经 attrs 透传的开关语义,落到主钮(仅收字面量,匹配 aria-pressed 类型)。 */
+const primaryAriaPressed = computed(() => {
+  const value = attrs['aria-pressed']
+  return value === 'true' || value === 'false' || value === 'mixed' ? value : undefined
+})
+
+/** 根元素透传 attrs:剥离已迁移到主钮的 aria-label / aria-labelledby / aria-pressed。 */
+const rootAttrs = computed(() => {
+  const rest: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'aria-label' || key === 'aria-labelledby' || key === 'aria-pressed') continue
+    rest[key] = value
+  }
+  return rest
 })
 
 /** 程序化开关(WinUI FlyoutBase.ShowAt/Hide 的等价入口,供 ref 调用)。 */
@@ -153,7 +190,8 @@ const isKeyPressed = ref(false)
  * 弹层:锚 = 根元素(WinUI ShowAt(*this)),bottom-start(BottomEdgeAlignedLeft)
  * ---------------------------------------------------------------------- */
 
-const rootRef = ref<HTMLElement | null>(null)
+// 锚引用直接绑在根 span 上(usePopupAnchor 的规范用法,见 MenuFlyout/DropDownButton);
+// closeFlyout(restoreFocus) 的焦点归还目标为主区按钮(见 primaryRef)。
 const { anchorRef } = usePopupAnchor()
 
 /** 本弹层内登记的菜单项(MenuFlyoutItem 族经 provide 上下文登记)。 */
@@ -196,7 +234,7 @@ function closeFlyout(restoreFocus: boolean): void {
   if (!flyoutOpen.value) return
   closeOpenChild()
   flyoutOpen.value = false
-  if (restoreFocus) rootRef.value?.focus()
+  if (restoreFocus) primaryRef.value?.focus()
 }
 
 function openFlyout(): void {
@@ -249,11 +287,25 @@ onScopeDispose(() => {
 })
 
 /* -------------------------------------------------------------------------
- * 交互:主区 click / 次区 toggle / 根元素键盘(对照 SplitButton.cpp L324-L366)
+ * 交互:主区 click(原生按钮激活:鼠标 / Space / Enter)/ 次区 toggle /
+ * 根元素 Alt+Down / F4(对照 SplitButton.cpp L324-L366)
  * ---------------------------------------------------------------------- */
+
+const primaryRef = ref<HTMLButtonElement | null>(null)
 
 function onPrimaryClick(event: MouseEvent): void {
   emit('click', event)
+}
+
+/** 主钮 Space / Enter 按住 = 整钮按压视觉(视觉层;激活由原生 button 点击完成)。 */
+function onPrimaryKeydown(event: KeyboardEvent): void {
+  if (props.disabled) return
+  if (event.key === ' ' || event.key === 'Enter') isKeyPressed.value = true
+}
+
+function onPrimaryKeyup(event: KeyboardEvent): void {
+  if (props.disabled) return
+  if (event.key === ' ' || event.key === 'Enter') isKeyPressed.value = false
 }
 
 function onSecondaryClick(): void {
@@ -262,21 +314,9 @@ function onSecondaryClick(): void {
   else openFlyout()
 }
 
-function onRootKeydown(event: KeyboardEvent): void {
-  if (props.disabled) return
-  if (event.key === ' ' || event.key === 'Enter') {
-    event.preventDefault() // Space 防滚屏 / Enter 防表单提交
-    isKeyPressed.value = true
-  }
-}
-
 function onRootKeyup(event: KeyboardEvent): void {
   if (props.disabled) return
-  if (event.key === ' ' || event.key === 'Enter') {
-    isKeyPressed.value = false
-    // KeyUp 确认为主区 click(源:OnClickPrimary + ExecuteCommand,命令层已简化)
-    emit('click', event)
-  } else if (event.key === 'ArrowDown' && event.altKey) {
+  if (event.key === 'ArrowDown' && event.altKey) {
     // Alt+Down:开弹层(源 L350-L360,Menu 键按住时)
     event.preventDefault()
     openFlyout()
@@ -379,28 +419,31 @@ const layerClass = computed(() =>
 </script>
 
 <template>
-  <!-- 根元素 = 唯一 Tab 停靠点(WinUI IsTabStop=True):role=button + 双 pattern 键盘语义 -->
+  <!-- 根元素 = 纯布局容器(嵌套交互修复):主区按钮为真实控件,持焦点 / 名 /
+       弹层 aria-haspopup + aria-expanded(WinUI 单 Tab 停靠点语义保持 —— 次区仍不可聚焦) -->
   <span
-    ref="rootRef"
+    ref="anchorRef"
     class="wui-splitbutton"
     :class="rootClass"
     :style="rootStyle"
-    role="button"
-    :tabindex="disabled ? -1 : 0"
-    :aria-disabled="disabled ? 'true' : undefined"
-    :aria-haspopup="hasMenuItems ? 'menu' : 'true'"
-    :aria-expanded="flyoutOpen ? 'true' : 'false'"
-    v-bind="$attrs"
-    @keydown="onRootKeydown"
+    v-bind="rootAttrs"
     @keyup="onRootKeyup"
   >
-    <!-- 主区:背景/前景即 PrimaryBackgroundGrid + PrimaryButton;独立 :hover/:active 换色 -->
+    <!-- 主区:背景/前景即 PrimaryBackgroundGrid + PrimaryButton;独立 :hover/:active 换色。
+         Space / Enter 走原生 button 激活 → @click(对照源 KeyUp 确认语义,行为一致) -->
     <button
+      ref="primaryRef"
       type="button"
       class="wui-splitbutton-primary"
-      tabindex="-1"
       :disabled="disabled"
+      :aria-label="primaryAriaLabel"
+      :aria-labelledby="primaryAriaLabelledBy"
+      :aria-pressed="primaryAriaPressed"
+      :aria-haspopup="hasMenuItems ? 'menu' : 'true'"
+      :aria-expanded="flyoutOpen ? 'true' : 'false'"
       @click="onPrimaryClick"
+      @keydown="onPrimaryKeydown"
+      @keyup="onPrimaryKeyup"
     >
       <slot>{{ content }}</slot>
     </button>
@@ -408,7 +451,8 @@ const layerClass = computed(() =>
     <!-- 分隔线:DividerBackgroundGrid(1px,ControlStrokeColorDefault) -->
     <span class="wui-splitbutton-divider" aria-hidden="true" />
 
-    <!-- 次区:chevron(ChevronDownSmall,E96E 的 SVG 静态等价;源无开合旋转动画,不加) -->
+    <!-- 次区:chevron(ChevronDownSmall,E96E 的 SVG 静态等价;源无开合旋转动画,不加)。
+         鼠标专用(WinUI 键盘开弹层走 Alt+Down / F4),保持 aria-hidden + tabindex=-1 -->
     <button
       type="button"
       class="wui-splitbutton-secondary"
@@ -480,13 +524,15 @@ const layerClass = computed(() =>
   touch-action: manipulation;
 }
 
-/* 系统焦点视觉:WinUI 双环(FocusVisualMargin=-1)近似为 primary 色单环 outline */
-.wui-splitbutton:focus-visible {
+/* 系统焦点视觉:WinUI 双环(FocusVisualMargin=-1)近似为 primary 色单环 outline。
+   焦点在主区按钮上(嵌套交互修复后根元素不再可聚焦),经 :has 折回整钮画环,
+   规避根元素 overflow:hidden 裁剪内钮 outline */
+.wui-splitbutton:has(.wui-splitbutton-primary:focus-visible) {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 1px;
 }
 
-.wui-splitbutton:focus:not(:focus-visible) {
+.wui-splitbutton-primary:focus-visible {
   outline: none;
 }
 

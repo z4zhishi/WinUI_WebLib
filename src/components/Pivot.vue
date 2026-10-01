@@ -20,7 +20,7 @@
 //   - 禁用(IsEnabled=false):标题项呈 Disabled 色且不可点,箭头隐藏,键盘失效。
 // 组合方式:默认 slot 声明 <WuiPivotItem title="..."> 子项(动态增删即响应式数组 v-for);
 //   selectedIndex / selectedItem 均为 defineModel 双向绑定(selectedItem 写入按 key 或引用匹配,见 wiki)。
-import { Comment, Text, computed, nextTick, onBeforeUnmount, onMounted, ref, useId, useSlots, watch } from 'vue'
+import { Comment, Fragment, Text, computed, nextTick, onBeforeUnmount, onMounted, ref, useId, useSlots, watch } from 'vue'
 import type { VNode } from 'vue'
 import WuiFontIcon from './FontIcon.vue'
 
@@ -66,12 +66,24 @@ defineOptions({ inheritAttrs: false })
 const slots = useSlots()
 
 const items = computed<VNode[]>(() => {
-  const children = slots.default?.()
-  return (children ?? []).filter(
-    (child) =>
-      child.type !== Comment &&
-      !(child.type === Text && typeof child.children === 'string' && child.children.trim() === ''),
-  )
+  const children = slots.default?.() ?? []
+  // 展开 Fragment:slot 内容为 v-for 时编译产物是单个 Fragment 块,直接当子项会把
+  // 整个列表折叠成「1 个无 title 的项」(标题行只剩一个空 Tab,内容挤进同一面板,
+  // 且该 Tab 因无可访问名触发 axe button-name)。此处展平一层 Fragment 并沿用原过滤。
+  const flat: VNode[] = []
+  const push = (node: VNode): void => {
+    if (node.type === Comment) return
+    if (node.type === Text && typeof node.children === 'string' && node.children.trim() === '') return
+    flat.push(node)
+  }
+  for (const child of children) {
+    if (child.type === Fragment && Array.isArray(child.children)) {
+      for (const sub of child.children as VNode[]) push(sub)
+      continue
+    }
+    push(child)
+  }
+  return flat
 })
 
 const count = computed(() => items.value.length)

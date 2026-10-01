@@ -283,7 +283,7 @@ ${iconLine}  :update-text-on-select="${updateTextValue.value}"
     <template #demo>
       <div class="asb-stage">
         <!-- 示例一:基础候选(官方猫名单 + 分词全包含过滤;参数面板实时调节) -->
-        <h4 class="group-title">{{ groupBasic }}</h4>
+        <h3 class="group-title">{{ groupBasic }}</h3>
         <WuiAutoSuggestBox
           v-model:text="basicText"
           class="stage-box"
@@ -299,7 +299,7 @@ ${iconLine}  :update-text-on-select="${updateTextValue.value}"
         <p class="live-value">{{ labelChosen }}:{{ basicChosen }}</p>
 
         <!-- 示例二:异步过滤模拟(400ms 延迟,等待期显示状态提示) -->
-        <h4 class="group-title">{{ groupAsync }}</h4>
+        <h3 class="group-title">{{ groupAsync }}</h3>
         <WuiAutoSuggestBox
           v-model:text="asyncText"
           class="stage-box"
@@ -314,7 +314,7 @@ ${iconLine}  :update-text-on-select="${updateTextValue.value}"
 
         <!-- 示例三:搜索体验(QueryIcon + 对象候选 + 自定义项模板 + querySubmitted 详情卡;
              对象候选必须配 displayMemberPath,否则点击回写为 String(item)) -->
-        <h4 class="group-title">{{ groupSearch }}</h4>
+        <h3 class="group-title">{{ groupSearch }}</h3>
         <WuiAutoSuggestBox
           v-model:text="searchText"
           class="stage-box"
@@ -348,7 +348,7 @@ ${iconLine}  :update-text-on-select="${updateTextValue.value}"
         <p v-else-if="searchMissed" class="hint">{{ notFoundText }}</p>
 
         <!-- 示例四:NoResults 槽(候选为空时由 #noResultsFound 接管) -->
-        <h4 class="group-title">{{ groupNoResults }}</h4>
+        <h3 class="group-title">{{ groupNoResults }}</h3>
         <WuiAutoSuggestBox
           v-model:text="narrowText"
           class="stage-box"
@@ -366,7 +366,7 @@ ${iconLine}  :update-text-on-select="${updateTextValue.value}"
         </WuiAutoSuggestBox>
 
         <!-- 键盘操作说明 -->
-        <h4 class="group-title">{{ groupKeyboard }}</h4>
+        <h3 class="group-title">{{ groupKeyboard }}</h3>
         <p class="hint">{{ keyboardHint }}</p>
       </div>
     </template>
@@ -391,13 +391,13 @@ ${iconLine}  :update-text-on-select="${updateTextValue.value}"
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsKeyboardTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsKeyboardTitle }}</h3>
       <DemoDocsTable :headers="keyboardHeaders" :rows="keyboardRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

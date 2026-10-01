@@ -22,7 +22,7 @@
 //   - 数据源变化:useSelection 自动剔除已不存在的选中项,焦点索引在本组件钳制。
 //   - 虚拟化:本期不做,列表为普通 DOM 渲染;items 容器即未来的虚拟化挂载点
 //     (窗口化渲染替换 v-for,公开 API 不变),见 wiki「与 WinUI 的差异」。
-import { computed, nextTick, ref, useId, watch } from 'vue'
+import { computed, nextTick, ref, useAttrs, useId, watch } from 'vue'
 import { useSelection } from '@/composables/useSelection'
 import WuiListViewItem from './ListViewItem.vue'
 
@@ -30,6 +30,28 @@ defineOptions({ name: 'WuiListView', inheritAttrs: false })
 
 /** 选择模式(WinUI SelectionMode)。 */
 type SelectionMode = 'None' | 'Single' | 'Multiple' | 'Extended'
+
+// —— 无障碍名:role=listbox 的条目容器需要可访问名(aria-input-field-name);调用方经
+// attrs 传入的 aria-label / aria-labelledby 从根 div(无 role,属禁止属性)迁移到
+// listbox 元素上(aria-prohibited-attr 同修)。
+const attrs = useAttrs()
+
+const listAriaLabel = computed(() =>
+  typeof attrs['aria-label'] === 'string' ? attrs['aria-label'] : undefined,
+)
+const listAriaLabelledBy = computed(() =>
+  typeof attrs['aria-labelledby'] === 'string' ? attrs['aria-labelledby'] : undefined,
+)
+
+/** 根元素透传 attrs:剥离已迁移的 aria-label / aria-labelledby。 */
+const rootAttrs = computed(() => {
+  const rest: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'aria-label' || key === 'aria-labelledby') continue
+    rest[key] = value
+  }
+  return rest
+})
 
 const props = withDefaults(
   defineProps<{
@@ -317,7 +339,7 @@ function onListKeydown(event: KeyboardEvent): void {
 <template>
   <!-- 源模板 Root Border:Background/BorderBrush/BorderThickness/CornerRadius 默认全空,
        交由消费侧经 style/attrs 定制(官方示例列表常加 1px 边框) -->
-  <div v-bind="$attrs" class="wui-list-view">
+  <div v-bind="rootAttrs" class="wui-list-view">
     <!-- ScrollViewer:纵向 Auto / 横向 Disabled;@keydown 收项冒泡(roving tabindex) -->
     <div ref="scrollerRef" class="wui-list-view-scroller" @keydown="onListKeydown">
       <!-- ItemsPresenter Header:随内容滚动 -->
@@ -329,6 +351,8 @@ function onListKeydown(event: KeyboardEvent): void {
         :id="listId"
         class="wui-list-view-items"
         role="listbox"
+        :aria-label="listAriaLabel"
+        :aria-labelledby="listAriaLabelledBy"
         :aria-multiselectable="isMultiSelect || undefined"
       >
         <WuiListViewItem

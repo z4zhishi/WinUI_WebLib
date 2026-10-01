@@ -164,12 +164,12 @@ const usageCode = computed(
         <div class="progressring-item">
           <p class="progressring-label">{{ determinateLabel }}</p>
           <div class="progressring-official-row">
-            <WuiProgressRing :size="60" :is-indeterminate="false" :value="officialValue" :minimum="0" :maximum="100" />
+            <WuiProgressRing :size="60" :is-indeterminate="false" :value="officialValue" :minimum="0" :maximum="100" :aria-label="determinateLabel" />
             <span class="progressring-output">{{ officialValue }}</span>
             <span class="progressring-output-label">{{ progressLabel }}</span>
           </div>
           <div class="progressring-slider-row">
-            <WuiSlider v-model:value="officialValue" :minimum="0" :maximum="100" />
+            <WuiSlider v-model:value="officialValue" :minimum="0" :maximum="100" aria-label="进度值" />
           </div>
         </div>
       </div>
@@ -188,7 +188,7 @@ const usageCode = computed(
 
     <template #docs>
       <DemoDocsTable :headers="docsHeaders" :rows="docsRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

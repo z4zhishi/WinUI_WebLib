@@ -161,7 +161,7 @@ const usageCode = computed(
       <div class="color-picker-stage">
         <!-- 示例一:完整取色器(对照官方示例的可见性开关与形状切换) -->
         <section class="stage-section">
-          <h4 class="stage-title">{{ fullPickerTitle }}</h4>
+          <h3 class="stage-title">{{ fullPickerTitle }}</h3>
           <WuiColorPicker
             v-model:color="pickerColor"
             :color-spectrum-shape="asShape(spectrumShape)"
@@ -197,7 +197,7 @@ const usageCode = computed(
 
         <!-- 示例二:竖向色相条 + 饱和度/亮度谱区 + 新旧色对比 -->
         <section class="stage-section">
-          <h4 class="stage-title">{{ verticalHueTitle }}</h4>
+          <h3 class="stage-title">{{ verticalHueTitle }}</h3>
           <WuiColorPicker
             v-model:color="verticalHueColor"
             orientation="Horizontal"
@@ -259,11 +259,11 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

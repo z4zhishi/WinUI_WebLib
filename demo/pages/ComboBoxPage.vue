@@ -193,7 +193,7 @@ const usageCode = computed(
       <div class="combobox-stage">
         <!-- 演示一:基础选择(参数面板实时调节 Header/Placeholder/禁用/程序开关) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupBasic }}</h4>
+          <h3 class="group-title">{{ groupBasic }}</h3>
           <div class="demo-row">
             <WuiComboBox
               v-model:is-drop-down-open="demoIsOpenModel"
@@ -218,7 +218,7 @@ const usageCode = computed(
 
         <!-- 演示二:对象数组绑定(DisplayMemberPath,SelectedIndex 默认 2) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupObjects }}</h4>
+          <h3 class="group-title">{{ groupObjects }}</h3>
           <div class="demo-row">
             <WuiComboBox
               v-model:selected-index="fontIndex"
@@ -237,7 +237,7 @@ const usageCode = computed(
 
         <!-- 演示三:可编辑过滤(输入即过滤;Enter 命中选中 / 未命中提交自由文本) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupEditable }}</h4>
+          <h3 class="group-title">{{ groupEditable }}</h3>
           <div class="demo-row">
             <WuiComboBox
               v-model:text="editableText"
@@ -261,7 +261,7 @@ const usageCode = computed(
 
         <!-- 演示四:禁用态(带选中值,对照 Disabled 视觉状态) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupDisabled }}</h4>
+          <h3 class="group-title">{{ groupDisabled }}</h3>
           <div class="demo-row">
             <WuiComboBox
               v-model:selected-index="disabledIndex"
@@ -282,7 +282,7 @@ const usageCode = computed(
 
         <!-- 键盘操作说明 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupKeyboard }}</h4>
+          <h3 class="group-title">{{ groupKeyboard }}</h3>
           <ul class="keyboard-list">
             <li><kbd>Enter</kbd>/<kbd>Space</kbd>/<kbd>↓</kbd>/<kbd>↑</kbd> {{ i18n.locale.value.startsWith('zh') ? '打开下拉' : 'open dropdown' }}</li>
             <li><kbd>↓</kbd>/<kbd>↑</kbd> {{ i18n.locale.value.startsWith('zh') ? '循环导航' : 'move focus' }}</li>
@@ -305,13 +305,13 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsKeyboardTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsKeyboardTitle }}</h3>
       <DemoDocsTable :headers="keyboardHeaders" :rows="keyboardRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

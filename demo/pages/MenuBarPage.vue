@@ -126,7 +126,7 @@ const usageCode = computed(
       <div class="menubar-stage">
         <!-- 演示一:简单菜单栏(对照官方 SimpleMenubar:File/Edit/Help + 回显文本) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupSimple }}</h4>
+          <h3 class="group-title">{{ groupSimple }}</h3>
           <WuiMenuBar>
             <WuiMenuBarItem title="File">
               <WuiMenuFlyoutItem text="New" @click="onAction1('New')" />
@@ -149,7 +149,7 @@ const usageCode = computed(
 
         <!-- 演示二:键盘加速键(对照官方 MenubarKeyboardAccelerators;快捷键文本见行尾) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupAccelerators }}</h4>
+          <h3 class="group-title">{{ groupAccelerators }}</h3>
           <WuiMenuBar>
             <WuiMenuBarItem title="File">
               <WuiMenuFlyoutItem text="New" accelerator-keys="Ctrl+N" @click="onAction2('New (Ctrl+N)')" />
@@ -172,7 +172,7 @@ const usageCode = computed(
 
         <!-- 演示三:子菜单 / 分隔线 / 单选组(对照官方 MenubarSubmenusSeparatorsRadio) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupCascading }}</h4>
+          <h3 class="group-title">{{ groupCascading }}</h3>
           <WuiMenuBar>
             <WuiMenuBarItem title="File">
               <WuiMenuFlyoutSubItem text="New">
@@ -230,7 +230,7 @@ const usageCode = computed(
 
         <!-- 键盘导航说明 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupKeyboard }}</h4>
+          <h3 class="group-title">{{ groupKeyboard }}</h3>
           <ul class="keyboard-list">
             <li><kbd>F2</kbd>/<kbd>Alt</kbd> {{ i18n.locale.value.startsWith('zh') ? '进入菜单栏' : 'focus the menu bar' }}</li>
             <li><kbd>←</kbd>/<kbd>→</kbd> {{ i18n.locale.value.startsWith('zh') ? '换项;开菜单时换菜单' : 'move items; switch menus when open' }}</li>
@@ -250,13 +250,13 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsKeyboardTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsKeyboardTitle }}</h3>
       <DemoDocsTable :headers="keyboardHeaders" :rows="keyboardRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

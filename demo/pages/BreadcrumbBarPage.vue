@@ -150,7 +150,7 @@ const usageCode = computed(
       <div class="breadcrumb-stage">
         <!-- 演示一:字符串路径 + 容器宽度可调(收窄看节点折叠,下拉回溯) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupPath }}</h4>
+          <h3 class="group-title">{{ groupPath }}</h3>
           <div class="path-container" :style="{ width: `${containerWidthValue}px` }">
             <WuiBreadcrumbBar
               :items-source="pathItems"
@@ -166,7 +166,7 @@ const usageCode = computed(
 
         <!-- 演示二:自定义项模板 + 节点增删(点击节点截断到该层,官方示例同款交互) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupEdit }}</h4>
+          <h3 class="group-title">{{ groupEdit }}</h3>
           <div class="folder-row">
             <WuiBreadcrumbBar class="folder-breadcrumb" :items-source="folders" @item-clicked="onFolderClicked">
               <template #default="{ item }">{{ (item as { name: string }).name }}</template>
@@ -194,13 +194,13 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsKeyboardTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsKeyboardTitle }}</h3>
       <DemoDocsTable :headers="keyboardHeaders" :rows="keyboardRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

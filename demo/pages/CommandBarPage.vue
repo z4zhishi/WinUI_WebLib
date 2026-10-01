@@ -167,7 +167,7 @@ const usageCode = computed(
         <!-- 示例 1:官方示例复刻(CommandBarPage.xaml:DefaultLabelPosition=Right +
              IsOpen/IsSticky 开关 + 动态次要命令 + 「You clicked: …」反馈) -->
         <section class="cb-section">
-          <h4 class="docs-subtitle">{{ sectionOfficialTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionOfficialTitle }}</h3>
           <WuiCommandBar
             v-model:is-open="officialOpen"
             default-label-position="right"
@@ -229,7 +229,7 @@ const usageCode = computed(
 
         <!-- 示例 2:溢出区(切换开关 / 分隔线 / 加速键角标;点击命令后自动收起) -->
         <section class="cb-section">
-          <h4 class="docs-subtitle">{{ sectionOverflowTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionOverflowTitle }}</h3>
           <WuiCommandBar v-model:is-overflow-open="overflowOpen">
             <template #primary-commands>
               <WuiAppBarButton label="Add" @click="overflowAction = 'Add'">
@@ -266,7 +266,7 @@ const usageCode = computed(
 
         <!-- 示例 3:DefaultLabelPosition 对照(同一组命令,bottom vs right) -->
         <section class="cb-section">
-          <h4 class="docs-subtitle">{{ sectionLabelTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionLabelTitle }}</h3>
           <div class="cb-row cb-row--stack">
             <WuiCommandBar default-label-position="bottom">
               <template #primary-commands>
@@ -287,7 +287,7 @@ const usageCode = computed(
 
         <!-- 示例 4:参数面板驱动(isOpen / isSticky / labelPosition / overflowVisibility / disabled) -->
         <section class="cb-section">
-          <h4 class="docs-subtitle">{{ sectionOptionsTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionOptionsTitle }}</h3>
           <WuiCommandBar
             v-model:is-open="demoOpen"
             :default-label-position="demoPosition"
@@ -344,13 +344,13 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsKeyboardTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsKeyboardTitle }}</h3>
       <DemoDocsTable :headers="keyboardHeaders" :rows="keyboardRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

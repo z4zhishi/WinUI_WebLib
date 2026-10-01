@@ -45,6 +45,7 @@ const LABEL_DISABLED: BilingualText = { zh: '禁用(Disabled)', en: 'Disabled' }
 const LABEL_PLACEMENT: BilingualText = { zh: '弹层放置位(Placement)', en: 'Placement' }
 const LABEL_EVENT_LOG: BilingualText = { zh: '事件日志(主区 click / 弹层 open / close)', en: 'Event log' }
 const LABEL_REPEAT: BilingualText = { zh: '重复', en: 'Repeat' }
+const LABEL_APPLY_COLOR: BilingualText = { zh: '应用当前颜色', en: 'Apply current color' }
 const PROPS_TABLE_TITLE: BilingualText = { zh: '属性', en: 'Properties' }
 const EVENTS_TABLE_TITLE: BilingualText = { zh: '事件', en: 'Events' }
 const KEYBOARD_TABLE_TITLE: BilingualText = { zh: '键盘交互', en: 'Keyboard' }
@@ -61,6 +62,7 @@ const labelDisabled = useBilingual(i18n, LABEL_DISABLED)
 const labelPlacement = useBilingual(i18n, LABEL_PLACEMENT)
 const labelEventLog = useBilingual(i18n, LABEL_EVENT_LOG)
 const labelRepeat = useBilingual(i18n, LABEL_REPEAT)
+const labelApplyColor = useBilingual(i18n, LABEL_APPLY_COLOR)
 const propsTableTitle = useBilingual(i18n, PROPS_TABLE_TITLE)
 const eventsTableTitle = useBilingual(i18n, EVENTS_TABLE_TITLE)
 const keyboardTableTitle = useBilingual(i18n, KEYBOARD_TABLE_TITLE)
@@ -217,11 +219,12 @@ const usageCode = computed(
       <div class="splitbutton-stage">
         <!-- 演示一:色板选择器(官方 SplitButtonColorPicker 复刻:主区色块 + 弹层色板) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupColorPicker }}</h4>
+          <h3 class="group-title">{{ groupColorPicker }}</h3>
           <div class="demo-row">
             <WuiSplitButton
               ref="colorSplitRef"
               padding="0"
+              :aria-label="labelApplyColor"
               @click="() => logEvent('primary click: 应用当前颜色')"
             >
               <span class="swatch" :style="{ background: currentColor }" />
@@ -245,7 +248,7 @@ const usageCode = computed(
 
         <!-- 演示二:内嵌 MenuFlyout(官方文档示例:命令菜单 + 分隔线 + 开关项) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupMenu }}</h4>
+          <h3 class="group-title">{{ groupMenu }}</h3>
           <div class="demo-row">
             <WuiSplitButton content="Add" @click="() => logEvent('primary click: Add')">
               <template #flyout>
@@ -269,7 +272,7 @@ const usageCode = computed(
 
         <!-- 演示三:事件日志 + 禁用(参数面板实时驱动) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupEvents }}</h4>
+          <h3 class="group-title">{{ groupEvents }}</h3>
           <div class="demo-row">
             <WuiSplitButton
               :content="contentValue"
@@ -305,13 +308,13 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ propsTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ propsTableTitle }}</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">{{ eventsTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ eventsTableTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ keyboardTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ keyboardTableTitle }}</h3>
       <DemoDocsTable :headers="keyboardHeaders" :rows="keyboardRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

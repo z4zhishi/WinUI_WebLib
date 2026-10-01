@@ -581,7 +581,7 @@ onBeforeUnmount(() => {
 
         <!-- 例 1:复制文本(writeText)← 官方 CopyTextClipboard -->
         <section class="clipboard-example">
-          <h4 class="example-title">{{ ex1Title }}</h4>
+          <h3 class="example-title">{{ ex1Title }}</h3>
           <p class="example-note">{{ ex1Note }}</p>
           <div class="example-row">
             <WuiTextBox
@@ -604,7 +604,7 @@ onBeforeUnmount(() => {
 
         <!-- 例 2:粘贴文本(readText)← 官方 PasteTextClipboard -->
         <section class="clipboard-example">
-          <h4 class="example-title">{{ ex2Title }}</h4>
+          <h3 class="example-title">{{ ex2Title }}</h3>
           <p class="example-note">{{ ex2Note }}</p>
           <div class="example-row">
             <WuiButton
@@ -629,9 +629,9 @@ onBeforeUnmount(() => {
 
         <!-- 例 3:富文本复制(ClipboardItem text/html)← 官方 RichEditBox 复制链路 -->
         <section class="clipboard-example">
-          <h4 class="example-title">{{ ex3Title }}</h4>
+          <h3 class="example-title">{{ ex3Title }}</h3>
           <p class="example-note">{{ ex3Note }}</p>
-          <WuiRichEditBox v-model:document="richDocument" class="rich-editor">
+          <WuiRichEditBox v-model:document="richDocument" class="rich-editor" aria-label="剪贴板富文本编辑器">
             <template #toolbar="{ exec, active }">
               <button
                 type="button"
@@ -684,7 +684,7 @@ onBeforeUnmount(() => {
 
         <!-- 例 4:图像复制 / 粘贴(ClipboardItem image/png)← 官方 ClipboardCopyPasteImage -->
         <section class="clipboard-example">
-          <h4 class="example-title">{{ ex4Title }}</h4>
+          <h3 class="example-title">{{ ex4Title }}</h3>
           <p class="example-note">{{ ex4Note }}</p>
           <canvas ref="sampleCanvas" class="sample-canvas" aria-hidden="true"></canvas>
           <div class="example-row">
@@ -717,7 +717,7 @@ onBeforeUnmount(() => {
 
         <!-- 例 5:权限状态(navigator.permissions)← Web 特有 -->
         <section class="clipboard-example">
-          <h4 class="example-title">{{ ex5Title }}</h4>
+          <h3 class="example-title">{{ ex5Title }}</h3>
           <p class="example-note">{{ ex5Note }}</p>
           <div class="permission-list">
             <div v-for="name in PERMISSION_NAMES" :key="name" class="permission-row">
@@ -741,7 +741,7 @@ onBeforeUnmount(() => {
 
         <!-- 例 6:Windows 专属能力说明(Web 无对应;完整对照见文档区与 wiki)-->
         <section class="clipboard-example">
-          <h4 class="example-title">{{ ex6Title }}</h4>
+          <h3 class="example-title">{{ ex6Title }}</h3>
           <p class="example-note">{{ ex6Note }}</p>
           <ul class="windows-only-list">
             <li v-for="item in WINDOWS_ONLY_ITEMS" :key="item.zh">{{ pickText(i18n, item) }}</li>
@@ -774,13 +774,13 @@ onBeforeUnmount(() => {
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsApiTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsApiTitle }}</h3>
       <DemoDocsTable :headers="apiHeaders" :rows="apiRows" />
-      <h4 class="docs-subtitle">{{ docsEventTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsParityTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsParityTitle }}</h3>
       <DemoDocsTable :headers="parityHeaders" :rows="parityRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="ts" />
       <p class="docs-note">{{ docsNote }}</p>
     </template>

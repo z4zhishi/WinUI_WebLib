@@ -4,6 +4,7 @@ export default {
   navHome: 'ホーム',
   navSearch: '検索',
   navSettings: '設定',
+  navLabel: 'サイトナビゲーション',
   searchPlaceholder: 'コントロールとサンプルを検索…',
   settingsTitle: '設定',
   settingsLanguage: '言語',

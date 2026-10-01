@@ -199,7 +199,7 @@ const usageCode = [
       <div class="ptr-stage">
         <!-- 场景 1:基础下拉刷新(Deferral 流) -->
         <section class="stage-section">
-          <h4 class="stage-title">{{ s1Label }}</h4>
+          <h3 class="stage-title">{{ s1Label }}</h3>
           <div class="stage-row">
             <WuiRefreshContainer
               ref="container1Ref"
@@ -226,7 +226,7 @@ const usageCode = [
 
         <!-- 场景 2:自定义视觉器(isRefreshIdle 流) -->
         <section class="stage-section">
-          <h4 class="stage-title">{{ s2Label }}</h4>
+          <h3 class="stage-title">{{ s2Label }}</h3>
           <div class="stage-row">
             <WuiRefreshContainer
               ref="container2Ref"
@@ -276,13 +276,13 @@ const usageCode = [
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">RefreshContainer 属性</h4>
+      <h3 class="docs-subtitle">RefreshContainer 属性</h3>
       <DemoDocsTable :headers="DOCS_HEADERS" :rows="CONTAINER_ROWS" />
-      <h4 class="docs-subtitle">RefreshVisualizer 属性</h4>
+      <h3 class="docs-subtitle">RefreshVisualizer 属性</h3>
       <DemoDocsTable :headers="DOCS_HEADERS" :rows="VISUALIZER_ROWS" />
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="EVENT_HEADERS" :rows="EVENT_ROWS" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

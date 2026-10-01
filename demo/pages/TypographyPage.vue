@@ -233,7 +233,7 @@ const usageCode = `<!-- WinUI 原生:TextBlock 套用字型阶梯 Style 资源 -
       <div class="type-stage">
         <!-- —— 1. 字型阶梯 —— -->
         <section>
-          <h4 class="section-title">{{ secRamp }}</h4>
+          <h3 class="section-title">{{ secRamp }}</h3>
           <p class="guide-text">{{ rampGuide }}</p>
           <div class="ramp-head ramp-grid" aria-hidden="true">
             <span>{{ rampExample }}</span>
@@ -263,7 +263,7 @@ const usageCode = `<!-- WinUI 原生:TextBlock 套用字型阶梯 Style 资源 -
 
         <!-- —— 2. theme.css 字号 token 对照 —— -->
         <section>
-          <h4 class="section-title">{{ secTokens }}</h4>
+          <h3 class="section-title">{{ secTokens }}</h3>
           <p class="guide-text">{{ tokensGuide }}</p>
           <div class="token-preview" :style="previewStyle">
             {{ previewTextValue }}
@@ -273,7 +273,7 @@ const usageCode = `<!-- WinUI 原生:TextBlock 套用字型阶梯 Style 资源 -
 
         <!-- —— 3. 字重与字族 —— -->
         <section>
-          <h4 class="section-title">{{ secFamily }}</h4>
+          <h3 class="section-title">{{ secFamily }}</h3>
           <p class="guide-text">{{ familyGuide }}</p>
           <div class="weight-demo">
             <div class="weight-col">
@@ -306,14 +306,14 @@ const usageCode = `<!-- WinUI 原生:TextBlock 套用字型阶梯 Style 资源 -
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsRampTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsRampTitle }}</h3>
       <DemoDocsTable :headers="DOCS_RAMP_HEADERS" :rows="DOCS_RAMP_ROWS" />
-      <h4 class="docs-subtitle">{{ docsTokensTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsTokensTitle }}</h3>
       <p class="docs-note">{{ tokensGuide }}</p>
       <DemoDocsTable :headers="DOCS_TOKENS_HEADERS" :rows="DOCS_TOKENS_ROWS" />
-      <h4 class="docs-subtitle">{{ docsFamiliesTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsFamiliesTitle }}</h3>
       <DemoDocsTable :headers="DOCS_FAMILIES_HEADERS" :rows="DOCS_FAMILIES_ROWS" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="xml" />
     </template>
   </DemoPage>

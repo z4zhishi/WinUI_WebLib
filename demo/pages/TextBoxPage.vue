@@ -99,13 +99,13 @@ const usageCode = computed(
     <template #demo>
       <div class="text-box-stage">
         <!-- 简单 TextBox -->
-        <WuiTextBox class="stage-item" />
+        <WuiTextBox class="stage-item" aria-label="文本输入" />
 
         <!-- 标头 + 占位文本 -->
         <WuiTextBox class="stage-item" header="你的名字:" placeholder-text="姓名" />
 
         <!-- 只读 + 预置内容 -->
-        <WuiTextBox v-model:text="readonlyText" class="stage-item" is-read-only />
+        <WuiTextBox v-model:text="readonlyText" class="stage-item" is-read-only aria-label="只读文本" />
 
         <!-- 可调参数交互框 + 实时值展示 -->
         <WuiTextBox
@@ -134,11 +134,11 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

@@ -4,6 +4,7 @@ export default {
   navHome: '首頁',
   navSearch: '搜尋',
   navSettings: '設定',
+  navLabel: '網站導覽',
   searchPlaceholder: '搜尋控制項與範例…',
   settingsTitle: '設定',
   settingsLanguage: '語言',

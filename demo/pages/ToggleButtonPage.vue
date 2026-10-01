@@ -146,7 +146,7 @@ const usageCode = computed(
       <div class="toggle-stage">
         <!-- 演示一:基础用法,参数由左侧面板实时驱动(对应官方 ToggleButtonSimple 示例) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ basicTitle }}</h4>
+          <h3 class="group-title">{{ basicTitle }}</h3>
           <WuiToggleButton
             v-model:checked="demoChecked"
             :content="contentValue"
@@ -161,7 +161,7 @@ const usageCode = computed(
 
         <!-- 演示二:组合状态一览(未选中/选中 × 正常/禁用 + 三态不确定) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ statesTitle }}</h4>
+          <h3 class="group-title">{{ statesTitle }}</h3>
           <div class="state-gallery">
             <WuiToggleButton content="Off(默认)" />
             <WuiToggleButton v-model:checked="galleryChecked" content="On(已选中)" />
@@ -183,11 +183,11 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ propsTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ propsTableTitle }}</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">{{ eventsTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ eventsTableTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

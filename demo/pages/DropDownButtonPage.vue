@@ -165,7 +165,7 @@ const usageCode = computed(
       <div class="ddb-sections">
         <!-- 示例 1:官方示例复刻(简单 + 图标两例,对照 DropDownButtonSimple.txt / DropDownButtonIcon.txt) -->
         <section class="ddb-section">
-          <h4 class="docs-subtitle">{{ sectionOfficialTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionOfficialTitle }}</h3>
           <div class="ddb-row">
             <WuiDropDownButton content="Email">
               <template #flyout>
@@ -176,7 +176,7 @@ const usageCode = computed(
             </WuiDropDownButton>
 
             <!-- 图标版:按钮内容为 FontIcon(默认 slot),菜单项带图标列(对照官方 DropDownButtonIcon) -->
-            <WuiDropDownButton>
+            <WuiDropDownButton aria-label="邮件">
               <template #default>
                 <WuiFontIcon glyph="&#xE715;" :font-size="16" />
               </template>
@@ -203,7 +203,7 @@ const usageCode = computed(
 
         <!-- 示例 2:内嵌任意内容 flyout(非菜单内容,焦点在字段间移动不关闭) -->
         <section class="ddb-section">
-          <h4 class="docs-subtitle">{{ sectionContentTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionContentTitle }}</h3>
           <div class="ddb-row">
             <WuiDropDownButton content="反馈" @opened="onFeedbackOpen">
               <template #flyout>
@@ -221,7 +221,7 @@ const usageCode = computed(
 
         <!-- 示例 3:placement 演示(参数面板实时调节 + isOpen 编程开关 + disabled) -->
         <section class="ddb-section">
-          <h4 class="docs-subtitle">{{ sectionPlacementTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionPlacementTitle }}</h3>
           <div class="ddb-row">
             <WuiDropDownButton
               content="Placement 演示"
@@ -244,7 +244,7 @@ const usageCode = computed(
 
           <!-- 事件日志 -->
           <div class="ddb-event-log">
-            <h4 class="docs-subtitle">{{ eventLogTitle }}</h4>
+            <h3 class="docs-subtitle">{{ eventLogTitle }}</h3>
             <p v-for="(line, index) in eventLog" :key="`${line}-${index}`" class="ddb-log-line">{{ line }}</p>
             <p v-if="eventLog.length === 0" class="ddb-hint">{{ noEventsHint }}</p>
           </div>
@@ -252,7 +252,7 @@ const usageCode = computed(
 
         <!-- 键盘操作说明 -->
         <section class="ddb-section">
-          <h4 class="docs-subtitle">{{ sectionKeyboardTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionKeyboardTitle }}</h3>
           <table class="ddb-keyboard-table">
             <thead>
               <tr>
@@ -278,13 +278,13 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsKeyboardTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsKeyboardTitle }}</h3>
       <DemoDocsTable :headers="keyboardHeaders" :rows="keyboardRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

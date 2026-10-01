@@ -69,7 +69,7 @@ function cardLead(entry: CatalogFlatItem): string {
 <template>
   <section class="search-page">
     <header class="search-header">
-      <h2 class="search-title">{{ i18n.t('searchTitle') }}</h2>
+      <h1 class="search-title">{{ i18n.t('searchTitle') }}</h1>
       <p class="search-count">{{ i18n.t('searchResultCount', { count: results.length }) }}</p>
     </header>
 

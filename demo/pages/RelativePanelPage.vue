@@ -300,13 +300,13 @@ const usageCode = computed(() => {
     </template>
 
     <template #options>
-      <h4 class="group-title">关系切换区(目标块的面板对齐)</h4>
+      <h3 class="group-title">关系切换区(目标块的面板对齐)</h3>
       <DemoOptions :columns="2">
         <DemoOptionRow label="目标块 AlignLeftWithPanel" type="toggle" v-model="targetPanelLeft" />
         <DemoOptionRow label="目标块 AlignRightWithPanel" type="toggle" v-model="targetPanelRight" />
       </DemoOptions>
 
-      <h4 class="group-title">实时调整区</h4>
+      <h3 class="group-title">实时调整区</h3>
       <DemoOptions :columns="2">
         <DemoOptionRow label="面板宽度" type="slider" v-model="livePanelWidth" :min="240" :max="480" :step="8" />
         <DemoOptionRow label="基准块宽度" type="slider" v-model="liveAnchorWidth" :min="48" :max="160" :step="4" />
@@ -317,13 +317,13 @@ const usageCode = computed(() => {
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">属性</h4>
+      <h3 class="docs-subtitle">属性</h3>
       <DemoDocsTable :headers="propertyHeaders" :rows="propertyRows" />
-      <h4 class="docs-subtitle">附加属性</h4>
+      <h3 class="docs-subtitle">附加属性</h3>
       <DemoDocsTable :headers="attachedHeaders" :rows="attachedRows" />
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

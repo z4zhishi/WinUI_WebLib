@@ -172,7 +172,7 @@ const rating = ref<number | null>(null)
       <div class="rating-stage">
         <!-- 演示一:基础评分(参数面板实时调节 IsClearEnabled/IsReadOnly/Disabled) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupBasic }}</h4>
+          <h3 class="group-title">{{ groupBasic }}</h3>
           <WuiRatingControl
             v-model:value="basicValue"
             :caption="captionText"
@@ -190,7 +190,7 @@ const rating = ref<number | null>(null)
 
         <!-- 演示二:悬浮预览 + 占位值(半星精度,对照官方 PlaceholderValue 滑杆示例) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupPlaceholder }}</h4>
+          <h3 class="group-title">{{ groupPlaceholder }}</h3>
           <WuiRatingControl
             v-model:value="placeholderDemoValue"
             :placeholder-value="placeholderValue"
@@ -201,7 +201,7 @@ const rating = ref<number | null>(null)
 
         <!-- 演示三:初值 + MaxRating(MaxRating 调小到 4 以下时观察 value 钳制) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupInitial }}</h4>
+          <h3 class="group-title">{{ groupInitial }}</h3>
           <WuiRatingControl
             v-model:value="initialValue"
             :max-rating="maxRatingValue"
@@ -213,7 +213,7 @@ const rating = ref<number | null>(null)
 
         <!-- 键盘与指针操作说明 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupKeyboard }}</h4>
+          <h3 class="group-title">{{ groupKeyboard }}</h3>
           <ul class="keyboard-list">
             <li><kbd>→</kbd>/<kbd>↑</kbd> {{ i18n.locale.value.startsWith('zh') ? '评分 +1' : '+1 star' }}</li>
             <li><kbd>←</kbd>/<kbd>↓</kbd> {{ i18n.locale.value.startsWith('zh') ? '评分 −1(1 时清空)' : '−1 star (clears at 1)' }}</li>
@@ -236,13 +236,13 @@ const rating = ref<number | null>(null)
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsKeyboardTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsKeyboardTitle }}</h3>
       <DemoDocsTable :headers="keyboardHeaders" :rows="keyboardRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

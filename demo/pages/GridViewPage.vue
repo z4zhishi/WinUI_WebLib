@@ -253,12 +253,13 @@ const usageCode = computed(
       <div class="gridview-stage">
         <!-- 演示一:图片网格(参数面板实时调节 SelectionMode / IsItemClickEnabled / RevealBorder) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupBasic }}</h4>
+          <h3 class="group-title">{{ groupBasic }}</h3>
           <WuiGridView
             :items="galleryItems"
             :selection-mode="demoMode"
             :is-item-click-enabled="demoItemClick"
             :reveal-border="demoReveal"
+            aria-label="图片网格(单击示例)"
             :item-width="190"
             :item-height="130"
             style="max-height: 460px"
@@ -281,10 +282,11 @@ const usageCode = computed(
 
         <!-- 演示二:多选(全部项显示空心勾选圈,选中变实心) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupMulti }}</h4>
+          <h3 class="group-title">{{ groupMulti }}</h3>
           <WuiGridView
             :items="compactItems"
             selection-mode="Multiple"
+            aria-label="紧凑卡片网格(多选)"
             :item-width="150"
             :item-height="64"
             display-member-path="title"
@@ -310,10 +312,11 @@ const usageCode = computed(
 
         <!-- 演示三:自定义模板(ImageText 模板;Extended:Ctrl 切换 / Shift 范围) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupTemplate }}</h4>
+          <h3 class="group-title">{{ groupTemplate }}</h3>
           <WuiGridView
             :items="extendedItems"
             selection-mode="Extended"
+            aria-label="图文卡片网格(扩展选择)"
             :item-width="280"
             :item-height="104"
             display-member-path="title"
@@ -342,9 +345,10 @@ const usageCode = computed(
 
         <!-- 演示四:布局自定义(ImageOverlay 模板 + 面板调节单元格/换行/间距) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupLayout }}</h4>
+          <h3 class="group-title">{{ groupLayout }}</h3>
           <WuiGridView
             :items="layoutItems"
+            aria-label="布局自定义网格"
             :item-width="demoWidth"
             :item-height="demoHeight"
             :maximum-rows-or-columns="demoMaxCols"
@@ -371,7 +375,7 @@ const usageCode = computed(
 
         <!-- 键盘操作说明 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupKeyboard }}</h4>
+          <h3 class="group-title">{{ groupKeyboard }}</h3>
           <ul class="keyboard-list">
             <li><kbd>←</kbd>/<kbd>→</kbd>/<kbd>↑</kbd>/<kbd>↓</kbd> {{ i18n.locale.value.startsWith('zh') ? '按网格几何移动焦点(Single 随动选择)' : 'move focus geometrically (Single selects)' }}</li>
             <li><kbd>Home</kbd>/<kbd>End</kbd> {{ i18n.locale.value.startsWith('zh') ? '首/末项' : 'first/last item' }}</li>
@@ -407,13 +411,13 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsKeyboardTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsKeyboardTitle }}</h3>
       <DemoDocsTable :headers="keyboardHeaders" :rows="keyboardRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

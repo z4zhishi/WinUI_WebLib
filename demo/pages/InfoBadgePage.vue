@@ -174,7 +174,7 @@ const usageCode = computed(() => {
       <div class="infobadge-stage">
         <!-- 演示一:动态数值 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ dynamicTitle }}</h4>
+          <h3 class="group-title">{{ dynamicTitle }}</h3>
           <div class="hero-stage">
             <WuiInfoBadge :severity="mainSeverity" :value="mainValue" :icon-source="mainIconSource" />
           </div>
@@ -183,7 +183,7 @@ const usageCode = computed(() => {
 
         <!-- 演示二:四档 × 三形态矩阵 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ matrixTitle }}</h4>
+          <h3 class="group-title">{{ matrixTitle }}</h3>
           <div class="matrix" role="group" :aria-label="matrixTitle">
             <span class="matrix-head" aria-hidden="true"></span>
             <span class="matrix-head">{{ colDot }}</span>
@@ -205,9 +205,10 @@ const usageCode = computed(() => {
 
         <!-- 演示三:嵌套到按钮右上角(对照官方 PlacingInfobadgeInsideAnother 示例) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ embeddedTitle }}</h4>
+          <h3 class="group-title">{{ embeddedTitle }}</h3>
           <WuiButton
             class="refresh-button"
+            aria-label="刷新"
             @click="onRefreshClick"
           >
             <span class="refresh-inner">
@@ -220,7 +221,7 @@ const usageCode = computed(() => {
 
         <!-- 演示四:嵌套到导航项(对照官方 InfobadgeEmbeddedNavigationview 示例) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ navTitle }}</h4>
+          <h3 class="group-title">{{ navTitle }}</h3>
           <nav class="nav-list" :aria-label="navTitle">
             <div class="nav-item">
               <WuiSymbolIcon symbol="Home" :font-size="16" />
@@ -246,11 +247,11 @@ const usageCode = computed(() => {
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

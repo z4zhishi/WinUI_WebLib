@@ -162,7 +162,7 @@ const usageCode = computed(
       <div class="shape-stage">
         <!-- 家族一览 -->
         <section class="family">
-          <h4 class="section-title">{{ familyLabel }}</h4>
+          <h3 class="section-title">{{ familyLabel }}</h3>
           <div class="family-row">
             <figure class="family-item">
               <WuiEllipse :width="96" :height="64" :fill="FILL" :stroke="STROKE" :stroke-thickness="2" />
@@ -189,7 +189,7 @@ const usageCode = computed(
 
         <!-- 椭圆(官方示例对照) -->
         <section>
-          <h4 class="section-title">{{ ellipseLabel }}</h4>
+          <h3 class="section-title">{{ ellipseLabel }}</h3>
           <div class="demo-board">
             <WuiEllipse
               :width="ellipseWidthValue"
@@ -206,7 +206,7 @@ const usageCode = computed(
 
         <!-- 矩形(官方示例对照) -->
         <section>
-          <h4 class="section-title">{{ rectangleLabel }}</h4>
+          <h3 class="section-title">{{ rectangleLabel }}</h3>
           <div class="demo-board">
             <WuiRectangle
               :width="rectWidthValue"
@@ -225,7 +225,7 @@ const usageCode = computed(
 
         <!-- 多边形(官方示例对照:320×200 舞台 + 顶点标注) -->
         <section>
-          <h4 class="section-title">{{ polygonLabel }}</h4>
+          <h3 class="section-title">{{ polygonLabel }}</h3>
           <div class="demo-board">
             <div class="poly-canvas">
               <WuiPolygon
@@ -254,7 +254,7 @@ const usageCode = computed(
 
         <!-- Polygon / Polyline 闭合差异 -->
         <section>
-          <h4 class="section-title">{{ closureLabel }}</h4>
+          <h3 class="section-title">{{ closureLabel }}</h3>
           <div class="compare-row">
             <figure class="compare-item">
               <WuiPolygon :points="POLY_POINTS" :fill="FILL" :stroke="STROKE" :stroke-thickness="polyThicknessValue" />
@@ -274,7 +274,7 @@ const usageCode = computed(
 
         <!-- FillRule 对照(五角星) -->
         <section>
-          <h4 class="section-title">{{ fillRuleLabel }}</h4>
+          <h3 class="section-title">{{ fillRuleLabel }}</h3>
           <div class="demo-board">
             <WuiPolygon
               :points="STAR_POINTS"
@@ -289,7 +289,7 @@ const usageCode = computed(
 
         <!-- Path + Stretch 对照 -->
         <section>
-          <h4 class="section-title">{{ pathLabel }}</h4>
+          <h3 class="section-title">{{ pathLabel }}</h3>
           <div class="demo-board">
             <WuiPath
               :data="pathDataValue"
@@ -302,7 +302,7 @@ const usageCode = computed(
             />
             <p class="readout">Uniform 拉伸至 160 × 160</p>
           </div>
-          <h4 class="section-title section-title--sub">{{ stretchLabel }}</h4>
+          <h3 class="section-title section-title--sub">{{ stretchLabel }}</h3>
           <div class="compare-row">
             <figure v-for="mode in STRETCH_COMPARISONS" :key="mode" class="compare-item">
               <div class="stretch-box">
@@ -350,7 +350,7 @@ const usageCode = computed(
 
     <template #docs>
       <DemoDocsTable :headers="docsHeaders" :rows="docsRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

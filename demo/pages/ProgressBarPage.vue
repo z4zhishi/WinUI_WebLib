@@ -130,6 +130,7 @@ const usageCode = computed(
             :is-indeterminate="isIndeterminateValue"
             :show-error="showErrorValue"
             :show-paused="showPausedValue"
+            :aria-label="mainLabel"
             @value-changed="onMainValueChanged"
           />
           <p class="progressbar-readout">
@@ -146,6 +147,7 @@ const usageCode = computed(
             :is-indeterminate="true"
             :show-error="officialShowError"
             :show-paused="officialShowPaused"
+            :aria-label="indeterminateLabel"
           />
           <div class="progressbar-radio-group" role="radiogroup" aria-label="Progress state">
             <WuiRadioButton
@@ -178,12 +180,13 @@ const usageCode = computed(
               :value="officialValue"
               :minimum="0"
               :maximum="100"
+              :aria-label="determinateLabel"
             />
             <span class="progressbar-output">{{ officialValue }}</span>
             <span class="progressbar-output-label">{{ progressLabel }}</span>
           </div>
           <div class="progressbar-slider-row">
-            <WuiSlider v-model:value="officialValue" :minimum="0" :maximum="100" />
+            <WuiSlider v-model:value="officialValue" :minimum="0" :maximum="100" aria-label="进度值" />
           </div>
         </div>
       </div>
@@ -202,7 +205,7 @@ const usageCode = computed(
 
     <template #docs>
       <DemoDocsTable :headers="docsHeaders" :rows="docsRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

@@ -267,7 +267,7 @@ ${'</'}script>
       <div class="swipe-stage">
         <!-- 演示一:邮件列表(两侧 Execute) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupMail }}</h4>
+          <h3 class="group-title">{{ groupMail }}</h3>
           <div class="mail-list">
             <WuiSwipeControl
               v-for="mail in mails"
@@ -302,7 +302,7 @@ ${'</'}script>
 
         <!-- 演示二:Reveal 揭示点选(slot 式) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupReveal }}</h4>
+          <h3 class="group-title">{{ groupReveal }}</h3>
           <WuiSwipeControl class="demo-row" left-mode="Reveal" right-mode="Execute">
             <template #left>
               <WuiSwipeItem :text="acceptText" :icon="acceptIcon" @invoked="onAcceptInvoked" />
@@ -318,7 +318,7 @@ ${'</'}script>
 
         <!-- 演示三:参数面板(数组式,模式/高度/禁用可调) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupOptions }}</h4>
+          <h3 class="group-title">{{ groupOptions }}</h3>
           <WuiSwipeControl
             class="demo-row"
             :left-items="demo3LeftItems"
@@ -338,7 +338,7 @@ ${'</'}script>
 
         <!-- 手势与关闭路径说明 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupGesture }}</h4>
+          <h3 class="group-title">{{ groupGesture }}</h3>
           <ul class="gesture-list">
             <li v-for="(row, i) in gestureRows" :key="i">
               <strong>{{ row[0] }}</strong>:{{ row[1] }}
@@ -358,15 +358,15 @@ ${'</'}script>
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsItemPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsItemPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="itemPropsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsGestureTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsGestureTitle }}</h3>
       <DemoDocsTable :headers="[gestureHeader, gestureBehavior]" :rows="gestureRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

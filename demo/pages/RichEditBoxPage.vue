@@ -312,13 +312,13 @@ const usageCode = computed(
     <template #demo>
       <div class="rich-edit-box-stage">
         <!-- 简单 RichEditBox(官方示例 Simple text editor) -->
-        <WuiRichEditBox class="stage-item" />
+        <WuiRichEditBox class="stage-item" aria-label="富文本编辑器" />
 
         <!-- 标头 + 占位文本 -->
         <WuiRichEditBox class="stage-item" header="你的文档:" placeholder-text="开始输入富文本…" />
 
         <!-- 只读 + 预置内容 -->
-        <WuiRichEditBox v-model:document="readonlyDocument" class="stage-item" is-read-only />
+        <WuiRichEditBox v-model:document="readonlyDocument" class="stage-item" is-read-only aria-label="只读富文本示例" />
 
         <!-- 禁用 -->
         <WuiRichEditBox class="stage-item" disabled placeholder-text="禁用状态" />
@@ -469,11 +469,11 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

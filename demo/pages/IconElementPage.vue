@@ -226,7 +226,7 @@ const usageCode = computed(
     <template #demo>
       <div class="icon-stage">
         <section class="demo-group">
-          <h4 class="group-title">FontIcon(字形 + 码点)</h4>
+          <h3 class="group-title">FontIcon(字形 + 码点)</h3>
           <div class="icon-showcase">
             <WuiFontIcon
               class="showcase-icon"
@@ -241,7 +241,7 @@ const usageCode = computed(
         </section>
 
         <section class="demo-group">
-          <h4 class="group-title">SymbolIcon(Symbol 枚举)</h4>
+          <h3 class="group-title">SymbolIcon(Symbol 枚举)</h3>
           <div class="icon-showcase">
             <WuiSymbolIcon class="showcase-icon" :symbol="symbolValue" :font-size="symbolFontSizeValue" />
             <p class="showcase-caption">
@@ -251,7 +251,7 @@ const usageCode = computed(
         </section>
 
         <section class="demo-group">
-          <h4 class="group-title">BitmapIcon(位图 / 单色化)</h4>
+          <h3 class="group-title">BitmapIcon(位图 / 单色化)</h3>
           <div class="bitmap-row">
             <div class="icon-showcase">
               <WuiBitmapIcon
@@ -275,7 +275,7 @@ const usageCode = computed(
         </section>
 
         <section class="demo-group">
-          <h4 class="group-title">PathIcon(矢量路径)</h4>
+          <h3 class="group-title">PathIcon(矢量路径)</h3>
           <div class="icon-showcase">
             <WuiPathIcon
               class="showcase-icon"
@@ -288,7 +288,7 @@ const usageCode = computed(
         </section>
 
         <section class="demo-group browse-group">
-          <h4 class="group-title">字形全表浏览(Segoe 图标字体,{{ FONT_ICON_GLYPHS.length }} 条)</h4>
+          <h3 class="group-title">字形全表浏览(Segoe 图标字体,{{ FONT_ICON_GLYPHS.length }} 条)</h3>
           <p class="browse-note">
             点击字形:复制 \uXXXX 写法,并联动上方 FontIcon / SymbolIcon 演示(若该字形属于 Symbol 枚举)。
             字形依赖本机安装的 Segoe Fluent Icons / Segoe MDL2 Assets 字体(项目 R1 裁决:不加载网络字体),
@@ -339,7 +339,7 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <p class="docs-control-name">FontIcon</p>
       <DemoDocsTable :headers="propsHeaders" :rows="fontIconRows" />
       <p class="docs-control-name">SymbolIcon</p>
@@ -348,9 +348,9 @@ const usageCode = computed(
       <DemoDocsTable :headers="propsHeaders" :rows="bitmapIconRows" />
       <p class="docs-control-name">PathIcon</p>
       <DemoDocsTable :headers="propsHeaders" :rows="pathIconRows" />
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

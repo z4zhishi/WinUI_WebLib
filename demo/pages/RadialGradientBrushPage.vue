@@ -259,7 +259,7 @@ const css = useRadialGradient(() => ({
       <div class="brush-stage">
         <!-- 官方示例对照:全参数联动 -->
         <section>
-          <h4 class="section-title">{{ officialLabel }}</h4>
+          <h3 class="section-title">{{ officialLabel }}</h3>
           <div class="compare-row">
             <div class="demo-board">
               <WuiRadialGradientBrush
@@ -278,7 +278,7 @@ const css = useRadialGradient(() => ({
                 Center ({{ centerXValue }}, {{ centerYValue }}) · Origin ({{ originXValue }}, {{ originYValue }}) ·
                 Radius ({{ radiusXValue }}, {{ radiusYValue }})
               </p>
-              <h4 class="section-title section-title--sub">{{ cssLabel }}</h4>
+              <h3 class="section-title section-title--sub">{{ cssLabel }}</h3>
               <DemoCode class="css-readout" :code="cssGradient" language="css" />
             </div>
             <figure class="demo-board origin-board">
@@ -325,7 +325,7 @@ const css = useRadialGradient(() => ({
 
         <!-- 预设配置:当作背景使用 -->
         <section>
-          <h4 class="section-title">{{ presetsLabel }}</h4>
+          <h3 class="section-title">{{ presetsLabel }}</h3>
           <div class="preset-row">
             <figure class="preset-item">
               <WuiRadialGradientBrush
@@ -418,7 +418,7 @@ const css = useRadialGradient(() => ({
 
         <!-- GradientStops 编辑器:色板 + 偏移滑块 + 增删(自绘,DemoOptionRow 无此形态) -->
         <div class="stops-editor">
-          <h4 class="stops-title">{{ stopsLabel }}</h4>
+          <h3 class="stops-title">{{ stopsLabel }}</h3>
           <div v-for="(stop, index) in stops" :key="index" class="stop-row">
             <span class="stop-index">#{{ index + 1 }}</span>
             <input v-model="stop.color" type="color" class="stop-color" :aria-label="`${colorLabel} #${index + 1}`" />
@@ -442,13 +442,13 @@ const css = useRadialGradient(() => ({
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">属性</h4>
+      <h3 class="docs-subtitle">属性</h3>
       <DemoDocsTable :headers="docsHeaders" :rows="docsRows" />
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
-      <h4 class="docs-subtitle docs-subtitle--gap">组合式函数(用途二:取 CSS 串)</h4>
+      <h3 class="docs-subtitle docs-subtitle--gap">组合式函数(用途二:取 CSS 串)</h3>
       <DemoCode :code="composableCode" language="typescript" />
     </template>
   </DemoPage>

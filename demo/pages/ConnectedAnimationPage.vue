@@ -308,7 +308,7 @@ ${SCRIPT_CLOSE}
       <div class="ca-stage">
         <!-- ===== 例 1:列表 → 详情(官方 CollectionPage / DetailedInfoPage 复刻)===== -->
         <section class="demo-group">
-          <h4 class="group-title">列表 → 详情飞入 / 飞回</h4>
+          <h3 class="group-title">列表 → 详情飞入 / 飞回</h3>
           <p class="group-note">
             对照官方 CollectionPage / DetailedInfoPage:点按列表项,缩略图飞入详情页头部放大
             (标题与信息面板为协同内容,随根组淡入);点「Go Back」反向飞回列表原位。页面切换本身
@@ -335,7 +335,7 @@ ${SCRIPT_CLOSE}
               <div class="ca-detail-header">
                 <span class="ca-hero" :class="toneClass(detailItem.tone)" :style="heroStyle(detailItem)"></span>
                 <div class="ca-detail-titles">
-                  <h5 class="ca-detail-title">{{ detailItem.title }}</h5>
+                  <h4 class="ca-detail-title">{{ detailItem.title }}</h4>
                   <span class="ca-item-meta">Views: {{ detailItem.views }} · Likes: {{ detailItem.likes }}</span>
                 </div>
               </div>
@@ -355,7 +355,7 @@ ${SCRIPT_CLOSE}
 
         <!-- ===== 例 2:同页卡片放大(官方 CardPage / SmokeGrid 复刻)===== -->
         <section class="demo-group">
-          <h4 class="group-title">同页卡片放大 / 收起</h4>
+          <h3 class="group-title">同页卡片放大 / 收起</h3>
           <p class="group-note">
             对照官方 ConnectedAnimationElementsSame:点按网格卡片放大到覆盖层(烟雾层),点关闭或
             遮罩空白处反向飞回原格 —— 与跨页飞入共用同一套快照配对机制。
@@ -378,7 +378,7 @@ ${SCRIPT_CLOSE}
               <div class="ca-overlay-card" :style="overlayCardStyle(overlayItem)">
                 <span class="ca-overlay-thumb" :class="toneClass(overlayItem.tone)"></span>
                 <div class="ca-overlay-body">
-                  <h5 class="ca-detail-title">{{ overlayItem.title }}</h5>
+                  <h4 class="ca-detail-title">{{ overlayItem.title }}</h4>
                   <p class="ca-detail-desc">{{ overlayItem.description }}</p>
                 </div>
                 <button type="button" class="mini-button ca-overlay-close" @click="closeCard">关闭</button>
@@ -405,13 +405,13 @@ ${SCRIPT_CLOSE}
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">WinUI ConnectedAnimation ↔ View Transitions 概念映射</h4>
+      <h3 class="docs-subtitle">WinUI ConnectedAnimation ↔ View Transitions 概念映射</h3>
       <DemoDocsTable :headers="mappingHeaders" :rows="mappingRows" />
-      <h4 class="docs-subtitle">工具 API(src/utils/transitions.ts)</h4>
+      <h3 class="docs-subtitle">工具 API(src/utils/transitions.ts)</h3>
       <DemoDocsTable :headers="apiHeaders" :rows="apiRows" />
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="apiEventHeaders" :rows="apiEventRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

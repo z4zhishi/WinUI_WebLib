@@ -59,7 +59,7 @@ const navGroups = computed<CatalogGroup[]>(() => [
 <template>
   <section class="home-page">
     <header class="home-header">
-      <h2 class="home-title">{{ i18n.t('homeTitle') }}</h2>
+      <h1 class="home-title">{{ i18n.t('homeTitle') }}</h1>
       <p class="home-subtitle">{{ i18n.t('homeSubtitle') }}</p>
       <p class="home-stats">{{ i18n.t('homeStats', { groups: GROUP_COUNT, items: ITEM_COUNT }) }}</p>
     </header>
@@ -86,7 +86,7 @@ const navGroups = computed<CatalogGroup[]>(() => [
       class="home-group"
       :aria-label="group.title"
     >
-      <h3 class="home-group-title">{{ group.title }}</h3>
+      <h2 class="home-group-title">{{ group.title }}</h2>
       <div class="home-cards">
         <router-link
           v-for="item in group.items"

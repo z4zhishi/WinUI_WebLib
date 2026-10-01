@@ -258,9 +258,10 @@ const usageCode = computed(
       <div class="itemsview-stage">
         <!-- 演示一:文件列表式单选(Stack 布局;Enter/双击调用回显) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupFiles }}</h4>
+          <h3 class="group-title">{{ groupFiles }}</h3>
           <WuiItemsView
             class="file-list"
+            aria-label="文件列表"
             :items="files"
             layout="Stack"
             selection-mode="Single"
@@ -289,9 +290,10 @@ const usageCode = computed(
 
         <!-- 演示二:照片网格(布局 / 选择模式 / 网格参数面板实时调节) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupGrid }}</h4>
+          <h3 class="group-title">{{ groupGrid }}</h3>
           <WuiItemsView
             class="photo-grid"
+            aria-label="照片网格"
             :items="photos"
             :layout="demoLayout"
             :selection-mode="demoMode"
@@ -326,9 +328,10 @@ const usageCode = computed(
 
         <!-- 演示三:空态(EmptyContent slot) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupEmpty }}</h4>
+          <h3 class="group-title">{{ groupEmpty }}</h3>
           <WuiItemsView
             class="empty-demo"
+            aria-label="空态文件列表"
             :items="emptyFiles"
             layout="Stack"
             selection-mode="Single"
@@ -356,7 +359,7 @@ const usageCode = computed(
 
         <!-- 键盘操作说明 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupKeyboard }}</h4>
+          <h3 class="group-title">{{ groupKeyboard }}</h3>
           <ul class="keyboard-list">
             <li><kbd>←</kbd>/<kbd>→</kbd>/<kbd>↑</kbd>/<kbd>↓</kbd> {{ i18n.locale.value.startsWith('zh') ? '移动焦点(Single 随动选择;多选 Shift 扩展)' : 'move focus (Single selects; Shift extends in multi-select)' }}</li>
             <li><kbd>Home</kbd>/<kbd>End</kbd> {{ i18n.locale.value.startsWith('zh') ? '首/末项' : 'first/last item' }}</li>
@@ -402,13 +405,13 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsKeyboardTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsKeyboardTitle }}</h3>
       <DemoDocsTable :headers="keyboardHeaders" :rows="keyboardRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

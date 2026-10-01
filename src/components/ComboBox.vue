@@ -26,7 +26,7 @@
 //     打开态 ↓/↑ 循环导航、Home/End 首/末、Enter/Space 选、Esc/Tab 关;
 //   - 下拉面板走 usePopupLayer(matchAnchorWidth 等宽 + light dismiss 三手势),
 //     嵌套豁免由弹层注册表内置。
-import { computed, nextTick, ref, useId, watch } from 'vue'
+import { computed, nextTick, ref, useAttrs, useId, watch } from 'vue'
 import { usePopupAnchor, usePopupLayer } from '@/composables/usePopup'
 
 defineOptions({ name: 'WuiComboBox', inheritAttrs: false })
@@ -78,6 +78,35 @@ const emit = defineEmits<{
   /** WinUI DropDownClosed:下拉面板已关闭。 */
   (e: 'dropDownClosed'): void
 }>()
+
+// —— 无障碍名:combobox 角色元素需要可访问名(a11y QA aria-input-field-name)。——
+// 优先级:header(可见标头)> 调用方 aria-label > placeholderText 兜底。调用方经 attrs
+// 传入的 aria-label 必须从根元素剥离(根 div 无 role,aria-label 属禁止属性,见
+// aria-prohibited-attr),改注入到 combobox 角色元素上。
+const attrs = useAttrs()
+
+/** 调用方透传的 aria-label / aria-labelledby(attrs 落点从根元素迁到角色元素)。 */
+const callerLabelledBy = computed(() =>
+  typeof attrs['aria-labelledby'] === 'string' ? attrs['aria-labelledby'] : undefined,
+)
+const callerAriaLabel = computed(() =>
+  typeof attrs['aria-label'] === 'string' ? attrs['aria-label'] : undefined,
+)
+
+/** combobox 角色元素(非可编辑根 / 可编辑内部 input)的可访问名。 */
+const fieldAriaLabel = computed(
+  () => props.header || callerAriaLabel.value || props.placeholderText || undefined,
+)
+
+/** 根元素透传 attrs:剥离 aria-label / aria-labelledby(已迁移到角色元素)。 */
+const rootAttrs = computed(() => {
+  const rest: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'aria-label' || key === 'aria-labelledby') continue
+    rest[key] = value
+  }
+  return rest
+})
 
 // —— 元素引用与 id ——
 const anchorRef = usePopupAnchor().anchorRef
@@ -476,7 +505,7 @@ const rootClass = computed(() => ({
 </script>
 
 <template>
-  <div v-bind="$attrs" class="wui-combo-box" :class="rootClass">
+  <div v-bind="rootAttrs" class="wui-combo-box" :class="rootClass">
     <!-- HeaderContentPresenter:ComboBoxHeaderThemeMargin = 0,0,0,4 -->
     <label v-if="header" class="wui-combo-box-header" :for="isEditable ? inputId : undefined">
       {{ header }}
@@ -490,6 +519,8 @@ const rootClass = computed(() => ({
       :tabindex="isEditable || disabled ? -1 : 0"
       :aria-expanded="isEditable ? undefined : isDropDownOpen"
       :aria-haspopup="isEditable ? undefined : 'listbox'"
+      :aria-label="isEditable ? undefined : fieldAriaLabel"
+      :aria-labelledby="isEditable ? undefined : callerLabelledBy"
       :aria-controls="!isEditable && isDropDownOpen ? listboxId : undefined"
       :aria-activedescendant="
         !isEditable && isDropDownOpen ? `${listboxId}-opt-${activeVisible}` : undefined
@@ -512,6 +543,8 @@ const rootClass = computed(() => ({
         class="wui-combo-box-edit-text"
         type="text"
         role="combobox"
+        :aria-label="fieldAriaLabel"
+        :aria-labelledby="callerLabelledBy"
         :aria-expanded="isDropDownOpen"
         aria-haspopup="listbox"
         :aria-controls="isDropDownOpen ? listboxId : undefined"
@@ -550,7 +583,8 @@ const rootClass = computed(() => ({
         class="wui-popup-layer wui-combo-box-dropdown"
         role="listbox"
         tabindex="-1"
-        :aria-label="header || placeholderText || undefined"
+        :aria-label="fieldAriaLabel"
+        :aria-labelledby="callerLabelledBy"
       >
         <div class="wui-combo-box-list" :style="{ maxHeight: `${maxDropDownHeight}px` }">
           <div

@@ -183,7 +183,7 @@ const page = ref(0)
       <div class="pips-stage">
         <!-- 演示一:与分页内容区双向联动(对照官方 PipspagerIntegratedFlipview) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupCarousel }}</h4>
+          <h3 class="group-title">{{ groupCarousel }}</h3>
           <div class="carousel">
             <div
               class="carousel-panel"
@@ -205,7 +205,7 @@ const page = ref(0)
 
         <!-- 演示二:方向与导航按钮可见性组合(参数面板实时调节) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupOptions }}</h4>
+          <h3 class="group-title">{{ groupOptions }}</h3>
           <WuiPipsPager
             v-model:selected-page-index="pagedIndex"
             :number-of-pages="numberOfPagesValue"
@@ -227,7 +227,7 @@ const page = ref(0)
 
         <!-- 键盘与指针操作说明 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupKeyboard }}</h4>
+          <h3 class="group-title">{{ groupKeyboard }}</h3>
           <ul class="keyboard-list">
             <li><kbd>←</kbd>/<kbd>↑</kbd> {{ i18n.locale.value.startsWith('zh') ? '聚焦上一个 pip' : 'focus previous pip' }}</li>
             <li><kbd>→</kbd>/<kbd>↓</kbd> {{ i18n.locale.value.startsWith('zh') ? '聚焦下一个 pip' : 'focus next pip' }}</li>
@@ -251,13 +251,13 @@ const page = ref(0)
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsKeyboardTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsKeyboardTitle }}</h3>
       <DemoDocsTable :headers="keyboardHeaders" :rows="keyboardRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

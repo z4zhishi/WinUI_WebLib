@@ -279,7 +279,7 @@ const usageCode = computed(() => {
       <div class="implicit-stage">
         <!-- 演示一:无过渡 vs 有过渡(显式对照;官方示例 1–5 的预设值) -->
         <section class="demo-group">
-          <h4 class="group-title">无过渡 vs 有过渡(显式对照)</h4>
+          <h3 class="group-title">无过渡 vs 有过渡(显式对照)</h3>
           <p class="group-note">
             两侧绑定同一组属性状态:点击下方按钮同时变更属性——右列按所选过渡与时长 / 延迟 /
             缓动自动播放,左列(transitions = [],即 WinUI Transitions 默认空)瞬时跳变。
@@ -405,7 +405,7 @@ const usageCode = computed(() => {
 
         <!-- 演示二:开关切换(ToggleSwitch 驱动) -->
         <section class="demo-group">
-          <h4 class="group-title">开关切换演示</h4>
+          <h3 class="group-title">开关切换演示</h3>
           <p class="group-note">
             ToggleSwitch 驱动通知卡片弹出 / 收起:isOn 变化 → opacity / translate / scale
             三个属性同时改变,隐式过渡自动组合播放。真实场景「只改属性,不管动画」的典型用法;
@@ -438,7 +438,7 @@ const usageCode = computed(() => {
 
         <!-- 演示三:随机变更(任意属性变化均自动过渡) -->
         <section class="demo-group">
-          <h4 class="group-title">随机变更(任意属性变化均自动过渡)</h4>
+          <h3 class="group-title">随机变更(任意属性变化均自动过渡)</h3>
           <p class="group-note">
             每次点击同时改变 opacity / translation / scale / rotation / background
             五个属性——已启用的过渡自动组合播放,未启用的属性瞬时跳变(可关掉面板中的类型开关对照)。
@@ -505,13 +505,13 @@ const usageCode = computed(() => {
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">属性</h4>
+      <h3 class="docs-subtitle">属性</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">WinUI 隐式过渡 ↔ CSS transition 概念映射</h4>
+      <h3 class="docs-subtitle">WinUI 隐式过渡 ↔ CSS transition 概念映射</h3>
       <DemoDocsTable :headers="mappingHeaders" :rows="mappingRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

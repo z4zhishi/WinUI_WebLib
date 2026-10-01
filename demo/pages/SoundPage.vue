@@ -198,7 +198,7 @@ const onSave = withSound('Invoke', () => save())`
       <div class="sound-stage">
         <!-- 配置 1:官方 TogglingSound 对照 —— ToggleSwitch 切 State,滑块调 Volume -->
         <section class="stage-block">
-          <h4 class="stage-title">{{ stateSectionTitle }}</h4>
+          <h3 class="stage-title">{{ stateSectionTitle }}</h3>
           <div class="state-row">
             <WuiToggleSwitch
               v-model:is-on="soundSwitchOn"
@@ -223,7 +223,7 @@ const onSave = withSound('Invoke', () => save())`
 
         <!-- 配置 2:官方 Play Specific System Sound 对照 —— 7 类系统音试听 -->
         <section class="stage-block">
-          <h4 class="stage-title">{{ auditionSectionTitle }}</h4>
+          <h3 class="stage-title">{{ auditionSectionTitle }}</h3>
           <div class="audition-grid">
             <WuiButton
               v-for="kind in ELEMENT_SOUND_KINDS"
@@ -242,7 +242,7 @@ const onSave = withSound('Invoke', () => save())`
 
         <!-- 配置 3:withSound 绑定真实交互(Show/Hide 配面板显隐,MoveNext/Previous 配翻页)-->
         <section class="stage-block">
-          <h4 class="stage-title">{{ realDemoSectionTitle }}</h4>
+          <h3 class="stage-title">{{ realDemoSectionTitle }}</h3>
           <div class="real-demo-row">
             <WuiButton :disabled="pageIndex <= 1" @click="onPrevious">上一张</WuiButton>
             <span class="page-readout">{{ pageIndex }} / {{ PAGE_COUNT }}</span>
@@ -271,11 +271,11 @@ const onSave = withSound('Invoke', () => save())`
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ apiTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ apiTableTitle }}</h3>
       <DemoDocsTable :headers="apiHeaders" :rows="apiRows" />
-      <h4 class="docs-subtitle">{{ kindsTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ kindsTableTitle }}</h3>
       <DemoDocsTable :headers="kindHeaders" :rows="kindRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="ts" />
     </template>
   </DemoPage>

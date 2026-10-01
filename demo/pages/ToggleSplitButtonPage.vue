@@ -260,7 +260,7 @@ const bold = ref(false)
       <div class="togglesplitbutton-stage">
         <!-- 演示一:加粗开关(官方文档样式,M 带勾选视觉) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupBold }}</h4>
+          <h3 class="group-title">{{ groupBold }}</h3>
           <div class="demo-row">
             <WuiToggleSplitButton
               ref="boldRef"
@@ -296,7 +296,7 @@ const bold = ref(false)
 
         <!-- 演示二:项目符号列表(官方 Gallery 样例复刻) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupList }}</h4>
+          <h3 class="group-title">{{ groupList }}</h3>
           <div class="demo-row">
             <WuiToggleSplitButton
               ref="listRef"
@@ -336,7 +336,7 @@ const bold = ref(false)
 
         <!-- 演示三:参数面板 + 事件日志 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupEvents }}</h4>
+          <h3 class="group-title">{{ groupEvents }}</h3>
           <div class="demo-row">
             <WuiToggleSplitButton
               v-model:is-checked="demoChecked"
@@ -375,13 +375,13 @@ const bold = ref(false)
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ propsTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ propsTableTitle }}</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">{{ eventsTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ eventsTableTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ keyboardTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ keyboardTableTitle }}</h3>
       <DemoDocsTable :headers="keyboardHeaders" :rows="keyboardRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

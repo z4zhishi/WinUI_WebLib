@@ -196,12 +196,13 @@ const usageCode = computed(
       <div class="listview-stage">
         <!-- 演示一:基础列表(单选;对照官方 BaseExample:350 宽、400 高、1px 边框) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupBasic }}</h4>
+          <h3 class="group-title">{{ groupBasic }}</h3>
           <div class="demo-row">
             <WuiListView
               :items="folders"
               v-model:selected-index="basicIndex"
               selection-mode="Single"
+              aria-label="文件夹列表"
               class="demo-list"
               style="width: 350px"
               @selection-changed="onBasicSelectionChanged"
@@ -214,11 +215,12 @@ const usageCode = computed(
 
         <!-- 演示二:选择模式(参数面板实时切换;Multiple 显示勾选框,Extended 支持 Ctrl/Shift) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupSelection }}</h4>
+          <h3 class="group-title">{{ groupSelection }}</h3>
           <div class="demo-row">
             <WuiListView
               :items="contacts"
               :selection-mode="modeValue"
+              aria-label="联系人列表"
               :single-selection-follows-focus="followsValue"
               display-member-path="name"
               class="demo-list"
@@ -251,10 +253,11 @@ const usageCode = computed(
 
         <!-- 演示三:自定义项模板 + Header/Footer(对照官方 ListviewImages) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupTemplate }}</h4>
+          <h3 class="group-title">{{ groupTemplate }}</h3>
           <WuiListView
             :items="mediaItems"
             selection-mode="Single"
+            aria-label="媒体模板列表"
             display-member-path="title"
             class="demo-list"
             style="width: 480px"
@@ -284,7 +287,7 @@ const usageCode = computed(
 
         <!-- 键盘操作说明 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupKeyboard }}</h4>
+          <h3 class="group-title">{{ groupKeyboard }}</h3>
           <ul class="keyboard-list">
             <li><kbd>↑</kbd>/<kbd>↓</kbd>/<kbd>Home</kbd>/<kbd>End</kbd> {{ i18n.locale.value.startsWith('zh') ? '移动焦点' : 'move focus' }}</li>
             <li><kbd>Ctrl</kbd>+{{ i18n.locale.value.startsWith('zh') ? '方向键' : 'arrows' }} {{ i18n.locale.value.startsWith('zh') ? '只移焦不选' : 'move focus only' }}</li>
@@ -316,13 +319,13 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsKeyboardTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsKeyboardTitle }}</h3>
       <DemoDocsTable :headers="keyboardHeaders" :rows="keyboardRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

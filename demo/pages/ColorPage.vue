@@ -370,7 +370,7 @@ const usageCode = `/* 颜色一律经 token 引用,随 html[data-theme] 明暗�
       <div class="color-stage">
         <!-- —— 1. 系统色钩子 + 强调色覆盖演示 —— -->
         <section>
-          <h4 class="section-title">{{ secHooks }}</h4>
+          <h3 class="section-title">{{ secHooks }}</h3>
           <p class="guide-text">{{ hooksGuide }}</p>
           <div class="hooks-grid">
             <div v-for="hook in SYSTEM_COLOR_HOOKS" :key="hook.cssVar" class="hook-card">
@@ -393,7 +393,7 @@ const usageCode = `/* 颜色一律经 token 引用,随 html[data-theme] 明暗�
 
         <!-- —— 2. 全量颜色 token 浏览 —— -->
         <section>
-          <h4 class="section-title">{{ secBrowse }}</h4>
+          <h3 class="section-title">{{ secBrowse }}</h3>
           <p class="guide-text">{{ browseGuide }}</p>
           <div class="browse-toolbar">
             <input
@@ -471,11 +471,11 @@ const usageCode = `/* 颜色一律经 token 引用,随 html[data-theme] 明暗�
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsNamingTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsNamingTitle }}</h3>
       <DemoDocsTable :headers="DOCS_NAMING_HEADERS" :rows="DOCS_NAMING_ROWS" />
-      <h4 class="docs-subtitle">{{ docsHooksTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsHooksTitle }}</h3>
       <DemoDocsTable :headers="DOCS_HOOKS_HEADERS" :rows="DOCS_HOOKS_ROWS" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="css" />
     </template>
   </DemoPage>

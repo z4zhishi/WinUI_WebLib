@@ -197,7 +197,7 @@ const usageCode = computed(
       <div class="timepicker-stage">
         <!-- 演示一:基础选择(参数面板实时调节 Header/制式/分钟步进/禁用) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupBasic }}</h4>
+          <h3 class="group-title">{{ groupBasic }}</h3>
           <div class="demo-row">
             <WuiTimePicker
               v-model:time="basicTime"
@@ -215,7 +215,7 @@ const usageCode = computed(
 
         <!-- 演示二:分钟步进(官方示例 2:Header "Arrival time",MinuteIncrement=15) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupIncrement }}</h4>
+          <h3 class="group-title">{{ groupIncrement }}</h3>
           <div class="demo-row">
             <WuiTimePicker v-model:time="incrementTime" header="Arrival time" :minute-increment="15" />
           </div>
@@ -224,7 +224,7 @@ const usageCode = computed(
 
         <!-- 演示三:24 小时制 + 初值当前时间(官方示例 3) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ group24h }}</h4>
+          <h3 class="group-title">{{ group24h }}</h3>
           <div class="demo-row">
             <WuiTimePicker v-model:time="clock24Time" clock-style="24HourClock" header="24 hour clock" />
           </div>
@@ -233,7 +233,7 @@ const usageCode = computed(
 
         <!-- 演示四:12/24 换算对照(同一 time 值;12AM=00:00、12PM=12:00) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupConvert }}</h4>
+          <h3 class="group-title">{{ groupConvert }}</h3>
           <div class="demo-row">
             <WuiTimePicker v-model:time="convertTime" clock-style="12HourClock" header="12 hour clock" />
             <WuiTimePicker v-model:time="convertTime" clock-style="24HourClock" header="24 hour clock" />
@@ -245,7 +245,7 @@ const usageCode = computed(
 
         <!-- 演示五:空值态(Time = null → 占位前景色;操作任一列即提交真实时间) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupEmpty }}</h4>
+          <h3 class="group-title">{{ groupEmpty }}</h3>
           <div class="demo-row">
             <WuiTimePicker v-model:time="emptyTime" header="Pick a time" />
             <button type="button" class="demo-button" @click="clearEmptyTime">{{ btnClear }}</button>
@@ -256,7 +256,7 @@ const usageCode = computed(
 
         <!-- 滚轮交互说明 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupInteract }}</h4>
+          <h3 class="group-title">{{ groupInteract }}</h3>
           <ul class="interact-list">
             <li>滚轮 / 上下箭头 / 拖拽 / 点击列项 {{ i18n.locale.value.startsWith('zh') ? '任选其一改变时间' : 'change the time' }}</li>
             <li>{{ i18n.locale.value.startsWith('zh') ? '聚焦列后用 ↑/↓、PageUp/PageDown、Home/End 键盘步进' : 'Focus a column, then ↑/↓, PageUp/PageDown, Home/End' }}</li>
@@ -276,13 +276,13 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsInteractTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsInteractTitle }}</h3>
       <DemoDocsTable :headers="interactHeaders" :rows="interactRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

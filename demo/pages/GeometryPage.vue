@@ -340,7 +340,7 @@ geometryBounds(geo) // { x: 1, y: 2, width: 19, height: 14 }
       <div class="geometry-stage">
         <!-- —— 1. 逐指令教学 —— -->
         <section>
-          <h4 class="section-title">{{ commandsLabel }}</h4>
+          <h3 class="section-title">{{ commandsLabel }}</h3>
           <div class="command-list">
             <section v-for="item in COMMAND_SECTIONS" :key="item.key" class="command-card">
               <header class="command-head">
@@ -390,7 +390,7 @@ geometryBounds(geo) // { x: 1, y: 2, width: 19, height: 14 }
 
         <!-- —— 2. 整段输入 Playground —— -->
         <section>
-          <h4 class="section-title">{{ playgroundLabel }}</h4>
+          <h3 class="section-title">{{ playgroundLabel }}</h3>
           <div class="playground">
             <textarea
               v-model="playgroundData"
@@ -432,8 +432,8 @@ geometryBounds(geo) // { x: 1, y: 2, width: 19, height: 14 }
 
         <!-- —— 3. 常用图形速查 —— -->
         <section>
-          <h4 class="section-title">{{ shapesLabel }}</h4>
-          <div class="table-scroll">
+          <h3 class="section-title">{{ shapesLabel }}</h3>
+          <div class="table-scroll" tabindex="0">
             <table class="shape-table">
               <thead>
                 <tr>
@@ -457,9 +457,9 @@ geometryBounds(geo) // { x: 1, y: 2, width: 19, height: 14 }
 
         <!-- —— 4. 官方示例对照:三级圆角 —— -->
         <section>
-          <h4 class="section-title">{{ cornerLabel }}</h4>
+          <h3 class="section-title">{{ cornerLabel }}</h3>
           <p class="corner-intro">{{ cornerIntro }}</p>
-          <div class="table-scroll">
+          <div class="table-scroll" tabindex="0">
             <table class="shape-table">
               <thead>
                 <tr>
@@ -483,7 +483,7 @@ geometryBounds(geo) // { x: 1, y: 2, width: 19, height: 14 }
               </tbody>
             </table>
           </div>
-          <h5 class="docs-subtitle">{{ sampleSourceTitle }}</h5>
+          <h4 class="docs-subtitle">{{ sampleSourceTitle }}</h4>
           <DemoCode :code="CORNER_XAML" language="xaml" />
         </section>
       </div>
@@ -498,9 +498,9 @@ geometryBounds(geo) // { x: 1, y: 2, width: 19, height: 14 }
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ apiTitle }}</h4>
+      <h3 class="docs-subtitle">{{ apiTitle }}</h3>
       <DemoDocsTable :headers="apiHeaders" :rows="apiRows" />
-      <h4 class="docs-subtitle">{{ usageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ usageTitle }}</h3>
       <DemoCode :code="usageCode" language="ts" />
     </template>
   </DemoPage>

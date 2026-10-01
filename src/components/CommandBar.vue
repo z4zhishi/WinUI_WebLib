@@ -342,12 +342,14 @@ watch(isOpen, (value) => {
       <slot name="primary-commands" />
     </div>
 
-    <!-- 更多按钮(MoreButton/EllipsisButton):… 字形,E712(WinUI 3) -->
+    <!-- 更多按钮(MoreButton/EllipsisButton):… 字形,E712(WinUI 3);
+         溢出层 role=toolbar(a11y QA aria-required-children:槽内是 AppBarButton 原生按钮,
+         role=menu 会因缺少 menuitem 直接子项违规;toolbar 无必需子角色) -->
     <button
       v-if="showMoreButton"
       type="button"
       class="wui-commandbar__more"
-      aria-haspopup="menu"
+      aria-haspopup="true"
       :aria-expanded="isOpen ? 'true' : 'false'"
       aria-label="More"
       :disabled="disabled"
@@ -366,7 +368,7 @@ watch(isOpen, (value) => {
         v-if="isOpen"
         ref="layerRef"
         class="wui-popup-layer wui-commandbar__overflow"
-        role="menu"
+        role="toolbar"
         aria-orientation="vertical"
         tabindex="-1"
         @keydown="onLayerKeydown"

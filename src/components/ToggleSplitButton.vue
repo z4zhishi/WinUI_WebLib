@@ -55,8 +55,8 @@ import type { PopupPlacement } from '@/composables/usePopup'
 
 defineOptions({
   name: 'WuiToggleSplitButton',
-  // class(含 is-checked)/ aria-pressed / style 等透传属性经 SplitButton 根元素的
-  // v-bind="$attrs" 落到同一个 span 上,无需二次转发。
+  // class(含 is-checked)/ style 等透传属性经 SplitButton 根元素的 v-bind 落到同一个
+  // span 上;aria-pressed(显式绑定)与 aria-label 则由 SplitButton 路由到主区按钮。
   inheritAttrs: false,
 })
 
@@ -102,8 +102,9 @@ const emit = defineEmits<{
   close: []
 }>()
 
-// WAI-ARIA:role="button"(源 AutomationControlType 仍为 SplitButton)+ aria-pressed 开关
-// 语义(对照 ToggleButton.vue);弹层开合仍由继承来的 aria-haspopup / aria-expanded 表达。
+// WAI-ARIA:主区按钮(源 AutomationControlType 仍为 SplitButton)+ aria-pressed 开关
+// 语义(对照 ToggleButton.vue);aria-pressed 经 SplitButton 的 attrs 路由落到主钮,
+// 弹层开合由主钮的 aria-haspopup / aria-expanded 表达(嵌套交互修复后的落点)。
 const ariaPressed = computed(() => (isChecked.value ? 'true' : 'false'))
 
 // 源 OnIsCheckedChanged 对程序性设置同样触发(L35 起,仅加载前除外)→ watch 全量转发。

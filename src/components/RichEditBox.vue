@@ -11,9 +11,31 @@
 // 取舍记录见 wiki/controls/RichEditBox.md「文档模型选型」。
 // XSS 契约:document 中的 HTML 视为「受信内容」,组件不做消毒;外部输入必须先经
 // DOMPurify 之类 sanitizer(wiki「XSS 安全说明」节有强警示与建议)。
-import { computed, onBeforeUnmount, onMounted, reactive, ref, useId, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, useAttrs, useId, watch } from 'vue'
 
 defineOptions({ name: 'WuiRichEditBox', inheritAttrs: false })
+
+// —— 无障碍名:a11y QA(aria-input-field-name)。header / placeholderText 已有注入路径;
+// 此处补调用方 attrs 的 aria-label / aria-labelledby(attrs 落点从根 div 迁移到编辑器),
+// 优先级:header(labelledby)> 调用方 aria-label > placeholderText。
+const attrs = useAttrs()
+
+const callerAriaLabel = computed(() =>
+  typeof attrs['aria-label'] === 'string' ? attrs['aria-label'] : undefined,
+)
+const callerLabelledBy = computed(() =>
+  typeof attrs['aria-labelledby'] === 'string' ? attrs['aria-labelledby'] : undefined,
+)
+
+/** 根元素透传 attrs:剥离已迁移的 aria-label / aria-labelledby。 */
+const rootAttrs = computed(() => {
+  const rest: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'aria-label' || key === 'aria-labelledby') continue
+    rest[key] = value
+  }
+  return rest
+})
 
 const props = withDefaults(
   defineProps<{
@@ -279,7 +301,7 @@ const rootClass = computed(() => ({
 </script>
 
 <template>
-  <div v-bind="$attrs" class="wui-rich-edit-box" :class="rootClass">
+  <div v-bind="rootAttrs" class="wui-rich-edit-box" :class="rootClass">
     <!-- HeaderContentPresenter:RichEditBoxTopHeaderMargin = 0,0,0,4 -->
     <span v-if="header" :id="headerId" class="wui-rich-edit-box-header">{{ header }}</span>
 
@@ -298,8 +320,8 @@ const rootClass = computed(() => ({
         class="wui-rich-edit-box-editor"
         role="textbox"
         aria-multiline="true"
-        :aria-labelledby="header ? headerId : undefined"
-        :aria-label="!header && placeholderText ? placeholderText : undefined"
+        :aria-labelledby="header ? headerId : callerLabelledBy"
+        :aria-label="!header ? (callerAriaLabel || placeholderText || undefined) : undefined"
         :aria-placeholder="placeholderText || undefined"
         :aria-readonly="isReadOnly ? 'true' : undefined"
         :aria-disabled="disabled ? 'true' : undefined"

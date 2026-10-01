@@ -544,7 +544,7 @@ onBeforeUnmount(() => {
 
         <!-- 例 1:权限状态与请求流程 ← Web 特有(WinUI 免运行时权限)-->
         <section class="example-card example-panel">
-          <h4 class="example-title">{{ ex1Title }}</h4>
+          <h3 class="example-title">{{ ex1Title }}</h3>
           <p class="example-note">{{ ex1Note }}</p>
           <div class="example-row">
             <code class="api-name">Notification.permission</code>
@@ -570,7 +570,7 @@ onBeforeUnmount(() => {
 
         <!-- 例 2:发送基本通知 ← 官方 AppNotificationBasicNotification -->
         <section class="example-card example-panel">
-          <h4 class="example-title">{{ ex2Title }}</h4>
+          <h3 class="example-title">{{ ex2Title }}</h3>
           <p class="example-note">{{ ex2Note }}</p>
           <div class="example-row">
             <WuiButton :content="sendBasicButtonLabel" @click="sendBasic" />
@@ -593,7 +593,7 @@ onBeforeUnmount(() => {
 
         <!-- 例 3:圆形徽标 + 静音 ← 官方 InformationalNotificationLogoCustom -->
         <section class="example-card example-panel">
-          <h4 class="example-title">{{ ex3Title }}</h4>
+          <h3 class="example-title">{{ ex3Title }}</h3>
           <p class="example-note">{{ ex3Note }}</p>
           <div class="example-row">
             <WuiButton :content="sendLogoButtonLabel" @click="sendWithLogo" />
@@ -610,7 +610,7 @@ onBeforeUnmount(() => {
 
         <!-- 例 4:降级页内模拟 ← Web 特有降级通路(需求:权限拒绝时 InfoBar 模拟,标注「页内模拟」)-->
         <section class="example-card example-panel">
-          <h4 class="example-title">{{ ex4Title }}</h4>
+          <h3 class="example-title">{{ ex4Title }}</h3>
           <p class="example-note">{{ ex4Note }}</p>
           <p class="click-hint">{{ simulateCount }} {{ simHint }}</p>
           <div class="simulation-list">
@@ -639,7 +639,7 @@ onBeforeUnmount(() => {
 
         <!-- 例 5:Windows 专属能力说明(Web 无对应;完整对照见文档区与 wiki)-->
         <section class="example-card example-panel">
-          <h4 class="example-title">{{ ex5Title }}</h4>
+          <h3 class="example-title">{{ ex5Title }}</h3>
           <p class="example-note">{{ ex5Note }}</p>
           <ul class="windows-only-list">
             <li>Hero image(SetHeroImage)与出处行(SetAttributionText)</li>
@@ -674,15 +674,15 @@ onBeforeUnmount(() => {
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsApiTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsApiTitle }}</h3>
       <DemoDocsTable :headers="apiHeaders" :rows="apiRows" />
-      <h4 class="docs-subtitle">{{ docsLifecycleTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsLifecycleTitle }}</h3>
       <DemoDocsTable :headers="lifecycleHeaders" :rows="lifecycleRows" />
-      <h4 class="docs-subtitle">{{ docsPermissionTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPermissionTitle }}</h3>
       <DemoDocsTable :headers="permissionHeaders" :rows="permissionRows" />
-      <h4 class="docs-subtitle">{{ docsParityTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsParityTitle }}</h3>
       <DemoDocsTable :headers="parityHeaders" :rows="parityRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="ts" />
       <p class="docs-note">{{ docsNote }}</p>
     </template>

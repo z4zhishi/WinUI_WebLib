@@ -275,7 +275,7 @@ const isFavorite = ref(false)
       <div class="cuc-stage">
         <!-- 主题一:组合控件 RatingRecipe(食谱评分卡列表) -->
         <section class="cuc-group">
-          <h4 class="group-title">{{ groupRecipes }}</h4>
+          <h3 class="group-title">{{ groupRecipes }}</h3>
           <div class="recipe-grid">
             <WuiRatingRecipe
               v-for="recipe in recipes"
@@ -308,7 +308,7 @@ const isFavorite = ref(false)
 
         <!-- 主题二:UserControl 最小组合形态(官方 TemperatureConverterControl 逐字对应) -->
         <section class="cuc-group">
-          <h4 class="group-title">{{ groupConverter }}</h4>
+          <h3 class="group-title">{{ groupConverter }}</h3>
           <div class="converter">
             <WuiTextBox
               v-model:text="converterText"
@@ -355,17 +355,17 @@ const isFavorite = ref(false)
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsSlotsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsSlotsTitle }}</h3>
       <DemoDocsTable :headers="slotHeaders" :rows="slotRows" />
-      <h4 class="docs-subtitle">{{ docsDesignTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsDesignTitle }}</h3>
       <DemoDocsTable :headers="designHeaders" :rows="designRows" />
-      <h4 class="docs-subtitle">{{ docsMappingTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsMappingTitle }}</h3>
       <DemoDocsTable :headers="mappingHeaders" :rows="mappingRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

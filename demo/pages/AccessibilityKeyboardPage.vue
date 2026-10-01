@@ -261,10 +261,10 @@ const usageCode = `<div class="form" @focusin="onFormFocusIn">
       <div class="kb-stack">
         <!-- ===== Tab 序规范 ===== -->
         <section class="spec-card" aria-labelledby="acc-kb-tab-title">
-          <h4 id="acc-kb-tab-title" class="block-title">{{ tabOrderTitle }}</h4>
+          <h3 id="acc-kb-tab-title" class="block-title">{{ tabOrderTitle }}</h3>
           <p class="block-desc">{{ tabOrderDesc }}</p>
 
-          <h5 class="sub-title">{{ tabAutoTitle }}</h5>
+          <h4 class="sub-title">{{ tabAutoTitle }}</h4>
           <p class="block-desc">{{ tabAutoDesc }}</p>
           <div class="demo-line">
             <span class="badge-host">
@@ -289,7 +289,7 @@ const usageCode = `<div class="form" @focusin="onFormFocusIn">
           </div>
           <p class="caption">{{ tabAutoCaption }}</p>
 
-          <h5 class="sub-title">{{ tabManualTitle }}</h5>
+          <h4 class="sub-title">{{ tabManualTitle }}</h4>
           <p class="block-desc">{{ tabManualDesc }}</p>
           <div class="manual-grid" data-kb-name="手动 Tab 序网格">
             <span class="grid-label" aria-hidden="true"></span>
@@ -320,7 +320,7 @@ const usageCode = `<div class="form" @focusin="onFormFocusIn">
 
         <!-- ===== 方向键规范 ===== -->
         <section class="spec-card" aria-labelledby="acc-kb-arrow-title">
-          <h4 id="acc-kb-arrow-title" class="block-title">{{ arrowTitle }}</h4>
+          <h3 id="acc-kb-arrow-title" class="block-title">{{ arrowTitle }}</h3>
           <p class="block-desc">{{ arrowDesc }}</p>
           <div class="demo-line demo-line--column">
             <WuiListView
@@ -335,7 +335,7 @@ const usageCode = `<div class="form" @focusin="onFormFocusIn">
 
         <!-- ===== 键盘路径表单演示 ===== -->
         <section class="spec-card" aria-labelledby="acc-kb-form-title">
-          <h4 id="acc-kb-form-title" class="block-title">{{ formTitle }}</h4>
+          <h3 id="acc-kb-form-title" class="block-title">{{ formTitle }}</h3>
           <p class="block-desc">{{ formDesc }}</p>
 
           <div class="kb-form" data-kb-name="键盘表单" @focusin="onFormFocusIn">
@@ -384,10 +384,10 @@ const usageCode = `<div class="form" @focusin="onFormFocusIn">
 
         <!-- ===== 快捷键 ===== -->
         <section class="spec-card" aria-labelledby="acc-kb-shortcut-title">
-          <h4 id="acc-kb-shortcut-title" class="block-title">{{ shortcutTitle }}</h4>
+          <h3 id="acc-kb-shortcut-title" class="block-title">{{ shortcutTitle }}</h3>
           <p class="block-desc">{{ shortcutDesc }}</p>
 
-          <h5 class="sub-title">{{ accelTitle }}</h5>
+          <h4 class="sub-title">{{ accelTitle }}</h4>
           <div class="demo-line">
             <span
               class="accel-tile"
@@ -401,7 +401,7 @@ const usageCode = `<div class="form" @focusin="onFormFocusIn">
           </div>
           <p class="caption">{{ accelCaption }}</p>
 
-          <h5 class="sub-title">{{ accesskeyTitle }}</h5>
+          <h4 class="sub-title">{{ accesskeyTitle }}</h4>
           <div class="demo-line demo-line--column">
             <WuiMenuBar>
               <WuiMenuBarItem title="File">
@@ -432,11 +432,11 @@ const usageCode = `<div class="form" @focusin="onFormFocusIn">
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsTableTitle }}</h3>
       <DemoDocsTable :headers="kbHeaders" :rows="kbRows" />
-      <h4 class="docs-subtitle">{{ docsMapTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsMapTitle }}</h3>
       <DemoDocsTable :headers="mapHeaders" :rows="mapRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

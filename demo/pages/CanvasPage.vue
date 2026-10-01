@@ -247,7 +247,7 @@ const usageCode = computed(() => {
     </template>
 
     <template #options>
-      <h4 class="group-title">官方示例区(红块参数)</h4>
+      <h3 class="group-title">官方示例区(红块参数)</h3>
       <DemoOptions :columns="2">
         <DemoOptionRow label="红块 Canvas.Top" type="slider" v-model="sampleTop" :min="0" :max="100" :step="1" />
         <DemoOptionRow label="红块 Canvas.Left" type="slider" v-model="sampleLeft" :min="0" :max="100" :step="1" />
@@ -255,7 +255,7 @@ const usageCode = computed(() => {
         <DemoOptionRow label="ClipToBounds 裁剪子项" type="toggle" v-model="sampleClip" />
       </DemoOptions>
 
-      <h4 class="group-title">拖拽区(选中卡片的定位数字输入)</h4>
+      <h3 class="group-title">拖拽区(选中卡片的定位数字输入)</h3>
       <DemoOptions :columns="2">
         <DemoOptionRow label="选中卡片" type="select" v-model="selectedId" :options="cardChoices" />
         <DemoOptionRow label="Canvas.Top" type="number" v-model="selectedTop" :min="0" :max="CARD_MAX_TOP" :step="1" />
@@ -264,13 +264,13 @@ const usageCode = computed(() => {
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">属性</h4>
+      <h3 class="docs-subtitle">属性</h3>
       <DemoDocsTable :headers="propertyHeaders" :rows="propertyRows" />
-      <h4 class="docs-subtitle">附加属性</h4>
+      <h3 class="docs-subtitle">附加属性</h3>
       <DemoDocsTable :headers="attachedHeaders" :rows="attachedRows" />
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

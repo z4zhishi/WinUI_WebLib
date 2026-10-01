@@ -387,7 +387,7 @@ const entranceUsageCode = computed(
       <div class="pt-stage">
         <!-- ===== 第一节:页面转场(官方 PageTransitionPage 复刻)===== -->
         <section class="demo-group">
-          <h4 class="group-title">页面转场(NavigationThemeTransition + NavigationTransitionInfo)</h4>
+          <h3 class="group-title">页面转场(NavigationThemeTransition + NavigationTransitionInfo)</h3>
           <p class="group-note">
             对照官方 ContentFrame.Navigate 演示:下方 Frame 在两个假想页间前进 / 后退,转场按所选
             NavigationTransitionInfo 播放。选中种类后点「前进 / 后退」观察;前进 = push,后退 =
@@ -402,7 +402,7 @@ const entranceUsageCode = computed(
             >
               <article v-if="frameCurrent === 0" class="frame-page">
                 <span class="frame-page-eyebrow">SamplePage 1</span>
-                <h5 class="frame-page-title">页面一:入场</h5>
+                <h4 class="frame-page-title">页面一:入场</h4>
                 <p class="frame-page-text">
                   缺省转场(EntranceNavigationTransitionInfo)为新页淡入并上浮 140px,旧页淡出
                   150ms 让位 —— 与 Windows 系统级页面转场一致。
@@ -411,7 +411,7 @@ const entranceUsageCode = computed(
               </article>
               <article v-else class="frame-page">
                 <span class="frame-page-eyebrow">SamplePage 2</span>
-                <h5 class="frame-page-title">页面二:镜像</h5>
+                <h4 class="frame-page-title">页面二:镜像</h4>
                 <p class="frame-page-text">
                   后退(GoBack)播放镜像动画:进页与离页的位移 / 缩放方向反转,由 direction
                   参数选择 wui-nav-*-back-* 关键帧。
@@ -437,7 +437,7 @@ const entranceUsageCode = computed(
 
         <!-- ===== 第二节:ThemeTransition 家族(官方 ThemeTransitionPage 复刻)+ 明暗切换 ===== -->
         <section class="demo-group">
-          <h4 class="group-title">主题过渡(ThemeTransition 家族)</h4>
+          <h3 class="group-title">主题过渡(ThemeTransition 家族)</h3>
           <p class="group-note">
             Theme transitions 是预打包的即用型动画:对照官方 ThemeTransitionPage 的四个示例
             (入场 stagger / Reposition / Content / AddDelete),另加 Web 增强的明暗切换元素过渡。
@@ -445,7 +445,7 @@ const entranceUsageCode = computed(
 
           <!-- 例 1:入场 stagger -->
           <div class="sub-demo">
-            <h5 class="sub-title">例 1 · 入场 stagger(EntranceThemeTransition)</h5>
+            <h4 class="sub-title">例 1 · 入场 stagger(EntranceThemeTransition)</h4>
             <p class="group-note">
               容器声明 ChildrenTransitions 后,首次出现与新增的子元素按批次错峰上浮;点「重放」
               等价容器重新挂载。
@@ -475,7 +475,7 @@ const entranceUsageCode = computed(
 
           <!-- 例 2:Reposition(FLIP) -->
           <div class="sub-demo">
-            <h5 class="sub-title">例 2 · Reposition(布局重排)</h5>
+            <h4 class="sub-title">例 2 · Reposition(布局重排)</h4>
             <p class="group-note">
               官方仅蓝色矩形声明 RepositionThemeTransition:点击 Reposition 后绿色块瞬时挪位、
               蓝色块滑入补位 —— Web 以 FLIP 只动画「声明了过渡」的元素,其余瞬时跳变。
@@ -497,7 +497,7 @@ const entranceUsageCode = computed(
 
           <!-- 例 3:Content 内容刷新 -->
           <div class="sub-demo">
-            <h5 class="sub-title">例 3 · Content(内容刷新淡入淡出)</h5>
+            <h4 class="sub-title">例 3 · Content(内容刷新淡入淡出)</h4>
             <p class="group-note">
               官方把 ContentThemeTransition 挂在 ItemContainerTransitions 上,数据刷新时自动
               播放;Web 端对整组内容做 out-in 淡出淡入(animations.css wui-fade-* 工具类)。
@@ -523,7 +523,7 @@ const entranceUsageCode = computed(
 
           <!-- 例 4:AddDelete 增删 -->
           <div class="sub-demo">
-            <h5 class="sub-title">例 4 · AddDelete(列表增删滑入收合)</h5>
+            <h4 class="sub-title">例 4 · AddDelete(列表增删滑入收合)</h4>
             <p class="group-note">
               新条目从左侧 ±32px 处滑入(motion-notes 列表位移规格:±32px、333ms、standard),
               删除条目向右滑出并由兄弟条目补位;对应官方 Add / Delete / Add and Del 三按钮。
@@ -553,14 +553,14 @@ const entranceUsageCode = computed(
 
           <!-- 例 5:明暗切换元素过渡(Web 增强) -->
           <div class="sub-demo">
-            <h5 class="sub-title">例 5 · 明暗切换元素过渡(Web 增强)</h5>
+            <h4 class="sub-title">例 5 · 明暗切换元素过渡(Web 增强)</h4>
             <p class="group-note">
               切换下方明 / 暗:卡片内元素的颜色、边框、底色经 240ms(normal 档)渐变到新主题,
               而不是瞬时跳变。切换写 html[data-theme](与页头预览同一机制,站点级预览)。
             </p>
             <div class="swap-stage">
               <div class="swap-card">
-                <h6 class="swap-card-title">主题过渡卡片</h6>
+                <h5 class="swap-card-title">主题过渡卡片</h5>
                 <p class="swap-card-text">
                   本卡片所有主题值都走 --wui-* token,并声明 background-color / color /
                   border-color 过渡;明暗切换时你能看到颜色渐变过程。
@@ -627,17 +627,17 @@ const entranceUsageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">NavigationThemeTransition 属性</h4>
+      <h3 class="docs-subtitle">NavigationThemeTransition 属性</h3>
       <DemoDocsTable :headers="navPropsHeaders" :rows="navPropRows" />
-      <h4 class="docs-subtitle">NavigationThemeTransition 事件</h4>
+      <h3 class="docs-subtitle">NavigationThemeTransition 事件</h3>
       <DemoDocsTable :headers="navEventHeaders" :rows="navEventRows" />
-      <h4 class="docs-subtitle">NavigationTransitionInfo ↔ Web 转场对照(源码实测)</h4>
+      <h3 class="docs-subtitle">NavigationTransitionInfo ↔ Web 转场对照(源码实测)</h3>
       <DemoDocsTable :headers="mappingHeaders" :rows="mappingRows" />
-      <h4 class="docs-subtitle">EntranceNavigationThemeTransition 属性(内容入场 stagger)</h4>
+      <h3 class="docs-subtitle">EntranceNavigationThemeTransition 属性(内容入场 stagger)</h3>
       <DemoDocsTable :headers="entrancePropsHeaders" :rows="entrancePropRows" />
-      <h4 class="docs-subtitle">ThemeTransition 家族 ↔ 本页实现</h4>
+      <h3 class="docs-subtitle">ThemeTransition 家族 ↔ 本页实现</h3>
       <DemoDocsTable :headers="themeFamilyHeaders" :rows="themeFamilyRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="navUsageCode" language="vue" />
       <DemoCode :code="routerUsageCode" language="vue" />
       <DemoCode :code="entranceUsageCode" language="vue" />

@@ -240,7 +240,7 @@ const usageCode = computed(
     </template>
 
     <template #options>
-      <h4 class="group-title">官方示例区(坐标与粗细滑块)</h4>
+      <h3 class="group-title">官方示例区(坐标与粗细滑块)</h3>
       <DemoOptions :columns="2">
         <DemoOptionRow label="Start point X" type="slider" v-model="officialX1" :min="0" :max="100" :step="0.5" />
         <DemoOptionRow label="Start point Y" type="slider" v-model="officialY1" :min="0" :max="100" :step="0.5" />
@@ -249,7 +249,7 @@ const usageCode = computed(
         <DemoOptionRow label="Stroke Thickness" type="slider" v-model="officialThickness" :min="5" :max="10" :step="0.5" />
       </DemoOptions>
 
-      <h4 class="group-title">坐标数字输入(与滑块同步)</h4>
+      <h3 class="group-title">坐标数字输入(与滑块同步)</h3>
       <DemoOptions :columns="2">
         <DemoOptionRow label="X1" type="number" v-model="officialX1" :step="0.5" />
         <DemoOptionRow label="Y1" type="number" v-model="officialY1" :step="0.5" />
@@ -257,7 +257,7 @@ const usageCode = computed(
         <DemoOptionRow label="Y2" type="number" v-model="officialY2" :step="0.5" />
       </DemoOptions>
 
-      <h4 class="group-title">虚线样式</h4>
+      <h3 class="group-title">虚线样式</h3>
       <DemoOptions :columns="2">
         <DemoOptionRow label="StrokeDashArray(倍数)" type="text" v-model="dashPatternText" placeholder="如 2 2 / 3 1 0.5" />
         <DemoOptionRow label="StrokeThickness" type="slider" v-model="dashThickness" :min="2" :max="16" :step="1" />
@@ -265,14 +265,14 @@ const usageCode = computed(
         <DemoOptionRow label="StrokeDashCap" type="select" v-model="dashCap" :options="capChoices" />
       </DemoOptions>
 
-      <h4 class="group-title">线帽</h4>
+      <h3 class="group-title">线帽</h3>
       <DemoOptions :columns="2">
         <DemoOptionRow label="StrokeStartLineCap" type="select" v-model="startCap" :options="capChoices" />
         <DemoOptionRow label="StrokeEndLineCap" type="select" v-model="endCap" :options="capChoices" />
         <DemoOptionRow label="StrokeThickness" type="slider" v-model="capThickness" :min="2" :max="24" :step="1" />
       </DemoOptions>
 
-      <h4 class="group-title">画刷描述</h4>
+      <h3 class="group-title">画刷描述</h3>
       <DemoOptions :columns="2">
         <DemoOptionRow
           label="stroke 画刷"
@@ -288,15 +288,15 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">属性</h4>
+      <h3 class="docs-subtitle">属性</h3>
       <DemoDocsTable :headers="propertyHeaders" :rows="propertyRows" />
       <p class="docs-note">
         注:Stretch 不是 Line 自己的属性,而是 Shape 基类属性——WinUI 的 Line 会继承它(非 None 时把线段拉伸适配布局框),
         本组件按官方示例口径固定按坐标渲染、未实现 Stretch;概念与取舍见 wiki「Stretch 概念说明」。
       </p>
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

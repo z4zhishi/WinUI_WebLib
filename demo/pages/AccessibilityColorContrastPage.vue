@@ -389,7 +389,7 @@ const usageCode = `<AccessibilityColorContrastPage />
       <div class="contrast-stack">
         <!-- ===== 对比度检查器(对照源 InlineColorPicker × 2 + 阈值判定 + 预览)===== -->
         <section class="checker-card" aria-labelledby="acc-cc-checker-title">
-          <h4 id="acc-cc-checker-title" class="block-title">{{ checkerTitle }}</h4>
+          <h3 id="acc-cc-checker-title" class="block-title">{{ checkerTitle }}</h3>
           <p class="block-desc">{{ checkerDesc }}</p>
 
           <div class="checker-grid">
@@ -487,9 +487,9 @@ const usageCode = `<AccessibilityColorContrastPage />
 
         <!-- ===== 本库主题对比度抽样表(实时 token 读取 + 4.5:1 线标注)===== -->
         <section class="sample-card" aria-labelledby="acc-cc-sample-title">
-          <h4 id="acc-cc-sample-title" class="block-title">{{ sampleTitle }}</h4>
+          <h3 id="acc-cc-sample-title" class="block-title">{{ sampleTitle }}</h3>
           <p class="block-desc">{{ sampleDesc }}</p>
-          <div class="table-scroll">
+          <div class="table-scroll" tabindex="0">
             <table class="sample-table">
               <thead>
                 <tr>
@@ -546,11 +546,11 @@ const usageCode = `<AccessibilityColorContrastPage />
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsThresholdsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsThresholdsTitle }}</h3>
       <DemoDocsTable :headers="thresholdHeaders" :rows="thresholdRows" />
-      <h4 class="docs-subtitle">{{ docsAlgoTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsAlgoTitle }}</h3>
       <DemoCode :code="algorithmCode" language="ts" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

@@ -381,13 +381,13 @@ const usageCode = `<!-- WinUI:资源定义在 ResourceDictionary,引用用 Stati
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsMappingTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsMappingTitle }}</h3>
       <DemoDocsTable :headers="mappingHeaders" :rows="mappingRows" />
-      <h4 class="docs-subtitle">{{ docsLibraryTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsLibraryTitle }}</h3>
       <DemoDocsTable :headers="libraryHeaders" :rows="libraryRows" />
-      <h4 class="docs-subtitle">{{ docsLwTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsLwTitle }}</h3>
       <DemoDocsTable :headers="lwHeaders" :rows="lwRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="xml" />
     </template>
   </DemoPage>

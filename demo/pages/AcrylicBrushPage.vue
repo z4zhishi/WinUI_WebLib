@@ -219,7 +219,7 @@ background-color: ${customLayers.value.fallbackColor};`,
       <div class="acrylic-stage-area">
         <!-- 官方示例对照:Example1 / Example3 / Example4 同款彩色背景(Aqua / Magenta / Yellow) -->
         <section>
-          <h4 class="section-title">{{ officialLabel }}</h4>
+          <h3 class="section-title">{{ officialLabel }}</h3>
           <p class="note">{{ themeDefaultsLabel }} —— 同一彩色背景(Aqua / Magenta / Yellow)并排对照:</p>
           <div class="board-row">
             <figure class="board">
@@ -245,7 +245,7 @@ background-color: ${customLayers.value.fallbackColor};`,
 
         <!-- 浅深对照说明 + 四参数实时调 -->
         <section>
-          <h4 class="section-title">{{ customLabel }}</h4>
+          <h3 class="section-title">{{ customLabel }}</h3>
           <div class="board-row">
             <figure class="board">
               <div class="acrylic-stage" role="img" :aria-label="customLabel">
@@ -261,9 +261,9 @@ background-color: ${customLayers.value.fallbackColor};`,
               </figcaption>
             </figure>
             <div class="readout-stack">
-              <h4 class="section-title section-title--sub">{{ layerReadoutLabel }}</h4>
+              <h3 class="section-title section-title--sub">{{ layerReadoutLabel }}</h3>
               <DemoCode class="layer-readout" :code="layerReadout" language="css" />
-              <h4 class="section-title section-title--sub">{{ xamlReadoutLabel }}</h4>
+              <h3 class="section-title section-title--sub">{{ xamlReadoutLabel }}</h3>
               <DemoCode class="layer-readout" :code="xamlCode" language="xml" />
             </div>
           </div>
@@ -271,7 +271,7 @@ background-color: ${customLayers.value.fallbackColor};`,
 
         <!-- 降级演示 -->
         <section>
-          <h4 class="section-title">{{ fallbackLabel }}</h4>
+          <h3 class="section-title">{{ fallbackLabel }}</h3>
           <div class="board-row">
             <figure class="board">
               <div class="acrylic-stage" role="img" :aria-label="fallbackOff">
@@ -320,7 +320,7 @@ background-color: ${customLayers.value.fallbackColor};`,
 
         <!-- 颜色选择:官方同名色板 + 原生取色器(自绘,DemoOptionRow 无此形态) -->
         <div class="swatch-editor">
-          <h4 class="swatch-title">{{ tintSwatchesLabel }}</h4>
+          <h3 class="swatch-title">{{ tintSwatchesLabel }}</h3>
           <div class="swatch-row">
             <button
               v-for="swatch in TINT_SWATCHES"
@@ -335,7 +335,7 @@ background-color: ${customLayers.value.fallbackColor};`,
             <input v-model="tintHex" type="color" class="swatch-input" aria-label="TintColor 自定义" />
             <code class="swatch-value">{{ tintHex }}</code>
           </div>
-          <h4 class="swatch-title">{{ fallbackSwatchesLabel }}</h4>
+          <h3 class="swatch-title">{{ fallbackSwatchesLabel }}</h3>
           <div class="swatch-row">
             <button
               v-for="swatch in FALLBACK_SWATCHES"
@@ -354,7 +354,7 @@ background-color: ${customLayers.value.fallbackColor};`,
 
         <!-- 官方参数预设 -->
         <div class="preset-editor">
-          <h4 class="swatch-title">{{ presetLabel }}</h4>
+          <h3 class="swatch-title">{{ presetLabel }}</h3>
           <div class="preset-row">
             <button type="button" class="preset" @click="applyPreset(PRESETS[0])">{{ presetCustom }}</button>
             <button type="button" class="preset" @click="applyPreset(PRESETS[1])">{{ presetLuminosity }}</button>
@@ -368,11 +368,11 @@ background-color: ${customLayers.value.fallbackColor};`,
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">属性</h4>
+      <h3 class="docs-subtitle">属性</h3>
       <DemoDocsTable :headers="docsHeaders" :rows="docsRows" />
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

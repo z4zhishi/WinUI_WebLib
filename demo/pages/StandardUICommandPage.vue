@@ -205,7 +205,7 @@ const deleteCommand = createStandardUICommand('Delete', {
       <div class="suc-sections">
         <!-- 示例 1:官方示例复刻(共享 Delete 命令;对照 StandardUICommandExposingCommandMultipleControls) -->
         <section class="suc-section">
-          <h4 class="docs-subtitle">{{ sectionOfficialTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionOfficialTitle }}</h3>
           <p class="suc-intro">{{ officialIntro }}</p>
           <div class="suc-row">
             <WuiAppBarButton
@@ -260,7 +260,7 @@ const deleteCommand = createStandardUICommand('Delete', {
 
         <!-- 示例 2:预置命令清单(16 种 Kind;label/图标/加速键/描述全部来自命令预置值) -->
         <section class="suc-section">
-          <h4 class="docs-subtitle">{{ sectionGalleryTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionGalleryTitle }}</h3>
           <div class="suc-row">
             <WuiAppBarButton
               v-for="entry in galleryCommands"
@@ -298,13 +298,13 @@ const deleteCommand = createStandardUICommand('Delete', {
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsPresetTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPresetTitle }}</h3>
       <DemoDocsTable :headers="presetHeaders" :rows="presetRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

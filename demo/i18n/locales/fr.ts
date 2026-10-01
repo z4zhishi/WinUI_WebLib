@@ -4,6 +4,7 @@ export default {
   navHome: 'Accueil',
   navSearch: 'Rechercher',
   navSettings: 'Paramètres',
+  navLabel: 'Navigation du site',
   searchPlaceholder: 'Rechercher des contrôles et des exemples…',
   settingsTitle: 'Paramètres',
   settingsLanguage: 'Langue',

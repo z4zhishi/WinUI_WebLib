@@ -197,8 +197,8 @@ const methodRows: (string | number)[][] = [
 
 const usageCode = computed(
   () => `<WuiFlyout :placement="'Bottom'" @open="onOpen" @close="onClose">
-  <template #target>
-    <WuiButton Content="Empty cart" />
+  <template #target="{ open }">
+    <WuiButton Content="Empty cart" :aria-expanded="open" aria-haspopup="dialog" />
   </template>
   所有商品都将被移除,是否继续?
   <WuiButton Content="Yes, empty my cart" @click="flyout.hide()" />
@@ -212,15 +212,15 @@ const usageCode = computed(
       <div class="flyout-sections">
         <!-- 示例 1:附加到按钮(对照官方 Empty cart) -->
         <section class="flyout-section">
-          <h4 class="docs-subtitle">{{ sectionAttachTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionAttachTitle }}</h3>
           <div class="flyout-row">
             <WuiFlyout
               ref="cartFlyout"
               @open="onCartFlyoutOpen"
               @close="logCartClose"
             >
-              <template #target>
-                <WuiButton content="Empty cart(清空购物车)" />
+              <template #target="{ open }">
+                <WuiButton content="Empty cart(清空购物车)" :aria-expanded="open" aria-haspopup="dialog" />
               </template>
               <p class="flyout-text">将移除所有商品。是否继续?</p>
               <WuiButton content="是,清空购物车" @click="onConfirmEmptyCart" />
@@ -231,7 +231,7 @@ const usageCode = computed(
 
         <!-- 示例 2:Placement 全档(选项面板驱动) -->
         <section class="flyout-section">
-          <h4 class="docs-subtitle">{{ sectionPlacementTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionPlacementTitle }}</h3>
           <div class="flyout-row">
             <WuiFlyout
               :placement="placementValue"
@@ -240,8 +240,8 @@ const usageCode = computed(
               @open="logPlacementOpen"
               @close="logPlacementClose"
             >
-              <template #target>
-                <WuiButton content="在不同方向打开 Placement Flyout" />
+              <template #target="{ open }">
+                <WuiButton content="在不同方向打开 Placement Flyout" :aria-expanded="open" aria-haspopup="dialog" />
               </template>
               <p class="flyout-text">当前 Placement:{{ placementValue }}</p>
             </WuiFlyout>
@@ -250,11 +250,11 @@ const usageCode = computed(
 
         <!-- 示例 3:light dismiss 开关对比 -->
         <section class="flyout-section">
-          <h4 class="docs-subtitle">{{ sectionLightDismissTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionLightDismissTitle }}</h3>
           <div class="flyout-row">
             <WuiFlyout :light-dismiss="true" @open="logLightDismissOpen" @close="logLightDismissClose">
-              <template #target>
-                <WuiButton content="lightDismiss = true" />
+              <template #target="{ open }">
+                <WuiButton content="lightDismiss = true" :aria-expanded="open" aria-haspopup="dialog" />
               </template>
               <p class="flyout-text">
                 点击外部、按 Escape、滚动页面或焦点移出都会关闭(与 WinUI FlyoutBase 语义一致)。
@@ -262,8 +262,8 @@ const usageCode = computed(
             </WuiFlyout>
 
             <WuiFlyout v-model:is-open="noDismissOpen" :light-dismiss="false">
-              <template #target>
-                <WuiButton content="lightDismiss = false" />
+              <template #target="{ open }">
+                <WuiButton content="lightDismiss = false" :aria-expanded="open" aria-haspopup="dialog" />
               </template>
               <p class="flyout-text">
                 只能点击宿主按钮(toggle)或通过 isOpen 编程关闭;当前 isOpen:{{ noDismissOpen ? 'true' : 'false' }}。
@@ -275,7 +275,7 @@ const usageCode = computed(
 
         <!-- 示例 4:showAt 程序化挂载 -->
         <section class="flyout-section">
-          <h4 class="docs-subtitle">{{ sectionShowAtTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionShowAtTitle }}</h3>
           <div class="flyout-row">
             <button ref="showAtAnchor" type="button" class="demo-native-button">ShowAt 锚点(原生元素)</button>
             <WuiButton content="showAt(锚点) 打开" @click="onShowAtClick" />
@@ -289,11 +289,11 @@ const usageCode = computed(
 
         <!-- 示例 5:富内容表单 flyout -->
         <section class="flyout-section">
-          <h4 class="docs-subtitle">{{ sectionFormTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionFormTitle }}</h3>
           <div class="flyout-row">
             <WuiFlyout ref="formFlyout" @open="onFormFlyoutOpen" @close="logFormClose">
-              <template #target>
-                <WuiButton content="提交反馈" />
+              <template #target="{ open }">
+                <WuiButton content="提交反馈" :aria-expanded="open" aria-haspopup="dialog" />
               </template>
               <div class="flyout-form">
                 <p class="flyout-text">告诉我们你的想法:</p>
@@ -308,7 +308,7 @@ const usageCode = computed(
 
         <!-- 事件日志 -->
         <section class="flyout-section">
-          <h4 class="docs-subtitle">{{ eventLogTitle }}</h4>
+          <h3 class="docs-subtitle">{{ eventLogTitle }}</h3>
           <div class="event-log">
             <p v-for="(line, index) in eventLog" :key="`${line}-${index}`" class="log-line">{{ line }}</p>
             <p v-if="eventLog.length === 0" class="click-hint">{{ noEventsHint }}</p>
@@ -327,13 +327,13 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ propsTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ propsTableTitle }}</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">{{ eventsTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ eventsTableTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ methodsTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ methodsTableTitle }}</h3>
       <DemoDocsTable :headers="methodHeaders" :rows="methodRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

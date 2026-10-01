@@ -170,7 +170,7 @@ const usageCode = computed(
       <div class="backdrop-area">
         <!-- 三材质元素卡片对照(同一「桌面」舞台,主题跟随站点) -->
         <section>
-          <h4 class="section-title">{{ compareLabel }}</h4>
+          <h3 class="section-title">{{ compareLabel }}</h3>
           <p class="note">{{ compareNote }}</p>
           <div class="stage" role="img" :aria-label="compareLabel">
             <span class="stage-shape stage-shape--sky" />
@@ -188,7 +188,7 @@ const usageCode = computed(
 
         <!-- 内容叠加演示(一比一还原官方示例:元素垫底 + 内容叠加) -->
         <section>
-          <h4 class="section-title">{{ overlayLabel }}</h4>
+          <h3 class="section-title">{{ overlayLabel }}</h3>
           <p class="note">{{ overlayNote }}</p>
           <!-- 舞台内含可交互按钮(官方示例的 Click Me),不加 role="img" 以免隐藏可交互子节点 -->
           <div class="overlay-stage" :aria-label="overlayLabel">
@@ -208,9 +208,9 @@ const usageCode = computed(
               </div>
             </WuiSystemBackdropElement>
           </div>
-          <h4 class="section-title section-title--sub">{{ readoutLabel }}</h4>
+          <h3 class="section-title section-title--sub">{{ readoutLabel }}</h3>
           <DemoCode class="readout" :code="readoutText" language="text" />
-          <h4 class="section-title section-title--sub">{{ xamlReadoutLabel }}</h4>
+          <h3 class="section-title section-title--sub">{{ xamlReadoutLabel }}</h3>
           <DemoCode :code="xamlCode" language="xml" />
         </section>
       </div>
@@ -246,11 +246,11 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">属性</h4>
+      <h3 class="docs-subtitle">属性</h3>
       <DemoDocsTable :headers="docsHeaders" :rows="docsRows" />
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

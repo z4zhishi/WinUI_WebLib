@@ -241,7 +241,7 @@ const usageCode = `<!-- WinUI 原生:在应用 / 页面 / 控件级引入紧凑�
             </div>
             <div class="ctl-row">
               <div class="ctl-label">ListView <span class="ctl-badge">项高 40px</span></div>
-              <WuiListView :items="listItems" v-model:selected-index="compareListIndex" />
+              <WuiListView :items="listItems" v-model:selected-index="compareListIndex" aria-label="列表对照" />
             </div>
             <div class="ctl-row">
               <div class="ctl-label">TreeView <span class="ctl-badge">节点行 28px</span></div>
@@ -267,7 +267,7 @@ const usageCode = `<!-- WinUI 原生:在应用 / 页面 / 控件级引入紧凑�
                 <WuiButton content="Button" />
                 <WuiCheckBox v-model:checked="compareChecked" content="CheckBox" />
               </div>
-              <WuiSlider v-model:value="compareSlider" :minimum="0" :maximum="100" />
+              <WuiSlider v-model:value="compareSlider" :minimum="0" :maximum="100" aria-label="数值滑块对照" />
             </div>
           </section>
 
@@ -292,7 +292,7 @@ const usageCode = `<!-- WinUI 原生:在应用 / 页面 / 控件级引入紧凑�
             </div>
             <div class="ctl-row">
               <div class="ctl-label">ListView <span class="ctl-badge">项高 32px</span></div>
-              <WuiListView :items="listItems" v-model:selected-index="compareListIndex" />
+              <WuiListView :items="listItems" v-model:selected-index="compareListIndex" aria-label="列表对照" />
             </div>
             <div class="ctl-row">
               <div class="ctl-label">TreeView <span class="ctl-badge">节点行 24px</span></div>
@@ -318,7 +318,7 @@ const usageCode = `<!-- WinUI 原生:在应用 / 页面 / 控件级引入紧凑�
                 <WuiButton content="Button" />
                 <WuiCheckBox v-model:checked="compareChecked" content="CheckBox" />
               </div>
-              <WuiSlider v-model:value="compareSlider" :minimum="0" :maximum="100" />
+              <WuiSlider v-model:value="compareSlider" :minimum="0" :maximum="100" aria-label="数值滑块对照" />
             </div>
           </section>
         </div>
@@ -347,11 +347,11 @@ const usageCode = `<!-- WinUI 原生:在应用 / 页面 / 控件级引入紧凑�
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsDensityTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsDensityTitle }}</h3>
       <DemoDocsTable :headers="densityHeaders" :rows="densityRows" />
-      <h4 class="docs-subtitle">{{ docsSupportTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsSupportTitle }}</h3>
       <DemoDocsTable :headers="supportHeaders" :rows="supportRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

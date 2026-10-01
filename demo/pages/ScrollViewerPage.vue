@@ -151,7 +151,7 @@ const propRows: (string | number)[][] = [
   ['zoomFactor(v-model)', 'number', '1', '当前缩放系数;支持 v-model:zoom-factor 双向绑定'],
   ['padding', 'number | string', '0', '内容内边距(WinUI Presenter Margin);数字按 px'],
   ['background', 'string', "'transparent'", '背景色(任意 CSS color)'],
-  ['isTabStop', 'boolean', 'false', '是否可聚焦;聚焦后方向键 / 空格 / PgUp / PgDn 滚动'],
+  ['isTabStop', 'boolean', 'false', '兼容保留;滚动视口恒 tabindex=0(键盘方向键 / 空格 / PgUp / PgDn 滚动,a11y 要求)'],
 ]
 const eventHeaders = ['事件', '参数', '触发时机']
 const eventRows: (string | number)[][] = [
@@ -198,7 +198,7 @@ viewerRef.value?.changeView(0, 0, 1)`,
       <div class="viewer-stage">
         <!-- 例 1:参数面板联动(官方示例的参数组合) -->
         <section class="stage-block">
-          <h4 class="stage-title">{{ example1Label }}</h4>
+          <h3 class="stage-title">{{ example1Label }}</h3>
           <WuiScrollViewer
             v-model:zoom-factor="zoomValue"
             class="main-viewer"
@@ -212,7 +212,7 @@ viewerRef.value?.changeView(0, 0, 1)`,
             @view-changed="onMainViewChanged"
           >
             <div class="article">
-              <h4 class="article-title">长内容滚动演示</h4>
+              <h3 class="article-title">长内容滚动演示</h3>
               <p class="article-text">
                 ScrollViewer 是滚动物料的容器:内容按视区尺寸参与布局,超出可视区域的部分转为滚动溢出,
                 由水平/垂直滚动条与滚轮、触摸平移承接。本段文本足够长,可通过右侧滚动条或鼠标滚轮纵向滚动。
@@ -259,7 +259,7 @@ viewerRef.value?.changeView(0, 0, 1)`,
 
         <!-- 例 2:编程滚动按钮组 -->
         <section class="stage-block">
-          <h4 class="stage-title">{{ example2Label }}</h4>
+          <h3 class="stage-title">{{ example2Label }}</h3>
           <div class="api-layout">
             <WuiScrollViewer
               ref="apiViewer"
@@ -305,13 +305,13 @@ viewerRef.value?.changeView(0, 0, 1)`,
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">属性</h4>
+      <h3 class="docs-subtitle">属性</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">编程 API(模板 ref)</h4>
+      <h3 class="docs-subtitle">编程 API(模板 ref)</h3>
       <DemoDocsTable :headers="apiHeaders" :rows="apiRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

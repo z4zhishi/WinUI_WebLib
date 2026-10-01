@@ -10,7 +10,8 @@ defineProps<{
 </script>
 
 <template>
-  <div class="table-scroll">
+  <!-- tabindex=0:横向滚动区域键盘可达(a11y QA scrollable-region-focusable) -->
+  <div class="table-scroll" tabindex="0">
     <table class="docs-table">
       <thead>
         <tr>

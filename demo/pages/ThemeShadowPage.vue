@@ -170,7 +170,7 @@ import ThemeShadowDemo from '@/components/ThemeShadowDemo.vue'
       <div class="tsd-sections">
         <!-- 示例 1:官方示例复刻(200×200 卡片 + Z-translation 滑块 + receiver 背景层) -->
         <section class="tsd-section">
-          <h4 class="docs-subtitle">{{ sectionOfficialTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionOfficialTitle }}</h3>
           <p class="tsd-intro">{{ officialIntro }}</p>
           <ThemeShadowDemo
             class="tsd-official-stage"
@@ -187,7 +187,7 @@ import ThemeShadowDemo from '@/components/ThemeShadowDemo.vue'
 
         <!-- 示例 2:elevation 预设档位(4 档,值来自 WinUI 参照源) -->
         <section class="tsd-section">
-          <h4 class="docs-subtitle">{{ sectionPresetTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionPresetTitle }}</h3>
           <p class="tsd-intro">{{ presetIntro }}</p>
           <div class="tsd-preset-row">
             <ThemeShadowDemo
@@ -207,7 +207,7 @@ import ThemeShadowDemo from '@/components/ThemeShadowDemo.vue'
 
         <!-- 示例 3:拖动卡片(阴影随位置移动;键盘可达) -->
         <section class="tsd-section">
-          <h4 class="docs-subtitle">{{ sectionDragTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionDragTitle }}</h3>
           <p class="tsd-intro">{{ dragIntro }}</p>
           <ThemeShadowDemo
             draggable
@@ -222,13 +222,13 @@ import ThemeShadowDemo from '@/components/ThemeShadowDemo.vue'
 
         <!-- 示例 4:与弹层阴影对照(统一口径) -->
         <section class="tsd-section">
-          <h4 class="docs-subtitle">{{ sectionCompareTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionCompareTitle }}</h3>
           <p class="tsd-intro">{{ compareIntro }}</p>
           <div class="tsd-compare-row">
             <div class="tsd-compare-cell">
               <WuiFlyout>
-                <template #target>
-                  <WuiButton content="打开 Flyout(弹层基建阴影)" />
+                <template #target="{ open }">
+                  <WuiButton content="打开 Flyout(弹层基建阴影)" :aria-expanded="open" aria-haspopup="dialog" />
                 </template>
                 <p class="tsd-flyout-text">弹层内容:层根阴影由 --wui-popup-shadow 提供,</p>
                 <p class="tsd-flyout-text">观感即 ThemeShadow elevation 32。</p>
@@ -269,15 +269,15 @@ import ThemeShadowDemo from '@/components/ThemeShadowDemo.vue'
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">{{ docsFuncsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsFuncsTitle }}</h3>
       <DemoDocsTable :headers="funcHeaders" :rows="funcRows" />
-      <h4 class="docs-subtitle">{{ docsPresetTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPresetTableTitle }}</h3>
       <DemoDocsTable :headers="presetTableHeaders" :rows="presetTableRows" />
-      <h4 class="docs-subtitle">{{ docsMappingTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsMappingTitle }}</h3>
       <DemoCode :code="generatedCssCode" language="css" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

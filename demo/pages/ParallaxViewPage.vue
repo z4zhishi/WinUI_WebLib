@@ -149,7 +149,7 @@ const usageCode = [
       <div class="parallax-stage">
         <!-- 场景 1:背景视差(官方 Example1 复刻) -->
         <section class="stage-section">
-          <h4 class="stage-title">{{ s1Label }}</h4>
+          <h3 class="stage-title">{{ s1Label }}</h3>
           <div class="hero-stage">
             <!-- 背景视差层:锚定填满舞台(position 用 inline style 压过组件根的 position: relative);
                  滚动源显式绑定为覆盖其上的列表 -->
@@ -203,7 +203,7 @@ const usageCode = [
 
         <!-- 场景 2:双向 shift + shift=0 对照(in-source:缺省 Source = 最近可滚祖先) -->
         <section class="stage-section">
-          <h4 class="stage-title">{{ s2Label }}</h4>
+          <h3 class="stage-title">{{ s2Label }}</h3>
           <WuiScrollView class="compare-scroller" aria-label="双向视差对照滚动区">
             <div class="compare-flow">
               <p class="compare-note">{{ s2PosNote }}</p>
@@ -244,7 +244,7 @@ const usageCode = [
 
         <!-- 场景 3:水平视差(HorizontalShift + 横向滚动) -->
         <section class="stage-section">
-          <h4 class="stage-title">{{ s3Label }}</h4>
+          <h3 class="stage-title">{{ s3Label }}</h3>
           <WuiScrollView class="hstage-scroller" content-orientation="Horizontal" aria-label="水平视差滚动区">
             <div class="hstage-flow">
               <div class="hstage-card">
@@ -278,11 +278,11 @@ const usageCode = [
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">属性与方法(对照 WinUI ParallaxView.idl 属性面)</h4>
+      <h3 class="docs-subtitle">属性与方法(对照 WinUI ParallaxView.idl 属性面)</h3>
       <DemoDocsTable :headers="DOCS_HEADERS" :rows="DOCS_ROWS" />
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="EVENT_HEADERS" :rows="EVENT_ROWS" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

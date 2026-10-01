@@ -174,14 +174,14 @@ const usageCode = computed(() => {
     </template>
 
     <template #options>
-      <h4 class="group-title">官方示例区(分隔线状态与命令栏高度)</h4>
+      <h3 class="group-title">官方示例区(分隔线状态与命令栏高度)</h3>
       <DemoOptions :columns="2">
         <DemoOptionRow label="IsCompact(分隔线)" type="toggle" v-model="isCompact" />
         <DemoOptionRow label="命令栏高度" type="slider" v-model="barHeight" :min="48" :max="96" :step="4" />
         <DemoOptionRow label="IsCompact(命令按钮)" type="toggle" v-model="isCompactButtons" />
       </DemoOptions>
 
-      <h4 class="group-title">溢出样式与外观</h4>
+      <h3 class="group-title">溢出样式与外观</h3>
       <DemoOptions :columns="2">
         <DemoOptionRow label="UseOverflowStyle" type="toggle" v-model="useOverflowStyle" />
         <DemoOptionRow
@@ -198,14 +198,14 @@ const usageCode = computed(() => {
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">属性</h4>
+      <h3 class="docs-subtitle">属性</h3>
       <DemoDocsTable :headers="propertyHeaders" :rows="propertyRows" />
       <p class="docs-note">
         注:组件固定输出 role="separator" 与 aria-orientation(竖线 vertical、溢出样式 horizontal),对辅助技术正确表达分隔语义。
       </p>
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

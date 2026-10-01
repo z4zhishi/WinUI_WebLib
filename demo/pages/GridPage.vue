@@ -159,6 +159,7 @@ const usageCode = computed(
               v-model:value="formVolume"
               :minimum="0"
               :maximum="100"
+              aria-label="音量"
               data-grid-column="1"
               data-grid-row="0"
             />
@@ -169,6 +170,7 @@ const usageCode = computed(
               v-model:value="formSpacing"
               :minimum="0"
               :maximum="24"
+              aria-label="列间距"
               data-grid-column="1"
               data-grid-row="2"
             />

@@ -203,17 +203,18 @@ function onLayerFocusout(event: FocusEvent): void {
 </script>
 
 <template>
-  <!-- 宿主锚(#target slot 可选):inline-flex 包装提供可测量的锚盒,$attrs 透传 -->
+  <!-- 宿主锚(#target slot 可选):inline-flex 包装提供可测量的锚盒,$attrs 透传。
+       a11y(a11y QA aria-prohibited-attr):包装 span 无 role,不能挂 aria-haspopup /
+       aria-expanded(禁止属性);二者属于真正的触发控件 —— open 状态经作用域插槽下发,
+       由调用方绑定到触发钮(#target="{ open }" + :aria-expanded="open" aria-haspopup="dialog") -->
   <span
     v-if="slots.target"
     ref="anchorRef"
     v-bind="$attrs"
     class="wui-flyout-target"
-    aria-haspopup="dialog"
-    :aria-expanded="isOpen ? 'true' : 'false'"
     @click="onTargetClick"
   >
-    <slot name="target" />
+    <slot name="target" :open="isOpen" />
   </span>
 
   <Teleport to="body">

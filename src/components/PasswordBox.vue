@@ -5,7 +5,7 @@
 // 四态 + RevealButton(揭示按钮)的 ButtonVisible/ButtonCollapsed 状态;
 // 颜色/字号取 theme.css 的 --wui-* token,结构尺寸取源键值(见 wiki 差异说明)。
 // 同族实现沿用已过 QA 的 TextBox.vue 约定(token、Focused > PointerOver 优先级、按钮 mousedown.prevent 时序)。
-import { computed, ref, useId } from 'vue'
+import { computed, ref, useAttrs, useId } from 'vue'
 
 defineOptions({ name: 'WuiPasswordBox', inheritAttrs: false })
 
@@ -50,6 +50,36 @@ const emit = defineEmits<{
 }>()
 
 const inputId = useId()
+
+// —— 无障碍名:a11y QA(label 规则)。header 有 label[for] 关联;无 header 时取调用方
+// attrs 的 aria-label / aria-labelledby,再退 placeholderText。attrs 落点从根 div
+// (无 role,禁止 aria-label)迁移到 input 上。
+const attrs = useAttrs()
+
+const callerAriaLabel = computed(() =>
+  typeof attrs['aria-label'] === 'string' ? attrs['aria-label'] : undefined,
+)
+const callerLabelledBy = computed(() =>
+  typeof attrs['aria-labelledby'] === 'string' ? attrs['aria-labelledby'] : undefined,
+)
+
+/** input 的可访问名:header 经 label[for] 关联,故仅无 header 时注入。 */
+const inputAriaLabel = computed(() =>
+  props.header ? undefined : (callerAriaLabel.value || props.placeholderText || undefined),
+)
+const inputAriaLabelledBy = computed(() =>
+  props.header ? undefined : callerLabelledBy.value,
+)
+
+/** 根元素透传 attrs:剥离已迁移的 aria-label / aria-labelledby。 */
+const rootAttrs = computed(() => {
+  const rest: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'aria-label' || key === 'aria-labelledby') continue
+    rest[key] = value
+  }
+  return rest
+})
 
 // —— 焦点 / IME 组合 / 按住揭示状态 ——
 const focused = ref(false)
@@ -124,7 +154,7 @@ const rootClass = computed(() => ({
 </script>
 
 <template>
-  <div v-bind="$attrs" class="wui-password-box" :class="rootClass">
+  <div v-bind="rootAttrs" class="wui-password-box" :class="rootClass">
     <!-- HeaderContentPresenter:PasswordBoxTopHeaderMargin = 0,0,0,4 -->
     <label v-if="header" class="wui-password-box-header" :for="inputId">{{ header }}</label>
 
@@ -133,6 +163,8 @@ const rootClass = computed(() => ({
         :id="inputId"
         class="wui-password-box-input"
         :type="inputType"
+        :aria-label="inputAriaLabel"
+        :aria-labelledby="inputAriaLabelledBy"
         :value="password"
         :placeholder="placeholderText"
         :disabled="disabled"

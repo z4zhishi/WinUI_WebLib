@@ -304,9 +304,7 @@ const NEXT_LABEL = 'Next page'
           :data-index="index - 1"
           :tabindex="index - 1 === selectedPageIndex ? 0 : -1"
           :disabled="disabled"
-          :aria-label="`Page ${index}`"
-          :aria-posinset="index"
-          :aria-setsize="effNumberOfPages > 0 ? effNumberOfPages : undefined"
+          :aria-label="effNumberOfPages > 0 ? `Page ${index} of ${effNumberOfPages}` : `Page ${index}`"
           :aria-current="index - 1 === selectedPageIndex ? 'true' : undefined"
           @click="selectPip(index - 1)"
         >

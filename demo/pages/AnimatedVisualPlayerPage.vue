@@ -254,7 +254,7 @@ const player = ref<InstanceType<typeof WuiAnimatedVisualPlayer> | null>(null)
       <div class="player-stage">
         <!-- 演示一:官方示例复刻(播放控制 + 进度 + 倍速) -->
         <section class="demo-group">
-          <h4 class="group-title">播放控制(官方示例复刻)</h4>
+          <h3 class="group-title">播放控制(官方示例复刻)</h3>
           <p class="group-note">
             对照官方示例:播放器消费经 Lottie-Windows 转译的 AfterEffects 动画,Web 版以 lottie-web
             播放同源的 Lottie JSON(官方源不可直用,选型见 wiki)。按钮组 Play / Pause(ToggleButton)/
@@ -269,6 +269,7 @@ const player = ref<InstanceType<typeof WuiAnimatedVisualPlayer> | null>(null)
             <WuiAnimatedVisualPlayer
               ref="primaryPlayer"
               class="primary-player"
+              aria-label="Lottie 动画演示"
               :source="primarySource"
               :auto-play="autoPlayOn === true"
               :playback-rate="playbackRateValue"
@@ -327,7 +328,7 @@ const player = ref<InstanceType<typeof WuiAnimatedVisualPlayer> | null>(null)
 
         <!-- 演示二:自定义源加载 -->
         <section class="demo-group">
-          <h4 class="group-title">自定义源加载</h4>
+          <h3 class="group-title">自定义源加载</h3>
           <p class="group-note">
             源类型切换(见参数面板):内置内联 JSON(离线可用)/ 自定义 URL(组件 fetch,
             失败触发 loadError 并渲染 fallback 插槽)/ 无源(source = null,直接渲染 fallback
@@ -337,6 +338,7 @@ const player = ref<InstanceType<typeof WuiAnimatedVisualPlayer> | null>(null)
             <div class="player-card small">
               <WuiAnimatedVisualPlayer
                 class="custom-player"
+                aria-label="自定义降级动画演示"
                 :source="customSource"
                 :auto-play="true"
                 :playback-rate="1"
@@ -388,13 +390,13 @@ const player = ref<InstanceType<typeof WuiAnimatedVisualPlayer> | null>(null)
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">属性</h4>
+      <h3 class="docs-subtitle">属性</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="eventsHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">方法与只读状态(defineExpose)</h4>
+      <h3 class="docs-subtitle">方法与只读状态(defineExpose)</h3>
       <DemoDocsTable :headers="methodsHeaders" :rows="methodRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

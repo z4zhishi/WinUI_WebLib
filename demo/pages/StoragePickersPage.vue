@@ -830,7 +830,7 @@ onBeforeUnmount(() => {
 
         <!-- 例 1:打开单个文件 + 文件信息 + 读取文本内容 ← 官方 PickSingleFile -->
         <section class="picker-example">
-          <h4 class="example-title">{{ ex1Title }}</h4>
+          <h3 class="example-title">{{ ex1Title }}</h3>
           <p class="example-note">{{ ex1Note }}</p>
           <p class="mode-line">
             <span class="mode-badge">{{ openModeLabel }}</span>
@@ -872,7 +872,7 @@ onBeforeUnmount(() => {
 
         <!-- 例 2:打开多个文件 ← 官方 PickMultipleFiles -->
         <section class="picker-example">
-          <h4 class="example-title">{{ ex2Title }}</h4>
+          <h3 class="example-title">{{ ex2Title }}</h3>
           <p class="example-note">{{ ex2Note }}</p>
           <div class="example-row">
             <WuiButton :content="openMultiButtonLabel" :disabled="multiLoading" @click="pickMultipleFiles" />
@@ -895,7 +895,7 @@ onBeforeUnmount(() => {
 
         <!-- 例 3:保存文本文件 ← 官方 SaveFile -->
         <section class="picker-example">
-          <h4 class="example-title">{{ ex3Title }}</h4>
+          <h3 class="example-title">{{ ex3Title }}</h3>
           <p class="example-note">{{ ex3Note }}</p>
           <p class="mode-line">
             <span class="mode-badge">{{ saveModeLabel }}</span>
@@ -924,7 +924,7 @@ onBeforeUnmount(() => {
 
         <!-- 例 4:选择文件夹并枚举 ← 官方 PickFolder(+ GetItemsAsync 等价)-->
         <section class="picker-example">
-          <h4 class="example-title">{{ ex4Title }}</h4>
+          <h3 class="example-title">{{ ex4Title }}</h3>
           <p class="example-note">{{ ex4Note }}</p>
           <div class="example-row">
             <WuiButton
@@ -970,7 +970,7 @@ onBeforeUnmount(() => {
 
         <!-- 例 5:文件信息与图像预览 ← 官方 FileThumbnail -->
         <section class="picker-example">
-          <h4 class="example-title">{{ ex5Title }}</h4>
+          <h3 class="example-title">{{ ex5Title }}</h3>
           <p class="example-note">{{ ex5Note }}</p>
           <div class="preview-layout">
             <div class="preview-side">
@@ -1006,7 +1006,7 @@ onBeforeUnmount(() => {
 
         <!-- 例 6:Windows 专属能力说明(Web 无对应;完整对照见文档区与 wiki)-->
         <section class="picker-example">
-          <h4 class="example-title">{{ ex6Title }}</h4>
+          <h3 class="example-title">{{ ex6Title }}</h3>
           <p class="example-note">{{ ex6Note }}</p>
           <ul class="windows-only-list">
             <li v-for="item in WINDOWS_ONLY_ITEMS" :key="item.zh">{{ pickText(i18n, item) }}</li>
@@ -1039,11 +1039,11 @@ onBeforeUnmount(() => {
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsApiTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsApiTitle }}</h3>
       <DemoDocsTable :headers="apiHeaders" :rows="apiRows" />
-      <h4 class="docs-subtitle">{{ docsParityTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsParityTitle }}</h3>
       <DemoDocsTable :headers="parityHeaders" :rows="parityRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="ts" />
       <p class="docs-note">{{ docsNote }}</p>
     </template>

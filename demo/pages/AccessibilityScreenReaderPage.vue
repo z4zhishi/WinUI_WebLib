@@ -240,16 +240,16 @@ const usageCode = `<WuiTextBox
       <div class="sr-stack">
         <!-- ===== 可访问名称 ===== -->
         <section class="spec-card" aria-labelledby="acc-sr-name-title">
-          <h4 id="acc-sr-name-title" class="block-title">{{ nameTitle }}</h4>
+          <h3 id="acc-sr-name-title" class="block-title">{{ nameTitle }}</h3>
           <p class="block-desc">{{ nameDesc }}</p>
 
-          <h5 class="sub-title">{{ nameAutoTitle }}</h5>
+          <h4 class="sub-title">{{ nameAutoTitle }}</h4>
           <div class="demo-line">
             <WuiButton content="下载调查问卷" />
             <p class="sr-output">{{ nameAutoOutput }}</p>
           </div>
 
-          <h5 class="sub-title">{{ nameHeaderTitle }}</h5>
+          <h4 class="sub-title">{{ nameHeaderTitle }}</h4>
           <div class="demo-line demo-line--top">
             <WuiTextBox header="姓名" style="min-width: 200px" />
             <WuiTextBox placeholder-text="昵称" style="min-width: 200px" />
@@ -257,7 +257,7 @@ const usageCode = `<WuiTextBox
             <p class="sr-output">{{ nameHeaderOutput }}</p>
           </div>
 
-          <h5 class="sub-title">{{ nameManualTitle }}</h5>
+          <h4 class="sub-title">{{ nameManualTitle }}</h4>
           <div class="demo-line demo-line--top">
             <WuiListView
               v-model:selected-index="contactIndex"
@@ -288,7 +288,7 @@ const usageCode = `<WuiTextBox
           @focusin="onDemoFocusIn"
           @mouseover="onDemoMouseOver"
         >
-          <h4 id="acc-sr-live-title" class="block-title">{{ liveTitle }}</h4>
+          <h3 id="acc-sr-live-title" class="block-title">{{ liveTitle }}</h3>
           <p class="block-desc">{{ liveDesc }}</p>
 
           <p class="live-out" aria-live="polite">
@@ -344,7 +344,7 @@ const usageCode = `<WuiTextBox
 
         <!-- ===== 描述 / 位置 / 地标 ===== -->
         <section class="spec-card" aria-labelledby="acc-sr-desc-title">
-          <h4 id="acc-sr-desc-title" class="block-title">{{ descTitle }}</h4>
+          <h3 id="acc-sr-desc-title" class="block-title">{{ descTitle }}</h3>
           <div class="demo-line demo-line--top">
             <div class="desc-cell" :data-sr-name="isZh ? '退出时清除缓存' : 'Clear cache on exit'" :data-sr-role="isZh ? '复选框' : 'checkbox'">
               <WuiCheckBox
@@ -361,21 +361,24 @@ const usageCode = `<WuiTextBox
             <p class="sr-output">{{ descOutput }}</p>
           </div>
 
-          <h5 class="sub-title">{{ positionTitle }}</h5>
+          <h4 class="sub-title">{{ positionTitle }}</h4>
           <p class="block-desc">{{ positionOutput }}</p>
 
-          <h5 class="sub-title">{{ landmarkTitle }}</h5>
+          <h4 class="sub-title">{{ landmarkTitle }}</h4>
           <p class="block-desc">{{ landmarkDesc }}</p>
           <div class="landmark-grid">
             <nav class="landmark-pane" role="navigation" aria-label="主导航" data-sr-name="主导航" data-sr-role="navigation 地标">
               <WuiButton content="打开设置" />
             </nav>
-            <main class="landmark-pane" role="main" data-sr-name="主内容" data-sr-role="main 地标">
+            <!-- 教学示例用 section 承载(不用 <main role="main">):站点壳已有唯一 main,
+                 页内再现 main 地标会造成嵌套/重复 main(axe landmark-main-is-top-level /
+                 landmark-no-duplicate-main);地标教学语义由 data-sr-* 属性承载。 -->
+            <section class="landmark-pane" data-sr-name="主内容" data-sr-role="main 地标">
               <p class="landmark-text">
                 这是主内容区。地标(landmark)标识界面的大区块,屏幕阅读器用户可在地标间快速跳转,
                 就像明眼用户扫读版面一样;标题(h1–h6)则进一步划分区块层级。
               </p>
-            </main>
+            </section>
             <aside
               class="landmark-pane"
               role="region"
@@ -398,11 +401,11 @@ const usageCode = `<WuiTextBox
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsMapTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsMapTitle }}</h3>
       <DemoDocsTable :headers="mapHeaders" :rows="mapRows" />
-      <h4 class="docs-subtitle">{{ docsRolesTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsRolesTitle }}</h3>
       <DemoDocsTable :headers="roleHeaders" :rows="roleRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

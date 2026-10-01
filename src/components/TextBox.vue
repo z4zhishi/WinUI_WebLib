@@ -4,7 +4,7 @@
 // <Style TargetType="TextBox">(L21358 起):Normal / PointerOver / Focused / Disabled
 // 四态 + DeleteButton(清除按钮)的 ButtonVisible/ButtonCollapsed 状态;
 // 颜色/字号取 theme.css 的 --wui-* token,结构尺寸取源键值(见 wiki 差异说明)。
-import { computed, ref, useId } from 'vue'
+import { computed, ref, useAttrs, useId } from 'vue'
 
 defineOptions({ name: 'WuiTextBox', inheritAttrs: false })
 
@@ -43,6 +43,37 @@ const emit = defineEmits<{
 
 const inputId = useId()
 const inputEl = ref<HTMLInputElement | null>(null)
+
+// —— 无障碍名:a11y QA(label / aria-input-field-name)。header 有 label[for] 关联;
+// 无 header 时取调用方 attrs 的 aria-label / aria-labelledby,再退 placeholderText
+// (placeholder 本身不构成可访问名)。attrs 落点从根 div(无 role,禁止 aria-label)
+// 迁移到 input 上。
+const attrs = useAttrs()
+
+const callerAriaLabel = computed(() =>
+  typeof attrs['aria-label'] === 'string' ? attrs['aria-label'] : undefined,
+)
+const callerLabelledBy = computed(() =>
+  typeof attrs['aria-labelledby'] === 'string' ? attrs['aria-labelledby'] : undefined,
+)
+
+/** input 的可访问名:header 经 label[for] 关联,故仅无 header 时注入。 */
+const inputAriaLabel = computed(() =>
+  props.header ? undefined : (callerAriaLabel.value || props.placeholderText || undefined),
+)
+const inputAriaLabelledBy = computed(() =>
+  props.header ? undefined : callerLabelledBy.value,
+)
+
+/** 根元素透传 attrs:剥离已迁移的 aria-label / aria-labelledby。 */
+const rootAttrs = computed(() => {
+  const rest: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'aria-label' || key === 'aria-labelledby') continue
+    rest[key] = value
+  }
+  return rest
+})
 
 // —— 焦点 / IME 组合状态 ——
 const focused = ref(false)
@@ -102,7 +133,7 @@ const rootClass = computed(() => ({
 </script>
 
 <template>
-  <div v-bind="$attrs" class="wui-text-box" :class="rootClass">
+  <div v-bind="rootAttrs" class="wui-text-box" :class="rootClass">
     <!-- HeaderContentPresenter:TextBoxTopHeaderMargin = 0,0,0,4 -->
     <label v-if="header" class="wui-text-box-header" :for="inputId">{{ header }}</label>
 
@@ -112,6 +143,8 @@ const rootClass = computed(() => ({
         ref="inputEl"
         class="wui-text-box-input"
         type="text"
+        :aria-label="inputAriaLabel"
+        :aria-labelledby="inputAriaLabelledBy"
         :value="text"
         :placeholder="placeholderText"
         :readonly="isReadOnly"

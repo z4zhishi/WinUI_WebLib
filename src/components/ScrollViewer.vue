@@ -61,7 +61,8 @@ const props = withDefaults(
     padding?: number | string
     /** 背景色(WinUI Background);任意 CSS color,缺省透明。 */
     background?: string
-    /** 是否可聚焦(WinUI IsTabStop);WinUI 默认样式为 False,聚焦后方向键/空格/PgUp/PgDn 滚动。 */
+    /** 是否可聚焦(WinUI IsTabStop)。a11y 修订:滚动视口恒 tabindex=0(WCAG 2.1.1 键盘滚动
+     *  / axe scrollable-region-focusable),本属性保留 API 兼容,不再影响 Tab 序。 */
     isTabStop?: boolean
   }>(),
   {
@@ -454,7 +455,7 @@ defineExpose({
         'wui-scrollviewer__scroller--hide-v-bar': hideVerticalBar,
       }"
       :style="scrollerStyle"
-      :tabindex="isTabStop ? 0 : undefined"
+      :tabindex="0"
       @scroll="onScroll"
       @wheel="onWheel"
       @keydown="onKeyDown"

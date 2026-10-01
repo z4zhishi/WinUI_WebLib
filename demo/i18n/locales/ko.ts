@@ -4,6 +4,7 @@ export default {
   navHome: '홈',
   navSearch: '검색',
   navSettings: '설정',
+  navLabel: '사이트 탐색',
   searchPlaceholder: '컨트롤과 예제를 검색하세요…',
   settingsTitle: '설정',
   settingsLanguage: '언어',

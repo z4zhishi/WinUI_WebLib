@@ -64,7 +64,8 @@ async function writeClipboard(text: string): Promise<boolean> {
       <span v-else class="code-language-placeholder" aria-hidden="true"></span>
       <button type="button" class="copy-button" @click="copyCode">{{ copyLabel }}</button>
     </figcaption>
-    <pre class="code-pre"><code>{{ displayCode }}</code></pre>
+    <!-- tabindex=0:横向滚动的代码区键盘可达(a11y QA scrollable-region-focusable) -->
+    <pre class="code-pre" tabindex="0"><code>{{ displayCode }}</code></pre>
   </figure>
 </template>
 

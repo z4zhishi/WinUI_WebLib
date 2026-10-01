@@ -235,7 +235,7 @@ const xamlCode = computed(() => {
       <div class="backdrop-area">
         <!-- 三材质观感对照(浅 / 深两行,对照官方四种背板的说明) -->
         <section>
-          <h4 class="section-title">{{ compareLabel }}</h4>
+          <h3 class="section-title">{{ compareLabel }}</h3>
           <p class="note">{{ compareNote }}</p>
           <div v-for="row in THEME_ROWS" :key="row.theme" class="theme-row">
             <p class="theme-row-title">{{ row.theme === 'light' ? lightRowLabel : darkRowLabel }}</p>
@@ -254,7 +254,7 @@ const xamlCode = computed(() => {
 
         <!-- 交互预览(实时调节,叠加官方内容层) -->
         <section>
-          <h4 class="section-title">{{ previewLabel }}</h4>
+          <h3 class="section-title">{{ previewLabel }}</h3>
           <div class="preview-window" role="img" :aria-label="previewLabel">
             <span class="stage-shape stage-shape--sky" />
             <span class="stage-shape stage-shape--rose" />
@@ -266,9 +266,9 @@ const xamlCode = computed(() => {
             </div>
           </div>
           <p class="note" :class="{ 'note-hidden': isInputActive !== false }">{{ inactiveCaption }}</p>
-          <h4 class="section-title section-title--sub">{{ readoutLabel }}</h4>
+          <h3 class="section-title section-title--sub">{{ readoutLabel }}</h3>
           <DemoCode class="readout" :code="readoutText" language="text" />
-          <h4 class="section-title section-title--sub">{{ xamlReadoutLabel }}</h4>
+          <h3 class="section-title section-title--sub">{{ xamlReadoutLabel }}</h3>
           <DemoCode :code="xamlCode" language="xml" />
         </section>
       </div>
@@ -304,7 +304,7 @@ const xamlCode = computed(() => {
 
         <!-- TintColor:六组默认值对照 + 原生取色器(自绘,DemoOptionRow 无此形态) -->
         <div class="tint-editor">
-          <h4 class="editor-title">{{ tintPresetsLabel }}</h4>
+          <h3 class="editor-title">{{ tintPresetsLabel }}</h3>
           <div class="tint-row">
             <button
               v-for="preset in TINT_PRESETS"
@@ -321,7 +321,7 @@ const xamlCode = computed(() => {
               </span>
             </button>
           </div>
-          <h4 class="editor-title">{{ customTintLabel }}</h4>
+          <h3 class="editor-title">{{ customTintLabel }}</h3>
           <div class="tint-row">
             <input v-model="tintHex" type="color" class="tint-input" aria-label="TintColor 自定义" />
             <code class="tint-value">{{ tintHex }}</code>
@@ -331,11 +331,11 @@ const xamlCode = computed(() => {
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">属性</h4>
+      <h3 class="docs-subtitle">属性</h3>
       <DemoDocsTable :headers="docsHeaders" :rows="docsRows" />
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

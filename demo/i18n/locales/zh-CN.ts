@@ -4,6 +4,7 @@ export default {
   navHome: '首页',
   navSearch: '搜索',
   navSettings: '设置',
+  navLabel: '站点导航',
   searchPlaceholder: '搜索控件与示例…',
   settingsTitle: '设置',
   settingsLanguage: '语言',

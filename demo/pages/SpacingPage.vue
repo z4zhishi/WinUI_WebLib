@@ -181,7 +181,7 @@ const usageCode = `<!-- WinUI 原生:StackPanel 以 Spacing 统一子元素间�
       <div class="spacing-stage">
         <!-- —— 1. 4px 网格与圆角 —— -->
         <section>
-          <h4 class="section-title">{{ secGrid }}</h4>
+          <h3 class="section-title">{{ secGrid }}</h3>
           <p class="guide-text">{{ gridGuide }}</p>
           <div class="grid-visual" aria-hidden="true">
             <span v-for="n in 4" :key="n" class="grid-cell" :style="{ width: '16px', height: '16px' }"></span>
@@ -199,7 +199,7 @@ const usageCode = `<!-- WinUI 原生:StackPanel 以 Spacing 统一子元素间�
 
         <!-- —— 2. 间距阶梯 —— -->
         <section>
-          <h4 class="section-title">{{ secRamp }}</h4>
+          <h3 class="section-title">{{ secRamp }}</h3>
           <p class="guide-text">{{ rampGuide }}</p>
           <div class="ramp-list">
             <div v-for="step in RAMP" :key="step.value" class="ramp-row">
@@ -214,7 +214,7 @@ const usageCode = `<!-- WinUI 原生:StackPanel 以 Spacing 统一子元素间�
 
         <!-- —— 3. 布局示例 —— -->
         <section>
-          <h4 class="section-title">{{ secLayout }}</h4>
+          <h3 class="section-title">{{ secLayout }}</h3>
           <p class="guide-text">{{ layoutGuide }}</p>
           <div class="layout-grid">
             <!-- 卡片布局 -->
@@ -264,7 +264,7 @@ const usageCode = `<!-- WinUI 原生:StackPanel 以 Spacing 统一子元素间�
 
         <!-- —— 4. 交互演示 —— -->
         <section>
-          <h4 class="section-title">{{ secLive }}</h4>
+          <h3 class="section-title">{{ secLive }}</h3>
           <p class="guide-text">{{ liveGuide }}</p>
           <div
             class="spacing-card"
@@ -283,7 +283,7 @@ const usageCode = `<!-- WinUI 原生:StackPanel 以 Spacing 统一子元素间�
 
         <!-- —— 5. 标准 / 紧凑行距对照 —— -->
         <section>
-          <h4 class="section-title">{{ secDensity }}</h4>
+          <h3 class="section-title">{{ secDensity }}</h3>
           <p class="guide-text">{{ densityGuide }}</p>
           <div class="density-grid">
             <div class="density-col">
@@ -317,13 +317,13 @@ const usageCode = `<!-- WinUI 原生:StackPanel 以 Spacing 统一子元素间�
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsRampTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsRampTitle }}</h3>
       <DemoDocsTable :headers="DOCS_RAMP_HEADERS" :rows="DOCS_RAMP_ROWS" />
-      <h4 class="docs-subtitle">{{ docsDensityTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsDensityTitle }}</h3>
       <DemoDocsTable :headers="DOCS_DENSITY_HEADERS" :rows="DOCS_DENSITY_ROWS" />
-      <h4 class="docs-subtitle">{{ docsRadiusTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsRadiusTitle }}</h3>
       <DemoDocsTable :headers="DOCS_RADIUS_HEADERS" :rows="DOCS_RADIUS_ROWS" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="xml" />
     </template>
   </DemoPage>

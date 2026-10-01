@@ -268,6 +268,7 @@ function itemStyle(index: number): Record<string, string> | undefined {
       ref="viewportRef"
       class="wui-items-repeater-viewport"
       :class="{ 'wui-items-repeater-viewport-horizontal': scrollsHorizontally }"
+      :tabindex="0"
       @scroll.passive="syncScrollOffset"
     >
       <div class="wui-items-repeater-canvas" :style="canvasStyle" role="list">

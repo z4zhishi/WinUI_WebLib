@@ -182,7 +182,7 @@ const usageCode = computed(
       <div class="cdp-stage">
         <!-- 演示一:基础选择(参数面板实时调节 Header/Placeholder/DateFormat/FirstDay/Today/Disabled/IsOpen) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupBasic }}</h4>
+          <h3 class="group-title">{{ groupBasic }}</h3>
           <div class="demo-row">
             <WuiCalendarDatePicker
               v-model:date="basicDate"
@@ -206,7 +206,7 @@ const usageCode = computed(
 
         <!-- 演示二:min/max 约束(今天 ±10 天;范围外 Blackout,导航按钮月界钳制) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupRange }}</h4>
+          <h3 class="group-title">{{ groupRange }}</h3>
           <div class="demo-row">
             <WuiCalendarDatePicker
               v-model:date="rangeDate"
@@ -223,7 +223,7 @@ const usageCode = computed(
 
         <!-- 演示三:firstDayOfWeek 切换(默认周日 vs 周一开始) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupFirstDay }}</h4>
+          <h3 class="group-title">{{ groupFirstDay }}</h3>
           <div class="demo-row">
             <WuiCalendarDatePicker
               v-model:date="firstDayDate"
@@ -244,7 +244,7 @@ const usageCode = computed(
 
         <!-- 演示四:空值(未选显示占位;清空回 null) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupEmpty }}</h4>
+          <h3 class="group-title">{{ groupEmpty }}</h3>
           <div class="demo-row">
             <WuiCalendarDatePicker
               v-model:date="emptyDate"
@@ -259,7 +259,7 @@ const usageCode = computed(
 
         <!-- 键盘操作说明 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupKeyboard }}</h4>
+          <h3 class="group-title">{{ groupKeyboard }}</h3>
           <ul class="keyboard-list">
             <li><kbd>Enter</kbd>/<kbd>Space</kbd>/<kbd>↓</kbd>/<kbd>↑</kbd> {{ isZh ? '打开日历' : 'open calendar' }}</li>
             <li><kbd>←</kbd>/<kbd>→</kbd>/<kbd>↑</kbd>/<kbd>↓</kbd> {{ isZh ? '移动焦点(跨月自动翻页)' : 'move focus (auto month flip)' }}</li>
@@ -285,13 +285,13 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsKeyboardTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsKeyboardTitle }}</h3>
       <DemoDocsTable :headers="keyboardHeaders" :rows="keyboardRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

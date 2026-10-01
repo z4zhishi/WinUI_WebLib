@@ -486,7 +486,7 @@ getEasingFunction('bounce').cssEasing.easeOut // null`
         <!-- 演示一:全族 × 三模式对照网格 -->
         <section class="demo-group">
           <div class="group-head">
-            <h4 class="group-title">全族 × 三模式对照网格</h4>
+            <h3 class="group-title">全族 × 三模式对照网格</h3>
             <div class="play-row">
               <button type="button" class="host-button" @click="playGrid">重放(同屏)</button>
               <span class="state-chip" aria-live="polite">时长 {{ gridDurationMs }}ms · 每格为族默认参数</span>
@@ -498,10 +498,10 @@ getEasingFunction('bounce').cssEasing.easeOut // null`
             点击任意格选中该曲线,在下方「选中函数详解」查看放大曲线与参数调节。
           </p>
           <div v-for="family in gridFamilies" :key="family.kind" class="family-block">
-            <h5 class="family-name">
+            <h4 class="family-name">
               {{ family.def.winuiName ?? 'linear(无 WinUI 类)' }}
               <span class="family-zh">{{ family.def.labelZh }} · {{ family.def.description }}</span>
-            </h5>
+            </h4>
             <div class="family-cells">
               <button
                 v-for="cell in family.cells"
@@ -527,7 +527,7 @@ getEasingFunction('bounce').cssEasing.easeOut // null`
 
         <!-- 演示二:选中函数详解 -->
         <section class="demo-group">
-          <h4 class="group-title">选中函数详解:{{ selectedTitle }}</h4>
+          <h3 class="group-title">选中函数详解:{{ selectedTitle }}</h3>
           <p class="group-note">
             进度曲线(t → 进度)由选中函数与模式实时采样;蓝色小球按同一时间轴运动,曲线上的标记点同步显示当前
             (t, 进度)。参数滑块在上方「参数」面板(切换函数族时复位为 WinUI 默认值)。
@@ -566,7 +566,7 @@ getEasingFunction('bounce').cssEasing.easeOut // null`
 
         <!-- 演示三:官方示例对照 -->
         <section class="demo-group">
-          <h4 class="group-title">官方示例对照(Standard / Accelerate / Decelerate)</h4>
+          <h3 class="group-title">官方示例对照(Standard / Accelerate / Decelerate)</h3>
           <p class="group-note">
             官方页首导览:Standard 用于一般属性变化;Accelerate 用于离开场景的对象;Decelerate
             用于进入场景的对象。三行参数与时长逐项对照官方 XAML,点击 Animate 往返运动(对照官方 From
@@ -619,15 +619,15 @@ getEasingFunction('bounce').cssEasing.easeOut // null`
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">可调参数(WinUI 属性 → 本工具参数)</h4>
+      <h3 class="docs-subtitle">可调参数(WinUI 属性 → 本工具参数)</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">全族公式与 CSS cubic-bezier 关系</h4>
+      <h3 class="docs-subtitle">全族公式与 CSS cubic-bezier 关系</h3>
       <DemoDocsTable :headers="familyHeaders" :rows="familyRows" />
-      <h4 class="docs-subtitle">三模式换算(对照 EasingFunctions.cpp CEasingFunctionImpl::Ease)</h4>
+      <h3 class="docs-subtitle">三模式换算(对照 EasingFunctions.cpp CEasingFunctionImpl::Ease)</h3>
       <DemoDocsTable :headers="modeHeaders" :rows="modeRows" />
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="ts" />
     </template>
   </DemoPage>

@@ -293,7 +293,7 @@ const usageCode = computed(
 
     <template #docs>
       <DemoDocsTable :headers="docsHeaders" :rows="docsRows" />
-      <h4 class="navview-docs-subtitle">图标字形取自 Segoe Fluent Icons / MDL2(与站内 FontIcon 一致)</h4>
+      <h3 class="navview-docs-subtitle">图标字形取自 Segoe Fluent Icons / MDL2(与站内 FontIcon 一致)</h3>
       <div class="navview-glyphs" aria-hidden="true">
         <span class="navview-glyph" v-for="glyph in ['\uE700', '\uE80F', '\uE713', '\uE70D']" :key="glyph">
           <WuiFontIcon :glyph="glyph" :font-size="16" />

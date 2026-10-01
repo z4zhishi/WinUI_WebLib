@@ -22,10 +22,31 @@ export interface SliderValueChangedEventArgs {
 // 透过 input 的 :hover/:active/:focus-visible/:disabled 伪类驱动 PointerOver/Pressed/Focus/Disabled
 // 视觉状态);方向键按 stepFrequency(或 snapsTo=Ticks 时的 tickFrequency)步进,拖动中实时
 // 更新 value 并触发 valueChanged(与 WinUI 一致)。
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useAttrs, watch } from 'vue'
 import type { CSSProperties } from 'vue'
 
 defineOptions({ inheritAttrs: false, name: 'WuiSlider' })
+
+// —— 无障碍名:a11y QA(label 规则)。header 已注入 aria-label;此处补调用方 attrs 的
+// aria-label / aria-labelledby(attrs 落点从根 div 迁移到 input),优先级 header > 调用方。
+const attrs = useAttrs()
+
+const callerAriaLabel = computed(() =>
+  typeof attrs['aria-label'] === 'string' ? attrs['aria-label'] : undefined,
+)
+const callerLabelledBy = computed(() =>
+  typeof attrs['aria-labelledby'] === 'string' ? attrs['aria-labelledby'] : undefined,
+)
+
+/** 根元素透传 attrs:剥离已迁移的 aria-label / aria-labelledby。 */
+const rootAttrs = computed(() => {
+  const rest: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'aria-label' || key === 'aria-labelledby') continue
+    rest[key] = value
+  }
+  return rest
+})
 
 const props = withDefaults(
   defineProps<{
@@ -202,7 +223,7 @@ function tickLeft(r: number): string {
 </script>
 
 <template>
-  <div v-bind="$attrs" class="wui-slider" :class="{ 'wui-slider--disabled': disabled }">
+  <div v-bind="rootAttrs" class="wui-slider" :class="{ 'wui-slider--disabled': disabled }">
     <div v-if="header" class="wui-slider__header" aria-hidden="true">{{ header }}</div>
     <div class="wui-slider__container">
       <!-- 交互层:铺满容器,透明;键盘步进(方向键已接管,Home/End/PageUp/PageDown 走原生) -->
@@ -215,7 +236,8 @@ function tickLeft(r: number): string {
         :step="inputStep"
         :value="value"
         :disabled="disabled"
-        :aria-label="header || undefined"
+        :aria-label="header || callerAriaLabel || undefined"
+        :aria-labelledby="callerLabelledBy"
         @input="onInput"
         @keydown="onKeydown"
       />

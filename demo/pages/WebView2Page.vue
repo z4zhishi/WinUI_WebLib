@@ -267,13 +267,13 @@ const usageCode = computed(() => {
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ propsTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ propsTableTitle }}</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">{{ eventsTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ eventsTableTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ methodsTableTitle }}</h4>
+      <h3 class="docs-subtitle">{{ methodsTableTitle }}</h3>
       <DemoDocsTable :headers="methodHeaders" :rows="methodRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

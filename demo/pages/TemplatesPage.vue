@@ -313,7 +313,7 @@ const usageCode = `<!-- DataTemplate:官方 ComboBox 圆点项模板(#item 插�
       <div class="templates-stage">
         <!-- 概念导语:三类模板(对照官方 TemplatesPage.xaml 的 RichTextBlock 导语) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupTypes }}</h4>
+          <h3 class="group-title">{{ groupTypes }}</h3>
           <p class="intro-text">{{ introPlacement }}</p>
           <ul class="type-list">
             <li>{{ typeControl }}</li>
@@ -324,7 +324,7 @@ const usageCode = `<!-- DataTemplate:官方 ComboBox 圆点项模板(#item 插�
 
         <!-- 演示一:DataTemplate(ComboBox 圆点项模板) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupCombo }}</h4>
+          <h3 class="group-title">{{ groupCombo }}</h3>
           <div class="demo-row">
             <WuiComboBox
               :items="comboOptions"
@@ -345,11 +345,12 @@ const usageCode = `<!-- DataTemplate:官方 ComboBox 圆点项模板(#item 插�
 
         <!-- 演示二:DataTemplate(Teams 对象数组 → 卡片) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupTeams }}</h4>
+          <h3 class="group-title">{{ groupTeams }}</h3>
           <WuiListView
             :items="teams"
             selection-mode="Single"
             display-member-path="name"
+            aria-label="球队列表"
             class="demo-list"
             style="width: 420px"
             @selection-changed="onTeamsSelectionChanged"
@@ -376,11 +377,12 @@ const usageCode = `<!-- DataTemplate:官方 ComboBox 圆点项模板(#item 插�
 
         <!-- 演示三:DataTemplateSelector(按数据字段切换模板) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupSelector }}</h4>
+          <h3 class="group-title">{{ groupSelector }}</h3>
           <WuiListView
             :items="roster"
             selection-mode="Single"
             display-member-path="name"
+            aria-label="名册列表"
             class="demo-list"
             style="width: 420px"
           >
@@ -413,11 +415,12 @@ const usageCode = `<!-- DataTemplate:官方 ComboBox 圆点项模板(#item 插�
 
         <!-- 演示四:ItemsPanelTemplate(布局面板切换) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupPanel }}</h4>
+          <h3 class="group-title">{{ groupPanel }}</h3>
           <WuiGridView
             v-if="panelValue === 'WrapGrid'"
             :items="panelItems"
             selection-mode="None"
+            aria-label="面板布局项网格"
             :item-width="160"
             :item-height="48"
             class="demo-panel demo-panel-grid"
@@ -427,6 +430,7 @@ const usageCode = `<!-- DataTemplate:官方 ComboBox 圆点项模板(#item 插�
             v-else
             :items="panelItems"
             selection-mode="None"
+            aria-label="面板布局项列表"
             class="demo-list"
             style="width: 350px; height: 320px"
           />
@@ -461,11 +465,11 @@ const usageCode = `<!-- DataTemplate:官方 ComboBox 圆点项模板(#item 插�
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsMappingTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsMappingTitle }}</h3>
       <DemoDocsTable :headers="mappingHeaders" :rows="mappingRows" />
-      <h4 class="docs-subtitle">{{ docsSlotTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsSlotTitle }}</h3>
       <DemoDocsTable :headers="slotHeaders" :rows="slotRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

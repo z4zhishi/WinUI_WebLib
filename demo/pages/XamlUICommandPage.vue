@@ -182,7 +182,7 @@ const customCommand = createCommand({
       <div class="xic-sections">
         <!-- 示例 1:官方示例复刻(自定义命令 → AppBarButton;对照 CreatingReusableCommandXamluicommand) -->
         <section class="xic-section">
-          <h4 class="docs-subtitle">{{ sectionOfficialTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionOfficialTitle }}</h3>
           <p class="xic-intro">{{ officialIntro }}</p>
           <div class="xic-row">
             <WuiAppBarButton
@@ -206,7 +206,7 @@ const customCommand = createCommand({
 
         <!-- 示例 2:参数面板驱动(同一命令喂给 AppBarButton 与 Button 两种宿主) -->
         <section class="xic-section">
-          <h4 class="docs-subtitle">{{ sectionDynamicTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionDynamicTitle }}</h3>
           <p class="xic-intro">{{ dynamicIntro }}</p>
           <div class="xic-row">
             <WuiAppBarButton
@@ -259,13 +259,13 @@ const customCommand = createCommand({
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsMapTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsMapTitle }}</h3>
       <DemoDocsTable :headers="mapHeaders" :rows="mapRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

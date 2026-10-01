@@ -120,7 +120,7 @@ const usageCode = computed(
              AppbarbuttonSymbolIcon.txt / AppbarbuttonFontIcon.txt / AppbarbuttonPathIcon.txt /
              AppbarbuttonKeyboardaccelerator.txt;点击输出对照官方 Control1Output) -->
         <section class="abb-section">
-          <h4 class="docs-subtitle">{{ sectionOfficialTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionOfficialTitle }}</h3>
           <div class="abb-row">
             <WuiAppBarButton label="SymbolIcon" @click="onOfficialClick('Button1')">
               <template #icon><WuiSymbolIcon symbol="Like" :font-size="16" /></template>
@@ -154,7 +154,7 @@ const usageCode = computed(
 
         <!-- 示例 2:紧凑态(仅图标;对照 CommandBar 的 IsCompact 行为) -->
         <section class="abb-section">
-          <h4 class="docs-subtitle">{{ sectionCompactTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionCompactTitle }}</h3>
           <div class="abb-row">
             <WuiAppBarButton label="Add" @click="onCompactClick('Add')">
               <template #icon><WuiSymbolIcon symbol="Add" :font-size="16" /></template>
@@ -181,7 +181,7 @@ const usageCode = computed(
 
         <!-- 示例 3:参数面板驱动(label / isCompact / disabled / accelerator / width 实时调节) -->
         <section class="abb-section">
-          <h4 class="docs-subtitle">{{ sectionOptionsTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionOptionsTitle }}</h3>
           <div class="abb-row">
             <WuiAppBarButton
               :label="labelText"
@@ -210,13 +210,13 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsKeyboardTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsKeyboardTitle }}</h3>
       <DemoDocsTable :headers="keyboardHeaders" :rows="keyboardRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

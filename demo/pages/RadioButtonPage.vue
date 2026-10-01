@@ -215,7 +215,7 @@ const usageCode = computed(
       <div class="radio-stage">
         <!-- 演示一:基础组(互斥 + 方向键;参数面板实时调节) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ basicTitle }}</h4>
+          <h3 class="group-title">{{ basicTitle }}</h3>
           <!-- 每个 .radio-column 是独立容器:无显式 groupName 时按父容器自动成组 -->
           <div class="radio-column">
             <WuiRadioButton
@@ -235,7 +235,7 @@ const usageCode = computed(
 
         <!-- 演示二:双组联动(两组不同 groupName,对照官方示例二) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ dualTitle }}</h4>
+          <h3 class="group-title">{{ dualTitle }}</h3>
           <div class="dual-groups">
             <div class="radio-column">
               <span class="column-header">{{ bgHeaderText }}</span>
@@ -267,7 +267,7 @@ const usageCode = computed(
 
         <!-- 演示三:选项增删(无 groupName,同父容器自动成组) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ dynamicTitle }}</h4>
+          <h3 class="group-title">{{ dynamicTitle }}</h3>
           <div class="radio-column">
             <WuiRadioButton
               v-for="option in dynamicOptions"
@@ -304,11 +304,11 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

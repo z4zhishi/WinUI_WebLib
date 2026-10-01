@@ -228,7 +228,7 @@ const usageCode = computed(() => {
       <div class="person-picture-stage">
         <!-- 演示一:三种头像来源(对照官方 Select different looks 示例) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ looksTitle }}</h4>
+          <h3 class="group-title">{{ looksTitle }}</h3>
           <div class="hero-stage">
             <WuiPersonPicture
               :profile-picture="heroProps.profilePicture"
@@ -243,7 +243,7 @@ const usageCode = computed(() => {
 
         <!-- 演示二:缩写推导矩阵 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ namesTitle }}</h4>
+          <h3 class="group-title">{{ namesTitle }}</h3>
           <div class="name-grid" role="group" :aria-label="namesTitle">
             <template v-for="row in NAME_ROWS" :key="row.caption">
               <WuiPersonPicture
@@ -261,7 +261,7 @@ const usageCode = computed(() => {
 
         <!-- 演示三:图片失败降级(有效 URL vs 无效 URL) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ fallbackTitle }}</h4>
+          <h3 class="group-title">{{ fallbackTitle }}</h3>
           <div class="fallback-row">
             <figure class="fallback-item">
               <WuiPersonPicture :profile-picture="OFFICIAL_PROFILE_URL" :display-name="fallbackDisplayName" :width="96" :height="96" />
@@ -277,7 +277,7 @@ const usageCode = computed(() => {
 
         <!-- 演示四:徽标组合(对照源 UpdateBadge 优先级与 TestUI 参数) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ badgeTitle }}</h4>
+          <h3 class="group-title">{{ badgeTitle }}</h3>
           <div class="badge-grid" role="group" :aria-label="badgeTitle">
             <template v-for="row in BADGE_ROWS" :key="row.caption">
               <WuiPersonPicture
@@ -318,11 +318,11 @@ const usageCode = computed(() => {
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

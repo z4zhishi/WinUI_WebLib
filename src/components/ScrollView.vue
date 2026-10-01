@@ -112,7 +112,8 @@ const props = withDefaults(
     minZoomFactor?: number
     /** 最大缩放倍数(WinUI MaxZoomFactor);缺省 10。 */
     maxZoomFactor?: number
-    /** 是否可聚焦(WinUI IsTabStop);聚焦后浏览器原生方向键/翻页键滚动生效;缺省 False。 */
+    /** 是否可聚焦(WinUI IsTabStop)。a11y 修订:滚动视口恒 tabindex=0(WCAG 2.1.1 键盘滚动
+     *  / axe scrollable-region-focusable),禁用时 -1;本属性保留 API 兼容,不再影响 Tab 序。 */
     isTabStop?: boolean
     /** 禁用(WinUI IsEnabled=false):指针与滚轮交互关闭。 */
     disabled?: boolean
@@ -550,13 +551,14 @@ defineExpose({
 
 <template>
   <!-- 单根 = WinUI 模板 PART_Root + PART_ScrollPresenter 合一:根即视口滚动容器。
-       tabindex 跟随 IsTabStop(聚焦后浏览器原生键盘滚动);$attrs 最后展开,消费方 class/style 优先 -->
+       tabindex 恒为 0(WinUI IsTabStop 默认 false,但 Web 侧可滚动区域必须键盘可达 ——
+       axe scrollable-region-focusable / WCAG 2.1.1;禁用时 -1 移出 Tab 序);$attrs 最后展开,消费方 class/style 优先 -->
   <div
     ref="rootEl"
     class="wui-scroll-view"
     :class="rootClass"
     :style="rootStyle"
-    :tabindex="isTabStop && !disabled ? 0 : undefined"
+    :tabindex="disabled ? -1 : 0"
     :aria-disabled="disabled || undefined"
     @scroll="onScroll"
     @wheel="onWheel"

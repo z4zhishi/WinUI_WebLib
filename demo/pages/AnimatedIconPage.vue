@@ -172,7 +172,7 @@ const usageCode = computed(
       <div class="animated-stage">
         <!-- 演示一:按钮宿主 + 手动状态(官方示例 1 复刻) -->
         <section class="demo-group">
-          <h4 class="group-title">按钮宿主 + 手动状态(官方示例 1 复刻)</h4>
+          <h3 class="group-title">按钮宿主 + 手动状态(官方示例 1 复刻)</h3>
           <p class="group-note">
             对照官方:C# 在按钮 PointerEntered / PointerExited 中调用
             AnimatedIcon.SetState(icon, "PointerOver" / "Normal"),此处以 state prop 等价驱动。
@@ -182,6 +182,7 @@ const usageCode = computed(
             <button
               type="button"
               class="host-button"
+              aria-label="AnimatedIcon 演示按钮"
               :disabled="hostDisabledValue"
               @pointerenter="hostEnter"
               @pointerleave="hostLeave"
@@ -201,7 +202,7 @@ const usageCode = computed(
 
         <!-- 演示二:三种内置源(自治模式) -->
         <section class="demo-group">
-          <h4 class="group-title">三种内置源(自治模式:hover / press 直接观察)</h4>
+          <h3 class="group-title">三种内置源(自治模式:hover / press 直接观察)</h3>
           <p class="group-note">
             未传 state,组件自治跟踪指针(hover → PointerOver,press → Pressed);悬停 / 按压每块图标观察状态切换。
           </p>
@@ -216,7 +217,7 @@ const usageCode = computed(
 
         <!-- 演示三:NavigationViewItem 式宿主驱动(官方示例 2 复刻) -->
         <section class="demo-group">
-          <h4 class="group-title">NavigationViewItem 式宿主驱动(官方示例 2 复刻)</h4>
+          <h3 class="group-title">NavigationViewItem 式宿主驱动(官方示例 2 复刻)</h3>
           <p class="group-note">
             官方将 AnimatedIcon 设为 NavigationViewItem.Icon,由宿主控件代设状态;此处以列表项宿主等价驱动
             state prop,降级源为 FontIconSource Glyph \uE713(与官方一致)。
@@ -244,7 +245,7 @@ const usageCode = computed(
 
         <!-- 演示四:降级源对照 -->
         <section class="demo-group">
-          <h4 class="group-title">降级源对照(FallbackIconSource)</h4>
+          <h3 class="group-title">降级源对照(FallbackIconSource)</h3>
           <p class="group-note">
             每行同一源的三种渲染:动画源 / forceFallback 字形降级(\uE721,等价官方 SymbolIconSource
             Find)/ SVG 型降级(内联 SVG 标记)。系统开启「减少动态效果」(prefers-reduced-motion)时组件自动降级,无需 forceFallback。
@@ -280,13 +281,13 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">属性</h4>
+      <h3 class="docs-subtitle">属性</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">内置源(实现 AnimatedIconSource 约定)</h4>
+      <h3 class="docs-subtitle">内置源(实现 AnimatedIconSource 约定)</h3>
       <DemoDocsTable :headers="sourceHeaders" :rows="sourceRows" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

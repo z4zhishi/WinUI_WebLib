@@ -213,7 +213,7 @@ const usageCode = computed(
       <div class="datepicker-stage">
         <!-- 演示一:基础选择(参数面板实时调节 Header/列显隐/格式/禁用) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupBasic }}</h4>
+          <h3 class="group-title">{{ groupBasic }}</h3>
           <div class="demo-row">
             <WuiDatePicker
               v-model:date="basicDate"
@@ -234,7 +234,7 @@ const usageCode = computed(
 
         <!-- 演示二:年区间约束(MinYear = 今年,MaxYear = +5 年,默认值 = 今天 + 2 个月) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupRange }}</h4>
+          <h3 class="group-title">{{ groupRange }}</h3>
           <div class="demo-row">
             <WuiDatePicker
               v-model:date="constrainedDate"
@@ -248,7 +248,7 @@ const usageCode = computed(
 
         <!-- 演示三:隐藏年列(官方示例 2:DayFormat 带星期 + YearVisible=False) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupNoYear }}</h4>
+          <h3 class="group-title">{{ groupNoYear }}</h3>
           <div class="demo-row">
             <WuiDatePicker v-model:date="noYearDate" day-format="{day.integer}" :year-visible="false" />
           </div>
@@ -258,7 +258,7 @@ const usageCode = computed(
 
         <!-- 演示四:显示格式(日列星期缩写、月列数值、年列两位) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupFormat }}</h4>
+          <h3 class="group-title">{{ groupFormat }}</h3>
           <div class="demo-row">
             <WuiDatePicker
               v-model:date="formattedDate"
@@ -275,7 +275,7 @@ const usageCode = computed(
 
         <!-- 演示五:空值态(Date = null → 占位前景色;操作任一列即提交真实日期) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupEmpty }}</h4>
+          <h3 class="group-title">{{ groupEmpty }}</h3>
           <div class="demo-row">
             <WuiDatePicker v-model:date="emptyDate" header="Pick a date" />
             <button type="button" class="demo-button" @click="clearEmptyDate">{{ btnClear }}</button>
@@ -286,7 +286,7 @@ const usageCode = computed(
 
         <!-- 滚轮交互说明 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupInteract }}</h4>
+          <h3 class="group-title">{{ groupInteract }}</h3>
           <ul class="interact-list">
             <li>滚轮 / 上下箭头 / 拖拽 / 点击列项 {{ i18n.locale.value.startsWith('zh') ? '任选其一改变日期' : 'change the date' }}</li>
             <li>{{ i18n.locale.value.startsWith('zh') ? '聚焦列后用 ↑/↓、PageUp/PageDown、Home/End 键盘步进' : 'Focus a column, then ↑/↓, PageUp/PageDown, Home/End' }}</li>
@@ -309,13 +309,13 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsInteractTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsInteractTitle }}</h3>
       <DemoDocsTable :headers="interactHeaders" :rows="interactRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

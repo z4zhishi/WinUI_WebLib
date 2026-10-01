@@ -347,7 +347,7 @@ const usageCode = `<WuiFontIcon glyph="\\uE713" :font-size="20" />
       <div class="icon-stage">
         <!-- —— 1. 四类图标对照 —— -->
         <section>
-          <h4 class="section-title">{{ typesLabel }}</h4>
+          <h3 class="section-title">{{ typesLabel }}</h3>
           <div class="type-grid">
             <div v-for="card in TYPE_CARDS" :key="card.name" class="type-card">
               <div class="type-icon">
@@ -365,7 +365,7 @@ const usageCode = `<WuiFontIcon glyph="\\uE713" :font-size="20" />
 
         <!-- —— 2. 规范 · 尺寸 —— -->
         <section>
-          <h4 class="section-title">{{ sizeLabel }}</h4>
+          <h3 class="section-title">{{ sizeLabel }}</h3>
           <p class="guide-text">{{ sizeGuide }}</p>
           <div class="size-ladder">
             <div
@@ -382,7 +382,7 @@ const usageCode = `<WuiFontIcon glyph="\\uE713" :font-size="20" />
 
         <!-- —— 3. 规范 · 颜色 —— -->
         <section>
-          <h4 class="section-title">{{ colorLabel }}</h4>
+          <h3 class="section-title">{{ colorLabel }}</h3>
           <p class="guide-text">{{ colorGuide }}</p>
           <div class="color-row">
             <div v-for="row in COLOR_ROWS" :key="row.value" class="color-cell">
@@ -394,7 +394,7 @@ const usageCode = `<WuiFontIcon glyph="\\uE713" :font-size="20" />
 
         <!-- —— 4. 规范 · 层次与修饰(官方 EB51 + EB52 叠加示例)—— -->
         <section>
-          <h4 class="section-title">{{ layerLabel }}</h4>
+          <h3 class="section-title">{{ layerLabel }}</h3>
           <p class="guide-text">{{ layerGuide }}</p>
           <div class="layer-demo">
             <div class="layer-stage" :style="{ width: `${iconSizeValue}px`, height: `${iconSizeValue}px` }">
@@ -417,7 +417,7 @@ const usageCode = `<WuiFontIcon glyph="\\uE713" :font-size="20" />
 
         <!-- —— 5. Segoe 字形总览(搜索 + 分页 + 详情面板)—— -->
         <section class="browse-group">
-          <h4 class="section-title">{{ browseLabel }}</h4>
+          <h3 class="section-title">{{ browseLabel }}</h3>
           <p class="guide-text">{{ browseGuide }}</p>
           <div class="browse-layout">
             <div class="browse-main">
@@ -503,11 +503,11 @@ const usageCode = `<WuiFontIcon glyph="\\uE713" :font-size="20" />
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsTypesTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsTypesTitle }}</h3>
       <DemoDocsTable :headers="TYPE_DOCS_HEADERS" :rows="TYPE_DOCS_ROWS" />
-      <h4 class="docs-subtitle">{{ docsGuideTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsGuideTitle }}</h3>
       <DemoDocsTable :headers="GUIDE_DOCS_HEADERS" :rows="GUIDE_DOCS_ROWS" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

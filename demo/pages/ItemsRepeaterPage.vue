@@ -273,7 +273,7 @@ const usageCode = `<WuiItemsRepeater
       <div class="repeater-stage">
         <!-- 演示一:万级数据滚动 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupVirtualization }}</h4>
+          <h3 class="group-title">{{ groupVirtualization }}</h3>
           <p class="demo-stats">
             {{ isZh ? '数据' : 'Items' }}: {{ feedItems.length }}
             · {{ isZh ? '当前窗口' : 'Window' }}: [{{ feedWindowStart }} – {{ feedWindowEnd }}]
@@ -305,7 +305,7 @@ const usageCode = `<WuiItemsRepeater
 
         <!-- 演示二:混合高度 StackLayout(两轴) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupMixed }}</h4>
+          <h3 class="group-title">{{ groupMixed }}</h3>
           <WuiItemsRepeater
             :items="mixedItems"
             :layout="mixedLayout"
@@ -330,7 +330,7 @@ const usageCode = `<WuiItemsRepeater
 
         <!-- 演示三:UniformGridLayout 大图墙 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupWall }}</h4>
+          <h3 class="group-title">{{ groupWall }}</h3>
           <p class="demo-stats">
             {{ isZh ? '数据' : 'Items' }}: {{ wallItems.length }}
             · <strong class="stats-accent">{{ isZh ? 'DOM 渲染' : 'DOM rendered' }}: {{ wallRendered }}</strong>
@@ -412,11 +412,11 @@ const usageCode = `<WuiItemsRepeater
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

@@ -185,7 +185,7 @@ const DOCS_ROWS: (string | number)[][] = [
   ['zoomMode', "'Enabled' | 'Disabled'", "'Disabled'", '缩放模式;Enabled 时 Ctrl+滚轮 / 触控板捏合缩放'],
   ['zoomFactor', 'number', '1', '初始缩放倍数;属性变化即时 zoomTo(运行中读数经 viewChanged / 组件实例暴露)'],
   ['minZoomFactor / maxZoomFactor', 'number', '0.1 / 10', '缩放倍数边界(对照 WinUI 默认值),超界自动钳制'],
-  ['isTabStop', 'boolean', 'false', '是否可聚焦(WinUI IsTabStop);聚焦后方向键 / 翻页键原生滚动生效'],
+  ['isTabStop', 'boolean', 'false', '兼容保留(WinUI IsTabStop);滚动视口恒 tabindex=0,方向键 / 翻页键原生滚动(a11y 要求)'],
   ['disabled', 'boolean', 'false', '禁用(WinUI IsEnabled=false):指针与滚轮交互关闭'],
   ['scrollTo(h, v, options?) / scrollToOffset', '(number, number, ScrollingMotionOptions?) => void', '—', '滚动到目标偏移,超出范围自动钳制;options.animation 默认 Enabled,rAF 补间;scrollToOffset 为别名'],
   ['scrollBy(dh, dv, options?)', '(number, number, ScrollingMotionOptions?) => void', '—', '相对当前偏移滚动 delta'],
@@ -223,7 +223,7 @@ const usageCode = [
       <div class="scrollview-stage">
         <!-- 场景 1:参数舞台 -->
         <section class="stage-section">
-          <h4 class="stage-title">{{ s1Label }}</h4>
+          <h3 class="stage-title">{{ s1Label }}</h3>
           <WuiScrollView
             class="stage-box"
             :content-orientation="castEnum(contentOrientation, ORIENTATIONS, 'Vertical')"
@@ -254,7 +254,7 @@ const usageCode = [
 
         <!-- 场景 2:编程滚动 -->
         <section class="stage-section">
-          <h4 class="stage-title">{{ s2Label }}</h4>
+          <h3 class="stage-title">{{ s2Label }}</h3>
           <div class="stage-row">
             <WuiScrollView
               ref="scrollView2Ref"
@@ -297,7 +297,7 @@ const usageCode = [
 
         <!-- 场景 3:照片查看器 -->
         <section class="stage-section">
-          <h4 class="stage-title">{{ s3Label }}</h4>
+          <h3 class="stage-title">{{ s3Label }}</h3>
           <WuiScrollView class="stage-box" content-orientation="None" zoom-mode="Enabled" is-tab-stop @view-changed="onView3">
             <!-- None:内容双向约束到视口(SVG preserveAspectRatio = WinUI Image Stretch=Uniform 的对应物);
                  缩放后内容超出视口才可滚动 -->
@@ -339,11 +339,11 @@ const usageCode = [
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">属性与方法(编程 API 对照 WinUI ScrollView.idl)</h4>
+      <h3 class="docs-subtitle">属性与方法(编程 API 对照 WinUI ScrollView.idl)</h3>
       <DemoDocsTable :headers="DOCS_HEADERS" :rows="DOCS_ROWS" />
-      <h4 class="docs-subtitle">事件</h4>
+      <h3 class="docs-subtitle">事件</h3>
       <DemoDocsTable :headers="EVENT_HEADERS" :rows="EVENT_ROWS" />
-      <h4 class="docs-subtitle">用法</h4>
+      <h3 class="docs-subtitle">用法</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

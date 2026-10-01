@@ -123,7 +123,7 @@ const usageCode = computed(
     <template #demo>
       <div class="password-box-stage">
         <!-- 简单 PasswordBox(默认 Peek:聚焦且有内容期间显示揭示按钮,按住临时明文) -->
-        <WuiPasswordBox class="stage-item" />
+        <WuiPasswordBox class="stage-item" aria-label="密码输入" />
 
         <!-- 标头 + 占位文本(对照官方示例 Header="Password" PlaceholderText="Enter your password") -->
         <WuiPasswordBox class="stage-item" header="Password" placeholder-text="Enter your password" />
@@ -163,11 +163,11 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

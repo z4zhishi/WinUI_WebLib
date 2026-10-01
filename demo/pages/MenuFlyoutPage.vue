@@ -198,7 +198,7 @@ const usageCode = computed(
       <div class="menuflyout-stage">
         <!-- 演示一:图标 + 快捷键 + 分隔线(参数面板实时调节 placement/lightDismiss/isOpen) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupIcons }}</h4>
+          <h3 class="group-title">{{ groupIcons }}</h3>
           <div class="demo-row">
             <WuiMenuFlyout
               v-model:is-open="demoIsOpenModel"
@@ -230,7 +230,7 @@ const usageCode = computed(
 
         <!-- 演示二:开关项与分隔线(点击后菜单保持打开,状态实时回显) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupToggle }}</h4>
+          <h3 class="group-title">{{ groupToggle }}</h3>
           <div class="demo-row">
             <WuiMenuFlyout>
               <template #target>
@@ -247,7 +247,7 @@ const usageCode = computed(
 
         <!-- 演示三:级联子菜单(对照官方示例 File Options / Send to) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupCascading }}</h4>
+          <h3 class="group-title">{{ groupCascading }}</h3>
           <div class="demo-row">
             <WuiMenuFlyout>
               <template #target>
@@ -269,7 +269,7 @@ const usageCode = computed(
 
         <!-- 演示四:单选组(用开关项 + 页面脚本实现 GroupName 互斥) -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupRadio }}</h4>
+          <h3 class="group-title">{{ groupRadio }}</h3>
           <div class="demo-row">
             <WuiMenuFlyout>
               <template #target>
@@ -308,7 +308,7 @@ const usageCode = computed(
 
         <!-- 键盘操作说明 -->
         <section class="demo-group">
-          <h4 class="group-title">{{ groupKeyboard }}</h4>
+          <h3 class="group-title">{{ groupKeyboard }}</h3>
           <ul class="keyboard-list">
             <li><kbd>↑</kbd>/<kbd>↓</kbd> {{ i18n.locale.value.startsWith('zh') ? '移动焦点' : 'move focus' }}</li>
             <li><kbd>Home</kbd>/<kbd>End</kbd> {{ i18n.locale.value.startsWith('zh') ? '首/末项' : 'first/last item' }}</li>
@@ -332,13 +332,13 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propsHeaders" :rows="propsRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsKeyboardTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsKeyboardTitle }}</h3>
       <DemoDocsTable :headers="keyboardHeaders" :rows="keyboardRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

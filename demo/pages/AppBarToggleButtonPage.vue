@@ -194,7 +194,7 @@ const usageCode = computed(
         <!-- 示例 1:官方示例复刻(对照 AppBarToggleButtonPage.xaml 的 Button1/Button3/Button4;
              输出对照 code-behind Control1Output 的「IsChecked = …」) -->
         <section class="atb-section">
-          <h4 class="docs-subtitle">{{ sectionOfficialTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionOfficialTitle }}</h3>
           <div class="atb-row">
             <WuiAppBarToggleButton v-model:is-checked="s1" icon="Shuffle" label="SymbolIcon" />
             <WuiAppBarToggleButton v-model:is-checked="s3" label="FontIcon">
@@ -218,7 +218,7 @@ const usageCode = computed(
 
         <!-- 示例 2:状态一览(选中强调色底 × 交互态 + 三态不确定 + 紧凑态) -->
         <section class="atb-section">
-          <h4 class="docs-subtitle">{{ sectionStatesTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionStatesTitle }}</h3>
           <div class="atb-row">
             <WuiAppBarToggleButton icon="Shuffle" label="Off" />
             <WuiAppBarToggleButton v-model:is-checked="galleryChecked" icon="Bold" label="On(选中)" />
@@ -231,7 +231,7 @@ const usageCode = computed(
 
         <!-- 示例 3:参数面板驱动(label / IsChecked / IsThreeState / IsCompact / 加速键 实时调节) -->
         <section class="atb-section">
-          <h4 class="docs-subtitle">{{ sectionOptionsTitle }}</h4>
+          <h3 class="docs-subtitle">{{ sectionOptionsTitle }}</h3>
           <div class="atb-row">
             <WuiAppBarToggleButton
               v-model:is-checked="demoChecked"
@@ -266,13 +266,13 @@ const usageCode = computed(
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsPropsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsPropsTitle }}</h3>
       <DemoDocsTable :headers="propHeaders" :rows="propRows" />
-      <h4 class="docs-subtitle">{{ docsEventsTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsEventsTitle }}</h3>
       <DemoDocsTable :headers="eventHeaders" :rows="eventRows" />
-      <h4 class="docs-subtitle">{{ docsKeyboardTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsKeyboardTitle }}</h3>
       <DemoDocsTable :headers="keyboardHeaders" :rows="keyboardRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="vue" />
     </template>
   </DemoPage>

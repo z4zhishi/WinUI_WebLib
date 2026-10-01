@@ -41,7 +41,7 @@ function applyPreview(theme: PreviewTheme): void {
 <template>
   <section class="demo-page">
     <header class="page-header">
-      <h2 class="page-title">{{ title }}</h2>
+      <h1 class="page-title">{{ title }}</h1>
       <p v-if="description" class="page-description">{{ description }}</p>
       <p v-if="wiki" class="page-wiki-doc">
         📖 {{ wikiDocLabel }}:<a class="wiki-doc-link" href="#" @click.prevent>wiki/controls/{{ wiki }}.md</a>
@@ -51,7 +51,7 @@ function applyPreview(theme: PreviewTheme): void {
     <!-- 上半区:交互演示 -->
     <section class="page-section">
       <div class="section-head">
-        <h3 class="section-title">{{ i18n.t('examples') }}</h3>
+        <h2 class="section-title">{{ i18n.t('examples') }}</h2>
         <div class="theme-toggle" role="group" :aria-label="themePreviewLabel">
           <button
             type="button"
@@ -78,13 +78,13 @@ function applyPreview(theme: PreviewTheme): void {
 
     <!-- 上半区:参数面板(与演示联动) -->
     <section class="page-section">
-      <h3 class="section-title">{{ optionsTitle }}</h3>
+      <h2 class="section-title">{{ optionsTitle }}</h2>
       <slot name="options" />
     </section>
 
     <!-- 下半区:固定开发文档 -->
     <section class="page-section">
-      <h3 class="section-title">{{ i18n.t('docs') }}</h3>
+      <h2 class="section-title">{{ i18n.t('docs') }}</h2>
       <slot name="docs" />
     </section>
   </section>
@@ -122,8 +122,10 @@ function applyPreview(theme: PreviewTheme): void {
   color: var(--wui-application-secondary-foreground-theme);
 }
 
+/* 教学文档回链配色走壳层达标 token(浅 #0067C0 / 深 #4CC2FF,对比度依据见
+   demo/App.vue 全局块注释);hover 两主题均达标,:active 保持 WinUI 提取值。 */
 .wiki-doc-link {
-  color: var(--wui-hyperlink-button-foreground);
+  color: var(--wui-shell-hyperlink-foreground);
   text-decoration: underline;
 }
 
@@ -192,7 +194,11 @@ function applyPreview(theme: PreviewTheme): void {
 }
 
 .theme-option[aria-pressed='true'] {
-  color: var(--wui-system-control-foreground-alt-high);
+  /* 选中态前景:高亮底(curtain 紫)上的白字。原用 --wui-system-control-foreground-alt-high
+     在深色主题解析为 #000000,对 --wui-toggle-switch-curtain-background-theme #5729C1
+     仅 2.5:1(axe color-contrast);浅色本就是白字(#4617B4 上 10.3:1),统一改用
+     高亮文字色 token(两主题均 #FFFFFF,深色对 #5729C1 为 8.4:1)。 */
+  color: var(--wui-system-color-highlight-text-color, #ffffff);
   background: var(--wui-toggle-switch-curtain-background-theme);
   border-color: var(--wui-system-control-transparent);
 }

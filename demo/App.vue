@@ -134,7 +134,7 @@ function onSearchSubmitted(args: AutoSuggestQuerySubmittedEventArgs): void {
     </header>
 
     <div class="layout">
-      <nav class="nav">
+      <nav class="nav" :aria-label="t('navLabel')">
         <router-link class="nav-item nav-home" to="/home">{{ t('navHome') }}</router-link>
         <div v-for="group in navGroups" :key="group.id" class="nav-group">
           <div class="nav-group-title">{{ group.title }}</div>
@@ -176,10 +176,24 @@ function onSearchSubmitted(args: AutoSuggestQuerySubmittedEventArgs): void {
 :root,
 :root[data-theme="light"] {
   --wui-solid-background-fill-color-base: #f3f3f3;
+  /*
+   * 壳层超链接达标色(TS1 壳层 a11y,axe color-contrast):
+   * --wui-hyperlink-button-foreground = SystemAccentColor #0078D4,在浅色底(#F2F2F2)
+   * 上对比度仅 4.05:1(WCAG AA 正文阈值 4.5:1),故壳层链接改用 WinUI 强调色
+   * 深色变体 SystemAccentColorDark1 #0067C0(theme-hooks.css
+   * --wui-system-accent-color-dark-1),对比度 5.07:1。
+   */
+  --wui-shell-hyperlink-foreground: var(--wui-system-accent-color-dark-1, #0067c0);
 }
 
 :root[data-theme="dark"] {
   --wui-solid-background-fill-color-base: #202020;
+  /*
+   * 深色主题超链接改用 SystemAccentColorLight2 #4CC2FF(theme-hooks.css
+   * --wui-system-accent-color-light-2):系统强调色 #0078D4 在页脚底 #2B2B2B 上
+   * 仅 3.13:1,不达标;#4CC2FF 上 #2B2B2B 为 7.06:1(内容底 #202020 为 8.12:1)。
+   */
+  --wui-shell-hyperlink-foreground: var(--wui-system-accent-color-light-2, #4cc2ff);
 }
 
 html {
@@ -352,8 +366,11 @@ body {
   background: var(--wui-system-control-page-background-chrome-medium-low);
 }
 
+/* 壳层链接达标色(--wui-shell-hyperlink-foreground,定义见全局块注释):
+   浅色 #0067C0(5.07:1)/ 深色 #4CC2FF(≥7:1);hover 两主题均 ≥5.5:1 达标,
+   :active 为瞬时按压反馈,保持 WinUI 提取值不改。 */
 .footer-link {
-  color: var(--wui-hyperlink-button-foreground);
+  color: var(--wui-shell-hyperlink-foreground);
   text-decoration: underline;
 }
 

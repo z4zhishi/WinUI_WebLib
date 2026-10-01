@@ -197,11 +197,11 @@ const usageCode = `<!-- WinUI:keyed style + Setter,隐式样式按 TargetType �
     </template>
 
     <template #docs>
-      <h4 class="docs-subtitle">{{ docsMappingTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsMappingTitle }}</h3>
       <DemoDocsTable :headers="mappingHeaders" :rows="mappingRows" />
-      <h4 class="docs-subtitle">{{ docsLayerTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsLayerTitle }}</h3>
       <DemoDocsTable :headers="layerHeaders" :rows="layerRows" />
-      <h4 class="docs-subtitle">{{ docsUsageTitle }}</h4>
+      <h3 class="docs-subtitle">{{ docsUsageTitle }}</h3>
       <DemoCode :code="usageCode" language="xml" />
     </template>
   </DemoPage>
