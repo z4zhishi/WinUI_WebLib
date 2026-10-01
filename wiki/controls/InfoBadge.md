@@ -83,7 +83,7 @@ const count = ref(5)
    | `warning` | `SystemFillColorCautionBrush`(源 Caution 档,即 InfoBar warning) | `#9D5D00` | `#FCE100` |
    | `critical` | `SystemFillColorCriticalBrush` | `#C42B1C` | `#FF99A4` |
    源另有 `Attention*InfoBadgeStyle` 族(`SystemFillColorAttentionBrush`,强调色 Light2/强调色),观感归入本组件的 `default` 档,不单列。
-2. **前景 / 默认底色 token 缺失**:`InfoBadgeForeground = TextOnAccentFillColorPrimaryBrush`、`InfoBadgeBackground = AccentFillColorDefaultBrush` 定义在 `Common_themeresources_any.xaml`,theme.css 无同名 token。取最近似 token:前景 `--wui-accent-button-foreground`(两主题均解析为白),底色 `--wui-system-accent-color`。
+2. **前景 / 默认底色 token 缺失**:`InfoBadgeForeground = TextOnAccentFillColorPrimaryBrush`、`InfoBadgeBackground = AccentFillColorDefaultBrush` 定义在 `Common_themeresources_any.xaml`,theme.css 无同名 token。组件内以局部 token 按源值承载:底色经 theme-hooks.css 系统色钩子取 `AccentFillColorDefault` 对应值(浅 = SystemAccentColorDark1 `#0067C0` → `--wui-system-accent-color-dark-1`,深 = SystemAccentColorLight2 `#4CC2FF` → `--wui-system-accent-color-light-2`,未定义时回退源值字面量);前景 `TextOnAccentFillColorPrimary`(浅 `#FFFFFF` / 深 `#000000`)以 `--wui-info-badge-foreground` 局部变量按主题切换。
 3. **小尺寸三形态 token 对照**(源值 → Web 实现,均为局部固定值而非 theme.css token):
    | 源资源 | Light / Default 值 | Web 实现 |
    | --- | --- | --- |
