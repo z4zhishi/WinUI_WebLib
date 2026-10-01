@@ -32,6 +32,9 @@ const LABEL_RESET: BilingualText = { zh: '重置', en: 'Reset' }
 const LABEL_LAST_CLICKED: BilingualText = { zh: '最近点击', en: 'Last clicked' }
 const LABEL_SELECTED: BilingualText = { zh: '选中项', en: 'Selected item' }
 const LABEL_CURRENT_PATH: BilingualText = { zh: '当前路径', en: 'Current path' }
+// 两例的 nav 地标名须互不相同(axe landmark-unique:同角色同名地标视为违规)
+const LABEL_BREADCRUMB_PATH: BilingualText = { zh: '路径面包屑导航', en: 'Path breadcrumb navigation' }
+const LABEL_BREADCRUMB_FOLDER: BilingualText = { zh: '文件夹面包屑导航', en: 'Folder breadcrumb navigation' }
 const DOCS_PROPS_TITLE: BilingualText = { zh: '属性', en: 'Properties' }
 const DOCS_EVENTS_TITLE: BilingualText = { zh: '事件', en: 'Events' }
 const DOCS_KEYBOARD_TITLE: BilingualText = { zh: '键盘交互', en: 'Keyboard' }
@@ -48,6 +51,8 @@ const labelReset = useBilingual(i18n, LABEL_RESET)
 const labelLastClicked = useBilingual(i18n, LABEL_LAST_CLICKED)
 const labelSelected = useBilingual(i18n, LABEL_SELECTED)
 const labelCurrentPath = useBilingual(i18n, LABEL_CURRENT_PATH)
+const labelBreadcrumbPath = useBilingual(i18n, LABEL_BREADCRUMB_PATH)
+const labelBreadcrumbFolder = useBilingual(i18n, LABEL_BREADCRUMB_FOLDER)
 const docsPropsTitle = useBilingual(i18n, DOCS_PROPS_TITLE)
 const docsEventsTitle = useBilingual(i18n, DOCS_EVENTS_TITLE)
 const docsKeyboardTitle = useBilingual(i18n, DOCS_KEYBOARD_TITLE)
@@ -117,6 +122,7 @@ const propsRows: (string | number)[][] = [
   ['v-model:selected-item', 'unknown', 'undefined', '选中项(Web 侧增补;点击任一节点时写入,WinUI 无此属性)'],
   ['disabled', 'boolean', 'false', '禁用整个控件:各项不可点、不可聚焦,不触发 itemClicked'],
   ['ellipsis-aria-label', 'string', "'More items'", '省略号按钮与其下拉的无障碍名称(多语言站可传入本地化文案)'],
+  ['nav-aria-label', 'string', "'面包屑导航'", '根 nav 地标的无障碍名;同页多个 BreadcrumbBar 时传入互不相同的区分性文案(landmark 唯一性)'],
   ['slot(default)', '{ item, index }', '—', '项模板(WinUI ItemTemplate);缺省渲染 String(item)'],
 ]
 const eventHeaders = ['事件', '参数', '触发时机']
@@ -155,6 +161,7 @@ const usageCode = computed(
             <WuiBreadcrumbBar
               :items-source="pathItems"
               :disabled="disabledValue"
+              :nav-aria-label="labelBreadcrumbPath"
               v-model:selected-item="selectedItem1"
               @item-clicked="onPathItemClicked"
             />
@@ -168,7 +175,12 @@ const usageCode = computed(
         <section class="demo-group">
           <h3 class="group-title">{{ groupEdit }}</h3>
           <div class="folder-row">
-            <WuiBreadcrumbBar class="folder-breadcrumb" :items-source="folders" @item-clicked="onFolderClicked">
+            <WuiBreadcrumbBar
+              class="folder-breadcrumb"
+              :items-source="folders"
+              :nav-aria-label="labelBreadcrumbFolder"
+              @item-clicked="onFolderClicked"
+            >
               <template #default="{ item }">{{ (item as { name: string }).name }}</template>
             </WuiBreadcrumbBar>
             <WuiButton :content="labelAddNode" @click="addFolder" />

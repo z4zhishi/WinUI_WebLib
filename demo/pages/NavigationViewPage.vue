@@ -155,6 +155,8 @@ const docsRows: (string | number)[][] = [
   ['footerMenuItems', 'NavigationViewItemData[]', '数据驱动页脚菜单项(Top 模式右靠)'],
   ['paneBackground', 'string', '窗格背景色(CSS 颜色);空串用 token 默认'],
   ['paneLabel', 'string', '浮层窗格无障碍名(缺省取 paneTitle)'],
+  ['menuNavLabel', 'string', "'主导航'", '主导航 nav 地标的无障碍名;同页多个 NavigationView 时传入互不相同的区分性文案(landmark 唯一性)'],
+  ['footerNavLabel', 'string', "'页脚导航'", '页脚导航 nav 地标的无障碍名;同页多个 NavigationView 时传入互不相同的区分性文案(landmark 唯一性)'],
   ['itemInvoked', '(args: NavigationViewInvokeArgs) => void', '条目被点击时触发(含 SelectsOnInvoked=false 的纯展开项)'],
   ['selectionChanged', '(args: NavigationViewSelectionChangedArgs) => void', '选中项实际变化时触发(含程序化赋值)'],
   ['paneOpened / paneClosing / paneClosed', '() => void', '窗格开合事件(转发内嵌 SplitView,时机同 WinUI)'],
@@ -201,6 +203,7 @@ const usageCode = computed(
             :pane-title="paneTitleText"
             :menu-items="ROUTE_ITEMS"
             pane-label="主导航窗格"
+            menu-nav-label="主导航(站点路由)"
             class="navview-demo"
             @item-invoked="onRouterItemInvoked"
             @selection-changed="onSelectionChanged"
@@ -226,6 +229,8 @@ const usageCode = computed(
             header="页头文本"
             :menu-items="TOP_ITEMS"
             :footer-menu-items="TOP_FOOTER"
+            menu-nav-label="主导航(Top 模式)"
+            footer-nav-label="页脚导航(Top 模式)"
             class="navview-demo"
           >
             <div class="navview-content">
@@ -246,6 +251,8 @@ const usageCode = computed(
             header="层级导航"
             :menu-items="HIER_ITEMS"
             :footer-menu-items="HIER_FOOTER"
+            menu-nav-label="主导航(层级菜单)"
+            footer-nav-label="页脚导航(层级菜单)"
             class="navview-demo"
           >
             <div class="navview-content">

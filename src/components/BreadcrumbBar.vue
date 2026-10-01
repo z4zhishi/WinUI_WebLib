@@ -58,8 +58,10 @@ const props = withDefaults(
     disabled?: boolean
     /** 省略号按钮的无障碍名称(全站多语言阶段可传入本地化文案)。 */
     ellipsisAriaLabel?: string
+    /** 根 nav 地标的无障碍名;同页多个 BreadcrumbBar 时应传入区分性文案(attrs 传 aria-label 可覆盖)。 */
+    navAriaLabel?: string
   }>(),
-  { itemsSource: () => [], disabled: false, ellipsisAriaLabel: 'More items' },
+  { itemsSource: () => [], disabled: false, ellipsisAriaLabel: 'More items', navAriaLabel: '面包屑导航' },
 )
 
 // 显式声明 emits:内联项/下拉项的点击都转发为 itemClicked,根节点不透传原生 click。
@@ -412,6 +414,7 @@ function onLayerFocusout(event: FocusEvent): void {
   <nav
     ref="rootRef"
     class="wui-breadcrumb-bar"
+    :aria-label="navAriaLabel"
     :aria-disabled="disabled ? 'true' : undefined"
     v-bind="$attrs"
     @keydown="onRootKeydown"

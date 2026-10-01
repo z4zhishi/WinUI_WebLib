@@ -28,6 +28,8 @@ NavigationView 控件通过**可折叠的导航菜单**,为应用的顶级区域
 | `footerMenuItems` | `NavigationViewItemData[]` | `[]` | 数据驱动页脚菜单项(WinUI `FooterMenuItems`,Top 模式右靠) |
 | `paneBackground` | `string` | `''` | 窗格背景色(WinUI `PaneBackground`),任意 CSS 颜色;空串用 token 默认值 |
 | `paneLabel` | `string` | `''` | 浮层窗格的无障碍名;缺省取 `paneTitle` |
+| `menuNavLabel` | `string` | `'主导航'` | 主导航 `nav` 地标的无障碍名;同页多个 NavigationView 时应传入互不相同的区分性文案(landmark 唯一性) |
+| `footerNavLabel` | `string` | `'页脚导航'` | 页脚导航 `nav` 地标的无障碍名;同页多个 NavigationView 时同上 |
 
 `NavigationViewItemData` 字段:`tag`(选中标识)、`label`、`icon`(FontIcon 字形)、`children`(子项,仅数据驱动模式支持展开)、`selectsOnInvoked`(点击是否参与选中,默认 `true`)、`isHeader`(组头,同 NavigationViewItemHeader)、`isSeparator`(分隔线)、`disabled`。
 

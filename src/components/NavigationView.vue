@@ -250,6 +250,10 @@ const props = withDefaults(
     paneBackground?: string
     /** 浮层窗格的无障碍名(Minimal 模式窗格 role="dialog" 的 aria-label)。 */
     paneLabel?: string
+    /** 主导航 nav 地标的无障碍名;同页多个 NavigationView 时应传入区分性文案。 */
+    menuNavLabel?: string
+    /** 页脚导航 nav 地标的无障碍名;同页多个 NavigationView 时应传入区分性文案。 */
+    footerNavLabel?: string
   }>(),
   {
     paneDisplayMode: 'Auto',
@@ -263,6 +267,8 @@ const props = withDefaults(
     footerMenuItems: () => [],
     paneBackground: '',
     paneLabel: '',
+    menuNavLabel: '主导航',
+    footerNavLabel: '页脚导航',
   },
 )
 
@@ -430,7 +436,7 @@ const hasFooterMenu = computed(
     <template v-if="isTop">
       <div class="wui-navview__topbar">
         <span v-if="paneTitle" class="wui-navview__topbar-title">{{ paneTitle }}</span>
-        <nav class="wui-navview__topbar-items" aria-label="主导航">
+        <nav class="wui-navview__topbar-items" :aria-label="menuNavLabel">
           <slot name="menu-items">
             <WuiNavigationViewItem
               v-for="(entry, index) in menuItems"
@@ -440,7 +446,7 @@ const hasFooterMenu = computed(
           </slot>
         </nav>
         <div class="wui-navview__topbar-spring" aria-hidden="true"></div>
-        <nav v-if="hasFooterMenu" class="wui-navview__topbar-footer" aria-label="页脚导航">
+        <nav v-if="hasFooterMenu" class="wui-navview__topbar-footer" :aria-label="footerNavLabel">
           <slot name="footer-menu-items">
             <WuiNavigationViewItem
               v-for="(entry, index) in footerMenuItems"
@@ -492,7 +498,7 @@ const hasFooterMenu = computed(
             <div v-if="paneTitle" class="wui-navview__pane-header">
               <span class="wui-navview__pane-title">{{ paneTitle }}</span>
             </div>
-            <nav class="wui-navview__menu" aria-label="主导航">
+            <nav class="wui-navview__menu" :aria-label="menuNavLabel">
               <slot name="menu-items">
                 <WuiNavigationViewItem
                   v-for="(entry, index) in menuItems"
@@ -504,7 +510,7 @@ const hasFooterMenu = computed(
             <div v-if="$slots['pane-footer']" class="wui-navview__pane-footer">
               <slot name="pane-footer" />
             </div>
-            <nav v-if="hasFooterMenu" class="wui-navview__footer-menu" aria-label="页脚导航">
+            <nav v-if="hasFooterMenu" class="wui-navview__footer-menu" :aria-label="footerNavLabel">
               <slot name="footer-menu-items">
                 <WuiNavigationViewItem
                   v-for="(entry, index) in footerMenuItems"

@@ -19,6 +19,7 @@ BreadcrumbBar 提供一个通用的横向布局,展示到达当前位置的导�
 | `v-model:selected-item` | `unknown` | `undefined` | 选中项(Web 侧增补;点击任一节点时写入该项,WinUI 无此属性,见「与 WinUI 的差异」第 5 条) |
 | `disabled` | `boolean` | `false` | 禁用整个控件:各项不可点、不可聚焦,不触发事件(Web 侧增补,沿用 WinUI `IsEnabled` 的 Disabled 视觉态) |
 | `ellipsis-aria-label` | `string` | `'More items'` | 省略号按钮与其下拉的无障碍名称(Web 侧增补,便于多语言站点传入本地化文案) |
+| `nav-aria-label` | `string` | `'面包屑导航'` | 根 `nav` 地标的无障碍名(Web 侧增补);同页多个 BreadcrumbBar 时应传入互不相同的区分性文案(landmark 唯一性),attrs 传 `aria-label` 亦可覆盖 |
 | default slot | `{ item, index }` | — | 项模板(WinUI `ItemTemplate` 的声明式等价);缺省渲染 `String(item)` |
 
 ## 事件
