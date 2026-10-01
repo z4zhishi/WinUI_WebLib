@@ -439,21 +439,33 @@ onScopeDispose(() => {
 .wui-menu-bar-item {
   --mbi-bg: transparent; /* MenuBarItemBackground = SubtleFillColorTransparentBrush */
   --mbi-fg: var(--wui-system-control-foreground-base-high); /* MenuBarItemForeground = TextFillColorPrimaryBrush 同值 */
+  /* SubtleFillColorSecondary/Tertiary 源值(Common_themeresources_any.xaml L25-L27/L229-L230):
+     XAML AARRGGBB light #09000000/#06000000 → CSS RRGGBBAA #00000009/#00000006;
+     dark #0FFFFFFF/#0AFFFFFF → CSS #FFFFFF0F/#FFFFFF0A。theme.css 未提取该系列,
+     按组件局部 token 承载(FIX9 ColorPicker 先例);此前借用的 grid-view-item
+     token(9.8%/20%)与源不符,VR-B17 登记后订正。 */
+  --mbi-subtle-secondary: #00000009;
+  --mbi-subtle-tertiary: #00000006;
+}
+
+html[data-theme='dark'] .wui-menu-bar-item {
+  --mbi-subtle-secondary: #ffffff0f;
+  --mbi-subtle-tertiary: #ffffff0a;
 }
 
 /* PointerOver ← MenuBarItemBackgroundPointerOver = SubtleFillColorSecondaryBrush */
 .wui-menu-bar-item:not(.is-disabled):hover {
-  --mbi-bg: var(--wui-grid-view-item-background-pointer-over);
+  --mbi-bg: var(--mbi-subtle-secondary);
 }
 
 /* Pressed ← MenuBarItemBackgroundPressed = SubtleFillColorTertiaryBrush */
 .wui-menu-bar-item:not(.is-disabled):active {
-  --mbi-bg: var(--wui-grid-view-item-background-pressed);
+  --mbi-bg: var(--mbi-subtle-tertiary);
 }
 
 /* Selected(下拉打开)← MenuBarItemBackgroundSelected = SubtleFillColorTertiaryBrush */
 .wui-menu-bar-item.is-open:not(.is-disabled) {
-  --mbi-bg: var(--wui-grid-view-item-background-pressed);
+  --mbi-bg: var(--mbi-subtle-tertiary);
 }
 
 .wui-menu-bar-item.is-disabled {
