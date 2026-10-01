@@ -26,7 +26,7 @@
 //     打开态 ↓/↑ 循环导航、Home/End 首/末、Enter/Space 选、Esc/Tab 关;
 //   - 下拉面板走 usePopupLayer(matchAnchorWidth 等宽 + light dismiss 三手势),
 //     嵌套豁免由弹层注册表内置。
-import { computed, nextTick, ref, useAttrs, useId, watch } from 'vue'
+import { computed, nextTick, onUnmounted, ref, useAttrs, useId, watch } from 'vue'
 import { usePopupAnchor, usePopupLayer } from '@/composables/usePopup'
 
 defineOptions({ name: 'WuiComboBox', inheritAttrs: false })
@@ -290,9 +290,34 @@ function openDropDown(keepQuery = false): void {
   })
 }
 
+/** 收拢动画进行中:SplitClose 期间(167ms)为真,按钮面内容经 wui-combo-face-restore 淡回。 */
+const isClosing = ref(false)
+let closeTimer: ReturnType<typeof setTimeout> | null = null
+
 watch(isDropDownOpen, (value) => {
-  if (value) return
+  if (value) {
+    // 重新打开:中断未完成的收拢态(快速开合不残留 is-closing)
+    if (closeTimer !== null) {
+      clearTimeout(closeTimer)
+      closeTimer = null
+    }
+    isClosing.value = false
+    return
+  }
+  // SplitCloseThemeAnimation:面板收拢 167ms;源同时把按钮面内容置 0 并在
+  // 末 83ms 线性淡回 1(ThemeAnimations.cpp L861-871),此处以 is-closing
+  // 驱动 wui-combo-face-restore;167ms 与面板 leave 动画一致,到点复位。
+  isClosing.value = true
+  if (closeTimer !== null) clearTimeout(closeTimer)
+  closeTimer = setTimeout(() => {
+    isClosing.value = false
+    closeTimer = null
+  }, 167)
   emit('dropDownClosed')
+})
+
+onUnmounted(() => {
+  if (closeTimer !== null) clearTimeout(closeTimer)
 })
 
 /** 提交当前高亮项(WinUI:列表项点击 / 打开态 Enter/Space 后收起)。 */
@@ -501,6 +526,7 @@ const rootClass = computed(() => ({
   'is-disabled': props.disabled,
   'is-editable': props.isEditable,
   'is-open': isDropDownOpen.value,
+  'is-closing': isClosing.value,
 }))
 </script>
 
@@ -870,12 +896,30 @@ const rootClass = computed(() => ({
   background: var(--wui-combo-box-item-reveal-background-selected-pressed);
 }
 
-/* —— 入场:上滑淡入;离场快速淡出(对照 SplitOpen/CloseThemeAnimation 的 Web 近似)—— */
+/* —— 下拉开合(SplitOpenThemeAnimation / SplitCloseThemeAnimation;关键帧见
+   animations.css 的 wui-combo-split-* / wui-combo-face-*)——
+   开:面板自顶部锚点向下裁切展开,250ms cubic-bezier(0,0,0,1)(s_OpenDuration +
+   ControlFastOutSlowInKeySpline),本体全程不淡入(opacity 恒 1);
+   关:面板向顶部锚点收拢 167ms 同曲线(s_CloseDuration),opacity 末 83ms
+   线性淡出(s_OpacityChangeBeginTime = 167−83 起延迟)。 */
 .wui-combo-box-enter-active {
-  animation: wui-flyout-in var(--wui-duration-normal) var(--wui-easing-standard) both;
+  animation: wui-combo-split-open 250ms cubic-bezier(0, 0, 0, 1) both;
 }
 
 .wui-combo-box-leave-active {
-  animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-standard) both;
+  animation:
+    wui-combo-split-close 167ms cubic-bezier(0, 0, 0, 1) both,
+    wui-fade-out 83ms linear 84ms both;
+}
+
+/* 按钮面内容(源 ClosedTarget=ContentPresenter):开时 83ms 线性压暗至 0.5
+   (s_OpacityChangeDuration)并保持至收起(VSM storyboard HoldEnd,以 fill both
+   等价);收起时 0 → 末 83ms 淡回 1(L861-871),由 is-closing 驱动 */
+.wui-combo-box.is-open .wui-combo-box-content {
+  animation: wui-combo-face-dim 83ms linear both;
+}
+
+.wui-combo-box.is-closing .wui-combo-box-content {
+  animation: wui-combo-face-restore 167ms linear both;
 }
 </style>

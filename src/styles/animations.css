@@ -273,6 +273,73 @@
 }
 
 /* ======================================================================
+ * ComboBox 下拉开合(SplitOpenThemeAnimation / SplitCloseThemeAnimation)
+ * ----------------------------------------------------------------------
+ * 源:generic.xaml L9047-9060(ComboBox DropDownStates 的 Opened/Closed 态,
+ * OpenedTargetName=PopupBorder、ClosedTargetName=ContentPresenter)+
+ * ThemeAnimations.cpp SplitOpen/SplitClose CreateTimelines:
+ *   开(L596-706):PopupBorder 顶部锚定裁切展开 —— clip scaleY 0.5→1
+ *   (closedRatio 0.5,L598/L631;clip 原点 {0,0.5} 贴顶缘,L599/L679 +
+ *   ThemeGenerator.cpp L309-320),250ms(s_OpenDuration,
+ *   SplitOpenThemeAnimation_Partial.h L17)、cubic-bezier(0,0,0,1)(L601-604);
+ *   弹层本体全程不透明(L690 "be fully opaque",无淡入时间线);同时按钮面
+ *   ContentPresenter opacity 1→0.5 @83ms 线性压暗(s_OpacityChangeDuration,
+ *   Partial.h L16),Opened 态保持压暗(VSM storyboard HoldEnd)直至收起。
+ *   Web 映射:裁切展开 → clip-path inset 自底部 100%→0(顶部锚点向下揭示,
+ *   内容不随形变缩放,与 clip 语义一致,见 VR-FIX22 报告映射表);面压暗 →
+ *   wui-combo-face-dim 挂 .wui-combo-box-content(HoldEnd 以 fill both 等价),
+ *   收起时经 is-closing 换 wui-combo-face-restore。
+ *   关(L738-873):PopupBorder 裁切收拢 1→0.15(closedRatio 0.15,L743/L775)
+ *   167ms(s_CloseDuration,SplitCloseThemeAnimation_Partial.h L16)同曲线;
+ *   弹层 opacity 1 @0→1 @84ms→0 @167ms 线性(末 83ms 淡出,L823-826,
+ *   s_OpacityChangeBeginTime = 167−83,Partial.h L18);按钮面 0→0→1 淡回
+ *   (L861-871)。
+ * ====================================================================== */
+
+/* 开:顶部锚点向下裁切揭示(弹层本体 opacity 恒 1,不淡入) */
+@keyframes wui-combo-split-open {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* 关:向顶部锚点收拢(末 83ms 淡出由 wui-fade-out 并行承担) */
+@keyframes wui-combo-split-close {
+  from {
+    clip-path: inset(0 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+/* 开:按钮面内容 83ms 线性压暗至 0.5(Opened 态保持) */
+@keyframes wui-combo-face-dim {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.5;
+  }
+}
+
+/* 关:按钮面内容 0(84ms)→ 1(末 83ms 线性淡回,L861-871;50.3% = 84/167) */
+@keyframes wui-combo-face-restore {
+  from {
+    opacity: 0;
+  }
+  50.3% {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ======================================================================
  * ContentDialog 双时间线(DialogShowing / DialogHidden VisualTransition)
  * ----------------------------------------------------------------------
  * 源:generic.xaml L8395-8423 —— LayoutRoot(全屏烟幕层)承担 Opacity:
