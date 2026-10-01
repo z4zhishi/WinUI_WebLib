@@ -388,7 +388,8 @@ html[data-theme='dark'] .wui-slider {
   background: var(--wui-slider-track-fill);
   transform: translateY(-50%);
   pointer-events: none;
-  transition: background-color var(--wui-duration-fast, 167ms) var(--wui-easing-standard, ease);
+  /* 状态换色即时(源 PointerOver/Pressed 均为 DiscreteObjectKeyFrame KeyTime=0,
+     Slider_themeresources.xaml L279-297;VR-B22 §2.4 判定 Web 不得另加颜色过渡) */
 }
 
 /* —— 已选段(DecreaseRect):SliderTrackValueFill —— */
@@ -401,7 +402,7 @@ html[data-theme='dark'] .wui-slider {
   background: var(--wui-slider-track-value-fill);
   transform: translateY(-50%);
   pointer-events: none;
-  transition: background-color var(--wui-duration-fast, 167ms) var(--wui-easing-standard, ease);
+  /* 同轨道:换色即时,无过渡(DiscreteObjectKeyFrame) */
 }
 
 /* —— 拇指:现行 18×18 圆旋钮(FIX9,定案见样式段首注):外圈
@@ -433,9 +434,12 @@ html[data-theme='dark'] .wui-slider {
   background: var(--wui-slider-thumb-background);
   transform: translate(-50%, -50%) scale(1);
   pointer-events: none;
-  transition:
-    background-color var(--wui-duration-fast, 167ms) var(--wui-easing-standard, ease),
-    transform var(--wui-duration-fast, 167ms) var(--wui-easing-standard, ease);
+  /* 回到 Normal/进入 Disabled 的过渡:源 Normal/Disabled storyboard
+     KeyTime=ControlFastAnimationDuration(167ms)+ ControlFastOutSlowInKeySpline
+     (cubic-bezier(0,0,0,1),Slider_themeresources.xaml L208-217/L244-253);
+     颜色为 DiscreteObjectKeyFrame 即时,不加 background-color 过渡。
+     进入 PointerOver/Pressed 的 250ms 由下方状态规则按目标态覆写。 */
+  transition: transform var(--wui-duration-fast, 167ms) cubic-bezier(0, 0, 0, 1);
 }
 
 /* 刻度条:高 4(SliderOutsideTickBarThemeHeight)、与轨道边缘间距 4(TopTickBar
@@ -497,6 +501,9 @@ html[data-theme='dark'] .wui-slider {
 .wui-slider__input:not(:disabled):hover ~ .wui-slider__thumb .wui-slider__thumb-inner {
   background: var(--wui-slider-thumb-background-pointer-over);
   transform: translate(-50%, -50%) scale(1.1667);
+  /* 进入 PointerOver:源 KeyTime=ControlNormalAnimationDuration(250ms)+
+     ControlFastOutSlowInKeySpline(L220-227);CSS 过渡取目标态定义,故在此覆写 */
+  transition: transform 250ms cubic-bezier(0, 0, 0, 1);
 }
 
 /* —— Pressed(拖动中持续) —— */
@@ -511,6 +518,8 @@ html[data-theme='dark'] .wui-slider {
 .wui-slider__input:not(:disabled):active ~ .wui-slider__thumb .wui-slider__thumb-inner {
   background: var(--wui-slider-thumb-background-pressed);
   transform: translate(-50%, -50%) scale(0.8333);
+  /* 进入 Pressed:同 PointerOver,250ms + cubic-bezier(0,0,0,1)(L232-239) */
+  transition: transform 250ms cubic-bezier(0, 0, 0, 1);
 }
 
 /* —— Focus(键盘焦点可见性) —— */

@@ -62,18 +62,18 @@ function onValueChanged(e: { oldValue: number; newValue: number }): void {
 
 - **拖动**:按住轨道任意位置或拇指拖动,值实时更新并连续触发 `valueChanged`;按住期间保持 Pressed 视觉(拇指放大 + Pressed 色),即使指针移出控件(与 WinUI 指针捕获一致)。
 - **方向键**:`←`/`↓` 减一步、`→`/`↑` 加一步,步长为 `stepFrequency`(`snapsTo="Ticks"` 时为 `tickFrequency`);`Home`/`End` 跳到最小/最大值。
-- **PointerOver**:轨道变浅(`SliderTrackFillPointerOver`)、拇指变色并放大 1.4 倍。
+- **PointerOver**:轨道变浅(`SliderTrackFillPointerOver`)、内圆变色并放大至 14px(12px 内圆 scale 1.1667,250ms `cubic-bezier(0,0,0,1)`);按下时内圆缩至 10px(scale 0.8333)。
 - **Focus**:键盘聚焦(`:focus-visible`)时拇指外围显示 accent 色轮廓。
 
 ## 与 WinUI 的差异
 
 1. **`snapsTo` 增加 `'None'`**:WinUI `SliderSnapsTo` 枚举只有 `StepValues` / `Ticks`;Web 版追加 `'None'` 表示不吸附、连续取值(此时方向键仍按 `stepFrequency` 步进)。
-2. **拇指缩放**:源模板(generic.xaml 的 PointerOver/Pressed 状态)只改变颜色;拇指悬停/按住时 `scale(1.4)` 的放大为 Web 适配增强,取自 WinUI 11 交付版滑块的拇指交互观感,颜色值仍严格对照 `SliderThumbBackground*` token。
+2. **拇指缩放**:内圆缩放为源行为(现行 `Slider_themeresources.xaml` L208-253 的 `SliderInnerThumb` CompositeTransform):PointerOver 1.167(12→14px)、Pressed 0.71 相对值(14→10px,Web 以 12px 基准等价为 0.8333);进入 PointerOver / Pressed 为 250ms `cubic-bezier(0,0,0,1)`(`ControlNormalAnimationDuration` + `ControlFastOutSlowInKeySpline`),回到 Normal 为 167ms 同曲线(`ControlFastAnimationDuration`),终值与源一致。
 3. **轨道高度**:源快照(generic.xaml 三个主题字典 Default/HighContrast/Light)的 `SliderTrackThemeHeight` 均为 2,实现取 4px 系 Windows 11 观感选择。
 4. **焦点视觉**:WinUI 为控件外围系统焦点框(双线),Web 实现为拇指外围 2px accent 轮廓(`--wui-system-accent-color`,未定义时回退 `--wui-hyperlink-foreground-theme`)。
 5. **方向键步长**:WinUI 方向键按 `SmallChange`、翻页键按 `LargeChange` 步进;本实现方向键固定按 `stepFrequency`/`tickFrequency` 步进,未暴露 `SmallChange`/`LargeChange`。
 6. **仅水平方向**:WinUI 支持 `Orientation="Vertical"`,本实现暂未提供垂直模式。
-7. **状态切换动效**:WinUI 视觉状态颜色为瞬时切换(`DiscreteObjectKeyFrame`);Web 版为 167ms 过渡(`--wui-duration-fast` + `--wui-easing-standard`,token 未引入时回退内置值)。
+7. **状态切换动效**:与源一致——视觉状态颜色为瞬时切换(`DiscreteObjectKeyFrame KeyTime=0`,无过渡);唯一的动画是内圆缩放(见差异 2:进入 PointerOver/Pressed 250ms、回 Normal 167ms,曲线一律 `cubic-bezier(0,0,0,1)`)。
 8. **无 token 的源尺寸常量**(在组件内按源值实现):`SliderHorizontalHeight=32`(容器高)、拇指 8×24 / `CornerRadius=4`、`SliderOutsideTickBarThemeHeight=4` + 刻度与轨道间距 4、`SliderTopHeaderMargin=0,0,0,4`、刻度线宽 1px。
 
 ## 在 WinUI 中的典型场景(对照官方示例)
