@@ -518,11 +518,14 @@ const rootClass = computed(() => ({
 }
 
 /* —— 输入区:TextControl* 画刷族;Border 2、MinHeight 32、CornerRadius = ControlCornerRadius(4px,
-      theme.css 无该 token,按源默认值写死,差异见 wiki) —— */
+      theme.css 无该 token,按源默认值写死,差异见 wiki) ——
+   XAML 的 MinHeight 计入边框(外缘 32、内容区 28),CSS 对应 border-box:总高 32 含 2px 边框
+   (content-box 会撑成 36px 并连带 Inline 步进按钮 28px,VR-B7 F-B7-5;修法同 FIX6 ComboBox)。 */
 .wui-number-box-field {
   display: flex;
   align-items: stretch;
-  min-height: 32px; /* TextControlThemeMinHeight */
+  box-sizing: border-box;
+  min-height: 32px; /* TextControlThemeMinHeight(含边框) */
   background: var(--wui-text-control-background);
   border: 2px solid var(--wui-text-control-border);
   border-radius: 4px;

@@ -386,13 +386,16 @@ const rootClass = computed(() => ({
   margin-bottom: 4px;
 }
 
-/* —— BorderElement —— */
+/* —— BorderElement ——
+   XAML 的 MinHeight 计入边框(外缘 32、内容区 28),CSS 对应 border-box:总高 32 含
+   2px 边框(content-box 会撑成 36px,VR-B7 F-B7-6;修法同 FIX6 ComboBox/TextBox)。 */
 .wui-rich-edit-box-border {
   position: relative;
   display: flex;
   flex: 1;
   align-items: stretch;
-  min-height: 32px; /* TextControlThemeMinHeight */
+  box-sizing: border-box;
+  min-height: 32px; /* TextControlThemeMinHeight(含边框) */
   background: var(--wui-text-control-background);
   border: 2px solid var(--wui-text-control-border);
   border-radius: var(--wui-control-corner-radius); /* ControlCornerRadius = 4(BorderElement CornerRadius 模板绑定;T9 补修批次) */
@@ -437,6 +440,10 @@ const rootClass = computed(() => ({
   overflow-y: auto;
   font-family: var(--wui-content-control-theme-font-family, inherit);
   font-size: var(--wui-control-content-theme-font-size); /* ControlContentThemeFontSize */
+  /* 源行距:Segoe UI 14px 行高 ≈ 19(源 MinHeight 32 = 边框 2×2 + 内边距 3+6 + 一行 19,
+     空盒恰为 32)。Chromium 空行 strut(line-height normal)为 20px,会把单行空盒撑到 33
+     (VR-B7 F-B7-6 连带),故锁定 19px = 源行距;多行仍随内容增高(源 ScrollViewer Auto)。 */
+  line-height: 19px;
   color: var(--wui-text-control-foreground);
   caret-color: var(--wui-text-control-foreground);
   outline: none;
@@ -504,7 +511,9 @@ const rootClass = computed(() => ({
   cursor: default;
 }
 
-/* —— DeleteButton:TextControlButton* 画刷族;HelperButtonThemePadding —— */
+/* —— DeleteButton:TextControlButton* 画刷族;HelperButtonThemePadding。
+      Normal 前景用 helper 专用 token:源 TextControlButtonForeground 两字典同 ChromeBlackMedium
+      (#000000cc),按钮只在聚焦白底出现,不吃 theme.css 的暗色语境覆写(FIX12 F-B7-7) —— */
 .wui-rich-edit-box-delete-button {
   position: relative;
   z-index: 2;
@@ -517,7 +526,7 @@ const rootClass = computed(() => ({
   padding: 0;
   font-family: var(--wui-symbol-theme-font-family);
   font-size: var(--wui-tool-tip-content-theme-font-size); /* GlyphElement FontSize = 12 */
-  color: var(--wui-text-control-button-foreground);
+  color: var(--wui-text-control-helper-button-foreground);
   background: var(--wui-text-control-button-background);
   border: none;
   cursor: pointer;

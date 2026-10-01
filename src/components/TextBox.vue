@@ -187,12 +187,16 @@ const rootClass = computed(() => ({
   color: var(--wui-text-control-header-foreground);
 }
 
-/* —— BorderElement:TextControlBorderThemeThickness = 2(四周),MinHeight 32 —— */
+/* —— BorderElement:TextControlBorderThemeThickness = 2(四周),MinHeight 32 ——
+   XAML 的 MinHeight 计入边框(BorderElement 外缘 32、内容区 28,ContentElement 以
+   Margin=BorderThickness 内缩 2px),CSS 对应 border-box:总高 32 含 2px 边框
+   (content-box 会撑成 36px,VR-B7 F-B7-1;修法同 FIX6 ComboBox)。 */
 .wui-text-box-border {
   position: relative;
   display: flex;
   align-items: stretch;
-  min-height: 32px; /* TextControlThemeMinHeight */
+  box-sizing: border-box;
+  min-height: 32px; /* TextControlThemeMinHeight(含边框) */
   background: var(--wui-text-control-background);
   border: 2px solid var(--wui-text-control-border);
   border-radius: var(--wui-control-corner-radius); /* ControlCornerRadius = 4(V3 QA 打回项) */
@@ -279,7 +283,9 @@ const rootClass = computed(() => ({
 }
 
 /* —— DeleteButton(清除按钮):TextControlButton* 画刷族;
-      HelperButtonThemePadding = 0,0,-2,0(覆盖右边界 2px) —— */
+      HelperButtonThemePadding = 0,0,-2,0(覆盖右边界 2px)。
+      Normal 前景用 helper 专用 token:源 TextControlButtonForeground 两字典同 ChromeBlackMedium
+      (#000000cc),按钮只在聚焦白底出现,不吃 theme.css 的暗色语境覆写(FIX12 F-B7-2) —— */
 .wui-text-box-delete-button {
   flex: none;
   width: 34px; /* DeleteButton MinWidth = 34 */
@@ -290,7 +296,7 @@ const rootClass = computed(() => ({
   padding: 0;
   font-family: var(--wui-symbol-theme-font-family);
   font-size: var(--wui-tool-tip-content-theme-font-size); /* GlyphElement FontSize = 12,取同值 token */
-  color: var(--wui-text-control-button-foreground);
+  color: var(--wui-text-control-helper-button-foreground);
   background: var(--wui-text-control-button-background);
   border: none;
   cursor: pointer;

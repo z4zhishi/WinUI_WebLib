@@ -207,12 +207,15 @@ const rootClass = computed(() => ({
   color: var(--wui-text-control-header-foreground);
 }
 
-/* —— BorderElement:TextControlBorderThemeThickness = 2(四周),MinHeight 32 —— */
+/* —— BorderElement:TextControlBorderThemeThickness = 2(四周),MinHeight 32 ——
+   XAML 的 MinHeight 计入边框(外缘 32、内容区 28),CSS 对应 border-box:总高 32 含
+   2px 边框(content-box 会撑成 36px,VR-B7 F-B7-3;修法同 FIX6 ComboBox/TextBox)。 */
 .wui-password-box-border {
   position: relative;
   display: flex;
   align-items: stretch;
-  min-height: 32px; /* TextControlThemeMinHeight */
+  box-sizing: border-box;
+  min-height: 32px; /* TextControlThemeMinHeight(含边框) */
   background: var(--wui-text-control-background);
   border: 2px solid var(--wui-text-control-border);
   border-radius: var(--wui-control-corner-radius); /* ControlCornerRadius = 4(V3 QA 打回项) */
@@ -295,7 +298,9 @@ const rootClass = computed(() => ({
 
 /* —— RevealButton(揭示按钮):TextControlButton* 画刷族;
       HelperButtonThemePadding = 0,0,-2,0(覆盖右边界 2px);Disabled 态源模板 Opacity=0,
-      本实现直接不渲染(v-if 已排除 disabled) —— */
+      本实现直接不渲染(v-if 已排除 disabled)。
+      Normal 前景用 helper 专用 token:源 TextControlButtonForeground 两字典同 ChromeBlackMedium
+      (#000000cc),按钮只在聚焦白底出现,不吃 theme.css 的暗色语境覆写(FIX12 F-B7-4) —— */
 .wui-password-box-reveal-button {
   flex: none;
   width: 34px; /* RevealButton MinWidth = 34 */
@@ -306,7 +311,7 @@ const rootClass = computed(() => ({
   padding: 0;
   font-family: var(--wui-symbol-theme-font-family);
   font-size: var(--wui-tool-tip-content-theme-font-size); /* GlyphElement FontSize = 12,取同值 token */
-  color: var(--wui-text-control-button-foreground);
+  color: var(--wui-text-control-helper-button-foreground);
   background: var(--wui-text-control-button-background);
   border: none;
   cursor: pointer;
