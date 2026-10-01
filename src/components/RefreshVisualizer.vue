@@ -93,7 +93,7 @@ const props = withDefaults(
     orientation?: RefreshVisualizerOrientation
     /** 带高(WinUI Height),数字按 px;缺省 100(源默认样式),下限 80(源 MinHeight)。 */
     size?: number | string
-    /** 指示器前景色(WinUI Foreground);缺省映射 RefreshVisualizerForeground(主题前景)。 */
+    /** 指示器前景色(WinUI Foreground);缺省映射 RefreshVisualizerForeground 主题资源(不透明纯黑/纯白)。 */
     foreground?: string
     /** 背景色(WinUI Background);缺省透明(RefreshVisualizerBackground)。 */
     background?: string
@@ -304,13 +304,16 @@ defineExpose({
 
 <style scoped>
 .wui-refreshviz {
-  /* 源默认样式:Height=100(prop 控制)/ MinHeight=80 / IsTabStop=False / Background 透明 */
+  /* 源默认样式:Height=100(prop 控制)/ MinHeight=80 / IsTabStop=False / Background 透明;
+     横向铺满 = 源 RefreshVisualizerPresenter HorizontalAlignment=Stretch(FAIL-PTR-1:带宽 =
+     容器宽,指示器随之水平居中),flex 宿主中 width:100% 覆盖主轴收缩 */
   min-height: 80px;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  color: var(--wui-application-foreground-theme); /* RefreshVisualizerForeground:Light 黑 / Dark 白 → 主题前景 */
+  color: var(--wui-refresh-visualizer-foreground); /* RefreshVisualizerForeground:Light #000000 / Dark #FFFFFF(不透明源实值,FAIL-PTR-2) */
 }
 
 .wui-refreshviz__indicator {

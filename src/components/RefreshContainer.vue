@@ -460,6 +460,12 @@ defineExpose({
   transition: transform var(--wui-duration-fast) var(--wui-easing-standard);
 }
 
+/* 槽内自备视觉器同样横向铺满(源 presenter 为 Grid,子项默认 HorizontalAlignment=Stretch;
+   默认视觉器由 .wui-refreshviz 自身 width:100% 覆盖) */
+.wui-refreshcontainer__visualizer-host > :slotted(*) {
+  width: 100%;
+}
+
 /* 拉动中:位移跟手,关闭过渡(源 InteractionTracker 表达式动画逐帧直驱) */
 .wui-refreshcontainer--dragging .wui-refreshcontainer__content,
 .wui-refreshcontainer--dragging .wui-refreshcontainer__visualizer-host {

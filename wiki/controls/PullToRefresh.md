@@ -31,7 +31,7 @@ PullToRefresh 让用户在列表顶部**向下拉动**以刷新内容,广泛用�
 | `state` | `'Idle' \| 'Peeking' \| 'Interacting' \| 'Pending' \| 'Refreshing'`(`v-model:state`) | `'Idle'` | 视觉器状态;被容器包含时由容器状态机驱动(该 prop 忽略) |
 | `orientation` | `'Auto' \| 'Normal' \| 'Rotate90DegreesCounterclockwise' \| 'Rotate270DegreesCounterclockwise'` | `'Auto'` | 指示器方向:决定默认旋转内容的起始角(Auto 在 TopToBottom 下同 Normal) |
 | `size` | `number \| string` | `100` | 带高 px(WinUI `Height`,下限 80 = 源 `MinHeight`);容器以实测带高为拉动比例分母 |
-| `foreground` | `string` | 主题前景 | 指示器前景(WinUI `Foreground`,对应 `RefreshVisualizerForeground`:浅色黑 / 深色白) |
+| `foreground` | `string` | 不透明纯黑/白(主题资源) | 指示器前景(WinUI `Foreground`,对应 `RefreshVisualizerForeground`:浅色纯黑 / 深色纯白,经 `--wui-refresh-visualizer-foreground`) |
 | `background` | `string` | 透明 | 背景(WinUI `Background`,对应 `RefreshVisualizerBackground`) |
 
 插槽:`default` 为指示内容(缺省 `SymbolIcon(Refresh)` 30×30,对照源 `OnApplyTemplate` 默认值)。
@@ -114,8 +114,8 @@ async function onRefreshRequested(args) {
 
 ## 与 WinUI 的差异
 
-1. **模板与主题资源位置**:两控件的 Style/ControlTemplate 不在 generic.xaml(仅四支纯色画笔),模板与默认值取自 dev 源码 `RefreshContainer.xaml` / `RefreshVisualizer.xaml` / `*_themeresources.xaml`;theme.css 无对应 token,故:
-   - `RefreshVisualizerForeground`(浅色 Black / 深色 White)→ `--wui-application-foreground-theme`(主题前景,语义一致);
+1. **模板与主题资源位置**:两控件的 Style/ControlTemplate 不在 generic.xaml(仅四支纯色画笔),模板与默认值取自 dev 源码 `RefreshContainer.xaml` / `RefreshVisualizer.xaml` / `*_themeresources.xaml`;颜色经 theme.css 既有专用 token 取源实值:
+   - `RefreshVisualizerForeground`(浅色 Black / 深色 White)→ `--wui-refresh-visualizer-foreground`(不透明,与源同值);
    - `RefreshContainerBackgroundBrush / RefreshVisualizerBackground`(Transparent)→ 组件内 `background: transparent`;
    - HighContrast 字典未实现(站点既有口径)。
 2. **Composition 动画 → CSS transform/过渡**:源以 `ElementCompositionPreview` 表达式动画(InteractionTracker 直驱)与 KeyFrame 动画实现跟手位移、刷新请求/完成归位(源 `REFRESH_ANIMATION_DURATION = 100ms`);Web 以 transform + `--wui-duration-fast`(167ms)过渡与 CSS 关键帧(自转 500ms、脉冲 300ms,与源一致)转写,过渡时长 167ms vs 源 100ms 为取整 token 差异。

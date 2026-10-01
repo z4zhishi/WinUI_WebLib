@@ -157,7 +157,7 @@ const VISUALIZER_ROWS: (string | number)[][] = [
   ['state', "'Idle' | 'Peeking' | 'Interacting' | 'Pending' | 'Refreshing'(v-model:state)", "'Idle'", '视觉器状态;被 RefreshContainer 包含时由容器驱动(该 prop 忽略,请监听 stateChanged)'],
   ['orientation', "'Auto' | 'Normal' | 'Rotate90DegreesCounterclockwise' | 'Rotate270DegreesCounterclockwise'", "'Auto'", '指示器方向:决定起始旋转角(默认内容旋转图标的起始角)'],
   ['size', 'number | string', '100', '视觉器带高 px(WinUI Height;下限 80);RefreshContainer 以实测带高为拉动比例分母'],
-  ['foreground / background', 'string', "主题前景 / 透明", '指示器前景(WinUI Foreground,映射 RefreshVisualizerForeground 主题前景)与背景'],
+  ['foreground / background', 'string', "不透明纯黑/白(主题) / 透明", '指示器前景(WinUI Foreground,映射 RefreshVisualizerForeground 主题资源:浅色纯黑 / 深色纯白)与背景'],
 ]
 
 const EVENT_HEADERS = ['事件', '参数', '触发时机']
