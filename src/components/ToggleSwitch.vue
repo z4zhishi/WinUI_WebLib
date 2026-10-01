@@ -227,8 +227,13 @@ function onButtonClick(): void {
 /* —— 主体网格 —— */
 .wui-switch-body {
   display: inline-grid;
-  grid-template-columns: auto 12px auto; /* 内容列间距 12(generic.xaml L11437) */
+  /* 首列钉死轨道宽 44px:CSS 的 auto 轨道默认会被 justify-content:normal(=stretch)吸收
+     MinWidth 富余空间,把文案推离轨道(XAML Auto 列按内容定宽,余量留在右侧,不分配给轨道)。
+     justify-content:start 进一步保证 auto 列按 max-content 定宽,复刻 XAML 的 Auto 语义。
+     源:generic.xaml L11434-L11443(Auto / 12(MaxWidth 12) / Auto;MinWidth=154;HorizontalAlignment=Left)。 */
+  grid-template-columns: 44px 12px auto; /* 轨道 44 + 内容列间距 12(L11437)+ On/Off 文案 */
   grid-template-rows: 6px auto 6px; /* Pre/PostContentMargin = 6(L5944-L5945) */
+  justify-content: start;
   min-width: 154px; /* ToggleSwitchThemeMinWidth(L5950) */
 }
 
@@ -366,9 +371,16 @@ function onButtonClick(): void {
   background: var(--wui-toggle-switch-knob-fill-on-disabled);
 }
 
-/* —— Focus(项目惯例的 accent 描边焦点框,见 demo/components/README.md 约定 1)—— */
+/* —— Focus:系统焦点主色(源 UseSystemFocusVisuals + FocusVisualMargin=-7,-3,-7,-3,
+   主色 = SystemBaseHighColor → theme.css --wui-system-control-focus-visual-primary:
+   亮 #000000 / 暗 #ffffff);库内 Button/CheckBox/RadioButton/DropDownButton 同源同键,
+   双环→单环为全站已登记近似 —— 见 wiki 差异节。 */
 .wui-switch-button:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color);
+  outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 1px;
+}
+
+.wui-switch-button:focus:not(:focus-visible) {
+  outline: none;
 }
 </style>

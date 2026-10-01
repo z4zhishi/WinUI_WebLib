@@ -8,7 +8,8 @@
 //   内容右侧 ChevronDown 小字形(AnimatedChevronDownSmallVisualSource,回退 FontIconSource
 //   Glyph=E96E、FontSize=8、SymbolThemeFontFamily,Margin="8,0,0,0"、12x12),字形前景
 //   DropDownButtonForegroundSecondary(TextFillColorSecondary;PointerOver/Pressed 为
-//   TextFillColorTertiary —— theme.css 未提取 TextFill* 系列,取最近似 token,差异见 wiki)。
+//   TextFillColorTertiary;Disabled=ButtonForegroundDisabled —— 三者分别消费 theme.css 的
+//   --wui-text-fill-color-secondary / -tertiary / --wui-button-foreground-disabled)。
 //   四态 Normal/PointerOver/Pressed/Disabled 均为 DiscreteObjectKeyFrame 即时切换 + 系统焦点视觉。
 // 行为规格:点击整钮开/再点关(官方文档:↓ / Alt+↓ 亦可打开);flyout 内容经弹层公共基建
 //   锚定展开(wiki/controls/_popup-infra.md:定位/翻转/推回/z-index/嵌套豁免全部由基建负责);
@@ -341,8 +342,10 @@ provide('wuiMenuFlyoutLevel', {
  * ====================================================================== */
 .wui-dropdown-button {
   /* 字形前景按交互态切换(中间变量就地消费,对应 CommonStates 各 DiscreteObjectKeyFrame):
-     Normal/PointerOver/Pressed 均取最近似 token(见 wiki 差异节),Disabled 取按钮禁用前景 */
-  --ddb-chevron: var(--wui-application-secondary-foreground-theme);
+     Normal = DropDownButtonForegroundSecondary(= TextFillColorSecondary)
+     PointerOver/Pressed = …SecondaryPointerOver/Pressed(= TextFillColorTertiary)
+     Disabled = ButtonForegroundDisabled;三个 token 均取自 theme.css。 */
+  --ddb-chevron: var(--wui-text-fill-color-secondary);
 
   display: inline-flex;
   align-items: center;
@@ -387,14 +390,16 @@ provide('wuiMenuFlyoutLevel', {
   color: var(--wui-button-foreground-pointer-over);
   background: var(--wui-button-background-pointer-over);
   border-color: var(--wui-button-border-brush-pointer-over);
-  /* WinUI:Chevron → DropDownButtonForegroundSecondaryPointerOver(TextFillColorTertiary) */
+  /* WinUI:Chevron → DropDownButtonForegroundSecondaryPointerOver = TextFillColorTertiary */
+  --ddb-chevron: var(--wui-text-fill-color-tertiary);
 }
 
 .wui-dropdown-button:active:not(:disabled) {
   color: var(--wui-button-foreground-pressed);
   background: var(--wui-button-background-pressed);
   border-color: var(--wui-button-border-brush-pressed);
-  /* WinUI:Chevron → DropDownButtonForegroundSecondaryPressed(TextFillColorTertiary) */
+  /* WinUI:Chevron → DropDownButtonForegroundSecondaryPressed = TextFillColorTertiary */
+  --ddb-chevron: var(--wui-text-fill-color-tertiary);
 }
 
 .wui-dropdown-button:disabled {
@@ -406,7 +411,7 @@ provide('wuiMenuFlyoutLevel', {
   --ddb-chevron: var(--wui-button-foreground-disabled);
 }
 
-/* 系统焦点视觉:WinUI 双环(FocusVisualMargin=-3)近似为 primary 色单环 outline(同 Button) */
+/* 系统焦点视觉:WinUI 双环(FocusVisualMargin=-3)按双环实现(同 Button) */
 .wui-dropdown-button:focus-visible {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 1px;
