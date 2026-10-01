@@ -417,7 +417,10 @@ function onLayerFocusout(event: FocusEvent): void {
     @keydown="onRootKeydown"
     @focusin="syncFocusedKey"
   >
-    <!-- 隐藏测量行:与真实行同结构同样式,供溢出折叠逐项实测宽度(不影响布局/无障碍) -->
+    <!-- 隐藏测量行:与真实行逐节点同结构同类名(项按钮盒 Padding="1,3" / 当前位置盒 /
+         chevron),保证实测宽度与真实渲染像素级一致(视觉 QA F1:此前缺按钮 2px 水平
+         padding 且字体继承不一致,测量偏小导致折叠点偏晚、末项被裁);
+         不影响布局/无障碍 -->
     <div class="wui-breadcrumb-measure" aria-hidden="true">
       <span
         v-for="(item, i) in items"
@@ -425,13 +428,22 @@ function onLayerFocusout(event: FocusEvent): void {
         :ref="setMeasureRef(i)"
         class="wui-breadcrumb-unit"
       >
-        <span class="wui-breadcrumb-item-content">
-          <slot :item="item" :index="i">{{ itemText(item) }}</slot>
+        <span v-if="i < items.length - 1" class="wui-breadcrumb-item-button">
+          <span class="wui-breadcrumb-item-content">
+            <slot :item="item" :index="i">{{ itemText(item) }}</slot>
+          </span>
+        </span>
+        <span v-else class="wui-breadcrumb-current">
+          <span class="wui-breadcrumb-item-content">
+            <slot :item="item" :index="i">{{ itemText(item) }}</slot>
+          </span>
         </span>
         <span v-if="i < items.length - 1" class="wui-breadcrumb-chevron">&#xE76C;</span>
       </span>
       <span ref="ellipsisMeasureRef" class="wui-breadcrumb-unit">
-        <span class="wui-breadcrumb-item-content wui-breadcrumb-ellipsis-glyph">&#xE712;</span>
+        <span class="wui-breadcrumb-item-button">
+          <span class="wui-breadcrumb-item-content wui-breadcrumb-ellipsis-glyph">&#xE712;</span>
+        </span>
         <span class="wui-breadcrumb-chevron">&#xE76C;</span>
       </span>
     </div>
