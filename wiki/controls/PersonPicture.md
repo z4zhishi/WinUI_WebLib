@@ -79,7 +79,7 @@ import WuiPersonPicture from '@/components/PersonPicture.vue'
    | `PersonPictureEllipseFillThemeBrush` | `ControlAltFillColorQuarternary` | `#18000000` → `#00000018` | `#12FFFFFF` → `#FFFFFF12` | `--wui-person-picture-ellipse-fill`(组件级) |
    | `PersonPictureEllipseFillStrokeBrush` | `CardStrokeColorDefaultBrush` | `#0F000000` → `#0000000F` | `#19000000` → `#00000019` | `--wui-person-picture-ellipse-stroke`(组件级) |
    | `PersonPictureEllipseBadgeFillThemeBrush` | `AccentFillColorDefaultBrush` | — | — | `--wui-system-accent-color`(最近似 token,与 InfoBadge 一致) |
-   | `PersonPictureEllipseBadgeForegroundThemeBrush` | `TextOnAccentFillColorPrimaryBrush` | — | — | `--wui-accent-button-foreground`(最近似 token,与 InfoBadge 一致) |
+   | `PersonPictureEllipseBadgeForegroundThemeBrush` | `TextOnAccentFillColorPrimaryBrush` | `#FFFFFF` → `#ffffff` | `#000000` → `#000000` | `--wui-person-picture-badge-foreground`(组件级局部 token,浅/深与源恒等;theme.css 无 TextOnAccent 同名 token,取值锚点为 Fluent 调色板字典 `SystemColorOverrideResourceDictionary.xaml` 的 Light/Default 两值,InfoBadge 同款做法) |
    | `PersonPictureEllipseBadgeStrokeThemeBrush` | `ControlFillColorTransparentBrush` | — | — | `transparent`(2px 描边保留,不可见) |
 2. **缩写字号 / 徽标尺寸为公式而非资源**:源 `OnSizeChanged` 动态计算 —— 缩写字号 = `max(1, 边长 × 0.42)`、徽标盘 = 边长 × 0.5、徽标字号 = `max(1, 徽标盘 × 0.6)`;Web 按同公式以 inline style 注入,`width` / `height` prop 为准(经 CSS class 调整尺寸不会重算字号)。
 3. **中文取首字(有意偏离源行为)**:源 `InitialsGenerator` 把 CJK 归为 Symbolic 并返回**空串** → 实机 WinUI 对中文显示联系人占位字形;本组件按任务需求改为**取首字**(「王建国」→ 王)。阿拉伯文等 Glyph 类脚本仍保持源行为(空串 → 占位字形)。

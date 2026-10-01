@@ -386,6 +386,10 @@ const automationName = computed(() => {
      CardStrokeColorDefault(Light)= AARRGGBB #0F000000 → CSS #0000000F */
   --wui-person-picture-ellipse-fill: #00000018; /* ControlAltFillColorQuarternary(Light) */
   --wui-person-picture-ellipse-stroke: #0000000f; /* CardStrokeColorDefault(Light) */
+  /* 徽标数字 / 字形前景:PersonPictureEllipseBadgeForegroundThemeBrush =
+     TextOnAccentFillColorPrimaryBrush(theme.css 无 TextOnAccent 同名 token,按源值在组件内
+     承载,InfoBadge 同款做法;源 SystemColorOverrideResourceDictionary Light #FFFFFF / Default #000000) */
+  --wui-person-picture-badge-foreground: #ffffff; /* TextOnAccentFillColorPrimary(Light) */
 }
 
 .wui-person-picture__ellipse {
@@ -457,19 +461,20 @@ const automationName = computed(() => {
 }
 
 /* BadgeNumberTextBlock / BadgeGlyphIcon:Foreground=TextOnAccentFillColorPrimaryBrush
-   (最近似 token 同 InfoBadge:--wui-accent-button-foreground);字号由 60% 公式注入 */
+   (组件级局部 token 按源值承载,InfoBadge 同款做法,见 .wui-person-picture 处注释);
+   字号由 60% 公式注入 */
 .wui-person-picture__badge-text {
   position: relative;
   line-height: 1;
   font-weight: 600;
-  color: var(--wui-accent-button-foreground);
+  color: var(--wui-person-picture-badge-foreground);
 }
 
 .wui-person-picture__badge-glyph {
   position: relative;
   line-height: 1;
   font-family: var(--wui-symbol-theme-font-family);
-  color: var(--wui-accent-button-foreground);
+  color: var(--wui-person-picture-badge-foreground);
 }
 
 /* BadgingEllipse + BadgeImageBrush:徽标图片圆形裁剪 */
@@ -486,5 +491,6 @@ const automationName = computed(() => {
 html[data-theme='dark'] .wui-person-picture {
   --wui-person-picture-ellipse-stroke: #00000019; /* CardStrokeColorDefault(Default) */
   --wui-person-picture-ellipse-fill: #ffffff12; /* ControlAltFillColorQuarternary(Default) */
+  --wui-person-picture-badge-foreground: #000000; /* TextOnAccentFillColorPrimary(Default)= #000000 */
 }
 </style>
