@@ -20,7 +20,7 @@ AppBarToggleButton 看起来像 AppBarButton,行为却像 CheckBox:通常在**�
 | `isChecked` (v-model) | `boolean \| 'indeterminate'` | `false` | 选中状态(WinUI `IsChecked`);`'indeterminate'` 对应 `IsChecked = null`,双向绑定 |
 | `isThreeState` | `boolean` | `false` | 是否允许用户点击进入不确定态(WinUI `IsThreeState`) |
 | `isCompact` | `boolean` | `false` | 紧凑态(WinUI `IsCompact`):仅显示图标、隐藏标签(ApplicationViewStates → Compact) |
-| `keyboardAcceleratorText` | `string` | `''` | 加速键文本(WinUI `KeyboardAcceleratorTextOverride`,如 `'Ctrl+S'`):行尾角标显示,并注册全局按键监听(匹配即切换一次);空串不显示也不监听 |
+| `keyboardAcceleratorText` | `string` | `''` | 加速键文本(WinUI `KeyboardAcceleratorTextOverride`,如 `'Ctrl+S'`):按源只在**溢出菜单**内呈现(主命令区 `KeyboardAcceleratorPlacementMode=Hidden` 不呈现内联角标),并注册全局按键监听(匹配即切换一次);空串不显示也不监听 |
 | `disabled` | `boolean` | `false` | 禁用交互(WinUI `IsEnabled = false` 的取反映射) |
 | `width` | `number \| string` | `68` | 按钮宽度(WinUI `Width`;默认 Style 固定 68) |
 | `#icon` (slot) | `any` | — | 图标内容(WinUI `Icon` 属性);设置后优先于 `icon` 属性 |
@@ -61,7 +61,7 @@ function onUnchecked() { console.log('Off') }
     </template>
   </WuiAppBarToggleButton>
 
-  <!-- 紧凑态(仅图标)+ 加速键(Ctrl+S 角标显示、全局监听) -->
+  <!-- 紧凑态(仅图标)+ 加速键(角标只在 CommandBar 溢出菜单呈现,此处仍全局监听 Ctrl+S) -->
   <WuiAppBarToggleButton icon="Save" label="Save" is-compact keyboard-accelerator-text="Ctrl+S" />
 </template>
 ```
@@ -75,11 +75,11 @@ WinUI 的 `AppBarToggleButton.IsChecked` 是 `Nullable<bool>`。Web 侧(与 Chec
 视觉按 `generic.xaml` 中 `TargetType="AppBarToggleButton"`(默认 Style,L19468 起)复刻:CommonStates 是「Unchecked / Checked × Normal / PointerOver / Pressed / Disabled」的组合态(源模板显式列出 `Checked` / `CheckedPointerOver` / `CheckedPressed` / `CheckedDisabled`),全部即时切换、无过渡动画。选中态的视觉源是模板底部的 `CheckedHighlightBackground` Rectangle —— **WinUI 3 为整枚按钮的强调色底**(旧 UWP 时代的「选中下划线」已被该底色取代,本组件跟随 WinUI 3);悬停/按下则在其上叠加 `AccentOverlayBackground` 列表高亮(ListLow/ListMedium)。以下项无对应 token 或做了 Web 等价替换:
 
 1. **颜色 token 组未生成**:theme.css 没有 `--wui-app-bar-toggle-button-*` 组,状态色直接取其解析源 —— SystemControl 系刷子 token(`--wui-system-control-highlight-accent`(选中底)、`--wui-system-control-highlight-list-low/medium`(悬停/按下高亮)、`--wui-system-control-foreground-base-high` / `--wui-system-control-highlight-alt-base-high`(前景)、`--wui-system-control-disabled-base-medium-low`(禁用前景)、`--wui-system-control-disabled-accent`(选中禁用底)、`--wui-system-control-background-base-medium-low`(选中禁用前景)),与源逐项对应。
-2. **尺寸/间距 token 未提取**:`Width=68`、`AppBarThemeMinHeight=56`、`AppBarButtonContentHeight=16`、`AppBarButtonContentViewboxCollapsedMargin=0,12,0,4`、`AppBarToggleButtonTextLabelMargin=2,0,2,8` 等为 `x:Double`/`Thickness` 资源,theme.css 未生成 token,按源值硬编码(与 AppBarButton 组件同款处理)。
+2. **尺寸/间距 token 未提取**:`Width=68`、`AppBarThemeMinHeight=64`(WinUI 3 `CommandBar_themeresources.xaml` L71;UWP `generic.xaml` L19461 为 56)、`AppBarButtonContentHeight=16`、`AppBarButtonContentViewboxCollapsedMargin=0,16,0,2`(WinUI 3 `AppBarButton_themeresources.xaml` L112;UWP 为 0,12,0,4)、`AppBarToggleButtonTextLabelMargin=2,0,2,8` 等为 `x:Double`/`Thickness` 资源,theme.css 未生成 token,按源值硬编码(与 AppBarButton 组件同款处理,尺寸口径统一取 WinUI 3 值)。
 3. **圆角 token 未提取**:WinUI 3 默认 `ControlCornerRadius = 4`,取最近似的 `--wui-hyperlink-focus-rect-corner-radius`(同为 4px)。
 4. **焦点框**:模板 `UseSystemFocusVisuals` 为系统双环,Web 侧以单层 `outline: 2px solid var(--wui-system-control-focus-visual-primary)`(偏移 1px)近似(注意与 AppBarButton 组件的虚线下划线焦点视觉不同:那是其任务规格要求的 EllipsisFocusVisual 近似)。
 5. **不确定态无独立视觉**:源模板没有 Indeterminate 视觉分支 —— 不确定态外观与未选中相同(强调色底只在 `IsChecked == true` 时点亮),第三态语义仅由 `aria-pressed="mixed"` 表达,与源一致。
-6. **加速键**:`KeyboardAcceleratorPlacementMode` 默认 `Hidden`,WinUI 中加速键提示经 Tooltip/溢出菜单展示且全局注册属宿主行为;本组件把 `KeyboardAcceleratorTextOverride` 以角标显示在行尾,并直接注册全局 `keydown`(匹配即触发一次切换,`preventDefault`)。同族 AppBarButton 仅显示角标不监听,属有意的超集(演示页可实际按键体验)。
+6. **加速键角标只在溢出菜单呈现**:`KeyboardAcceleratorPlacementMode` 默认 `Hidden`(`AppBarToggleButton_themeresources.xaml` L226;`generic.xaml` L19479 同),WinUI 中只有按钮位于溢出区(`UseOverflowStyle`)且键盘存在时才切 `KeyboardAcceleratorTextVisible`(`AppBarButtonHelpers.h` L201-206),主命令区不呈现内联角标(仅 Tooltip 提示)。本组件默认不渲染内联角标;`CommandBar` 溢出层把 CSS 变量 `--wui-app-bar-accelerator-display` 置为 `block` 后,角标在溢出菜单行尾右对齐呈现。此外本组件按任务要求直接注册全局 `keydown`(匹配即触发一次切换,`preventDefault`)—— 全局激活属宿主行为(演示页可实际按键体验),属有意的超集。
 7. **Content 被忽略**:WinUI 的 `Content` 属性主要服务溢出菜单展示;本组件不实现溢出形态,图标经 `icon` 属性或 `#icon` slot、文字经 `label` 承载。
 8. **溢出视觉态未复刻**:源模板的 `Overflow*` / `OverflowWithMenuIcons` 系列视觉态属于 CommandBar 溢出菜单场景,归 CommandBar 阶段实现。
 9. **BitmapIcon 示例**:官方示例第二例(BitmapIcon)依赖应用包内图片资源,Web 侧演示页未复刻该例,`#icon` slot 可放任意元素(含 `BitmapIcon`)。

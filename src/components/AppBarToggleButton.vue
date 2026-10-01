@@ -1,15 +1,22 @@
 <script setup lang="ts">
 // AppBarToggleButton —— WinUI AppBarToggleButton 的 Web 复刻(命令栏切换按钮:外观同
 // AppBarButton,行为同 CheckBox)。
-// 视觉与状态对照源:CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml
-//   L19468 起 <Style TargetType="AppBarToggleButton">(默认 Style,非 RevealStyle):
+// 视觉与状态对照源(基准 = WinUI 3 随包主题资源,generic.xaml 为同名模板锚点):
+//   CK/WinUI-Reference/controls/dev/CommonStyles/AppBarToggleButton_themeresources.xaml(L204 起);
+//   dxaml/xcp/dxaml/themes/generic.xaml L19468 起 <Style TargetType="AppBarToggleButton">(默认 Style):
 //   - 结构:Root(Grid)上依次叠放 CheckedHighlightBackground(选中强调色底,Opacity 0→1)、
 //     AccentOverlayBackground(悬停/按下列表高亮)与 AppBarToggleButtonInnerBorder(描边,
-//     各态均透明);ContentRoot(Grid,MinHeight=AppBarThemeMinHeight=56)= 图标(Viewbox,
+//     各态均透明);ContentRoot(Grid,MinHeight=AppBarThemeMinHeight=64
+//     —— CommandBar_themeresources.xaml L71;UWP generic.xaml L19461 为 56)= 图标(Viewbox,
 //     Height=AppBarButtonContentHeight=16、Margin=AppBarButtonContentViewboxCollapsedMargin=
-//     0,12,0,4)+ 标签(TextLabel,FontSize=12、Margin=AppBarToggleButtonTextLabelMargin=
-//     2,0,2,8、居中可换行)+ 加速键角标(KeyboardAcceleratorTextLabel,Caption 12px、
-//     Margin=24,0,12,0、右对齐);Width=68(默认 Style Setter);
+//     0,16,0,2 —— AppBarButton_themeresources.xaml L112;UWP 为 0,12,0,4)+ 标签
+//     (TextLabel,FontSize=12、Margin=AppBarToggleButtonTextLabelMargin=2,0,2,8、居中可换行)+
+//     加速键角标(KeyboardAcceleratorTextLabel,Caption 12px、Margin=24,0,12,0、右对齐、默认 Collapsed);
+//     Width=68(默认 Style Setter);
+//   - 加速键角标只在「溢出菜单」内呈现:默认样式设 KeyboardAcceleratorPlacementMode=Hidden
+//     (AppBarToggleButton_themeresources.xaml L226;generic.xaml L19479 同),
+//     运行期仅当 useOverflowStyle(按钮位于溢出区)且键盘存在时才切 KeyboardAcceleratorTextVisible
+//     (dxaml/xcp/dxaml/lib/AppBarButtonHelpers.h L201-206);主命令区恒 Collapsed(仅 Tooltip 提示)。
 //   - CommonStates 组合态(Checked × 四交互态,DiscreteObjectKeyFrame 即时切换):
 //     Normal/PointerOver/Pressed → 前景 SystemControlForegroundBaseHighBrush,悬停/按下
 //     切 SystemControlHighlightAltBaseHighBrush,AccentOverlayBackground 悬停
@@ -25,9 +32,9 @@
 // 行为规格:ToggleButton 基类(ToggleButton_Partial.cpp)—— OnClick() 先 OnToggleProtected()
 //   (切状态并触发 Checked/Unchecked/Indeterminate)后 Click;OnToggleImpl 的点击环:
 //   未选中 → 选中;选中 →(IsThreeState 时)不确定,否则未选中;不确定 → 未选中。
-// 加速键:KeyboardAcceleratorTextOverride(如 'Ctrl+S')以角标显示于行尾,同时注册全局按键
-//   监听(匹配即触发一次切换,WinUI KeyboardAccelerator 语义);AppBarButton 同族仅显示角标,
-//   本组件按任务要求补齐真实监听(差异与理由见 wiki)。
+// 加速键:KeyboardAcceleratorTextOverride(如 'Ctrl+S')按源只在溢出菜单(UseOverflowStyle)内以
+//   Caption 字号右对齐呈现(主命令区 PlacementMode=Hidden 不呈现,仅 Tooltip);本组件另按任务要求
+//   注册全局按键监听(匹配即触发一次切换,WinUI KeyboardAccelerator 语义),差异与理由见 wiki。
 import { computed, onScopeDispose, watch } from 'vue'
 import type { CSSProperties } from 'vue'
 import { symbolToGlyph } from '@/utils/symbolIcons'
@@ -245,11 +252,12 @@ onScopeDispose(() => {
     <span class="wui-appbar-toggle-button__highlight" aria-hidden="true"></span>
     <!-- 悬停/按下列表高亮(AccentOverlayBackground) -->
     <span class="wui-appbar-toggle-button__overlay" aria-hidden="true"></span>
-    <!-- 图标列(第 0 行第 * 列):高 16、Margin 0,12,0,4,内容水平居中 -->
+    <!-- 图标列(第 0 行第 * 列):高 16、Margin 0,16,0,2,内容水平居中 -->
     <span class="wui-appbar-toggle-button__icon" aria-hidden="true">
       <slot name="icon">{{ iconGlyph }}</slot>
     </span>
-    <!-- 加速键角标(第 0 行 Auto 列):Caption 字号、右对齐、垂直居中 -->
+    <!-- 加速键角标(第 0 行 Auto 列):Caption 字号、右对齐、垂直居中、默认 Collapsed
+         (KeyboardAcceleratorPlacementMode=Hidden;仅溢出菜单由父级把角标显示变量置为 block 后呈现) -->
     <span v-if="keyboardAcceleratorText !== ''" class="wui-appbar-toggle-button__accelerator" aria-hidden="true">{{
       keyboardAcceleratorText
     }}</span>
@@ -308,7 +316,7 @@ onScopeDispose(() => {
 
 /* ======================================================================
  * 布局(对照模板 Root + ContentRoot):Width=68(Setter)、ContentRoot
- * MinHeight=AppBarThemeMinHeight=56;第 0 行 = 图标(*)+ 加速键角标(Auto),
+ * MinHeight=AppBarThemeMinHeight=64(WinUI 3);第 0 行 = 图标(*)+ 加速键角标(Auto),
  * 第 1 行 = 标签;两层底色为绝对定位图层,内容相对定位保持在其上。
  * ====================================================================== */
 .wui-appbar-toggle-button {
@@ -316,7 +324,7 @@ onScopeDispose(() => {
   grid-template-columns: 1fr auto;
   grid-template-rows: auto auto;
   box-sizing: border-box;
-  min-height: 56px; /* AppBarThemeMinHeight */
+  min-height: 64px; /* AppBarThemeMinHeight(WinUI 3 = 64;CommandBar_themeresources.xaml L71) */
   padding: 0;
   font-family: var(--wui-content-control-theme-font-family);
   font-weight: 400;
@@ -353,7 +361,7 @@ onScopeDispose(() => {
   pointer-events: none;
 }
 
-/* 图标列:ContentViewbox Height=16 + AppBarButtonContentViewboxCollapsedMargin=0,12,0,4;
+/* 图标列:ContentViewbox Height=16 + AppBarButtonContentViewboxCollapsedMargin=0,16,0,2(WinUI 3);
    字形兜底用 Symbol 主题字体(slot 内组件自带字体时以内联为准) */
 .wui-appbar-toggle-button__icon {
   position: relative;
@@ -364,7 +372,7 @@ onScopeDispose(() => {
   align-items: center;
   justify-content: center;
   height: 16px;
-  margin: 12px 0 4px;
+  margin: 16px 0 2px;
   min-width: 0;
   color: inherit;
   font-family: var(--wui-symbol-theme-font-family);
@@ -372,9 +380,13 @@ onScopeDispose(() => {
   line-height: 1;
 }
 
-/* 加速键角标:KeyboardAcceleratorTextLabel,Caption(12px)、Margin 24,0,12,0、右对齐垂直居中;
+/* 加速键角标:KeyboardAcceleratorTextLabel(默认 Visibility=Collapsed —— 样式设
+   KeyboardAcceleratorPlacementMode=Hidden;仅溢出区切 KeyboardAcceleratorTextVisible,
+   见 AppBarButtonHelpers.h L201-206)。主命令区不占列宽、不压标签:
+   默认 display:none 退出网格;父级(CommandBar 溢出层)把 --wui-app-bar-accelerator-display 置为 block 后呈现。
    前景 AppBarToggleButtonKeyboardAcceleratorTextForeground = SystemControlForegroundBaseMediumBrush */
 .wui-appbar-toggle-button__accelerator {
+  display: var(--wui-app-bar-accelerator-display, none);
   position: relative;
   z-index: 1;
   grid-column: 2;
@@ -387,7 +399,9 @@ onScopeDispose(() => {
   color: var(--atb-accel);
 }
 
-/* 标签:TextLabel FontSize=12 + AppBarToggleButtonTextLabelMargin=2,0,2,8、居中、可换行 */
+/* 标签:TextLabel FontSize=12 + AppBarToggleButtonTextLabelMargin=2,0,2,8、居中、可换行。
+   TextWrapping=Wrap 只按词边界折行(仅超宽单词才拆字),故不设 word-break:
+   否则 min-content 会塌到 1 字符,角标一旦占列即出现「逐字换行」 */
 .wui-appbar-toggle-button__label {
   position: relative;
   z-index: 1;
@@ -398,7 +412,6 @@ onScopeDispose(() => {
   line-height: normal;
   text-align: center;
   overflow-wrap: break-word;
-  word-break: break-word;
   color: inherit;
 }
 
@@ -407,13 +420,17 @@ onScopeDispose(() => {
   display: none;
 }
 
-/* 系统焦点视觉:WinUI 双环(FocusVisualPrimary 内环 + FocusVisualSecondary 外环,
-   FocusVisualMargin=-3)近似为 primary 色单环 outline(UseSystemFocusVisuals) */
+/* 系统焦点视觉:FocusVisualMargin=-3、UseSystemFocusVisuals=True
+   (AppBarToggleButton_themeresources.xaml L222-223;OverflowStyle 继承同一默认样式)
+   → FIX8 共享层 -3 族几何(两环全外:secondary [0,1] + primary [1,3],相邻无缝),
+   复用 focus-visual.css 的 --wui-focus-visual-* 共享 token,与 .wui-focus-visible 工具类同形
+   (不走共享类:scoped 的 :focus outline:none 需留在组件内,避免与全局类产生层叠竞争) */
 .wui-appbar-toggle-button:focus {
   outline: none;
 }
 .wui-appbar-toggle-button:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
+  outline: var(--wui-focus-visual-primary-thickness) solid var(--wui-focus-visual-primary);
+  outline-offset: var(--wui-focus-visual-offset);
+  box-shadow: 0 0 0 var(--wui-focus-visual-secondary-thickness) var(--wui-focus-visual-secondary);
 }
 </style>

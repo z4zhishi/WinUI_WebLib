@@ -3,11 +3,11 @@
 // SecondaryCommands 溢出区 + EllipsisButton(…)更多按钮)。
 // 视觉与结构对照源(CK/WinUI-Reference):
 // 1. controls/dev/CommonStyles/CommandBar_themeresources.xaml(WinUI 3 随包主题资源,主要依据):
-//    - DefaultCommandBarStyle:Padding=4,0,0,0、CornerRadius=ControlCornerRadius(4)、
-//      MinHeight(ContentRoot)=AppBarThemeCompactHeight(48)、VerticalAlignment=Top、
-//      HorizontalAlignment=Stretch;CommandBarBackground(WinUI3 = ControlFillColorTransparent,
-//      本组件取 UWP generic.xaml 同名键 SystemControlBackgroundChromeMediumBrush 的对应 token,
-//      与 AppBar 族既有一致)、CommandBarForeground(SystemControlForegroundBaseHighBrush);
+//    - DefaultCommandBarStyle:Padding=4,0,0,0(L80)、CornerRadius=ControlCornerRadius(4,L89)、
+//      MinHeight(ContentRoot)=AppBarThemeCompactHeight(48,L72)、VerticalAlignment=Top、
+//      HorizontalAlignment=Stretch;CommandBarBackground(WinUI 3 = ControlFillColorTransparentBrush
+//      = #00FFFFFF 全透明,L9 Default / L53 Light —— 关闭态无底色)、
+//      CommandBarForeground(SystemControlForegroundBaseHighBrush);
 //    - 模板结构:ContentRoot(Grid)= [ContentControl(内容列 * )+ PrimaryItemsControl
 //      (命令列,HorizontalAlignment=Right,水平 StackPanel)] + MoreButton(EllipsisButton 样式,
 //      Width=AppBarExpandButtonThemeWidth 48、MinHeight=48、VerticalAlignment=Top、
@@ -384,18 +384,21 @@ watch(isOpen, (value) => {
 /* ======================================================================
  * 命令行(ContentRoot):MinHeight=AppBarThemeCompactHeight(48)、
  * Padding=4,0,0,0、CornerRadius=ControlCornerRadius(4);
- * CommandBarBackground = SystemControlBackgroundChromeMediumBrush(UWP 口径,
- * 与 AppBar 族一致)、CommandBarForeground = SystemControlForegroundBaseHighBrush。
+ * Background = CommandBarBackground = ControlFillColorTransparentBrush(WinUI 3;
+ * CommandBar_themeresources.xaml L9 Default / L53 Light —— 关闭态全透明,无灰条)、
+ * CommandBarForeground = SystemControlForegroundBaseHighBrush。
+ * 注:WinUI 3 开启态另切 CommandBarBackgroundOpen(AcrylicInAppFillColorDefaultBrush,L10/L54),
+ * 本组件不含开合高度/底色过渡(差异见 wiki)。
  * ====================================================================== */
 .wui-commandbar {
   display: flex;
   align-items: stretch;
   box-sizing: border-box;
-  min-height: 48px; /* AppBarThemeCompactHeight(WinUI 3 = 48) */
+  min-height: 48px; /* AppBarThemeCompactHeight(WinUI 3 = 48;CommandBar_themeresources L72) */
   padding: 0 0 0 4px; /* DefaultCommandBarStyle Padding=4,0,0,0 */
   font-family: var(--wui-content-control-theme-font-family);
   color: var(--wui-system-control-foreground-base-high);
-  background: var(--wui-system-control-background-chrome-medium);
+  background: var(--wui-command-bar-background);
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px); /* ControlCornerRadius */
 }
 
@@ -465,7 +468,7 @@ watch(isOpen, (value) => {
   cursor: default;
 }
 
-/* 系统焦点视觉:WinUI 双环(FocusVisualMargin=-3)近似为 primary 色单环 outline(同族组件取法) */
+/* 系统焦点视觉:WinUI 双环(FocusVisualMargin=-3)按双环实现(同族组件取法) */
 .wui-commandbar__more:focus {
   outline: none;
 }
@@ -473,6 +476,7 @@ watch(isOpen, (value) => {
 .wui-commandbar__more:focus-visible {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 /* 整栏禁用(CommonStates → Disabled 仅置灰 EllipsisIcon:CommandBarEllipsisIconForegroundDisabled
@@ -510,8 +514,13 @@ watch(isOpen, (value) => {
  * 垂直滚动、Padding=CommandBarOverflowPresenterMargin 0,4,0,4;皮肤取 MenuFlyoutPresenter
  * 同款 token(WinUI3 为 AcrylicInAppFillColorDefault,无对应 token,差异见 wiki);
  * BorderThickness Down=0,0,0,1 / Up=1,0,0,0(层根圆角/阴影/z-index 由基建提供)。
+ * 角标显示开关:AppBarButton/AppBarToggleButton 默认不呈现内联加速键角标
+ * (源 KeyboardAcceleratorPlacementMode=Hidden,AppBarButtonHelpers.h L201-206 仅 useOverflowStyle
+ * 才切 KeyboardAcceleratorTextVisible);溢出区即 UseOverflowStyle=true,故在此开启该 CSS 变量
+ * (自定义属性可继承,槽内按钮就地生效)。
  * ====================================================================== */
 .wui-commandbar__overflow {
+  --wui-app-bar-accelerator-display: block;
   display: flex;
   flex-direction: column;
   align-items: stretch;

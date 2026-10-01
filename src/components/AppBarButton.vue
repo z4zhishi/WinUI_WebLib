@@ -1,12 +1,21 @@
 <script setup lang="ts">
 // AppBarButton —— WinUI AppBarButton 的 Web 复刻(命令栏按钮:图标在上/标签在下)。
-// 视觉与状态对照源:CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml
-//   L19126 起 <Style TargetType="AppBarButton">(默认 Style,非 AppBarButtonRevealStyle):
-//   - 尺寸:Width=68;ContentRoot MinHeight={AppBarThemeMinHeight=56};
-//     ContentViewbox Height={AppBarButtonContentHeight=16}、Margin={AppBarButtonContentViewboxCollapsedMargin=0,12,0,4};
+// 视觉与状态对照源(基准 = WinUI 3 随包主题资源,generic.xaml 为同名模板锚点):
+//   CK/WinUI-Reference/controls/dev/CommonStyles/AppBarButton_themeresources.xaml
+//   DefaultAppBarButtonStyle(L125 起);dxaml/xcp/dxaml/themes/generic.xaml L19126 起同名 Style:
+//   - 尺寸(取 WinUI 3 值):Width=68(L133/L19134);ContentRoot MinHeight={AppBarThemeMinHeight=64}
+//     (CommandBar_themeresources.xaml L71;UWP generic.xaml L19461 为 56);
+//     ContentViewbox Height={AppBarButtonContentHeight=16}、Margin={AppBarButtonContentViewboxCollapsedMargin=0,16,0,2}
+//     (AppBarButton_themeresources.xaml L112;UWP generic.xaml L19463 为 0,12,0,4);
 //     TextLabel FontSize=12、Margin={AppBarButtonTextLabelMargin=2,0,2,8}、TextAlignment=Center、TextWrapping=Wrap;
-//     KeyboardAcceleratorTextLabel 用 CaptionTextBlockStyle(FontSize=12)、Margin=24,0,12,0、右对齐、
-//     前景 AppBarButtonKeyboardAcceleratorTextForeground(= SystemControlForegroundBaseMediumBrush);
+//     KeyboardAcceleratorTextLabel 用 CaptionTextBlockStyle(FontSize=12)、Grid.Column=1、Margin=24,0,12,0、
+//     右对齐、VerticalAlignment=Center、默认 Visibility=Collapsed、前景
+//     AppBarButtonKeyboardAcceleratorTextForeground(= SystemControlForegroundBaseMediumBrush);
+//   - 加速键角标只在「溢出菜单」内呈现:默认样式设 KeyboardAcceleratorPlacementMode=Hidden
+//     (AppBarButton_themeresources.xaml L138;generic.xaml L19137 同),
+//     运行期仅当 useOverflowStyle(按钮位于溢出区)且键盘存在时才切 KeyboardAcceleratorTextVisible
+//     (dxaml/xcp/dxaml/lib/AppBarButtonHelpers.h L201-206),主命令区恒 Collapsed(仅以 Tooltip 提示)。
+//     故本组件默认不呈现内联角标;由 CommandBar 溢出层置 --wui-app-bar-accelerator-display:block 后呈现。
 //   - 颜色(generic.xaml L1667-L1677 / L1894-L1897,Light 与 Dark 主题同名键):
 //     Background/AppBarButtonBackground=SystemControlTransparentBrush(全透明,悬停按下列表高亮),
 //     PointerOver=SystemControlHighlightListLowBrush、Pressed=SystemControlHighlightListMediumBrush、
@@ -22,8 +31,9 @@
 //     图标经 #icon slot 承载(FontIcon / SymbolIcon / PathIcon / 任意内容),label 属性为文字标签;
 //   - isCompact(WinUI IsCompact)→ ApplicationViewStates 的 Compact 态:TextLabel Collapsed,仅剩图标;
 //   - click 事件(WinUI Click):原生 button 的 Space/Enter 激活同样触发,禁用时不触发;
-//   - keyboardAcceleratorText(WinUI KeyboardAcceleratorTextOverride)在右上角以 Caption 字号显示
-//     加速键角标;真实按键监听未实现( accelerators 的全局激活属宿主应用行为,见 wiki 差异节)。
+//   - keyboardAcceleratorText(WinUI KeyboardAcceleratorTextOverride)按源只在溢出菜单
+//     (UseOverflowStyle)内以 Caption 字号右对齐呈现,主命令区不呈现(PlacementMode=Hidden,仅 Tooltip);
+//     真实按键监听未实现(accelerators 的全局激活属宿主应用行为,见 wiki 差异节)。
 import { computed } from 'vue'
 import type { CSSProperties } from 'vue'
 
@@ -87,11 +97,12 @@ function onClick(event: MouseEvent): void {
     v-bind="$attrs"
     @click="onClick"
   >
-    <!-- 图标列(第 0 行第 * 列):高 16、Margin 0,12,0,4,内容水平居中 -->
+    <!-- 图标列(第 0 行第 * 列):高 16、Margin 0,16,0,2,内容水平居中 -->
     <span class="wui-appbar-button__icon" aria-hidden="true">
       <slot name="icon" />
     </span>
-    <!-- 加速键角标(第 0 行 Auto 列):Caption 字号、右对齐、垂直居中 -->
+    <!-- 加速键角标(第 0 行 Auto 列):Caption 字号、右对齐、垂直居中、默认 Collapsed
+         (KeyboardAcceleratorPlacementMode=Hidden;仅溢出菜单由父级把角标显示变量置为 block 后呈现) -->
     <span v-if="keyboardAcceleratorText !== ''" class="wui-appbar-button__accelerator">{{
       keyboardAcceleratorText
     }}</span>
@@ -107,7 +118,7 @@ function onClick(event: MouseEvent): void {
   grid-template-columns: 1fr auto;
   grid-template-rows: auto auto;
   box-sizing: border-box;
-  min-height: 56px; /* AppBarThemeMinHeight */
+  min-height: 64px; /* AppBarThemeMinHeight(WinUI 3 = 64;CommandBar_themeresources.xaml L71) */
   padding: 0;
   font-family: var(--wui-content-control-theme-font-family);
   font-weight: 400;
@@ -123,7 +134,7 @@ function onClick(event: MouseEvent): void {
   position: relative;
 }
 
-/* 图标列:ContentViewbox Height=16 + AppBarButtonContentViewboxCollapsedMargin=0,12,0,4 */
+/* 图标列:ContentViewbox Height=16 + AppBarButtonContentViewboxCollapsedMargin=0,16,0,2(WinUI 3) */
 .wui-appbar-button__icon {
   grid-column: 1;
   grid-row: 1;
@@ -131,16 +142,20 @@ function onClick(event: MouseEvent): void {
   align-items: center;
   justify-content: center;
   height: 16px;
-  margin: 12px 0 4px;
+  margin: 16px 0 2px;
   min-width: 0;
   color: inherit;
   font-size: 16px;
   line-height: 1;
 }
 
-/* 加速键角标:KeyboardAcceleratorTextLabel,Caption(12px)、Margin 24,0,12,0、右对齐垂直居中;
+/* 加速键角标:KeyboardAcceleratorTextLabel(默认 Visibility=Collapsed —— 样式设
+   KeyboardAcceleratorPlacementMode=Hidden;仅溢出区切 KeyboardAcceleratorTextVisible,
+   见 AppBarButtonHelpers.h L201-206)。主命令区不占列宽、不压标签:
+   默认 display:none 退出网格;父级(CommandBar 溢出层)把 --wui-app-bar-accelerator-display 置为 block 后呈现。
    前景 AppBarButtonKeyboardAcceleratorTextForeground = SystemControlForegroundBaseMediumBrush */
 .wui-appbar-button__accelerator {
+  display: var(--wui-app-bar-accelerator-display, none);
   grid-column: 2;
   grid-row: 1;
   align-self: center;
@@ -151,7 +166,9 @@ function onClick(event: MouseEvent): void {
   color: var(--wui-system-control-foreground-base-medium);
 }
 
-/* 标签:TextLabel FontSize=12 + AppBarButtonTextLabelMargin=2,0,2,8、居中、可换行 */
+/* 标签:TextLabel FontSize=12 + AppBarButtonTextLabelMargin=2,0,2,8、居中、可换行。
+   TextWrapping=Wrap 只按词边界折行(仅超宽单词才拆字),故不设 word-break:
+   否则 min-content 会塌到 1 字符,角标一旦占列即出现「逐字换行」 */
 .wui-appbar-button__label {
   grid-column: 1;
   grid-row: 2;
@@ -160,7 +177,6 @@ function onClick(event: MouseEvent): void {
   line-height: normal;
   text-align: center;
   overflow-wrap: break-word;
-  word-break: break-word;
   color: inherit;
 }
 
