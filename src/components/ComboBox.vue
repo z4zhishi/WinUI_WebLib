@@ -723,20 +723,21 @@ const rootClass = computed(() => ({
 }
 
 /* —— 状态优先级(对照 VSM):Disabled > Focused > Pressed/Open > PointerOver > Normal ——
-   hover 加 :not(:focus) / :not(.is-open)(QA F1 同 TextBox 做法);
-   :active 为按住瞬间,松开后由 .is-open 接管(WinUI 开着即 pressed 底)。 */
-.wui-combo-box:not(.is-disabled) .wui-combo-box-input:not(:focus):not(.is-open):hover {
+   is-open 绑在根元素(VR-FIX22 §7:原写 .wui-box-input.is-open 永不匹配,已改祖先链),
+   故排除/命中均走 .wui-combo-box:not(.is-open) / .wui-combo-box.is-open;
+   :active 为按住瞬间,松开后由打开态接管(WinUI 开着即 pressed 底)。 */
+.wui-combo-box:not(.is-disabled):not(.is-open) .wui-combo-box-input:not(:focus):hover {
   background: var(--wui-combo-box-background-pointer-over);
   --cb-input-border: var(--wui-combo-box-border-brush-pointer-over);
 }
 
-.wui-combo-box:not(.is-disabled) .wui-combo-box-input:not(:focus):not(.is-open):active {
+.wui-combo-box:not(.is-disabled):not(.is-open) .wui-combo-box-input:not(:focus):active {
   background: var(--wui-combo-box-background-pressed);
   --cb-input-border: var(--wui-combo-box-border-brush-pressed);
 }
 
 /* 打开态(WinUI FocusedDropDown / Pressed 语义):pressed 底色 */
-.wui-combo-box:not(.is-disabled) .wui-combo-box-input.is-open {
+.wui-combo-box:not(.is-disabled).is-open .wui-combo-box-input {
   background: var(--wui-combo-box-background-pressed);
   --cb-input-border: var(--wui-combo-box-border-brush-pressed);
 }
