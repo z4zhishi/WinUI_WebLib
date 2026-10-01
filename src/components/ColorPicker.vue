@@ -1156,6 +1156,17 @@ const rootClass = computed(() => ({
   min-width: 312px; /* ColorPickerVerticalOrientationMinWidth */
   max-width: 392px; /* ColorPickerVerticalOrientationMaxWidth */
   padding: 4px 0; /* RootGrid Padding 0,4 */
+
+  /* 视觉 fix(V7):ColorPickerSliderThumbBackground = TextFillColorPrimaryBrush,平台画刷
+     theme.css 暂缺 --wui-text-fill-color-primary(并行 token 层补齐中),局部携带源实值
+     (CommonStyles/Common_themeresources_any.xaml:light #E4000000 / dark #FFFFFF);
+     引用写成 var(--wui-text-fill-color-primary, var(--wui-cp-thumb-inner-fill)),
+     token 落地后自动切换到全局 token。 */
+  --wui-cp-thumb-inner-fill: #e4000000;
+}
+
+html[data-theme='dark'] .wui-color-picker {
+  --wui-cp-thumb-inner-fill: #ffffff;
 }
 
 /* —— Horizontal 排布(源 Horizontal 视觉状态:谱区居左,竖向滑杆居中,输入区居右) —— */
@@ -1378,7 +1389,7 @@ const rootClass = computed(() => ({
   position: absolute;
   inset: 4px; /* 内圈 10px(ColorPickerSliderInnerThumbWidth/Height) */
   border-radius: 50%;
-  background: var(--wui-text-fill-color-primary); /* ColorPickerSliderThumbBackground */
+  background: var(--wui-text-fill-color-primary, var(--wui-cp-thumb-inner-fill)); /* ColorPickerSliderThumbBackground */
 }
 
 .wui-color-picker-slider-input:not(:disabled):hover ~ .wui-color-picker-slider-thumb::after,
@@ -1387,7 +1398,7 @@ const rootClass = computed(() => ({
 }
 
 .wui-color-picker-slider-input:not(:disabled):active ~ .wui-color-picker-slider-thumb::after {
-  background: var(--wui-text-fill-color-primary); /* Pressed = TextFillColorPrimary(源默认主题) */
+  background: var(--wui-text-fill-color-primary, var(--wui-cp-thumb-inner-fill)); /* Pressed = TextFillColorPrimary(源默认主题) */
 }
 
 .wui-color-picker-slider-input:focus-visible ~ .wui-color-picker-slider-thumb {

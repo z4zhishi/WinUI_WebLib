@@ -361,6 +361,26 @@ const ariaValueText = computed(() => {
   user-select: none;
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);
   outline: none;
+
+  /* 视觉 fix(V7):theme.css 为自动生成层,平台画刷 TextFillColorSecondaryBrush /
+     ControlAltFillColorTertiaryBrush 不在 generic.xaml 内,提取器回退值偏差
+     (未选星 #00000033 = 20%、悬浮预览 #00000099 = 60%)。此处按源实值局部携带
+     (CommonStyles/Common_themeresources_any.xaml:TextFillColorSecondary
+     light #9E000000 / dark #C5FFFFFF;ControlAltFillColorTertiary
+     light #0F000000 / dark #0BFFFFFF;InfoBar 局部 token 先例)。
+     token 层补齐 --wui-text-fill-color-secondary 等后可改回 var() 引用并删除本段。 */
+  --wui-rating-control-unselected-foreground: #9e000000;
+  --wui-rating-control-caption-foreground: #9e000000; /* RatingControlCaptionForeground 同为 TextFillColorSecondaryBrush */
+  --wui-rating-control-pointer-over-placeholder-foreground: #0f000000;
+  --wui-rating-control-pointer-over-unselected-foreground: #0f000000;
+}
+
+/* 深色主题:带主题前缀以保证压过浅色基线(特异性约定,见 InfoBar 先例) */
+html[data-theme='dark'] .wui-rating {
+  --wui-rating-control-unselected-foreground: #c5ffffff;
+  --wui-rating-control-caption-foreground: #c5ffffff;
+  --wui-rating-control-pointer-over-placeholder-foreground: #0bffffff;
+  --wui-rating-control-pointer-over-unselected-foreground: #0bffffff;
 }
 
 /* 星条:实际星 16px(FS 32 × 0.5)、间距 8(RatingControlItemSpacing) */
