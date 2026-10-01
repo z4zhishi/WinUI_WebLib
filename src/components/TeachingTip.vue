@@ -361,6 +361,17 @@ function onAfterLeave(): void {
   emit('closed', { reason: lastReason.value })
 }
 
+/**
+ * 把层实时尺寸写入缩放关键帧变量(源 CreateExpand/ContractAnimation 以
+ * 20/Width、20/Height 表达起止 scale;开/关钩子各同步一次,覆盖打开期间
+ * 内容高度变化)。
+ */
+function syncTipScaleVars(el: Element): void {
+  if (!(el instanceof HTMLElement)) return
+  el.style.setProperty('--wui-tip-w', String(el.offsetWidth || 336))
+  el.style.setProperty('--wui-tip-h', String(el.offsetHeight || 160))
+}
+
 function onActionButtonClick(): void {
   // WinUI ActionButtonClick 只通知,不触发关闭
   emit('actionButtonClick')
@@ -576,7 +587,12 @@ const viewportAnchorClass = computed(() => {
       :style="{ margin: `${Math.max(0, placementMargin)}px` }"
       aria-hidden="true"
     />
-    <Transition name="wui-teaching-tip" @after-leave="onAfterLeave">
+    <Transition
+      name="wui-teaching-tip"
+      @after-leave="onAfterLeave"
+      @before-enter="syncTipScaleVars"
+      @before-leave="syncTipScaleVars"
+    >
       <div
         v-if="layerShown"
         :ref="bindLayerRef"
@@ -893,13 +909,18 @@ const viewportAnchorClass = computed(() => {
   box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
-/* —— 出入场:纯透明度(对照 OverlayOpeningAnimation / 收缩关闭动画的 Web 近似) —— */
+/* —— 出入场:源为纯缩放(Composition scale,无透明度时间线):
+   开 = 300ms 自 (0.01,0.01) → 1、cubic-bezier(0.1,0.9,0.2,1)(TeachingTip.cpp
+   CreateExpandAnimation + TeachingTip.h L234-235/L304-305);
+   关 = 200ms 自 1 → (20/W,20/H)、cubic-bezier(0.7,0,1,0.5)(L1685-1706、
+   L306-307)。缩放原点贴锚侧边由 popup.css 的 [data-wui-placement]
+   transform-origin 承担(源 CenterPoint,L353-422);关键帧见 animations.css。 —— */
 .wui-teaching-tip-enter-active {
-  animation: wui-fade-in var(--wui-duration-fast) var(--wui-easing-standard) both;
+  animation: wui-teaching-tip-expand 300ms var(--wui-easing-standard) both;
 }
 
 .wui-teaching-tip-leave-active {
-  animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-accelerate) both;
+  animation: wui-teaching-tip-contract 200ms cubic-bezier(0.7, 0, 1, 0.5) both;
 }
 
 /* —— non-targeted 视口锚点(0×0 fixed 落点;不截获任何指针) —— */
