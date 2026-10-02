@@ -11,6 +11,8 @@
 // 模型设计:checked 以 boolean | 'indeterminate' 哨兵值对应 WinUI IsChecked(Nullable<bool>),
 //   null → 'indeterminate';IsThreeState 仅约束用户点击是否经过不确定态。详见 wiki/controls/ToggleButton.md。
 import { computed } from 'vue'
+import { useReveal } from '../composables/useReveal'
+import '../styles/reveal.css'
 
 // class/style 等透传属性统一由根元素 v-bind="$attrs" 承接(避免落到 button 之外的继承位)。
 defineOptions({ name: 'WuiToggleButton', inheritAttrs: false })
@@ -23,6 +25,9 @@ const props = withDefaults(
     isThreeState?: boolean
     /** 禁用(WinUI IsEnabled 的取反映射,便于沿用原生 disabled 语义)。 */
     disabled?: boolean
+    /** Reveal 揭示光照(对照 ToggleButtonRevealStyle,G.xaml L15953):默认 false,
+        开启后状态色切换到 --wui-toggle-button-reveal-* 并叠加跟随指针的光照。 */
+    reveal?: boolean
   }>(),
   { content: '', isThreeState: false, disabled: false },
 )
@@ -77,6 +82,9 @@ function onToggle(event: MouseEvent): void {
   }
   emit('click', event)
 }
+
+// Reveal 光照:指针位置/光斑半径写入 CSS 变量(仅 reveal 且指针设备启用,见 useReveal)。
+const revealHandlers = useReveal(() => props.reveal === true)
 </script>
 
 <template>
@@ -84,10 +92,18 @@ function onToggle(event: MouseEvent): void {
   <button
     type="button"
     class="wui-toggle-button"
-    :class="{ 'is-checked': isChecked, 'is-indeterminate': isIndeterminate, 'is-disabled': disabled }"
+    :class="{
+      'is-checked': isChecked,
+      'is-indeterminate': isIndeterminate,
+      'is-disabled': disabled,
+      'wui-toggle-button--reveal': reveal,
+      'wui-reveal': reveal,
+      'wui-reveal--border': reveal,
+    }"
     :aria-pressed="ariaPressed"
     :disabled="disabled"
     v-bind="$attrs"
+    v-on="reveal ? revealHandlers : undefined"
     @click="onToggle"
   >
     <slot>{{ content }}</slot>
@@ -213,5 +229,70 @@ function onToggle(event: MouseEvent): void {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 1px;
   box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
+}
+
+/* ======================================================================
+ * Reveal 变体(reveal prop,对照 G.xaml L15953 ToggleButtonRevealStyle):
+ * 源 Reveal 变体只换 Background/BorderBrush(L15954 Foreground 仍用标准
+ * ToggleButtonForeground* token,故此处不动 --tb-fg);12 个组合态逐一把
+ * --tb-bg/--tb-border 切到 --wui-toggle-button-reveal-* token(theme.css)。
+ * 光照层(::before 底板光 / ::after 边框光)在公共层 reveal.css。
+ * ====================================================================== */
+.wui-toggle-button--reveal {
+  /* ToggleButtonRevealBorderThemeThickness = 2(G.xaml L1395)→ 边框光环厚度 */
+  --wui-reveal-border-width: 2px;
+  /* Normal / CheckedNormal / IndeterminateNormal */
+  --tb-bg: var(--wui-toggle-button-reveal-background);
+  --tb-border: var(--wui-toggle-button-reveal-border);
+}
+.wui-toggle-button--reveal.is-checked {
+  --tb-bg: var(--wui-toggle-button-reveal-background-checked);
+  --tb-border: var(--wui-toggle-button-reveal-border-brush-checked);
+}
+.wui-toggle-button--reveal.is-indeterminate {
+  --tb-bg: var(--wui-toggle-button-reveal-background-indeterminate);
+  --tb-border: var(--wui-toggle-button-reveal-border-brush-indeterminate);
+}
+
+/* PointerOver 系 */
+.wui-toggle-button--reveal:not(.is-disabled):hover {
+  --tb-bg: var(--wui-toggle-button-reveal-background-pointer-over);
+  --tb-border: var(--wui-toggle-button-reveal-border-brush-pointer-over);
+}
+.wui-toggle-button--reveal.is-checked:not(.is-disabled):hover {
+  --tb-bg: var(--wui-toggle-button-reveal-background-checked-pointer-over);
+  --tb-border: var(--wui-toggle-button-reveal-border-brush-checked-pointer-over);
+}
+.wui-toggle-button--reveal.is-indeterminate:not(.is-disabled):hover {
+  --tb-bg: var(--wui-toggle-button-reveal-background-indeterminate-pointer-over);
+  --tb-border: var(--wui-toggle-button-reveal-border-brush-indeterminate-pointer-over);
+}
+
+/* Pressed 系 */
+.wui-toggle-button--reveal:not(.is-disabled):active {
+  --tb-bg: var(--wui-toggle-button-reveal-background-pressed);
+  --tb-border: var(--wui-toggle-button-reveal-border-brush-pressed);
+}
+.wui-toggle-button--reveal.is-checked:not(.is-disabled):active {
+  --tb-bg: var(--wui-toggle-button-reveal-background-checked-pressed);
+  --tb-border: var(--wui-toggle-button-reveal-border-brush-checked-pressed);
+}
+.wui-toggle-button--reveal.is-indeterminate:not(.is-disabled):active {
+  --tb-bg: var(--wui-toggle-button-reveal-background-indeterminate-pressed);
+  --tb-border: var(--wui-toggle-button-reveal-border-brush-indeterminate-pressed);
+}
+
+/* Disabled 系 */
+.wui-toggle-button--reveal.is-disabled {
+  --tb-bg: var(--wui-toggle-button-reveal-background-disabled);
+  --tb-border: var(--wui-toggle-button-reveal-border-brush-disabled);
+}
+.wui-toggle-button--reveal.is-disabled.is-checked {
+  --tb-bg: var(--wui-toggle-button-reveal-background-checked-disabled);
+  --tb-border: var(--wui-toggle-button-reveal-border-brush-checked-disabled);
+}
+.wui-toggle-button--reveal.is-disabled.is-indeterminate {
+  --tb-bg: var(--wui-toggle-button-reveal-background-indeterminate-disabled);
+  --tb-border: var(--wui-toggle-button-reveal-border-brush-indeterminate-disabled);
 }
 </style>

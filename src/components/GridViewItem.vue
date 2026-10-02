@@ -6,14 +6,18 @@
 //   - Normal/PointerOver/Pressed/Selected(+PointerOver/Pressed 组合)背景与前景,
 //     颜色取 --wui-grid-view-item-* token(L817 起 / 暗色 L2712 起);
 //   - Reveal 边框:RevealBorderThickness=1 + RevealBorderBrush(源 token 解析为透明 ——
-//     WinUI 3 已退役 reveal 高光),此处保留 1px 揭示边框结构,enableReveal 时以
-//     「跟随指针的径向渐变 1px 光环」近似 WinUI 2 的 reveal 边框(差异见 wiki);
+//     WinUI 3 已退役 reveal 高光),此处保留 1px 揭示边框结构,enableReveal 时以公共层
+//     (src/styles/reveal.css + useReveal)的「跟随指针光照」复刻 WinUI 2 reveal:
+//     底板光半径 = Clamp(Max(W,H)+12,16,512)(RevealHoverLight.cpp L141-149/L163)、
+//     边框光半径 77px(RevealBorderLight.cpp wide 配置 L37-48)、光色白;
 //   - 选择勾选标记:CheckMode=Overlay —— 选中项左上角叠加圆形勾选标记,
 //     勾字形色 CheckBrush = --wui-grid-view-item-check,圆底 CheckBoxBrush = --wui-grid-view-item-check-box;
 //   - ContentMargin = TemplateBinding Padding(XAML Thickness 顺序:左,上,右,下)。
 // 模型设计:无自身状态,selected/disabled 由父级(GridView)下发;click 上抛由 GridView
 //   统一做选择逻辑(与 WinUI GridViewItem 的容器职责一致)。
 import { computed } from 'vue'
+import { useReveal } from '../composables/useReveal'
+import '../styles/reveal.css'
 
 // class/style 等透传属性统一由根元素 v-bind="$attrs" 承接。
 defineOptions({ name: 'WuiGridViewItem', inheritAttrs: false })
@@ -73,14 +77,9 @@ function thicknessToCss(thickness: string): string {
 const contentMarginCss = computed(() => thicknessToCss(props.contentMargin))
 const marginCss = computed(() => thicknessToCss(props.margin))
 
-// reveal 光环:指针位置写入 CSS 变量,径向渐变跟随(仅 enableReveal 时挂监听)。
-function onPointerMove(event: PointerEvent): void {
-  if (!props.enableReveal) return
-  const el = event.currentTarget as HTMLElement
-  const rect = el.getBoundingClientRect()
-  el.style.setProperty('--wui-reveal-x', `${event.clientX - rect.left}px`)
-  el.style.setProperty('--wui-reveal-y', `${event.clientY - rect.top}px`)
-}
+// reveal 光照(公共层):指针位置/光斑半径写入 CSS 变量(仅 enableReveal、非禁用且
+// 指针设备启用);光晕渲染在 reveal.css 的 ::before(底板光)/::after(边框光)。
+const revealHandlers = useReveal(() => props.enableReveal && !props.disabled)
 
 function onClick(event: MouseEvent): void {
   if (props.disabled) return
@@ -95,17 +94,19 @@ function onClick(event: MouseEvent): void {
       'is-selected': selected,
       'is-disabled': disabled,
       'multi-halo': multiSelectHalo,
-      'reveal-enabled': enableReveal,
+      'wui-reveal': enableReveal,
+      'wui-reveal--border': enableReveal,
     }"
     role="option"
     :aria-selected="selected ? 'true' : 'false'"
     :aria-disabled="disabled || undefined"
     :style="{ margin: marginCss }"
     v-bind="$attrs"
+    v-on="enableReveal ? revealHandlers : undefined"
     @click="onClick"
-    @pointermove="onPointerMove"
   >
-    <!-- 揭示边框(RevealBorderThickness=1;源画刷为透明,enableReveal 时以光环近似) -->
+    <!-- 揭示边框(RevealBorderThickness=1;源画刷为透明,enableReveal 时由公共层
+         ::after 边框光提供跟随指针光环,本 span 只承担静态 1px 描边结构) -->
     <span class="reveal-border" aria-hidden="true"></span>
     <!-- 选择勾选标记(CheckMode=Overlay:左上角圆形勾选) -->
     <span
@@ -200,29 +201,19 @@ function onClick(event: MouseEvent): void {
   pointer-events: none;
 }
 
-/* enableReveal:悬浮时以跟随指针的径向渐变填充 1px 环(mask 合成),近似 reveal 边框高光 */
-.reveal-border::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  box-sizing: border-box;
-  padding: 1px;
-  background: radial-gradient(
-    96px circle at var(--wui-reveal-x, 50%) var(--wui-reveal-y, 50%),
-    color-mix(in srgb, var(--wui-grid-view-item-focus-border) 60%, transparent),
-    transparent 70%
-  );
-  opacity: 0;
-  transition: opacity var(--wui-duration-fast) var(--wui-easing-standard);
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  pointer-events: none;
+/* —— enableReveal(公共层 reveal.css)::before 底板光 / ::after 边框光 ——
+   边框光半径取源 wide 配置 ≈ 77px(RevealBorderLight.cpp L37-48:256·tan(16.7403°));
+   底板光半径由 useReveal 按源公式 Clamp(Max(W,H)+12,16,512) 在进入时写入;
+   光环厚度 = RevealBorderThemeThickness 1(G.xaml L1400) */
+.wui-grid-view-item.wui-reveal {
+  --wui-reveal-border-width: 1px;
+  --wui-reveal-border-radius: 77px;
 }
 
-.wui-grid-view-item.reveal-enabled:not(.is-disabled):hover .reveal-border::before {
-  opacity: 1;
+/* 禁用项不点亮光晕(容器为 div,公共层 :disabled 门覆盖不到 is-disabled 类) */
+.wui-grid-view-item.is-disabled.wui-reveal:hover::before,
+.wui-grid-view-item.is-disabled.wui-reveal:hover::after {
+  opacity: 0;
 }
 
 /* —— 选择勾选标记(Overlay:左上角圆 + 勾字形)—— */

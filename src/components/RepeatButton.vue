@@ -16,6 +16,8 @@
 //   RepeatButton_Delay = 500ms、RepeatButton_Interval = 33ms。
 // 颜色/字号/圆角一律使用 theme.css 的 --wui-* token,无硬编码色值。
 import { onBeforeUnmount, watch } from 'vue'
+import { useReveal } from '../composables/useReveal'
+import '../styles/reveal.css'
 
 const props = withDefaults(
   defineProps<{
@@ -27,6 +29,9 @@ const props = withDefaults(
     interval?: number
     /** 是否禁用(对应 WinUI IsEnabled)。 */
     disabled?: boolean
+    /** Reveal 揭示光照(对照 RepeatButtonRevealStyle,G.xaml L15895):默认 false,
+        开启后状态色切换到 --wui-repeat-button-reveal-* 并叠加跟随指针的光照。 */
+    reveal?: boolean
   }>(),
   {
     content: '',
@@ -193,6 +198,9 @@ watch(
 onBeforeUnmount(() => {
   endPress(true)
 })
+
+// Reveal 光照:指针位置/光斑半径写入 CSS 变量(仅 reveal 且指针设备启用,见 useReveal)。
+const revealHandlers = useReveal(() => props.reveal === true)
 </script>
 
 <template>
@@ -200,8 +208,14 @@ onBeforeUnmount(() => {
   <button
     type="button"
     class="wui-repeat-button"
+    :class="{
+      'wui-repeat-button--reveal': reveal,
+      'wui-reveal': reveal,
+      'wui-reveal--border': reveal,
+    }"
     :disabled="disabled"
     v-bind="$attrs"
+    v-on="reveal ? revealHandlers : undefined"
     @pointerdown="onPointerDown"
     @pointerenter="onPointerEnter"
     @pointerleave="onPointerLeave"
@@ -217,6 +231,11 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .wui-repeat-button {
+  /* 状态色中间变量(Normal 态);reveal 变体经同名变量整体切换,见文末 */
+  --rb-fg: var(--wui-repeat-button-foreground);
+  --rb-bg: var(--wui-repeat-button-background);
+  --rb-border: var(--wui-repeat-button-border);
+
   /* ButtonPadding="8,4,8,5"(RepeatButton 样式复用同一 StaticResource) */
   padding: 4px 8px 5px;
   font-family: var(--wui-content-control-theme-font-family);
@@ -224,10 +243,10 @@ onBeforeUnmount(() => {
   font-size: var(--wui-control-content-theme-font-size);
   /* FontWeight="Normal" */
   font-weight: 400;
-  color: var(--wui-repeat-button-foreground);
-  background: var(--wui-repeat-button-background);
+  color: var(--rb-fg);
+  background: var(--rb-bg);
   /* RepeatButtonBorderThemeThickness = 2 */
-  border: 2px solid var(--wui-repeat-button-border);
+  border: 2px solid var(--rb-border);
   /* WinUI 3 默认 ControlCornerRadius = 4;无同名 token,取最近似的圆角 token(见 wiki 差异节) */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);
   cursor: default;
@@ -238,21 +257,21 @@ onBeforeUnmount(() => {
 /* 状态色一律即时切换(generic.xaml 各态均为 DiscreteObjectKeyFrame,无过渡动画) */
 
 .wui-repeat-button:hover:not(:disabled) {
-  color: var(--wui-repeat-button-foreground-pointer-over);
-  background: var(--wui-repeat-button-background-pointer-over);
-  border-color: var(--wui-repeat-button-border-brush-pointer-over);
+  --rb-fg: var(--wui-repeat-button-foreground-pointer-over);
+  --rb-bg: var(--wui-repeat-button-background-pointer-over);
+  --rb-border: var(--wui-repeat-button-border-brush-pointer-over);
 }
 
 .wui-repeat-button:active:not(:disabled) {
-  color: var(--wui-repeat-button-foreground-pressed);
-  background: var(--wui-repeat-button-background-pressed);
-  border-color: var(--wui-repeat-button-border-brush-pressed);
+  --rb-fg: var(--wui-repeat-button-foreground-pressed);
+  --rb-bg: var(--wui-repeat-button-background-pressed);
+  --rb-border: var(--wui-repeat-button-border-brush-pressed);
 }
 
 .wui-repeat-button:disabled {
-  color: var(--wui-repeat-button-foreground-disabled);
-  background: var(--wui-repeat-button-background-disabled);
-  border-color: var(--wui-repeat-button-border-brush-disabled);
+  --rb-fg: var(--wui-repeat-button-foreground-disabled);
+  --rb-bg: var(--wui-repeat-button-background-disabled);
+  --rb-border: var(--wui-repeat-button-border-brush-disabled);
   cursor: default;
 }
 
@@ -266,5 +285,33 @@ onBeforeUnmount(() => {
 
 .wui-repeat-button:focus:not(:focus-visible) {
   outline: none;
+}
+
+/* ======================================================================
+ * Reveal 变体(reveal prop,对照 G.xaml L15895 RepeatButtonRevealStyle):
+ * 源 Reveal 变体只换 Background/BorderBrush(Foreground 仍用标准 token);
+ * 状态色切到 --wui-repeat-button-reveal-* token(theme.css)。光照层在公共层
+ * reveal.css(::before 底板光 / ::after 边框光)。
+ * ====================================================================== */
+.wui-repeat-button--reveal {
+  /* RepeatButtonRevealBorderThemeThickness = 2(G.xaml L1394)→ 边框光环厚度 */
+  --wui-reveal-border-width: 2px;
+  --rb-bg: var(--wui-repeat-button-reveal-background);
+  --rb-border: var(--wui-repeat-button-reveal-border);
+}
+
+.wui-repeat-button--reveal:hover:not(:disabled) {
+  --rb-bg: var(--wui-repeat-button-reveal-background-pointer-over);
+  --rb-border: var(--wui-repeat-button-reveal-border-brush-pointer-over);
+}
+
+.wui-repeat-button--reveal:active:not(:disabled) {
+  --rb-bg: var(--wui-repeat-button-reveal-background-pressed);
+  --rb-border: var(--wui-repeat-button-reveal-border-brush-pressed);
+}
+
+.wui-repeat-button--reveal:disabled {
+  --rb-bg: var(--wui-repeat-button-reveal-background-disabled);
+  --rb-border: var(--wui-repeat-button-reveal-border-brush-disabled);
 }
 </style>

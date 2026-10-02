@@ -41,6 +41,7 @@ const disabled = ref<string | number | boolean>(false)
 const fontSize = ref<string | number | boolean>(14)
 const fontWeight = ref<string | number | boolean>('Normal')
 const cornerRadius = ref<string | number | boolean>(4)
+const reveal = ref<string | number | boolean>(false)
 const clickCount = ref(0)
 
 const FONT_WEIGHT_CHOICES = [
@@ -60,6 +61,7 @@ const disabledValue = computed(() => disabled.value === true)
 const fontSizeValue = computed(() => toNumber(fontSize.value, 14))
 const fontWeightValue = computed(() => String(fontWeight.value))
 const cornerRadiusValue = computed(() => toNumber(cornerRadius.value, 4))
+const revealValue = computed(() => reveal.value === true)
 
 function onButtonClick(): void {
   clickCount.value += 1
@@ -76,6 +78,7 @@ const propRows: (string | number)[][] = [
   ['FontWeight', 'number | string', "Normal(400)", '字重;支持 WinUI FontWeight 命名(下拉实时调节)'],
   ['CornerRadius', 'number | string', '4', '圆角半径,单位 px(滑块实时调节)'],
   ['Disabled', 'boolean', 'false', '是否禁用,对应 WinUI IsEnabled(开关实时调节)'],
+  ['Reveal', 'boolean', 'false', 'Reveal 揭示光照(对照 ButtonRevealStyle):状态色切 --wui-button-reveal-* token + 跟随指针光晕;仅指针设备,reduced-motion 退化静态 hover(开关实时调节,见下方 Reveal 示例)'],
 ]
 
 const eventHeaders = ['事件', '参数', '触发时机']
@@ -84,15 +87,19 @@ const eventRows: (string | number)[][] = [
 ]
 
 // 用法代码随参数实时更新,直观展示「参数 → 代码」的映射。
-const usageCode = computed(
-  () => `<WuiButton
-  Content="${contentText.value}"
-  :Disabled="${disabledValue.value}"
-  :FontSize="${fontSizeValue.value}"
-  FontWeight="${fontWeightValue.value}"
-  :CornerRadius="${cornerRadiusValue.value}"
-  @click="onButtonClick" />`,
-)
+const usageCode = computed(() => {
+  const lines = [
+    `<WuiButton`,
+    `  Content="${contentText.value}"`,
+    `  :Disabled="${disabledValue.value}"`,
+    `  :FontSize="${fontSizeValue.value}"`,
+    `  FontWeight="${fontWeightValue.value}"`,
+    `  :CornerRadius="${cornerRadiusValue.value}"`,
+  ]
+  if (revealValue.value) lines.push(`  :Reveal="true"`)
+  lines.push(`  @click="onButtonClick" />`)
+  return lines.join('\n')
+})
 </script>
 
 <template>
@@ -131,6 +138,24 @@ const usageCode = computed(
             这是一段较长的文本,超出按钮限宽后会自动换行显示,不会被裁剪
           </WuiButton>
         </div>
+
+        <!-- 配置 4:Reveal 揭示光照(reveal,对照 ButtonRevealStyle):
+             悬停时边框/底板被指针位置点亮(径向光晕跟随移动、离开消退);
+             仅指针设备启用,reduced-motion 退化为静态 hover 态 -->
+        <div class="button-row">
+          <WuiButton
+            :reveal="revealValue"
+            :disabled="disabledValue"
+            content="Reveal 按钮(ButtonRevealStyle)"
+            @click="onButtonClick"
+          />
+          <WuiButton
+            :reveal="revealValue"
+            :disabled="disabledValue"
+            content="另一个 Reveal 按钮"
+            @click="onButtonClick"
+          />
+        </div>
       </div>
     </template>
 
@@ -146,6 +171,7 @@ const usageCode = computed(
           :options="FONT_WEIGHT_CHOICES"
         />
         <DemoOptionRow label="CornerRadius" type="slider" v-model="cornerRadius" :min="0" :max="20" :step="1" />
+        <DemoOptionRow label="Reveal(揭示光照)" type="toggle" v-model="reveal" />
       </DemoOptions>
     </template>
 

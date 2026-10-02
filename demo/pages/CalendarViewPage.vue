@@ -81,6 +81,7 @@ const outOfScope = ref<string | number | boolean>(true)
 const todayHighlighted = ref<string | number | boolean>(true)
 const firstDay = ref<string | number | boolean>('0')
 const language = ref<string | number | boolean>('')
+const dayItemReveal = ref<string | number | boolean>(false)
 
 const basicModeValue = computed<CalendarViewDisplayMode>(() => {
   const raw = String(basicMode.value)
@@ -98,6 +99,7 @@ const firstDayValue = computed(() => {
   return Number.isInteger(parsed) && parsed >= 0 && parsed <= 6 ? parsed : 0
 })
 const languageValue = computed(() => String(language.value))
+const dayItemRevealValue = computed(() => dayItemReveal.value === true)
 
 function onBasicModeChanged(mode: CalendarViewDisplayMode): void {
   basicMode.value = mode
@@ -149,6 +151,7 @@ const propRows: (string | number)[][] = [
   ['isOutOfScopeEnabled', 'boolean', 'true', '邻月日期灰态渲染;false 时按当月样式(开关实时调节)'],
   ['language', 'string', "''", 'BCP-47 区域标签(WinUI Language),空串用运行时区域(下拉实时调节)'],
   ['disabled', 'boolean', 'false', '禁用整控件(星期行变灰、交互关闭)'],
+  ['dayItemReveal', 'boolean', 'false', '日格 Reveal 揭示光照(对照 CalendarViewDayItemRevealStyle):底/描边切 reveal token(源为透明)+ 跟随指针光晕;仅指针设备,reduced-motion 退化静态 hover(开关实时调节)'],
   ['calendarItemBorderBrush 等', 'string', 'token 默认', '视觉画刷覆盖:calendarItemBorderBrush / calendarItemBackground / todayForeground / todayBackground / selectedBorderBrush / selectedForeground / hoverBorderBrush / pressedBorderBrush / blackoutForeground / outOfScopeForeground / outOfScopeBackground'],
 ]
 
@@ -190,6 +193,7 @@ const usageCode = computed(
             :is-group-label-visible="groupLabelValue"
             :is-out-of-scope-enabled="outOfScopeValue"
             :language="languageValue"
+            :day-item-reveal="dayItemRevealValue"
             @display-mode-changed="onBasicModeChanged"
           />
           <p class="live-value">{{ selectedLabel }}:{{ basicSelectedText }}</p>
@@ -274,6 +278,7 @@ const usageCode = computed(
         <DemoOptionRow label="IsTodayHighlighted" type="toggle" v-model="todayHighlighted" />
         <DemoOptionRow label="IsGroupLabelVisible" type="toggle" v-model="groupLabel" />
         <DemoOptionRow label="IsOutOfScopeEnabled" type="toggle" v-model="outOfScope" />
+        <DemoOptionRow label="DayItemReveal(日格 Reveal 光照)" type="toggle" v-model="dayItemReveal" />
       </DemoOptions>
     </template>
 

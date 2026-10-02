@@ -127,7 +127,9 @@ export * as symbolIcons from './utils/symbolIcons'
 
 // —— composables 2(Vue 惯例:函数直接平铺,import { useSelection } 可用)——
 export * from './composables/usePopup'
+export * from './composables/useReducedMotion'
 export * from './composables/useSelection'
+export * from './composables/useReveal'
 
 // —— components/*.ts 助手 2(命名空间风格,避免平铺污染顶层名)——
 export * as animatedIconSource from './components/AnimatedIconSource'

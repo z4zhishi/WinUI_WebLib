@@ -81,6 +81,8 @@ function shortenWeekDay(label: string): string {
 //   standard spline 近似(登记于报告)。头部淡入 167ms(L14447)不变。
 import { computed, nextTick, ref, watch } from 'vue'
 import '../styles/animations.css'
+import { useReveal } from '../composables/useReveal'
+import '../styles/reveal.css'
 
 defineOptions({ name: 'WuiCalendarView', inheritAttrs: false })
 
@@ -106,6 +108,10 @@ const props = withDefaults(
     language?: string
     /** 禁用整控件(对照模板 Disabled 视觉状态:星期行变灰、交互关闭)。 */
     disabled?: boolean
+    /** 日格 Reveal 揭示光照(对照 CalendarViewDayItemRevealStyle,G.xaml L14269 为源默认
+        日格样式):默认 false;开启后日格底/描边切换到 reveal token(源为透明)并叠加
+        跟随指针的底板光晕(仅指针设备;reduced-motion 退化静态 hover 态)。 */
+    dayItemReveal?: boolean
     /** 前翻按钮无障碍名(WinUI 经资源本地化;Web 以 prop 开放,默认英文)。 */
     ariaLabelPrevious?: string
     /** 后翻按钮无障碍名。 */
@@ -144,6 +150,7 @@ const props = withDefaults(
     isOutOfScopeEnabled: true,
     language: '',
     disabled: false,
+    dayItemReveal: false,
     ariaLabelPrevious: 'Previous',
     ariaLabelNext: 'Next',
     calendarItemBorderBrush: undefined,
@@ -569,6 +576,11 @@ const rootStyle = computed<Record<string, string>>(() => {
 const rootClass = computed(() => ({
   'is-disabled': props.disabled,
 }))
+
+// 日格 Reveal 光照:指针位置/光斑半径写入 CSS 变量(仅 dayItemReveal 且指针设备启用;
+// 整控件禁用时不点亮)。监听挂在月视图日格网上(event.currentTarget 取实际日格),
+// 年/十年视图无 DayItem 不挂。
+const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props.disabled)
 </script>
 
 <template>
@@ -629,7 +641,13 @@ const rootClass = computed(() => ({
           </div>
           <!-- 前后翻页:CalendarPanel 水平 pan(整页左出右入,键 = 年-月)-->
           <Transition :name="navFx">
-            <div :key="monthNavKey" ref="daysGridEl" class="cv-days" role="grid" @keydown="onGridKeydown">
+            <div
+              :key="monthNavKey"
+              ref="daysGridEl"
+              class="cv-days"
+              role="grid"
+              @keydown="onGridKeydown"
+            >
               <div v-for="(week, wi) in monthWeeks" :key="`w-${wi}`" role="row" class="cv-week-row">
                 <div
                   v-for="cell in week"
@@ -646,12 +664,14 @@ const rootClass = computed(() => ({
                       'is-today': cell.isToday && isTodayHighlighted,
                       'is-selected': cell.isSelected,
                       'is-blackout': cell.isBlackout,
+                      'wui-reveal': dayItemReveal && !cell.isBlackout,
                     }"
                     :tabindex="isFocusedDay(cell) && !cell.isBlackout ? 0 : -1"
                     :aria-label="fmtFullDate.format(cell.date)"
                     :aria-current="cell.isToday && isTodayHighlighted ? 'date' : undefined"
                     :aria-disabled="cell.isBlackout || disabled ? true : undefined"
                     :data-key="cell.key"
+                    v-on="dayItemReveal && !cell.isBlackout ? dayRevealHandlers : undefined"
                     @click="onDayClick(cell)"
                   >
                     <span v-if="cell.isToday && isTodayHighlighted" class="cv-day-today" aria-hidden="true"></span>
@@ -972,6 +992,19 @@ const rootClass = computed(() => ({
   border: none;
   cursor: pointer;
   user-select: none;
+}
+
+/* 日格 Reveal 变体(dayItemReveal):源 CalendarViewRevealStyle 把 CalendarItemBackground/
+   BorderBrush 指到 reveal token(L14320/L14323,均解析为透明,主题映射 theme.css L630-631),
+   故开启后底色切到该 token(选中/悬停/按下的描边仍走上方 box-shadow 状态规则)。
+   光晕层在公共层 reveal.css(DayItem 模板无边框 → 仅底板光,不加 wui-reveal--border) */
+.cv-day.wui-reveal {
+  background: var(--wui-calendar-view-calendar-item-reveal-background, transparent);
+}
+
+/* 整控件禁用不点亮光晕(DayItem 经 aria-disabled 表达禁用,:disabled 门覆盖不到) */
+.wui-calendar-view.is-disabled .cv-day.wui-reveal:hover::before {
+  opacity: 0;
 }
 
 /* 交互描边用 inset 阴影,避免边框参与布局(源 chrome 的 2px 内描边语义);

@@ -4,8 +4,13 @@
 // TargetType="Button" 的 Style/ControlTemplate —— Normal/PointerOver/Pressed/Disabled 四态
 // (DiscreteObjectKeyFrame 即时切换)+ UseSystemFocusVisuals 焦点视觉;
 // 颜色/字号/圆角一律使用 theme.css 的 --wui-* token,无硬编码色值。
+// Reveal 变体(reveal prop):对照 G.xaml L15824 ButtonRevealStyle —— 状态色整体切换到
+// --wui-button-reveal-* token(L1405-1412 映射),并叠加 Reveal 材料 pointer 光照
+// (底板光 + 边框光,公共层 src/styles/reveal.css + useReveal;常量锚点见该文件头注)。
 import { computed } from 'vue'
 import type { CSSProperties } from 'vue'
+import { useReveal } from '../composables/useReveal'
+import '../styles/reveal.css'
 
 // —— WinUI FontWeight 命名 → CSS font-weight 数值(generic.xaml FontWeights 约定)——
 const FONT_WEIGHT_NAMES: Record<string, number> = {
@@ -43,6 +48,9 @@ const props = defineProps<{
   fontWeight?: number | string
   /** 圆角(px);number 或任意 CSS 圆角串,缺省 4px(WinUI 3 ControlCornerRadius)。 */
   cornerRadius?: number | string
+  /** Reveal 揭示光照(对照 ButtonRevealStyle,G.xaml L15824):默认 false,
+      开启后状态色切换到 --wui-button-reveal-* 并叠加跟随指针的光照(hover 光晕)。 */
+  reveal?: boolean
 }>()
 
 // 显式声明 click:外部 @click 监听不再经 $attrs 透传到根节点,避免原生 click 重复触发。
@@ -80,6 +88,9 @@ const rootStyle = computed<CSSProperties>(() => {
   return style
 })
 
+// Reveal 光照:指针位置/光斑半径写入 CSS 变量(仅 reveal 且指针设备启用,见 useReveal)。
+const revealHandlers = useReveal(() => props.reveal === true)
+
 function onClick(event: MouseEvent): void {
   emit('click', event)
 }
@@ -90,9 +101,15 @@ function onClick(event: MouseEvent): void {
   <button
     type="button"
     class="wui-button"
+    :class="{
+      'wui-button--reveal': reveal,
+      'wui-reveal': reveal,
+      'wui-reveal--border': reveal,
+    }"
     :style="rootStyle"
     :disabled="disabled"
     v-bind="$attrs"
+    v-on="reveal ? revealHandlers : undefined"
     @click="onClick"
   >
     <slot>{{ content }}</slot>
@@ -101,17 +118,23 @@ function onClick(event: MouseEvent): void {
 
 <style scoped>
 .wui-button {
+  /* 状态色中间变量(状态规则就地消费;reveal 变体经同名变量整体切换,见文末)。
+     Normal 态先经 --wui-button-local-* 透传 background/foreground/borderBrush prop
+     (对应 TemplateBinding;交互态仍按 WinUI VSM 用主题状态色覆盖本地值) */
+  --btn-fg: var(--wui-button-local-foreground, var(--wui-button-foreground));
+  --btn-bg: var(--wui-button-local-background, var(--wui-button-background));
+  --btn-border: var(--wui-button-local-border, var(--wui-button-border));
+
   /* ButtonPadding="8,4,8,5" */
   padding: 4px 8px 5px;
   font-family: var(--wui-content-control-theme-font-family);
   /* ControlContentThemeFontSize = 14px */
   font-size: var(--wui-control-content-theme-font-size);
   font-weight: 400;
-  color: var(--wui-button-local-foreground, var(--wui-button-foreground));
-  background: var(--wui-button-local-background, var(--wui-button-background));
+  color: var(--btn-fg);
+  background: var(--btn-bg);
   /* ButtonBorderThemeThickness = 2 */
-  border: 2px solid var(--wui-button-border);
-  border-color: var(--wui-button-local-border, var(--wui-button-border));
+  border: 2px solid var(--btn-border);
   /* WinUI 3 默认 ControlCornerRadius = 4;无同名 token,取最近似的圆角 token(见 wiki 差异节) */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);
   cursor: default;
@@ -122,21 +145,21 @@ function onClick(event: MouseEvent): void {
 /* 状态色一律即时切换(generic.xaml 各态均为 DiscreteObjectKeyFrame,无过渡动画) */
 
 .wui-button:hover:not(:disabled) {
-  color: var(--wui-button-foreground-pointer-over);
-  background: var(--wui-button-background-pointer-over);
-  border-color: var(--wui-button-border-brush-pointer-over);
+  --btn-fg: var(--wui-button-foreground-pointer-over);
+  --btn-bg: var(--wui-button-background-pointer-over);
+  --btn-border: var(--wui-button-border-brush-pointer-over);
 }
 
 .wui-button:active:not(:disabled) {
-  color: var(--wui-button-foreground-pressed);
-  background: var(--wui-button-background-pressed);
-  border-color: var(--wui-button-border-brush-pressed);
+  --btn-fg: var(--wui-button-foreground-pressed);
+  --btn-bg: var(--wui-button-background-pressed);
+  --btn-border: var(--wui-button-border-brush-pressed);
 }
 
 .wui-button:disabled {
-  color: var(--wui-button-foreground-disabled);
-  background: var(--wui-button-background-disabled);
-  border-color: var(--wui-button-border-brush-disabled);
+  --btn-fg: var(--wui-button-foreground-disabled);
+  --btn-bg: var(--wui-button-background-disabled);
+  --btn-border: var(--wui-button-border-brush-disabled);
   cursor: default;
 }
 
@@ -150,5 +173,34 @@ function onClick(event: MouseEvent): void {
 
 .wui-button:focus:not(:focus-visible) {
   outline: none;
+}
+
+/* ======================================================================
+ * Reveal 变体(reveal prop,对照 G.xaml L15824 ButtonRevealStyle):
+ * 状态色整体切换到 --wui-button-reveal-* token(G.xaml L1405-1412,明暗值见
+ * theme.css);本地 background/borderBrush prop 仍最优先(对应 TemplateBinding)。
+ * 光照层(::before 底板光 / ::after 边框光)在公共层 reveal.css。
+ * ====================================================================== */
+.wui-button--reveal {
+  /* ButtonRevealBorderThemeThickness = 2(G.xaml L1393)→ 边框光环厚度 */
+  --wui-reveal-border-width: 2px;
+  /* Normal:ButtonRevealBackground / ButtonRevealBorderBrush(本地 prop 仍最优先) */
+  --btn-bg: var(--wui-button-local-background, var(--wui-button-reveal-background));
+  --btn-border: var(--wui-button-local-border, var(--wui-button-reveal-border));
+}
+
+.wui-button--reveal:hover:not(:disabled) {
+  --btn-bg: var(--wui-button-reveal-background-pointer-over);
+  --btn-border: var(--wui-button-reveal-border-brush-pointer-over);
+}
+
+.wui-button--reveal:active:not(:disabled) {
+  --btn-bg: var(--wui-button-reveal-background-pressed);
+  --btn-border: var(--wui-button-reveal-border-brush-pressed);
+}
+
+.wui-button--reveal:disabled {
+  --btn-bg: var(--wui-button-reveal-background-disabled);
+  --btn-border: var(--wui-button-reveal-border-brush-disabled);
 }
 </style>

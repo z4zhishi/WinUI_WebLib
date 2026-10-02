@@ -1,0 +1,136 @@
+/**
+ * WinUI_WebLib — Reveal 揭示光照公共层(reveal.css)
+ *
+ * 复刻对象:WinUI Reveal 材料(pointer 位置驱动的径向光照,hover 时点亮边框/底板)。
+ * 源锚点(两源结构,README §3):
+ *  - 平台层 generic.xaml 各 *RevealStyle(如 ButtonRevealStyle G.xaml L15824、
+ *    CalendarViewDayItemRevealStyle L14269、ListViewItem/GridViewItemRevealStyle
+ *    L17732/L17835):状态色 token 已在 theme.css 落全(--wui-button-reveal-* 等);
+ *    WinUI 3 平台已把 *RevealBrush 退役为静态回退色(SolidColorBrush),光照层不在其中。
+ *  - 光照本体(本文件复刻的视觉):mux 材料层
+ *    · controls/dev/Materials/Reveal/RevealBrush.cpp —— 光色白 sc_defaultColor
+ *      (L22,a=0 的白,点亮时经 spotlight 投射)、漫反射强度 sc_diffuseAmount=0.2(L25)、
+ *      边框漫反射 sc_diffuseAmountBorder=0.2(L29)、环境光 (127,127,127)(L24);
+ *    · controls/dev/Lights/RevealHoverLight.cpp —— 底板光:光斑平面半径
+ *      = Clamp(Max(W,H)+12, 16, 512)(L141-149 常量 MinSize 16 / MaxSize 512 /
+ *      SizeAdjustment 12 / SpotlightHeight 256 与 L163 外锥表达式相乘后的平面投影);
+ *      悬停亮/灭 1ms(等效瞬时,L24-31 注释:RS3+ 直接开关);按压点亮 66ms linear
+ *      (L105-106);FastRelease 内圈 200ms / 外圈 266ms cubic-bezier(0.33,0,0.67,1)
+ *      (L115-116);按压光斑半径 PressOuterSize=47.25(L144)。
+ *    · controls/dev/Lights/RevealBorderLight.cpp —— 边框光:narrow 配置 Height=128、
+ *      外锥 16.94532°(L24-35)→ 平面半径 ≈ 39px;wide 配置 Height=256、外锥
+ *      16.7403°(L37-48)→ ≈ 77px;光色白(L30/L32/L43/L45);边框光无按压态(常亮随指针)。
+ *
+ * 用法:宿主元素加 `wui-reveal` 类(需要边框光再加 `wui-reveal--border`),并绑定
+ * useReveal() 返回的指针监听(v-on="revealHandlers")。底板光 ::before 以
+ * z-index:-1 叠在元素背景之上、内容之下;边框光 ::after 经 mask 环贴在边框厚度上。
+ *
+ * 语义门(按任务约定):
+ *  - 仅指针设备启用:hover+fine 媒体条件内才渲染光照(触屏无 hover 光照语义);
+ *  - prefers-reduced-motion:Reveal 光照属动画类效果(README §4.3 硬规则 6)→
+ *    整体隐藏,退化为静态 hover 态(状态色仍由宿主的 --wui-*-reveal-* token 呈现);
+ *  - forced-colors(高对比):对齐源 IsInFallbackMode(RevealBrush.cpp L695-698
+ *    MaterialPolicy 回退)→ 隐藏光照层。
+ *
+ * 消费方可调变量(均带源值缺省):
+ *  --wui-reveal-light-color        底板光颜色(diffuse 0.2 × 白)
+ *  --wui-reveal-border-light-color 边框光颜色(白)
+ *  --wui-reveal-radius             底板光斑半径(JS enter 时按源公式覆写)
+ *  --wui-reveal-press-radius       按压光斑半径(源 47.25)
+ *  --wui-reveal-border-radius      边框光斑半径(narrow 39 / 宽幅大件 77)
+ *  --wui-reveal-border-width       边框光环厚度(= 宿主边框厚度,Button 系 2 / 项 1)
+ */
+
+.wui-reveal {
+  /* 光色:白光(RevealHoverLight.cpp L42-43 / RevealBorderLight.cpp L30/32),
+     强度取漫反射系数 sc_diffuseAmount=0.2 / sc_diffuseAmountBorder=0.2(RevealBrush.cpp
+     L25/L29,即光源近场对底板/边框的最大白色叠加,径向衰减至半径处归零) */
+  --wui-reveal-light-color: rgb(255 255 255 / 0.2);
+  --wui-reveal-border-light-color: rgb(255 255 255 / 0.2);
+  /* 半径缺省按 40px 高的 DayItem(Max 40 + 12 = 52);宿主 enter 时由 useReveal 覆写 */
+  --wui-reveal-radius: 52px;
+  --wui-reveal-press-radius: 47.25px; /* RevealHoverLight.cpp L144 PressOuterSize */
+  --wui-reveal-border-radius: 39px; /* RevealBorderLight.cpp narrow:128·tan(16.94532°) ≈ 39 */
+  --wui-reveal-border-width: 2px;
+
+  /* 建立层叠上下文:保证 ::before(z-index:-1)落在「元素背景之上、内容之下」,
+     不会穿透到宿主祖先背景之后 */
+  position: relative;
+  z-index: 0;
+}
+
+/* 仅指针设备(hover 能力)渲染光照层;触屏/粗指针主输入不显示 */
+@media (hover: hover) and (pointer: fine) {
+  /* —— 底板光(RevealHoverLight):radial-gradient 中心 = 指针位置(useReveal 写入)—— */
+  .wui-reveal::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(
+      var(--wui-reveal-radius) circle at var(--wui-reveal-x, 50%) var(--wui-reveal-y, 50%),
+      var(--wui-reveal-light-color),
+      transparent 100%
+    );
+    /* 悬停亮/灭 = 源 1ms(RS3+ 直接开关,RevealHoverLight.cpp L24-31)→ 近瞬时 */
+    opacity: 0;
+    transition: opacity 1ms linear;
+    pointer-events: none;
+  }
+
+  .wui-reveal:not(:disabled):hover::before {
+    opacity: 1;
+  }
+
+  /* 按压:白光 66ms linear 点亮,光斑收紧到 PressOuterSize=47.25(源 L105-106/L144)。
+     半径瞬切、释放无 266ms 扩散脉冲(源 FastRelease L115-120 为「200/266ms 熄灭 +
+     4.44× 扩散 + 瞬时复燃」;Web 未引入 @property 注册型变量补间,登记近似) */
+  .wui-reveal:not(:disabled):active::before {
+    --wui-reveal-radius: var(--wui-reveal-press-radius);
+    opacity: 1;
+    transition: opacity 66ms linear;
+  }
+
+  /* —— 边框光(RevealBorderLight):mask 环贴在宿主边框厚度上 —— */
+  .wui-reveal--border::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: var(--wui-reveal-border-width);
+    background: radial-gradient(
+      var(--wui-reveal-border-radius) circle at var(--wui-reveal-x, 50%) var(--wui-reveal-y, 50%),
+      var(--wui-reveal-border-light-color),
+      transparent 100%
+    );
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 1ms linear;
+    pointer-events: none;
+  }
+
+  .wui-reveal--border:not(:disabled):hover::after {
+    opacity: 1;
+  }
+}
+
+/* Reduced motion:光照属动画类效果(README §4.3 硬规则 6)→ 隐藏,退化为静态 hover 态。
+   置于 hover 门之后,同优先级下覆写渲染规则 */
+@media (prefers-reduced-motion: reduce) {
+  .wui-reveal::before,
+  .wui-reveal--border::after {
+    display: none;
+  }
+}
+
+/* 高对比:对齐源 MaterialPolicy 回退分支(RevealBrush.cpp IsInFallbackMode)→ 隐藏光照 */
+@media (forced-colors: active) {
+  .wui-reveal::before,
+  .wui-reveal--border::after {
+    display: none;
+  }
+}
