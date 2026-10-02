@@ -8,6 +8,7 @@
 // 参数面板:过渡类型多选(对照官方 Animate X/Y/Z 组件复选框,粒度为过渡类型)+ 时长/延迟滑块 + 缓动下拉
 //   (默认取 src/styles/animations.css token:normal 240ms + standard)。
 import { computed, ref } from 'vue'
+import WuiButton from '@/components/Button.vue'
 import WuiImplicitTransitions, {
   type ImplicitTransitionKind,
 } from '@/components/ImplicitTransitions.vue'
@@ -330,71 +331,67 @@ const usageCode = computed(() => {
           <div class="preset-groups">
             <div class="preset-group">
               <span class="preset-label">Opacity</span>
-              <button
+              <!-- FIX26(构成检查):原生 button/mini-button → 库内 WuiButton。 -->
+              <WuiButton
                 v-for="preset in OPACITY_PRESETS"
                 :key="preset"
-                type="button"
                 class="mini-button"
                 :class="{ active: animOpacity === preset }"
                 @click="animOpacity = preset"
               >
                 {{ preset }}
-              </button>
+              </WuiButton>
             </div>
             <div class="preset-group">
               <span class="preset-label">Scale</span>
-              <button
+              <WuiButton
                 v-for="preset in SCALE_PRESETS"
                 :key="preset"
-                type="button"
                 class="mini-button"
                 :class="{ active: animScale === preset }"
                 @click="animScale = preset"
               >
                 {{ preset }}
-              </button>
+              </WuiButton>
             </div>
             <div class="preset-group">
               <span class="preset-label">Translation</span>
-              <button
+              <WuiButton
                 v-for="[x, y] in TRANSLATE_PRESETS"
                 :key="`${x},${y}`"
-                type="button"
                 class="mini-button"
                 :class="{ active: animTranslateX === x && animTranslateY === y }"
                 @click="setTranslate(x, y)"
               >
                 ({{ x }}, {{ y }})
-              </button>
+              </WuiButton>
             </div>
             <div class="preset-group">
               <span class="preset-label">Rotation</span>
-              <button
+              <WuiButton
                 v-for="preset in ROTATION_PRESETS"
                 :key="preset"
-                type="button"
                 class="mini-button"
                 :class="{ active: animRotation === preset }"
                 @click="animRotation = preset"
               >
                 {{ preset }}°
-              </button>
+              </WuiButton>
             </div>
             <div class="preset-group">
               <span class="preset-label">Background</span>
-              <button
+              <WuiButton
                 v-for="(color, index) in BG_CHOICES"
                 :key="color"
-                type="button"
                 class="swatch"
                 :class="{ active: bgIndex === index }"
                 :style="{ background: color }"
                 :aria-label="`背景色 ${index + 1}`"
                 @click="bgIndex = index"
-              ></button>
+              />
             </div>
             <div class="preset-group">
-              <button type="button" class="mini-button" @click="resetContrast">重置</button>
+              <WuiButton class="mini-button" @click="resetContrast">重置</WuiButton>
             </div>
           </div>
           <span class="state-chip" aria-live="polite">
@@ -461,8 +458,9 @@ const usageCode = computed(() => {
             </WuiImplicitTransitions>
           </div>
           <div class="trigger-row">
-            <button type="button" class="host-button" @click="applyRandom">随机变更属性</button>
-            <button type="button" class="host-button" @click="resetRandom">重置</button>
+            <!-- FIX26(构成检查):原生 button/host-button → 库内 WuiButton。 -->
+            <WuiButton class="host-button" @click="applyRandom">随机变更属性</WuiButton>
+            <WuiButton class="host-button" @click="resetRandom">重置</WuiButton>
             <span class="state-chip" aria-live="polite">
               translate = ({{ rndTranslateX }}, {{ rndTranslateY }}) · scale = {{ rndScale }} ·
               rotation = {{ rndRotation }}°
@@ -625,54 +623,29 @@ const usageCode = computed(() => {
   color: var(--wui-application-secondary-foreground-theme);
 }
 
-.mini-button {
+/* FIX26(构成检查):mini-button / swatch / host-button 控件本体一律 WuiButton——
+   视觉 / 悬停 / 按压 / 禁用 / 焦点环全部走组件内置状态;父级限定仅保留本页紧凑
+   排版约束(高度 / 内边距 / 字号),稳定压过组件根样式。 */
+
+.preset-group .mini-button {
   height: 28px;
   padding: 3px 10px;
-  font-family: inherit;
   font-size: var(--wui-tool-tip-content-theme-font-size);
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.mini-button:hover {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.mini-button:active {
-  color: var(--wui-button-pressed-foreground-theme);
-  background: var(--wui-button-pressed-background-theme);
-}
-
-.mini-button:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
 }
 
 /* 当前生效的预设值(与被动画属性当前值一致) */
-.mini-button.active {
+.preset-group .mini-button.active {
   color: var(--wui-system-control-foreground-accent);
   border-color: var(--wui-system-accent-color);
 }
 
-.swatch {
+.preset-group .swatch {
   width: 24px;
   height: 24px;
   padding: 0;
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
 }
 
-.swatch:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
-}
-
-.swatch.active {
+.preset-group .swatch.active {
   outline: 2px solid var(--wui-system-accent-color);
   outline-offset: 1px;
 }
@@ -732,34 +705,9 @@ const usageCode = computed(() => {
   gap: 12px;
 }
 
-.host-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+/* FIX26(构成检查):host-button 控件本体是 WuiButton,仅保留最小宽度约束。 */
+.trigger-row .host-button {
   min-width: 75px;
-  height: 32px;
-  padding: 5px 12px;
-  font-family: inherit;
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.host-button:hover {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.host-button:active {
-  color: var(--wui-button-pressed-foreground-theme);
-  background: var(--wui-button-pressed-background-theme);
-}
-
-.host-button:focus-visible {
-  outline: 2px solid var(--wui-system-control-focus-visual-primary);
-  outline-offset: 1px;
 }
 
 .docs-subtitle {

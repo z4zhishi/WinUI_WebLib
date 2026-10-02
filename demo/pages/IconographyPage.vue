@@ -10,9 +10,11 @@
 //      点击选中复制 \uXXXX,联动上方规范演示;右侧详情面板对照官方 SidePanel(名称 / 码点 / XAML 片段)。
 import { computed, ref, watch } from 'vue'
 import WuiBitmapIcon from '@/components/BitmapIcon.vue'
+import WuiButton from '@/components/Button.vue'
 import WuiFontIcon from '@/components/FontIcon.vue'
 import WuiPathIcon from '@/components/PathIcon.vue'
 import WuiSymbolIcon from '@/components/SymbolIcon.vue'
+import WuiTextBox from '@/components/TextBox.vue'
 import { SYMBOL_GLYPHS, SYMBOL_NAMES } from '@/utils/symbolIcons'
 import type { SymbolValue } from '@/utils/symbolIcons'
 import DemoCode from '../components/DemoCode.vue'
@@ -422,28 +424,29 @@ const usageCode = `<WuiFontIcon glyph="\\uE713" :font-size="20" />
           <div class="browse-layout">
             <div class="browse-main">
               <div class="browse-toolbar">
-                <input
-                  v-model="browseQuery"
+                <!-- FIX26(构成检查):原生 input/browse-search → 库内 WuiTextBox。 -->
+                <WuiTextBox
+                  v-model:text="browseQuery"
                   class="browse-search"
-                  type="search"
-                  :placeholder="browsePlaceholder"
+                  :placeholder-text="browsePlaceholder"
                   :aria-label="browseLabel"
                 />
                 <div class="browse-pager">
-                  <button type="button" class="pager-button" :disabled="browsePageClamped <= 1" @click="browseGo(-1)">
+                  <WuiButton class="pager-button" :disabled="browsePageClamped <= 1" @click="browseGo(-1)">
                     {{ browsePrev }}
-                  </button>
+                  </WuiButton>
                   <span class="pager-status">{{ pagerStatus }}</span>
-                  <button type="button" class="pager-button" :disabled="browsePageClamped >= browsePageCount" @click="browseGo(1)">
+                  <WuiButton class="pager-button" :disabled="browsePageClamped >= browsePageCount" @click="browseGo(1)">
                     {{ browseNext }}
-                  </button>
+                  </WuiButton>
                 </div>
               </div>
               <div class="glyph-grid">
-                <button
+                <!-- FIX26(构成检查):原生 button/glyph-cell → 库内 WuiButton(扁平单元格观感
+                     由 .glyph-grid .glyph-cell 父级限定保持)。 -->
+                <WuiButton
                   v-for="glyph in browsedGlyphs"
                   :key="glyph.code"
-                  type="button"
                   class="glyph-cell"
                   :class="{ 'glyph-active': glyph.code === glyphCode }"
                   :title="`${glyph.name}(${glyph.code})`"
@@ -452,7 +455,7 @@ const usageCode = `<WuiFontIcon glyph="\\uE713" :font-size="20" />
                   <span class="glyph-preview">{{ toGlyphChar(glyph.code) }}</span>
                   <span class="glyph-code">{{ glyph.code }}</span>
                   <span class="glyph-name">{{ glyph.name }}</span>
-                </button>
+                </WuiButton>
               </div>
               <p v-if="filteredGlyphs.length === 0" class="browse-empty">{{ browseEmpty }}</p>
               <p class="copy-hint" role="status">{{ copyHint }}</p>
@@ -669,20 +672,10 @@ const usageCode = `<WuiFontIcon glyph="\\uE713" :font-size="20" />
   gap: 12px;
 }
 
-.browse-search {
+/* FIX26(构成检查):搜索框控件本体是 WuiTextBox(视觉/四态/清除按钮走组件内置样式),
+   仅保留原工具栏排版约束(最小宽度);父级限定稳定压过组件根 min-width。 */
+.browse-toolbar .browse-search {
   min-width: 240px;
-  padding: 5px 12px;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-text-control-foreground);
-  background: var(--wui-text-control-background);
-  border: 1px solid var(--wui-text-control-border);
-  border-bottom-width: 2px;
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  outline: none;
-}
-
-.browse-search:focus-visible {
-  border-color: var(--wui-text-control-border-brush-focused);
 }
 
 .browse-pager {
@@ -691,32 +684,7 @@ const usageCode = `<WuiFontIcon glyph="\\uE713" :font-size="20" />
   gap: 12px;
 }
 
-.pager-button {
-  padding: 4px 12px;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.pager-button:hover:not(:disabled) {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.pager-button:disabled {
-  color: var(--wui-text-control-foreground-disabled);
-  background: var(--wui-text-control-background-disabled);
-  cursor: default;
-}
-
-.pager-button:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 1px;
-}
-
+/* FIX26(构成检查):分页控件本体是 WuiButton(视觉/禁用态走组件内置样式)。 */
 .pager-status {
   font-size: var(--wui-tool-tip-content-theme-font-size);
   color: var(--wui-application-secondary-foreground-theme);
@@ -729,36 +697,33 @@ const usageCode = `<WuiFontIcon glyph="\\uE713" :font-size="20" />
   gap: 4px;
 }
 
-.glyph-cell {
+/* FIX26(构成检查):字形单元格控件本体是 WuiButton;父级限定压过组件根样式,
+   保持原扁平单元格观感(透明底 + hover 弱底 + 激活强调色描边);键盘焦点环走
+   组件内置 :focus-visible。 */
+.glyph-grid .glyph-cell {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
   min-width: 0;
   padding: 8px 4px;
-  font-family: inherit;
   color: var(--wui-application-foreground-theme);
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
 }
 
-.glyph-cell:hover {
+.glyph-grid .glyph-cell:hover {
+  color: var(--wui-application-foreground-theme);
   background: var(--wui-system-control-background-list-low);
   border-color: var(--wui-system-control-background-base-low);
 }
 
-.glyph-cell:active {
+.glyph-grid .glyph-cell:active {
   background: var(--wui-system-control-background-base-medium-low);
 }
 
-.glyph-cell:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 1px;
-}
-
-.glyph-cell.glyph-active {
+.glyph-grid .glyph-cell.glyph-active {
   border-color: var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
 }
 

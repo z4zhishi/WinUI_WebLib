@@ -6,17 +6,20 @@
 // html[data-theme] 驱动。例外:壳层基色 token --wui-solid-background-fill-color-base
 // 在下方全局块按 WinUI 3 SolidBackgroundFillColorBase 定义(theme.css 抽取源无此键,
 // 取值与依据见全局块注释)。
+// FIX26(构成检查收尾):顶栏主题切换 button.theme-option → 库内 WuiToggleButton、
+// 语言下拉 select.lang-select → 库内 WuiComboBox,壳层不再有裸原生交互件。
 import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import WuiAutoSuggestBox from '@/components/AutoSuggestBox.vue'
 import type { AutoSuggestQuerySubmittedEventArgs } from '@/components/AutoSuggestBox.vue'
+import WuiComboBox from '@/components/ComboBox.vue'
+import WuiToggleButton from '@/components/ToggleButton.vue'
 import { CATALOG, ITEM_COUNT } from './data/catalog'
 import type { CatalogGroup, CatalogItem } from './data/catalog'
 import { suggestControls } from './data/search'
 import { LOCALES, useI18n } from './i18n'
 import type { Locale } from './i18n'
 import { useThemeSetting } from './composables/useThemeSetting'
-import type { ThemeMode } from './composables/useThemeSetting'
 
 const i18n = useI18n()
 const { t, locale } = i18n
@@ -29,11 +32,29 @@ watchEffect(() => {
 })
 
 // 主题三档(light/dark/system),文案随界面语言更新。
-const themeOptions = computed<{ value: ThemeMode; label: string }[]>(() => [
-  { value: 'light', label: t('themeLight') },
-  { value: 'dark', label: t('themeDark') },
-  { value: 'system', label: t('themeSystem') },
-])
+// FIX26:原生 button → 库内 WuiToggleButton。checked 双向模型保持互斥激活:
+// set(false)(点击已激活档)不落底,档位不变,与原 aria-pressed 分段按钮语义一致
+// (模式同 demo/components/DemoPage.vue 的 FIX23 主题预览切换)。
+const lightChecked = computed<boolean>({
+  get: () => mode.value === 'light',
+  set: (checked) => {
+    if (checked) setMode('light')
+  },
+})
+
+const darkChecked = computed<boolean>({
+  get: () => mode.value === 'dark',
+  set: (checked) => {
+    if (checked) setMode('dark')
+  },
+})
+
+const systemChecked = computed<boolean>({
+  get: () => mode.value === 'system',
+  set: (checked) => {
+    if (checked) setMode('system')
+  },
+})
 
 // 各语言的自称(本地语言原文,不随界面语言翻译)。
 const LOCALE_LABELS: Record<Locale, string> = {
@@ -46,11 +67,14 @@ const LOCALE_LABELS: Record<Locale, string> = {
 }
 const localeOptions = LOCALES.map((value) => ({ value, label: LOCALE_LABELS[value] }))
 
-function onLocaleChange(event: Event): void {
-  const value = (event.target as HTMLSelectElement).value
-  if ((LOCALES as readonly string[]).includes(value)) {
-    i18n.setLocale(value as Locale)
-  }
+// FIX26:原生 select → 库内 WuiComboBox。locale ↔ selectedIndex 换算,选择即 setLocale
+// (语言切换联动与持久化保持不变;ComboBox 对程序化赋值也会回调 selectionChanged,
+// 回调里 setLocale 同值赋值为无副作用操作,不构成环)。
+const localeIndex = computed(() => LOCALES.indexOf(locale.value))
+
+function onLocaleSelectionChanged(index: number): void {
+  const next = LOCALES[index]
+  if (next) i18n.setLocale(next)
 }
 
 // 目录导航数据(computed 缓存):普通组在前,isSpecialSection 组排在最后。
@@ -105,31 +129,27 @@ function onSearchSubmitted(args: AutoSuggestQuerySubmittedEventArgs): void {
           @query-submitted="onSearchSubmitted"
         />
         <div class="theme-switch" role="group" :aria-label="t('settingsTitle')">
-          <button
-            v-for="option in themeOptions"
-            :key="option.value"
-            type="button"
-            class="theme-option"
-            :class="{ 'theme-option-active': mode === option.value }"
-            :aria-pressed="mode === option.value"
-            @click="setMode(option.value)"
-          >
-            {{ option.label }}
-          </button>
+          <WuiToggleButton v-model:checked="lightChecked" class="theme-option">
+            {{ t('themeLight') }}
+          </WuiToggleButton>
+          <WuiToggleButton v-model:checked="darkChecked" class="theme-option">
+            {{ t('themeDark') }}
+          </WuiToggleButton>
+          <WuiToggleButton v-model:checked="systemChecked" class="theme-option">
+            {{ t('themeSystem') }}
+          </WuiToggleButton>
         </div>
-        <label class="lang-field">
+        <div class="lang-field">
           <span class="lang-label">{{ t('settingsLanguage') }}</span>
-          <select
+          <WuiComboBox
             class="lang-select"
-            :value="locale"
+            :items="localeOptions"
+            display-member-path="label"
+            :selected-index="localeIndex"
             :aria-label="t('settingsLanguage')"
-            @change="onLocaleChange"
-          >
-            <option v-for="option in localeOptions" :key="option.value" :value="option.value">
-              {{ option.label }}
-            </option>
-          </select>
-        </label>
+            @selection-changed="onLocaleSelectionChanged"
+          />
+        </div>
       </div>
     </header>
 
@@ -246,37 +266,16 @@ body {
   max-width: 100%;
 }
 
+/* 主题三档切换(FIX26:控件本体是 WuiToggleButton)——激活 = 组件内置 checked
+   视觉(强调色底白字,aria-pressed 由组件给出);壳层只保留紧凑排版,父级限定
+   稳定压过组件根 padding(同 DemoPage.vue FIX23 注)。 */
 .theme-switch {
   display: inline-flex;
-  overflow: hidden;
-  border: 1px solid var(--wui-system-control-background-base-medium);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
+  gap: 4px;
 }
 
-.theme-option {
-  appearance: none;
-  margin: 0;
-  padding: 4px 10px;
-  border: 0;
-  font: inherit;
-  color: var(--wui-application-secondary-foreground-theme);
-  background: var(--wui-system-control-transparent);
-  cursor: pointer;
-}
-
-.theme-option + .theme-option {
-  border-left: 1px solid var(--wui-system-control-background-base-low);
-}
-
-.theme-option:hover {
-  color: var(--wui-application-pointer-over-foreground-theme);
-  background: var(--wui-system-control-background-list-low);
-}
-
-.theme-option-active {
-  color: var(--wui-application-header-foreground-theme);
-  background: var(--wui-system-control-background-list-medium);
-  font-weight: 600;
+.theme-switch .theme-option {
+  padding: 3px 10px;
 }
 
 .lang-field {
@@ -289,15 +288,7 @@ body {
   color: var(--wui-application-secondary-foreground-theme);
 }
 
-.lang-select {
-  padding: 4px 8px;
-  border: 1px solid var(--wui-system-control-background-base-medium);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  font: inherit;
-  color: var(--wui-application-foreground-theme);
-  background: var(--wui-system-control-page-background-chrome-medium-low);
-  cursor: pointer;
-}
+/* 语言下拉(FIX26:控件本体是 WuiComboBox,视觉/四态/下拉面板全部走组件内置样式)。 */
 
 /* ---- 主体布局:侧栏 + 内容 ---- */
 .layout {

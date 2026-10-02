@@ -108,7 +108,14 @@ const noDismissOpen = computed<boolean>({
 
 // —— 示例 4:showAt 程序化挂载(无 #target,纯 ref + showAt(element))——
 const showAtFlyout = ref<ComponentPublicInstance & { showAt: (target?: Element) => void; hide: () => void } | null>(null)
+// FIX26:锚点原生 button → 库内 WuiButton(构成检查);showAt 需要真实 DOM 元素,
+// 函数 ref 把组件实例解析到其根元素(任意元素均可作锚,WinUI ShowAt(FrameworkElement))。
 const showAtAnchor = ref<HTMLElement | null>(null)
+
+function setShowAtAnchor(instance: Element | ComponentPublicInstance | null): void {
+  // WuiButton 根为 <button>(HTMLElement);裸元素分支按同型收窄
+  showAtAnchor.value = ((instance instanceof Element ? instance : instance?.$el) as HTMLElement | null) ?? null
+}
 
 function onShowAtClick(): void {
   showAtFlyout.value?.showAt(showAtAnchor.value ?? undefined)
@@ -277,7 +284,7 @@ const usageCode = computed(
         <section class="flyout-section">
           <h3 class="docs-subtitle">{{ sectionShowAtTitle }}</h3>
           <div class="flyout-row">
-            <button ref="showAtAnchor" type="button" class="demo-native-button">ShowAt 锚点(原生元素)</button>
+            <WuiButton :ref="setShowAtAnchor" content="ShowAt 锚点(任意元素均可作锚)" />
             <WuiButton content="showAt(锚点) 打开" @click="onShowAtClick" />
             <WuiFlyout ref="showAtFlyout" @open="logShowAtOpen" @close="logShowAtClose">
               <p class="flyout-text">
@@ -382,27 +389,8 @@ const usageCode = computed(
   color: var(--wui-application-secondary-foreground-theme);
 }
 
-/* showAt 演示用原生锚元素(任意元素均可作锚,WinUI ShowAt(FrameworkElement)) */
-.demo-native-button {
-  padding: 5px 12px;
-  font-family: inherit;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-button-foreground-theme);
-  background: var(--wui-button-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  cursor: pointer;
-}
-
-.demo-native-button:hover {
-  color: var(--wui-button-pointer-over-foreground-theme);
-  background: var(--wui-button-pointer-over-background-theme);
-}
-
-.demo-native-button:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 1px;
-}
+/* showAt 演示锚点(FIX26:控件本体是库内 WuiButton;任意元素均可作锚,
+   WinUI ShowAt(FrameworkElement)) */
 
 .event-log {
   display: flex;

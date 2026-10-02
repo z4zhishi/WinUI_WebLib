@@ -10,6 +10,7 @@
 //   4. 官方示例对照:三级圆角速查(OverlayCornerRadius 8px / ControlCornerRadius 4px / 0px)。
 import { computed, ref } from 'vue'
 import WuiPath from '@/components/Path.vue'
+import WuiTextBox from '@/components/TextBox.vue'
 import { parseGeometry } from '@/utils/geometry'
 import type { GeometryData } from '@/utils/geometry'
 import { geometryBounds } from '@/utils/geometryBounds'
@@ -352,11 +353,11 @@ geometryBounds(geo) // { x: 1, y: 2, width: 19, height: 14 }
               </header>
               <p class="command-desc">{{ pickText(i18n, item.description) }}</p>
               <div class="command-body">
-                <input
-                  v-model="commandInputs[item.key]"
-                  type="text"
+                <!-- FIX26:原生 input.command-input → 库内 WuiTextBox(aria-label 由组件迁到
+                     input 上;等宽字形经 .command-input :deep() 下沉到内层输入元素)。 -->
+                <WuiTextBox
+                  v-model:text="commandInputs[item.key]"
                   class="command-input"
-                  spellcheck="false"
                   :aria-label="item.letters"
                 />
                 <div class="command-render">
@@ -392,13 +393,15 @@ geometryBounds(geo) // { x: 1, y: 2, width: 19, height: 14 }
         <section>
           <h3 class="section-title">{{ playgroundLabel }}</h3>
           <div class="playground">
-            <textarea
-              v-model="playgroundData"
+            <!-- FIX26:原生 textarea.playground-input → 库内 WuiTextBox。库内 TextBox 为
+                 单行复刻(src/components/TextBox.vue 无多行/AcceptsReturn 形态),按任务
+                 约定取最小方案:WuiTextBox + rows 高度样式(≈3 行,见 .playground-input);
+                 编辑语义仍为单行(多行粘贴时行分隔符由浏览器按 input 规则折叠)。 -->
+            <WuiTextBox
+              v-model:text="playgroundData"
               class="playground-input"
-              rows="3"
-              spellcheck="false"
               :aria-label="playgroundLabel"
-            ></textarea>
+            />
             <div class="playground-body">
               <div class="playground-render">
                 <WuiPath
@@ -592,19 +595,10 @@ geometryBounds(geo) // { x: 1, y: 2, width: 19, height: 14 }
   gap: 12px;
 }
 
-.command-input {
-  padding: 4px 8px;
+/* FIX26:控件本体是 WuiTextBox(视觉/四态/清除按钮走组件内置样式);
+   此处仅下沉等宽字形到内层输入元素。 */
+.command-input :deep(.wui-text-box-input) {
   font-family: ui-monospace, Consolas, 'Courier New', monospace;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-application-foreground-theme);
-  background: var(--wui-application-page-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-}
-
-.command-input:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 1px;
 }
 
 .command-render {
@@ -654,21 +648,14 @@ geometryBounds(geo) // { x: 1, y: 2, width: 19, height: 14 }
   gap: 12px;
 }
 
-.playground-input {
-  width: 100%;
-  padding: 8px 10px;
-  font-family: ui-monospace, Consolas, 'Courier New', monospace;
-  font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-application-foreground-theme);
-  background: var(--wui-application-page-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
-  border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  resize: vertical;
+/* FIX26:Playground 输入 = WuiTextBox + rows 高度(原 textarea rows=3 的最小等价,
+   库内 TextBox 无多行形态,见模板处注);等宽字形同上下沉。 */
+.playground-input :deep(.wui-text-box-border) {
+  height: 84px;
 }
 
-.playground-input:focus-visible {
-  outline: 2px solid var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  outline-offset: 1px;
+.playground-input :deep(.wui-text-box-input) {
+  font-family: ui-monospace, Consolas, 'Courier New', monospace;
 }
 
 .playground-body {
