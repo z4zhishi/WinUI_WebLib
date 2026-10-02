@@ -5,9 +5,10 @@ import type { Ref } from 'vue'
 import { createI18n, i18nKey } from '../i18n'
 import type { I18n } from '../i18n'
 
-/** 中英双语文案。 */
+/** 中英双语文案;zhTW 为繁体变体(zh-TW 等繁体场合),缺省回退 zh。 */
 export interface BilingualText {
   zh: string
+  zhTW?: string
   en: string
 }
 
@@ -19,9 +20,14 @@ export function useDemoI18n(): I18n {
   return inject(i18nKey) ?? createI18n()
 }
 
-/** 依据当前语言挑选文案(即时值)。 */
+/** 依据当前语言挑选文案(即时值);繁体场合(zh-TW/Hant)取 zhTW,缺省回退 zh。 */
 export function pickText(i18n: I18n, text: BilingualText): string {
-  return i18n.locale.value.startsWith('zh') ? text.zh : text.en
+  const locale = i18n.locale.value
+  if (locale.startsWith('zh')) {
+    if (locale.startsWith('zh-TW') || /hant/i.test(locale)) return text.zhTW ?? text.zh
+    return text.zh
+  }
+  return text.en
 }
 
 /** 依据当前语言挑选文案,返回随语言切换更新的响应式计算属性。 */
@@ -30,16 +36,16 @@ export function useBilingual(i18n: I18n, text: BilingualText): Ref<string> {
 }
 
 /** 参数面板区标题。 */
-export const LABEL_OPTIONS: BilingualText = { zh: '参数', en: 'Options' }
+export const LABEL_OPTIONS: BilingualText = { zh: '参数', zhTW: '參數', en: 'Options' }
 
 /** 主题预览切换组的无障碍标签。 */
-export const LABEL_THEME_PREVIEW: BilingualText = { zh: '主题预览', en: 'Theme preview' }
+export const LABEL_THEME_PREVIEW: BilingualText = { zh: '主题预览', zhTW: '主題預覽', en: 'Theme preview' }
 
 /** 复制按钮文案。 */
-export const LABEL_COPY: BilingualText = { zh: '复制', en: 'Copy' }
+export const LABEL_COPY: BilingualText = { zh: '复制', zhTW: '複製', en: 'Copy' }
 
 /** 复制成功文案。 */
-export const LABEL_COPIED: BilingualText = { zh: '已复制', en: 'Copied' }
+export const LABEL_COPIED: BilingualText = { zh: '已复制', zhTW: '已複製', en: 'Copied' }
 
 /** 页头教学文档回链行前缀(wiki/controls/<Name>.md)。 */
-export const LABEL_WIKI_DOC: BilingualText = { zh: '教学文档', en: 'Tutorial doc' }
+export const LABEL_WIKI_DOC: BilingualText = { zh: '教学文档', zhTW: '教學文件', en: 'Tutorial doc' }
