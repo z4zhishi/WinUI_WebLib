@@ -1,0 +1,8 @@
+{
+  // demo 页用法示例模板串内的 <\/script> 是 SFC 块提取器的结构性需要(裸 </script>
+  // 会提前终结脚本块),任何 --fix 把它"修"回裸标签都会直接破坏文件,
+  // 故关闭 no-useless-escape(与 eslint.config.ts 的 app/keep-load-bearing-script-escape 同旨)。
+  "rules": {
+    "no-useless-escape": "off"
+  }
+}
