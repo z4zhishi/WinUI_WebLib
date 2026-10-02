@@ -23,7 +23,11 @@
   /* 常规(240ms):ListViewItem 重排态 DoubleAnimation Duration="0:0:0.240" 共 10 处
      (L9821、L9831、L9835、L9839、L9867、L20945、L20955、L20959、L20963、L20991);
      并覆盖相邻聚类:Overlay 关闭 216ms(L8929)、CalendarView 切换 233ms(L14491)、
-     SplitView 展开资源 200ms(L1305)。 */
+     SplitView 展开资源 200ms(L1305)。
+     口径定案(MR1/A1,新模板优先):controls/dev 新模板主流为
+     ControlNormalAnimationDuration=250ms(Common_themeresources_any.xaml L603),
+     弹层/Overlay 系一律用字面量 250ms(开)/167ms(关),不再取本 token;
+     240ms 仅保留给 ListViewItem/GridViewItem 重排系等 legacy 采样落点。 */
   --wui-duration-normal: 240ms;
 
   /* 慢速(350ms):大表面入场聚类 —— Overlay 展开 KeyTime 383ms(L8923)、
@@ -78,56 +82,11 @@
   }
 }
 
-/* 弹层入场(透明度 + 轻微上移),对应 Popup / ComboBox 下拉等自带
-   OverlayOpeningAnimation 的模板(非 FlyoutBase 通道)。
-   依据:generic.xaml ComboBox 模板 <Storyboard x:Key="OverlayOpeningAnimation">
-   Opacity 0→1、KeyTime 0.383s、KeySpline 0.1,0.9 0.2,1.0(纯淡入)L8920-8924;
-   同键副本:L10211(AppBar)、L16223、L22903(CommandBar)。
-   注:此 8px 的 translateY 为 Web 适配增强(源为纯淡入),偏移量与时长取值见
-   motion-notes.md 偏差说明。FlyoutBase 通道的弹层(Flyout / MenuFlyout /
-   CalendarDatePicker 等)请改用下方 wui-popup-slide-* 方向性位移关键帧。 */
-@keyframes wui-flyout-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 缩放入场(透明度 + scale),对应 ToolTip / TeachingTip。
-   依据:generic.xaml ContentDialog DialogShowing 转换 Scale 1.05→1.0、
-   KeyTime 0.5s、KeySpline 0.1,0.9 0.2,1.0(L8411-8419)+ Opacity 0→1 L8421-8423;
-   本文件中 ToolTip 自身为纯淡入(L11572),缩放规格取自同机制的 ContentDialog,
-   供 TeachingTip 类需要缩放入场的浮层复用。 */
-@keyframes wui-scale-up-in {
-  from {
-    opacity: 0;
-    transform: scale(1.05);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* 对话框入场(透明度 + scale),对应 ContentDialog。
-   依据:generic.xaml <VisualTransition To="DialogShowing">:Scale 1.05→1.0
-   KeyTime 0.5s KeySpline 0.1,0.9 0.2,1.0(L8415、L8419);Opacity 0→1 线性 167ms(L8421-8423)。
-   CSS 单一动画无法拆分双时间线,统一取慢速档 + 标准缓动(见 motion-notes.md 偏差说明);
-   遮罩淡入由使用方配合 --wui-content-dialog-dimming-theme 单独处理。 */
-@keyframes wui-dialog-in {
-  from {
-    opacity: 0;
-    transform: scale(1.05);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
+/* A8/MR2 清理:wui-flyout-in(8px 上移近似,被 wui-popup-slide-* 50px 组取代)、
+   wui-scale-up-in / wui-dialog-in(被 ContentDialog 双时间线 wui-dialog-scale-in/out
+   与 TeachingTip wui-teaching-tip-* 取代)三组关键帧及其工具类已删除——
+   删除前全库 grep 0 运行时消费(audit A8;flyout-in 消费方已由 MR1/A3 迁出)。
+   通用弹层入场请用 wui-popup-slide-in-* / wui-fade-in / wui-dialog-scale-in。 */
 
 /* ======================================================================
  * FlyoutBase 通道弹层的方向性位移(50px)+ 淡入淡出
@@ -306,13 +265,15 @@
   }
 }
 
-/* 关:向顶部锚点收拢(末 83ms 淡出由 wui-fade-out 并行承担) */
+/* 关:向顶部锚点收拢至 closedRatio 0.15(末态 inset(0 0 85% 0),
+   ThemeAnimations.cpp L738/L798-810;MR1/A5 定案,收拢不再过冲到全隐),
+   末 83ms 淡出由 wui-fade-out 并行承担(t=167ms 时 clip 15% × opacity 0 不可见) */
 @keyframes wui-combo-split-close {
   from {
     clip-path: inset(0 0 0 0);
   }
   to {
-    clip-path: inset(0 0 100% 0);
+    clip-path: inset(0 0 85% 0);
   }
 }
 
@@ -417,17 +378,8 @@
   animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-standard) both;
 }
 
-.wui-anim-flyout-in {
-  animation: wui-flyout-in var(--wui-duration-normal) var(--wui-easing-standard) both;
-}
-
-.wui-anim-scale-up-in {
-  animation: wui-scale-up-in var(--wui-duration-fast) var(--wui-easing-standard) both;
-}
-
-.wui-anim-dialog-in {
-  animation: wui-dialog-in var(--wui-duration-slow) var(--wui-easing-standard) both;
-}
+/* A8/MR2:.wui-anim-flyout-in / .wui-anim-scale-up-in / .wui-anim-dialog-in 三个
+   工具类已删除(全库 0 消费,见文件头 A8 注);组合动效请直接挂组件级精确规格。 */
 
 /* ======================================================================
  * 导航/页面转场(NavigationThemeTransition,阶段 7 PageTransition / ConnectedAnimation)

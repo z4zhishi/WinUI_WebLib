@@ -482,10 +482,14 @@ html[data-theme='dark'] .wui-slider {
 
 /* ======================================================================
  * 视觉状态(对照现行模板 CommonStates,Slider_themeresources.xaml L262-437):
- * PointerOver —— 内圆放大至 14(0.71×12 注:1.167 = 12px to 14px)+ Secondary 色;
+ * PointerOver —— 内圆放大 scale 1.1667(源 storyboard 字面量 1.167 ≈ 14/12,
+ *                12px→14px)+ Secondary 色;
  *                轨道/已选段换 PointerOver 色阶(轨道同值、已选段 AccentFillColorSecondary);
- * Pressed(:active,拖动期间保持)—— 内圆缩至 10(0.71 = 14px to 10px)+ Tertiary 色;
- * Focus(:focus-visible)—— 拇指外围系统焦点框(UseSystemFocusVisuals,近似,见 wiki);
+ * Pressed(:active,拖动期间保持)—— 内圆缩至 scale 0.71(MR1/A2:取源 storyboard
+ *                字面量,源注释「14→10px」基于源 14px 归一基准;本库内圆几何为
+ *                FIX9 定案 12px 基准,数值跟随源字面量)+ Tertiary 色;
+ * Focus(:focus-visible)—— 拇指外围系统焦点框(UseSystemFocusVisuals,近似,见 wiki)
+ *                + 内圆放大 scale 1.1667 @167ms(MR1/A2,源 Focused storyboard);
  * Disabled —— 全套 Disabled 色 + 内圆放大(源 Disabled 态 1.167)+ 光标。
  * ====================================================================== */
 
@@ -517,7 +521,9 @@ html[data-theme='dark'] .wui-slider {
 
 .wui-slider__input:not(:disabled):active ~ .wui-slider__thumb .wui-slider__thumb-inner {
   background: var(--wui-slider-thumb-background-pressed);
-  transform: translate(-50%, -50%) scale(0.8333);
+  /* MR1/A2:缩放值取源 storyboard 字面量 0.71(Slider_themeresources.xaml L232-239),
+     不再用 FIX22 的 12px 基准换算值 0.8333;时长仍为 FIX22 的 250ms + (0,0,0,1) */
+  transform: translate(-50%, -50%) scale(0.71);
   /* 进入 Pressed:同 PointerOver,250ms + cubic-bezier(0,0,0,1)(L232-239) */
   transition: transform 250ms cubic-bezier(0, 0, 0, 1);
 }
@@ -529,6 +535,14 @@ html[data-theme='dark'] .wui-slider {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 1px;
   box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
+}
+
+/* MR1/A2:Focus 态内圆放大至 1.167 @167ms(源 Focused storyboard
+   SliderInnerThumb Scale 1→1.167,KeyTime=ControlFastAnimationDuration +
+   ControlFastOutSlowInKeySpline,L244-251);时长取基态 transition(167ms 档),
+   悬停/按压目标态规则按各自时长覆写且优先级更高(hover/pressed 时同为源行为) */
+.wui-slider__input:focus-visible ~ .wui-slider__thumb .wui-slider__thumb-inner {
+  transform: translate(-50%, -50%) scale(1.1667);
 }
 
 /* —— Disabled —— */

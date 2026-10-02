@@ -945,9 +945,11 @@ const rootClass = computed(() => ({
 }
 
 /* —— 入场 / 离场(弹层经 FlyoutBase 通道:PopupThemeTransition 50px 方向性位移
-   + 淡入随放置位,出场镜像滑出;关键帧与放置位选择见 popup.css 基建)—— */
+   + 淡入随放置位,出场镜像滑出;关键帧与放置位选择见 popup.css 基建。
+   时长字面量 250ms:MR1/A1 新模板优先口径(ControlNormalAnimationDuration);
+   出/入同速 250ms 为 MR1/A4 镜像同速定案)—— */
 .wui-calendar-date-picker-enter-active {
-  animation: wui-popup-slide-in-bottom var(--wui-duration-normal) var(--wui-easing-standard) both;
+  animation: wui-popup-slide-in-bottom 250ms var(--wui-easing-standard) both;
 }
 
 .wui-calendar-date-picker-enter-active[data-wui-placement='top'] {
@@ -963,7 +965,7 @@ const rootClass = computed(() => ({
 }
 
 .wui-calendar-date-picker-leave-active {
-  animation: wui-popup-slide-out-bottom var(--wui-duration-fast) var(--wui-easing-standard) both;
+  animation: wui-popup-slide-out-bottom 250ms var(--wui-easing-standard) both;
 }
 
 .wui-calendar-date-picker-leave-active[data-wui-placement='top'] {

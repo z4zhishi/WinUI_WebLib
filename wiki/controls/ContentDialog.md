@@ -6,7 +6,7 @@
 
 使用 ContentDialog 显示相关信息,或提供可承载任意内容的**模态**对话框体验。对话框由全屏烟幕遮罩 + 居中面板构成:面板内是标题(最多两行)、正文(超高滚动)与命令区(主按钮 / 次按钮 / 关闭按钮,文本为空即隐藏);模态语义与 WinUI 一致——**遮罩点击不关闭**,只能通过命令按钮或 Esc 关闭。
 
-本组件按 WinUI 3 现行模板复刻视觉:面板三色取 `theme.css` 的 `--wui-content-dialog-*` token(浅 `#ffffff` / `#000000` / `#00000033`,深 `#000000` / `#ffffff` / `#ffffff33`),烟幕取锚定模板 LayoutRoot 的 `SystemControlPageBackgroundMediumAltMedium`(浅白雾 `#ffffff99` / 深黑雾 `#00000099`),圆角 `--wui-popup-corner-radius`(OverlayCornerRadius 8px)、内容区分隔线、命令区五列网格(按钮间距 8px、按钮 130–202px × 32px)与 `wui-dialog-in` 入场动画(scale 1.05→1 + 淡入),随 `html[data-theme]` 明暗切换。
+本组件按 WinUI 3 现行模板复刻视觉:面板三色取 `theme.css` 的 `--wui-content-dialog-*` token(浅 `#ffffff` / `#000000` / `#00000033`,深 `#000000` / `#ffffff` / `#ffffff33`),烟幕取锚定模板 LayoutRoot 的 `SystemControlPageBackgroundMediumAltMedium`(浅白雾 `#ffffff99` / 深黑雾 `#00000099`),圆角 `--wui-popup-corner-radius`(OverlayCornerRadius 8px)、内容区分隔线、命令区五列网格(按钮间距 8px、按钮 130–202px × 32px)与 `wui-dialog-scale-in` + 层级 `wui-fade-in` 双时间线入场动画(scale 1.05→1 @500ms + 线性淡入 167ms,audit A8 起取代旧的 `wui-dialog-in` 合并单时间线),随 `html[data-theme]` 明暗切换。
 
 弹层基建复用:焦点陷阱(`trapFocus` / `releaseFocus`,Tab 循环 + 关闭归还焦点)、弹层注册表(`registerPopupLayer`,嵌套时 Esc 只关栈顶)、z-index 固定档 `--wui-z-popup-dialog` 全部来自 [弹层公共基建](./_popup-infra.md)。对话框为视口居中模态,不锚定宿主,不走 `usePopupLayer` 定位。
 
@@ -49,7 +49,7 @@
 
 ## 交互与键盘
 
-- **打开**:`v-model:is-open` 置 `true`(或程序化写入);面板入场 `wui-dialog-in` 动画,烟幕淡入。
+- **打开**:`v-model:is-open` 置 `true`(或程序化写入);面板入场 `wui-dialog-scale-in` + 烟幕层 `wui-fade-in` 双时间线动画。
 - **初始焦点**:落 `defaultButton` 指定的按钮(`None` 或该按钮被禁用时落第一个可聚焦元素);随后焦点被**陷阱圈定**(Tab 在对话框内循环)。
 - **Enter**:触发 `defaultButton`(WinUI 对话框语义:正文 / 文本输入内按 Enter 亦触发);焦点已在按钮、textarea、select 或链接上时交还原生行为。`None` 时不触发。
 - **Esc**:等价点击关闭按钮 → 触发 `closeButtonClick`(可被 `args.cancel` 阻止)。对话框内再开 Flyout / 子弹层时,Esc 只关最后打开的栈顶层(弹层注册表逐级收口)。
@@ -109,7 +109,7 @@ function onPrimary(args: { cancel: boolean }) {
 | `ContentDialogButtonMinWidth` 130 / `MaxWidth` 202 / `ButtonHeight` 32 | 按钮内联约束 | 尺寸资源 theme.css 未提取,按源值写死 |
 | `ContentDialogMinWidth` 320 / `MaxWidth` 548 / `MinHeight` 184 / `MaxHeight` 756 | 面板 min/max 约束 | 同上;另加 `calc(100vw/vh - 48px)` 视口钳制(WinUI 由窗口约束,Web 需显式) |
 | defaultButton = `AccentButtonStyle` | 复用 `--wui-accent-button-*` token 的强调色状态(与 Button.vue 同源) | 无差异(AccentFillDefault 即 `--wui-system-accent-color`) |
-| 打开动画 `DialogShowing`:scale 1.05→1 KeyTime 0.5s + 透明度线性 167ms 双时间线 | `wui-dialog-in`(慢速档 350ms + 标准缓动) | CSS 单动画无法拆分双时间线,统一取慢速档(animations.css 既有决策);关闭 `DialogHidden`(scale 1→1.05 + 快淡出)取纯快速淡出近似 |
+| 打开动画 `DialogShowing`:scale 1.05→1 KeyTime 0.5s + 透明度线性 167ms 双时间线 | 面板 `wui-dialog-scale-in` 500ms 标准曲线 + 层 `wui-fade-in` 167ms 线性(audit A8 起删除 `wui-dialog-in` 合并单时间线) | 双时间线拆到层/面板两元素逐键复刻;关闭 `DialogHidden`(scale 1→1.05 + 83ms 线性快淡出)同构双时间线 |
 | `ShowAsync()` 返回 `ContentDialogResult` | `v-model:is-open` + 三个 `*ButtonClick` 事件 | 声明式等价:关闭方式可由事件推断(primary/secondary/close → Primary/Secondary/None);无 result 枚举 |
 | `ContentDialogButtonClickEventArgs.GetDeferral()`(异步暂停关闭直至 Deferral 完成) | 简化为同步 `args.cancel` | 处理器同步置 `cancel = true` 阻止关闭;异步决定请先 cancel,待异步完成后再把 `isOpen` 置 `false`(见上方基础用法注释) |
 | `Closing` / `Closed` 事件、`FullSizeDesired`、`IsPrimaryButtonEnabled` 之外的按钮样式覆盖(`PrimaryButtonStyle` 等) | 未实现 | 阶段口径外的低频 API;按钮可用性仅 WinUI 原有的 `IsPrimaryButtonEnabled` / `IsSecondaryButtonEnabled`(Close 按钮平台无禁用属性) |

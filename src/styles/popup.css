@@ -122,13 +122,16 @@
 }
 
 /*
- * FlyoutBase 通道弹层(Flyout / CalendarDatePicker 等)的方向性位移入场:
- * 50px 随放置位(FlyoutBase_partial.cpp L68/L2011-2061),关键帧见
+ * FlyoutBase 通道弹层(Flyout / CalendarDatePicker / DatePicker / TimePicker /
+ * AutoSuggestBox / DropDownButton / BreadcrumbBar / SplitButton 等)的方向性
+ * 位移入场:50px 随放置位(FlyoutBase_partial.cpp L68/L2011-2061),关键帧见
  * animations.css 的 wui-popup-slide-in-* 组;data-wui-placement 由
  * usePopupLayer 在层根写入(首帧绘制前就位)。缺省按 bottom(最常用放置位)。
+ * 时长取字面量 250ms(MR1/A1 定案「新模板优先」:ControlNormalAnimationDuration,
+ * Common_themeresources_any.xaml L603;240ms token 仅保留给 ListViewItem 重排系)。
  */
 .wui-popup-anim-flyout {
-  animation: wui-popup-slide-in-bottom var(--wui-duration-normal) var(--wui-easing-standard) both;
+  animation: wui-popup-slide-in-bottom 250ms var(--wui-easing-standard) both;
 }
 
 .wui-popup-anim-flyout[data-wui-placement='top'] {
@@ -143,9 +146,10 @@
   animation-name: wui-popup-slide-in-right;
 }
 
-/* 出场 = 入场镜像(向来路滑出并淡出) */
+/* 出场 = 入场镜像且同速(MR1/A4 定案:源 TAS_HIDEPOPUP 与入场镜像同档;
+   此前出 167ms/入 240ms 的不同速为偏差,现出/入同为 250ms) */
 .wui-popup-anim-flyout-leave {
-  animation: wui-popup-slide-out-bottom var(--wui-duration-fast) var(--wui-easing-standard) both;
+  animation: wui-popup-slide-out-bottom 250ms var(--wui-easing-standard) both;
 }
 
 .wui-popup-anim-flyout-leave[data-wui-placement='top'] {
@@ -160,13 +164,8 @@
   animation-name: wui-popup-slide-out-right;
 }
 
-.wui-popup-anim-scale {
-  animation: wui-scale-up-in var(--wui-duration-fast) var(--wui-easing-standard) both;
-}
-
-.wui-popup-anim-dialog {
-  animation: wui-dialog-in var(--wui-duration-slow) var(--wui-easing-standard) both;
-}
+/* A8/MR2:.wui-popup-anim-scale / .wui-popup-anim-dialog 已删除(全库 0 消费;
+   ContentDialog / TeachingTip 各用组件内精确规格,见 audit A8)。 */
 
 .wui-popup-anim-leave {
   animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-standard) both;

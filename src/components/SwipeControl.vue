@@ -579,16 +579,18 @@ defineExpose({ close })
   cursor: default;
 }
 
-/* —— 过渡(松手回弹 / 吸附打开 / 关闭):拖拽中禁用,松手后启用 —— */
+/* —— 过渡(松手回弹 / 吸附打开 / 关闭):拖拽中禁用,松手后启用 ——
+   fallback 统一为 240ms 与 token 实值一致(MR1/A7;源为 InteractionTracker
+   弹簧,无固定时长,240ms 为库近似档) */
 .wui-swipe--animating .wui-swipe__swipeRoot {
-  transition: width var(--wui-duration-normal, 250ms) var(--wui-easing-standard, ease);
+  transition: width var(--wui-duration-normal, 240ms) var(--wui-easing-standard, ease);
 }
 
 .wui-swipe--animating .wui-swipe__panel {
-  transition: transform var(--wui-duration-normal, 250ms) var(--wui-easing-standard, ease);
+  transition: transform var(--wui-duration-normal, 240ms) var(--wui-easing-standard, ease);
 }
 
 .wui-swipe--animating .wui-swipe__content {
-  transition: transform var(--wui-duration-normal, 250ms) var(--wui-easing-standard, ease);
+  transition: transform var(--wui-duration-normal, 240ms) var(--wui-easing-standard, ease);
 }
 </style>

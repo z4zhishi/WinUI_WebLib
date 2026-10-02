@@ -507,7 +507,7 @@ function onLayerFocusout(event: FocusEvent): void {
 
   <!-- 省略号下拉:Teleport 到 body,复用 .wui-popup-layer 外壳;被折叠节点反序列出(最近者在上) -->
   <Teleport to="body">
-    <Transition name="wui-breadcrumb-dropdown">
+    <Transition enter-active-class="wui-popup-anim-flyout" leave-active-class="wui-popup-anim-flyout-leave">
       <div
         v-if="dropOpen"
         ref="layerRef"
@@ -723,12 +723,7 @@ function onLayerFocusout(event: FocusEvent): void {
   outline: none;
 }
 
-/* 入场:8px 上滑淡入(wui-flyout-in,基建 Web 适配增强);离场快速淡出 */
-.wui-breadcrumb-dropdown-enter-active {
-  animation: wui-flyout-in var(--wui-duration-normal) var(--wui-easing-standard) both;
-}
-
-.wui-breadcrumb-dropdown-leave-active {
-  animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-standard) both;
-}
+/* 入场 / 离场:下拉层经 FlyoutBase 通道(MR1/A3:50px 方向位移组,入场 250ms
+   随放置位、离场镜像同速;类与关键帧见 popup.css 的 .wui-popup-anim-flyout[-leave],
+   由上方 Transition 的 enter/leave-active-class 挂接,此处不再有 scoped 规则) */
 </style>

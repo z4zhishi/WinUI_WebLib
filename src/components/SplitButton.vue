@@ -471,7 +471,7 @@ const layerClass = computed(() =>
 
   <!-- 弹层:Teleport 到 body,.wui-popup-layer 外壳 + 皮肤按「是否菜单用法」自动切换 -->
   <Teleport to="body">
-    <Transition name="wui-splitbutton-flyout">
+    <Transition enter-active-class="wui-popup-anim-flyout" leave-active-class="wui-popup-anim-flyout-leave">
       <div
         v-if="flyoutOpen"
         ref="layerRef"
@@ -722,14 +722,9 @@ const layerClass = computed(() =>
   color: var(--wui-default-text-foreground-theme);
 }
 
-/* 入场:弹层淡入 + 8px 位移(基建 Web 适配增强);离场快速淡出 */
-.wui-splitbutton-flyout-enter-active {
-  animation: wui-flyout-in var(--wui-duration-normal) var(--wui-easing-standard) both;
-}
-
-.wui-splitbutton-flyout-leave-active {
-  animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-standard) both;
-}
+/* 入场 / 离场:弹层经 FlyoutBase 通道(MR1/A3:50px 方向位移组,入场 250ms
+   随放置位、离场镜像同速;类与关键帧见 popup.css 的 .wui-popup-anim-flyout[-leave],
+   由上方 Transition 的 enter/leave-active-class 挂接,此处不再有 scoped 规则) */
 
 /* ======================================================================
  * 深色主题(Default 字典,html[data-theme] 档位保证压过浅色基线):

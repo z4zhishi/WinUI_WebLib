@@ -146,7 +146,7 @@ releaseFocus()                                // 焦点归还到打开前的元�
 | `.wui-popup-overlay` | light-dismiss 全屏遮罩(颜色 token `--wui-popup-light-dismiss-overlay-background`,浅 #ffffff99 / 深 #00000099) |
 | `.wui-popup-skin-flyout` | FlyoutPresenter 皮肤(`--wui-flyout-presenter-background` + `--wui-flyout-border-theme`) |
 | `.wui-popup-skin-tooltip` | ToolTip 皮肤(`--wui-tool-tip-*` 三 token) |
-| `.wui-popup-anim-fade` / `-flyout` / `-scale` / `-dialog` | 入场动画,分别引用 animations.css 的 `wui-fade-in` / `wui-flyout-in` / `wui-scale-up-in` / `wui-dialog-in` 关键帧 |
+| `.wui-popup-anim-fade` / `-flyout` | 入场动画,分别引用 animations.css 的 `wui-fade-in` / `wui-popup-slide-in-*` 关键帧(`-scale` / `-dialog` 已随 audit A8 删除:ContentDialog / TeachingTip 各用组件内精确规格) |
 | `.wui-popup-anim-leave` | 出场(淡出);配 Vue `<Transition name>` 或手动移除节点时使用 |
 
 - `.wui-popup-layer[data-wui-placement='…']`(由 `usePopupLayer` 写入)自动设置 scale 类动画的 `transform-origin`,翻转后原点跟随真实基位。

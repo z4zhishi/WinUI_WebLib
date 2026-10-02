@@ -23,11 +23,12 @@
 //     码点 E70E(上)/E70D(下)、底色 LoopingSelectorButtonBackground,默认 Collapsed、
 //     PointerOver 才显示;项前景/选中前景/悬停/按压底(LoopingSelectorItem* 资源)。
 // 颜色/字号一律取 src/styles/theme.css 的 --wui-* token(本次启用原先未用的
-// --wui-time-picker-button-* 与 --wui-date-time-picker-flyout-button-*);动效取 animations.css。
+// --wui-time-picker-button-* 与 --wui-date-time-picker-flyout-button-*);
+// 弹层动效取 popup.css 基建(FlyoutBase 通道 50px 方向位移组,MR1/A3)。
 // time 值选型为 "HH:mm" 24 小时制字符串(见 wiki 属性节)。
 import { computed, nextTick, reactive, ref, useAttrs, useId, watch } from 'vue'
 import { usePopupAnchor, usePopupLayer } from '@/composables/usePopup'
-import '../styles/animations.css'
+import '../styles/popup.css'
 
 defineOptions({ name: 'WuiTimePicker', inheritAttrs: false })
 
@@ -584,7 +585,7 @@ function optionId(key: ColumnKey, index: number): string {
 
   <!-- 飞出层:Teleport 到 body,复用 .wui-popup-layer 外壳(圆角/阴影/层级) -->
   <Teleport to="body">
-    <Transition name="wui-time-picker">
+    <Transition enter-active-class="wui-popup-anim-flyout" leave-active-class="wui-popup-anim-flyout-leave">
       <div
         v-if="isOpen && !disabled"
         ref="layerRef"
@@ -1007,12 +1008,7 @@ function optionId(key: ColumnKey, index: number): string {
   box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
-/* —— 入场 / 离场(对照 WinUI 飞出层淡入;离场快速淡出)—— */
-.wui-time-picker-enter-active {
-  animation: wui-flyout-in var(--wui-duration-normal) var(--wui-easing-standard) both;
-}
-
-.wui-time-picker-leave-active {
-  animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-standard) both;
-}
+/* —— 入场 / 离场:弹层经 FlyoutBase 通道(MR1/A3:50px 方向位移组,入场 250ms
+   随放置位、离场镜像同速;类与关键帧见 popup.css 的 .wui-popup-anim-flyout[-leave],
+   由上方 Transition 的 enter/leave-active-class 挂接,此处不再有 scoped 规则)—— */
 </style>

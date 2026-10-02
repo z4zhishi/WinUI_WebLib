@@ -50,6 +50,7 @@
 import { computed, nextTick, ref, useId, watch } from 'vue'
 import { usePopupAnchor, usePopupLayer } from '@/composables/usePopup'
 import { symbolToGlyph, type SymbolValue } from '@/utils/symbolIcons'
+import '../styles/popup.css'
 
 defineOptions({ name: 'WuiAutoSuggestBox', inheritAttrs: false })
 
@@ -484,7 +485,7 @@ const rootClass = computed(() => ({
 
   <!-- 建议面板:Teleport 到 body,等宽 + light dismiss,复用 .wui-popup-layer 外壳 -->
   <Teleport to="body">
-    <Transition name="wui-auto-suggest-box">
+    <Transition enter-active-class="wui-popup-anim-flyout" leave-active-class="wui-popup-anim-flyout-leave">
       <div
         v-if="isSuggestionListOpen && !disabled"
         :id="listboxId"
@@ -729,12 +730,8 @@ const rootClass = computed(() => ({
   cursor: default;
 }
 
-/* —— 入场:上滑淡入;离场快速淡出(对照 WinUI 弹层动画的 Web 近似) —— */
-.wui-auto-suggest-box-enter-active {
-  animation: wui-flyout-in var(--wui-duration-normal) var(--wui-easing-standard) both;
-}
-
-.wui-auto-suggest-box-leave-active {
-  animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-standard) both;
-}
+/* —— 入场 / 离场:建议面板经 FlyoutBase 通道(MR1/A3:50px 方向位移组,入场
+   250ms 随放置位、离场镜像同速;类与关键帧见 popup.css 的
+   .wui-popup-anim-flyout[-leave],由上方 Transition 的 enter/leave-active-class
+   挂接,此处不再有 scoped 规则)—— */
 </style>

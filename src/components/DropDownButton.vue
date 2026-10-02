@@ -316,7 +316,7 @@ provide('wuiMenuFlyoutLevel', {
   <!-- flyout 层:Teleport 到 body,复用 .wui-popup-layer 外壳(z-index 自动分配);
        菜单内容用 MenuFlyoutPresenter 皮肤,任意内容用 FlyoutPresenter 皮肤 -->
   <Teleport to="body">
-    <Transition name="wui-dropdown-button">
+    <Transition enter-active-class="wui-popup-anim-flyout" leave-active-class="wui-popup-anim-flyout-leave">
       <div
         v-if="isOpen"
         ref="layerRef"
@@ -459,12 +459,7 @@ provide('wuiMenuFlyoutLevel', {
   border: 1px solid var(--wui-flyout-border-theme);
 }
 
-/* 入场:8px 上滑淡入(wui-flyout-in,基建 Web 适配增强);离场快速淡出 */
-.wui-dropdown-button-enter-active {
-  animation: wui-flyout-in var(--wui-duration-normal) var(--wui-easing-standard) both;
-}
-
-.wui-dropdown-button-leave-active {
-  animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-standard) both;
-}
+/* 入场 / 离场:弹层经 FlyoutBase 通道(MR1/A3:50px 方向位移组,入场 250ms
+   随放置位、离场镜像同速;类与关键帧见 popup.css 的 .wui-popup-anim-flyout[-leave],
+   由上方 Transition 的 enter/leave-active-class 挂接,此处不再有 scoped 规则) */
 </style>

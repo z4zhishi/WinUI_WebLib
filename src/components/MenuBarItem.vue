@@ -411,13 +411,17 @@ onScopeDispose(() => {
   </div>
 
   <!-- 下拉菜单层:Teleport 到 body,复用 .wui-popup-layer 外壳(z-index 自动分配);
-       data-wui-menu-layer 标记使子弹层(级联子菜单)的外部点击豁免与 Escape 逐级生效 -->
+       data-wui-menu-layer 标记使子弹层(级联子菜单)的外部点击豁免与 Escape 逐级生效。
+       动效走 MenuFlyout 同通道(MR1/A6:源 MenuBar 下拉经 MenuFlyoutPresenter 的
+       MenuPopupThemeTransition)—— 层根加 wui-menu-flyout-layer 类,由 popup.css
+       全局规则挂 wui-menu-popup-expand-in(250ms scaleY 0.5→1 (0,0,0,1))+ 83ms
+       线性淡入,离场 83ms 线性淡出 -->
   <Teleport to="body">
-    <Transition name="wui-menubar-item">
+    <Transition name="wui-menu-flyout">
       <div
         v-if="isOpen"
         ref="layerRef"
-        class="wui-popup-layer wui-menu-bar-layer"
+        class="wui-popup-layer wui-menu-flyout-layer wui-menu-bar-layer"
         role="menu"
         aria-orientation="vertical"
         :aria-label="title"
@@ -533,12 +537,8 @@ html[data-theme='dark'] .wui-menu-bar-item {
   border: 1px solid var(--wui-menu-flyout-presenter-border);
 }
 
-/* 出入场:入场纯淡入(WinUI OverlayOpeningAnimation 等价),离场快速淡出 */
-.wui-menubar-item-enter-active {
-  animation: wui-fade-in var(--wui-duration-fast) var(--wui-easing-standard) both;
-}
-
-.wui-menubar-item-leave-active {
-  animation: wui-fade-out var(--wui-duration-fast) var(--wui-easing-standard) both;
-}
+/* 出入场:走 MenuFlyout 同通道(MR1/A6)—— 层根已带 wui-menu-flyout-layer 类,
+   MenuPopupThemeTransition 展开(250ms scaleY 0.5→1 + 83ms 线性淡入;离场 83ms
+   线性淡出)由 popup.css 的 .wui-menu-flyout-layer 全局规则经上方
+   <Transition name="wui-menu-flyout"> 挂接,此处不再有 scoped 规则 */
 </style>
