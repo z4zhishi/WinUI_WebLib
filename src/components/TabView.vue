@@ -278,6 +278,13 @@ function movePrevious(): boolean {
 }
 
 function onRootKeydown(event: KeyboardEvent): void {
+  // 拖拽激活态独占 Escape(源平台 DnD 的 Esc 取消语义);非拖拽态不拦截、不改默认,
+  // 页面级 Esc(关闭弹层等)零影响
+  if (event.key === 'Escape' && dragIndex.value !== null) {
+    event.preventDefault() // 对照源 args.Handled = true:取消由拖拽层处理
+    cancelDrag()
+    return
+  }
   if (props.disabled || !event.ctrlKey) return
   // Ctrl+Tab 恒定 preventDefault(对照源 KeyboardAccelerator 的 args.Handled = true:
   // 端点不移动但不放行,避免浏览器抢去换标签页)
@@ -573,6 +580,19 @@ function onTabPointercancel(event: PointerEvent): void {
   const from = dragIndex.value
   finishDragState()
   // 外部取消(滚动手势接管等):对齐源完成路径(DropResult=None),不计 droppedOutside
+  emit('tabDragCompleted', { index: from, item: orderedEntries.value[from]?.child })
+}
+
+/**
+ * Esc 取消拖拽(源平台 DnD:Esc 使项回位、不重排;DragItemsCompleted 照发、不发 DroppedOutside)。
+ * 事件序与外部取消路径同构:starting → completed(下标 = 取消时的原下标,项未移动)。
+ */
+function cancelDrag(): void {
+  if (dragIndex.value === null) return
+  const from = dragIndex.value
+  finishDragState()
+  press = null // 指针捕获随松手隐式释放;期间继续的 move/up 因 press 为空全部短路
+  suppressNextClick = true // 吞掉松手伴生点击(取消与落定同不派生点击选中)
   emit('tabDragCompleted', { index: from, item: orderedEntries.value[from]?.child })
 }
 
