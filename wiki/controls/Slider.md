@@ -68,7 +68,7 @@ function onValueChanged(e: { oldValue: number; newValue: number }): void {
 ## 与 WinUI 的差异
 
 1. **`snapsTo` 增加 `'None'`**:WinUI `SliderSnapsTo` 枚举只有 `StepValues` / `Ticks`;Web 版追加 `'None'` 表示不吸附、连续取值(此时方向键仍按 `stepFrequency` 步进)。
-2. **拇指缩放**:内圆缩放为源行为(现行 `Slider_themeresources.xaml` L208-253 的 `SliderInnerThumb` CompositeTransform):PointerOver 1.167(12→14px)、Pressed 0.71 相对值(14→10px,Web 以 12px 基准等价为 0.8333);进入 PointerOver / Pressed 为 250ms `cubic-bezier(0,0,0,1)`(`ControlNormalAnimationDuration` + `ControlFastOutSlowInKeySpline`),回到 Normal 为 167ms 同曲线(`ControlFastAnimationDuration`),终值与源一致。
+2. **拇指缩放**:内圆缩放为源行为(现行 `Slider_themeresources.xaml` L208-253 的 `SliderInnerThumb` CompositeTransform):PointerOver 1.167、Pressed **0.71**(源 storyboard 字面量,MR1/A2 订正,不再做 12px 基准换算)、键盘 Focus 1.167 @167ms(MR1/A2 补);进入 PointerOver / Pressed 为 250ms `cubic-bezier(0,0,0,1)`(`ControlNormalAnimationDuration` + `ControlFastOutSlowInKeySpline`),Focus 与回 Normal 为 167ms 同曲线(`ControlFastAnimationDuration`),终值与源一致。
 3. **轨道高度**:源快照(generic.xaml 三个主题字典 Default/HighContrast/Light)的 `SliderTrackThemeHeight` 均为 2,实现取 4px 系 Windows 11 观感选择。
 4. **焦点视觉**:WinUI 为控件外围系统焦点框(双线),Web 实现为拇指外围 2px accent 轮廓(`--wui-system-accent-color`,未定义时回退 `--wui-hyperlink-foreground-theme`)。
 5. **方向键步长**:WinUI 方向键按 `SmallChange`、翻页键按 `LargeChange` 步进;本实现方向键固定按 `stepFrequency`/`tickFrequency` 步进,未暴露 `SmallChange`/`LargeChange`。

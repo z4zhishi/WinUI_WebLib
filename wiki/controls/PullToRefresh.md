@@ -110,7 +110,7 @@ async function onRefreshRequested(args) {
 
 - 源控件 `IsTabStop=False`:容器与视觉器均不进入 Tab 序、无焦点环;下拉为触屏手势,键盘/辅助技术路径为编程触发 `requestRefresh()`(示例页提供按钮)。
 - 视觉器为纯指示覆盖层(不拦截内容指针交互),状态变化可经 `stateChanged` 接 `aria-live` 区域播报(本库不内置,保持与源一致的静默行为)。
-- `prefers-reduced-motion: reduce` 时停止自转与缩放脉冲(站点既有降级约定)。
+- `prefers-reduced-motion: reduce` 时自转与缩放脉冲由 animations.css 全局降级块停住(iteration 1 + 0.01ms,瞬时完成回静态终态;MR3/B8 双通道约定)。
 
 ## 与 WinUI 的差异
 
@@ -118,13 +118,13 @@ async function onRefreshRequested(args) {
    - `RefreshVisualizerForeground`(浅色 Black / 深色 White)→ `--wui-refresh-visualizer-foreground`(不透明,与源同值);
    - `RefreshContainerBackgroundBrush / RefreshVisualizerBackground`(Transparent)→ 组件内 `background: transparent`;
    - HighContrast 字典未实现(站点既有口径)。
-2. **Composition 动画 → CSS transform/过渡**:源以 `ElementCompositionPreview` 表达式动画(InteractionTracker 直驱)与 KeyFrame 动画实现跟手位移、刷新请求/完成归位(源 `REFRESH_ANIMATION_DURATION = 100ms`);Web 以 transform + `--wui-duration-fast`(167ms)过渡与 CSS 关键帧(自转 500ms、脉冲 300ms,与源一致)转写,过渡时长 167ms vs 源 100ms 为取整 token 差异。
+2. **Composition 动画 → CSS transform/过渡**:源以 `ElementCompositionPreview` 表达式动画(InteractionTracker 直驱)与 KeyFrame 动画实现跟手位移、刷新请求/完成归位;Web 以 transform + 100ms 过渡(MR3/B6 起取源字面量 `REFRESH_ANIMATION_DURATION`,ScrollViewerIRefreshInfoProviderDefaultAnimationHandler.cpp L12)与 CSS 关键帧转写:自转 500ms 匀速无限(ExecuteExecutingRotationAnimation L422-437)、缩放脉冲 300ms **线性**(ExecuteScaleUpAnimation L399-418,Composition 关键帧默认缓动)、Interacting 旋转/游移按拉动比例 transform 联动(表达式同构,无固定时长)。
 3. **拉动方向**:源支持四个方向并联动视觉器对齐与起始角;Web 仅实现 `TopToBottom`(WinUI 语义主路径),传入其余值会 `console.warn` 并按 TopToBottom 处理。`RefreshVisualizerOrientation` 仍可改起始角。
 4. **手势源**:源经 `ScrollViewerIRefreshInfoProviderAdapter` 把 ScrollViewer 的 InteractionTracker 越顶量耦合为拉动比例;Web 以触摸事件(元素级非 passive,`preventDefault` 拦下原生滚动/回弹)+ 鼠标/触控笔 Pointer Events 实现贴顶检测(首个可竖滚元素 `scrollTop≈0`),并加 4px 起拉门槛防抖;比例分母为实测视觉器带高,拉动封顶带高(源 `min(1.0, pull/H)` 同语义)。
 5. **Deferral 简化**:`GetDeferral/Complete/Dispose` 简化为 `args.getDeferral().complete()`;并新增 `v-model:is-refresh-idle` 简化通道(异步完成置 `true` 收尾)。事件派发完毕无人取 Deferral 时立即收尾,与 WinUI「无人持有 Deferral」语义一致。视觉器与容器两级事件的 Deferral 合并到容器计数,对应源容器持有视觉器 Deferral 再转发的协作。
 6. **Peeking 态**:源在惯性越顶(DManip overpan)时进入;Web 手势流不可达,枚举保留(与源状态机表一致,该态下不迁移)。
 7. **鼠标拖拽为 Web 侧补充**:WinUI 下拉刷新为触摸手势;Web 允许鼠标/触控笔按住拖拽(起拉后才捕获指针,不影响内容内点击),行为与触摸一致。
-8. **无 token 的源尺寸/常量**(组件内按源值实现):缺省视觉器带高 100 / MinHeight 80、默认指示内容 SymbolIcon(Refresh) 30×30、`MINIMUM_INDICATOR_OPACITY = 0.4`、`PARALLAX_POSITION_RATIO = 0.5`、`ExecutionRatio = 0.8`、自转 500ms、脉冲 300ms、刷新归位动画源值 100ms(取 token 见差异 2)。
+8. **无 token 的源尺寸/常量**(组件内按源值实现):缺省视觉器带高 100 / MinHeight 80、默认指示内容 SymbolIcon(Refresh) 30×30、`MINIMUM_INDICATOR_OPACITY = 0.4`、`PARALLAX_POSITION_RATIO = 0.5`、`ExecutionRatio = 0.8`、自转 500ms、脉冲 300ms、刷新归位动画 100ms(均源值,见差异 2)。
 9. **`RefreshInfoProvider` / Adapter API 未迁移**:`IRefreshInfoProvider`、`ScrollViewerIRefreshInfoProviderAdapter`、`RefreshInteractionRatioChanged` 等内部/私有面(源即 `MUX_PUBLIC` 之外的自定义接口)不适用 Web,交互能力由容器直接提供。
 
 ## 在 WinUI 中的典型场景(对照官方示例)

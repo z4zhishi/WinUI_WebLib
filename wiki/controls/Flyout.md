@@ -100,7 +100,7 @@ WinUI 把 Flyout 挂到宿主有两条路:`Button.Flyout` 声明式附加、`Fly
 
 ## 与 WinUI 的差异(视觉与行为对照)
 
-视觉按 generic.xaml `TargetType="FlyoutPresenter"` 默认样式(L11952-L11998)与主题资源复刻。颜色一律引用 theme.css 既有 token(ARGB 源值已按 CSS RGBA 字节序提取),无硬编码色值;**弹层通用的基建级差异**(阴影为 ThemeShadow 的 box-shadow 近似、圆角取 `OverlayCornerRadius` 8px、入场淡入带 8px 位移增强、fixed 策略手写几何定位)**统一见** [弹层公共基建 · 与 WinUI 的差异](\_popup-infra.md#与-winui-的差异基建级各控件-wiki-请引用勿重复),此处不再重复。Flyout 自身的差异:
+视觉按 generic.xaml `TargetType="FlyoutPresenter"` 默认样式(L11952-L11998)与主题资源复刻。颜色一律引用 theme.css 既有 token(ARGB 源值已按 CSS RGBA 字节序提取),无硬编码色值;**弹层通用的基建级差异**(阴影为 ThemeShadow 的 box-shadow 近似、圆角取 `OverlayCornerRadius` 8px、入场为 50px 方向位移 + 淡入淡出、fixed 策略手写几何定位)**统一见** [弹层公共基建 · 与 WinUI 的差异](\_popup-infra.md#与-winui-的差异基建级各控件-wiki-请引用勿重复),此处不再重复。Flyout 自身的差异:
 
 | 源资源 / 行为(WinUI 3) | 源值 | 本组件取值 |
 | --- | --- | --- |

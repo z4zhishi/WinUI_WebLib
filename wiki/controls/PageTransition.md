@@ -14,7 +14,7 @@
 | `src/components/NavigationThemeTransition.vue` | 「Frame」形态的包装组件:`viewKey` 变化即导航,内部用 Vue `<Transition>` 播放转场 |
 | `src/components/EntranceNavigationThemeTransition.vue` | 内容入场 stagger(ThemeTransition 家族的 EntranceThemeTransition,见下文「Theme Transitions」节) |
 
-动画关键帧与类名全部定义在 `src/styles/animations.css` 的 `wui-nav-*` 段:时长保留 WinUI 源码实测的精确颗粒(150/300/450/250/600/556/128/783/333/100ms),缓动一律取 `--wui-easing-standard / decelerate / accelerate` token。参数逐条对照 `CK/WinUI-Reference/dxaml/phone/lib/ThemeTransitions.cpp`(MIT)各 `NavigationTransitionInfo::CreateStoryboards` 的四个触发态(NavigatingTo / Away + Back 前缀)。
+动画关键帧与类名全部定义在 `src/styles/animations.css` 的 `wui-nav-*` 段:时长保留 WinUI 源码实测的精确颗粒(150/300/450/250/600/556/128/783/333/100ms);缓动按源落值 —— 显式 KeySpline 取 `--wui-easing-standard / decelerate / accelerate` token,代码构造的 ExponentialEase(6)/CircleEase 取 `--wui-easing-expo-out-6 / -expo-in-6 / -circle-out`(CSS `linear()` 按公式 1/64 采样,`EasingFunctions.cpp` L52-147;MR3/B10)。参数逐条对照 `CK/WinUI-Reference/dxaml/phone/lib/ThemeTransitions.cpp`(MIT)各 `NavigationTransitionInfo::CreateStoryboards` 的四个触发态(NavigatingTo / Away + Back 前缀)。
 
 官方文档:
 
@@ -27,10 +27,10 @@
 | --- | --- | --- | --- |
 | EntranceNavigationTransitionInfo(缺省) | `default` / `entrance` | 进页:淡入 + 上浮 140px(前 150ms 隐藏,150–450ms 标准曲线);离页:淡出 150ms;退导航镜像(退页下沉 140px) | ThemeTransitions.cpp L3141–L3186 |
 | SlideNavigationTransitionInfo(Effect=FromRight/FromLeft) | `slideFromRight` / `slideFromLeft` | 进页:从 ±200px 滑入(150ms 隐藏 + 300ms 标准曲线);离页:向反向 150px 滑出并淡出 150ms | L1515–L1601 |
-| SlideNavigationTransitionInfo(Effect=FromBottom/FromTop) | `slideFromBottom` / `slideFromTop` | 纵滑:进页从 ±200px 升入(250ms 隐藏 + 350ms 指数缓出 → decelerate token);离页 250ms 被进页覆盖淡出 | NavigateTransitionHelper.h L139–L144 |
+| SlideNavigationTransitionInfo(Effect=FromBottom/FromTop) | `slideFromBottom` / `slideFromTop` | 纵滑:进页从 ±200px 升入(250ms 隐藏 + 350ms ExpoEase(6,Out),opacity 240→250ms 离散切 1);离页无位移,opacity 于 250ms 处消失;退进纯淡入(250ms);退离 ±200px ExpoEase(6,In) 600ms(opacity 240→250ms 离散切 0)—— MR3/B10 起 ExpoEase 以 linear() 落值 | NavigateTransitionHelper.h L135–L144、ThemeTransitions.cpp L1598–L1680 |
 | DrillInNavigationTransitionInfo | `drillIn` | 进页 scale 0.94→1(783ms 标准曲线,origin center)+ 淡入 333ms;离页 scale 1→1.04 + 淡出 100ms;退导航镜像(1.06→1 / 1→0.96) | L2830–L2987 |
-| CommonNavigationTransitionInfo | `common` | Turnstile 旋转门:进页绕侧缘 rotateY −80°→0(128ms 隐藏 + 556ms 指数缓出)、128ms 淡入;离页 0→50°(128ms 指数缓入) | L557–L880,TURNSTILE_* 常量 |
-| ContinuumNavigationTransitionInfo | `continuum` | 背景层 scale 0.9→1 + 淡入 350ms;目标元素飞行需 ConnectedAnimation 协同(Web 未映射,见差异 5) | L1826–L1910 |
+| CommonNavigationTransitionInfo | `common` | Turnstile 旋转门:进页 rotateY −80°→0(128ms 隐藏 + 556ms ExpoEase(6,Out))、opacity 128→129ms 离散切 1;离页 0→50°(128ms ExpoEase(6,In));旋转轴心 CenterOfRotationX=−0.1 / Z=−100、透视 ≈999px(PlaneProjection 视锥,MR3/B10 核源) | L557–L880,TURNSTILE_* 常量 |
+| ContinuumNavigationTransitionInfo | `continuum` | 背景层 scale 0.9→1 + 淡入(267ms 后 350ms,CircleEaseOut);离页 opacity 120→250ms CircleEaseOut 淡出;退进纯淡入(267→617ms CircleEaseOut,无缩放);退离 translateY 0→200px ExpoEase(6,In) 250ms + 末 10ms 淡出 —— 四触发态独立分支(MR3/B10 起反向不再复用正向);目标元素飞行需 ConnectedAnimation 协同(Web 未映射,见差异 5) | L1826–L2197 |
 | SuppressNavigationTransitionInfo | `suppress` | 无动画,内容即时切换 | L3075 |
 
 ## NavigationThemeTransition 组件
@@ -98,7 +98,7 @@ Theme transitions 是 WinUI 预打包的即用型动画;官方 ThemeTransitionPa
 | RepositionThemeTransition | Reposition | 布局位置变化无 CSS 过渡通道,对声明过渡的元素做 FLIP(反向位移 → 过渡归零) |
 | ContentThemeTransition | Refresh data | 整组内容替换时淡出淡入(复用 `animations.css` 的 `wui-fade-in / wui-fade-out`) |
 | AddDeleteThemeTransition | Add / Delete / Add and Del | `<TransitionGroup>`:新条目 ±32px 滑入(motion-notes 列表位移规格 333ms / standard)、旧条目滑出、兄弟条目 move 过渡补位 |
-| PopupThemeTransition | Show Popup | 由 Popup / MenuFlyout 等弹层组件承担(`wui-flyout-in` 系),不单独提供组件 |
+| PopupThemeTransition | Show Popup | 由 Popup / MenuFlyout 等弹层组件承担(`wui-popup-slide-*` 50px 方向位移组),不单独提供组件 |
 
 另外,Web 端「明暗切换」本身可以做成元素过渡:主题值全部走 `--wui-*` token 的元素声明 `transition: background-color / color / border-color`(normal 档 240ms + standard),切换 `html[data-theme]` 时颜色即渐变而非跳变(示例页第 2 节例 5)。
 
@@ -118,12 +118,12 @@ Theme transitions 是 WinUI 预打包的即用型动画;官方 ThemeTransitionPa
 
 ## 与 WinUI 的差异说明
 
-1. **时长未并入三档 token**:页面转场是四触发态(进/退 × 进页/离页)的精确时间线(150+300、250+350、128/556、783/333、100ms),与 `animations.css` 的 fast/normal/slow 三档聚类是不同粒度;关键帧保留源码实测值并在注释标注行号,缓动则全部使用 `--wui-easing-*` token。
-2. **离开曲线取 token 近似**:源的离页 spline 为 `(0.7,0 1,.5)`(ThemeTransitions.cpp L1548),未 token 化;统一以 `--wui-easing-accelerate`(`0.2,0 0,1`)近似,视觉同为「缓起加速收尾」。
-3. **opacity 分段差异**:源的进页 opacity 多为离散翻转(150/250/128ms 处 0→1);CSS 关键帧按段渐变,前段时长内完成淡入,观感差异可忽略。
-4. **纵滑 FromTop 为镜像实现**:CK 手机版源码的纵滑分支未按 FromTop/FromBottom 区分符号(L1594 起共用同一分支);Web 按 API 语义镜像(FromBottom 从下方 +200px,FromTop 从上方 −200px)。
-5. **Continuum 仅映射页面层**:源中 continuum 目标元素的 3D 翻转/飞行与 PlaneProjection 强耦合,且语义上需 ConnectedAnimation 协同;Web 端只做背景层 scale 0.9→1 + 淡入。
-6. **Common(Turnstile)的 3D 手性**:源用 PlaneProjection RotationY,轴心 CenterOfRotationX = −0.1、CenterOfRotationZ = −100(源常量 `TURNSTILE_AXIS_X/Z`,ThemeTransitions.cpp L8-9);Web 用 `perspective(1200px) + rotateY`,轴心取 left/right center 原点,绕轴手性可能与 XAML 镜像,取观感一致为准。
+1. **时长未并入三档 token**:页面转场是四触发态(进/退 × 进页/离页)的精确时间线(150+300、250+350、128/556、783/333、100ms),与 `animations.css` 的 fast/normal/slow 三档聚类是不同粒度;关键帧保留源码实测值并在注释标注行号,缓动按源落值(显式 KeySpline → `--wui-easing-*`;ExponentialEase(6)/CircleEase → `linear()` 采样 token,MR3/B10)。
+2. **离开曲线取 token 近似(仅横向/Entrance 余留)**:横向 Slide 与 Entrance 的离页 spline 为 `(0.7,0 1,.5)`(ThemeTransitions.cpp L1548 等),未 token 化,仍以 `--wui-easing-accelerate`(`0.2,0 0,1`)近似;纵滑/Turnstile/Continuum 的代码构造缓动已按 `EasingFunctions.cpp` 公式精确落值。
+3. **opacity 离散切换**:源的进/离页 opacity 多为离散翻转(150/250/128ms 处 0↔1,Discrete 帧);MR3/B10 起纵滑/Turnstile/Continuum 关键帧按 1ms 邻位关键帧复刻离散切换(相邻百分比差 ≤0.2%),横向 Slide 仍按段渐变(遗留,见报告)。
+4. **纵滑 FromTop 为镜像实现**:CK 手机版源码的纵滑分支未按 FromTop/FromBottom 区分符号(L1598 起共用同一分支);Web 按 API 语义镜像(FromBottom 从下方 +200px,FromTop 从上方 −200px)。
+5. **Continuum 仅映射页面层**:源中 continuum 目标元素的 3D 翻转/飞行与 PlaneProjection 强耦合,且语义上需 ConnectedAnimation 协同;Web 端四触发态按源复刻背景层(进:scale 0.9→1 + 离散淡入;离:120→250ms 淡出;退进:267→617ms 纯淡入;退离:250ms 下沉 + 末 10ms 淡出),目标元素层未映射。
+6. **Common(Turnstile)的 3D 轴心与透视**:源用 PlaneProjection RotationY,轴心 CenterOfRotationX = −0.1、CenterOfRotationZ = −100(源常量 `TURNSTILE_AXIS_X/Z`,ThemeTransitions.cpp L8-9);Web 用容器 `perspective: 999px`(.wui-nav-frame,由 PlaneProjection 视锥 near 1 / far 1001 / FOV 57° / zOffset −999 推得,MR3/B10 核源)+ `translateZ(100px) rotateY(θ) translateZ(-100px)` 夹层 + `transform-origin: -10% center`,四分支同轴心(与源一致)。
 7. **方向显式化**:WinUI 的进/退由 `NavigationMode`(Navigate/GoBack)内部决定;Web 组件经 `direction` prop 显式传入,vue-router 场景需业务在守卫里维护方向。
 8. **reduced-motion 全局降级**:`animations.css` 的 `prefers-reduced-motion` 块把动画/过渡的时长与延迟都压至 0.01ms,转场与 stagger 均近似瞬时完成。
 

@@ -118,7 +118,7 @@ function onItemInvoked(args: { tag: string | number; label: string }): void {
 - 汉堡按钮为真实 `<button>`,带 `aria-expanded` 与 `aria-label="展开或折叠窗格"`;Space / Enter 原生激活。
 - 菜单区为 `<nav aria-label="主导航">`(页脚区为「页脚导航」);条目为 `<button>`,选中项带 `aria-current="page"`,带子项的条目带 `aria-expanded`;禁用条目原生 `disabled`。
 - Minimal(`LeftMinimal`)模式窗格为浮层,经内嵌 SplitView 按对话框语义处理(`role="dialog"` + `paneLabel`/`paneTitle` 作 `aria-label`,开时焦点移交、关时归还),遮罩点击 / `Esc` / 沿关闭方向轻扫均可关闭;关闭且非紧凑栏时窗格 `visibility: hidden` 移出焦点序。
-- 选中指示条与展开箭头均为装饰元素(`aria-hidden`);`prefers-reduced-motion` 时指示条淡入与箭头旋转过渡趋近 0。
+- 选中指示条与展开箭头均为装饰元素(`aria-hidden`);`prefers-reduced-motion` 时指示条 600ms 编排(JS 通道,`useReducedMotion` 门控直接落位)与箭头旋转过渡(CSS 通道,animations.css 全局块)均趋近瞬时。
 - 键盘方向键在菜单项间循环移动(WinUI 的 XY focus)暂未实现,条目按 Tab 序遍历,见差异节。
 
 ## 与 WinUI 的差异(视觉与行为对照)
@@ -144,7 +144,7 @@ function onItemInvoked(args: { tag: string | number; label: string }): void {
 1. **内部即一台 SplitView**:源模板左窗格系由 `RootSplitView(DisplayMode=Inline)` 承载,Web 版直接内嵌项目 SplitView 组件(Inline / CompactInline / Overlay 对应 Left / LeftCompact / LeftMinimal),窗格开合动效、遮罩、`Esc`、轻扫关闭与对话框语义均继承其实现(源 Overlay 动效 0.35s/0.12s + KeySpline `0.1,0.9 0.2,1.0`、Inline 0.2s/0.1s + `0.0,0.35 0.15,1.0`)。Minimal 窗格阴影(`PaneOverlayShadowDepth` 16)无 shadow token,未复刻,以遮罩变暗替代层次表达。
 2. **Auto 模式断点以容器宽为准**:WinUI 以窗口宽度 + `AdaptiveTrigger` 触发,Web 版用 ResizeObserver 观察控件自身宽度(演示页固定画框内即可复现三档降级);阈值默认值 1008/641 与 WinUI 一致。
 3. **`SelectedItem` → `selectedItem`(tag 值)**:WinUI 的 SelectedItem 是条目对象;Web 版以 `tag` 字符串/数值标识选中项,`selectionChanged` 回执 `{ tag, label }`。slot 模式的条目靠 `tag` 与宿主选中模型联动。
-4. **选中指示条(pill)无位移动画**:源用 Implicit offset/opacity 动画在相邻项间滑动;Web 版做同尺寸(左窗格 3x16、圆角 2、顶栏 16x3)淡入淡出(`--wui-duration-fast` + `--wui-easing-standard`),省略滑动分量。
+4. **选中指示条(pill)编排**:源为 600ms Scale+Offset 编排(NavigationView.cpp L2192-2234,c_frame 加速/减速双段 + CenterPoint 200ms);Web 为每容器一枚共享指示条,经 WAAPI 两段编排复刻(0-200ms 保持旧位,200ms 跳新位 + scale 峰值 + origin 翻终侧,MR2/A9 落地),非逐项淡入淡出。
 5. **展开箭头为静态字形旋转**:源为 `AnimatedChevronUpDownSmallVisualSource` 动效图标;Web 版以 `\uE70D` 字形 + `rotate(180deg)` 过渡(duration-fast/standard)等价。
 6. **PaneTitle 内嵌在汉堡按钮内(与源同行)**:源把窗格标题文本作为 `TogglePaneButton` 的 Content(`PaneTitleTextBlock`,`Margin 0,-2,0,0`、`VerticalAlignment=Center`),由 `PaneToggleButtonStyle` 模板的 `ContentPresenter`(`Padding 4,0,0,0`,第二列)渲染在 40px 图标格**右侧同一行**;Web 版同——标题渲染在 `.wui-navview__toggle` 内部(图标格 40px + 标题列),窗格展开且 `paneTitle` 非空时按钮按源 `UpdatePaneToggleSize` 展宽到 `OpenPaneLength`(可见盒 `OpenPaneLength - 8`,即模板根 Grid 的 `4,2` 外边距),标题文本起点即窗格内 x=48;紧凑栏收拢 / Minimal 浮层收起时按钮收回 40px 图标格、标题隐藏(源 `ListSizeCompact` 把 `PaneTitleTextBlock.Visibility` 置 Collapsed);Top 模式标题并入顶栏左端。源 `Margin 0,-2,0,0` 是 XAML TextBlock 行框度量的光学补偿,浏览器行框本身居中表意字形,未复刻该 2px 偏移。
 7. **Minimal 页头边距**:`NavigationViewMinimalHeaderMargin = -24,44,0,0` 的负左边距依赖模板按钮占位列,Web 版近似为 `12px` 左边距;Left/Top 沿用 `NavigationViewHeaderMargin 56,44,0,0`。

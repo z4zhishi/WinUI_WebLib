@@ -114,7 +114,7 @@ function onQuerySubmitted(args: { queryText: string; results: unknown[] }): void
 - **键盘导航不循环**:本实现到末 / 首项停住(任务约定);WinUI 源码实为「经 -1 的循环」——↓ 在末项回到 -1 并恢复键入文本、↑ 在无高亮时跳到末项(`AutoSuggestBox_Partial.cpp` L1085-1096)。
 - **鼠标悬停**:仅显示 CSS 底色,不移高亮、不预览、不触发 `suggestionChosen`(对齐 WinUI 源码:`SuggestionChosen` 仅键盘导航与点击时触发)。
 - **LightDismissOverlayMode**:WinUI 支持 `LightDismissOverlay`(面板外加半透明遮罩,token 已预留 `--wui-auto-suggest-box-light-dismiss-overlay-background`);本实现未启用遮罩,仅外点即关,与 ComboBox 下拉一致。
-- **打开/关闭动画**:源为主题动画;本实现以 `wui-flyout-in`(上滑淡入)/ `wui-fade-out` 近似,时长/缓动取 `animations.css` token。
+- **打开/关闭动画**:源为主题动画;本实现经公共弹层通道以 `wui-popup-slide-in-*` / `wui-popup-slide-out-*`(FlyoutBase 50px 方向位移 + 淡入淡出,开/关同速 250ms)复刻,MR1/A3-A4 起取代旧的 `wui-flyout-in`(8px 上移淡入)近似,见 [_popup-infra](./_popup-infra.md)。
 - **事件命名**:`querySubmitted` 为 WinUI `QuerySubmitted` 的对应名,事件参数把 `QuerySubmittedEventArgs` 摊平为 `{ queryText, results }`;另按任务命名约定同发 `textSubmitted` 别名(两者参数相同,勿重复监听)。
 - **列表虚拟化**:源 `SuggestionsList` 为 ListView(带虚拟化);本实现为普通 DOM 渲染,超长候选(数千条)建议在消费侧截断(如取前 20 条)。
 - **`Text` 程序化赋值**:消费侧直写 `v-model:text` 会以 `programmaticChange` 原因触发 `textChanged`(对齐 WinUI `Text` 属性变更回调);组件内部回写(预览/选中)按签名去重,不会重复触发。

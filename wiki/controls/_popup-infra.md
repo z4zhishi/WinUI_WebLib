@@ -156,7 +156,7 @@ releaseFocus()                                // 焦点归还到打开前的元�
 
 1. **阴影**:WinUI 3 弹层阴影由 ThemeShadow(合成器 elevation)实现,XAML 无画刷资源,theme.css 无对应 token;popup.css 以双层 box-shadow(`--wui-popup-shadow`)做视觉近似,应用可覆盖该 token。
 2. **圆角**:取 WinUI 3 `OverlayCornerRadius`(默认 8px);该键不在 generic.xaml ThemeDictionaries 内,未被 T0.1 提取为 `--wui-*` token,故在 popup.css 定义 `--wui-popup-corner-radius`(基建级 token,非 theme.css 生成物)。
-3. **入场动画**:WinUI 弹层为纯淡入(`OverlayOpeningAnimation`),`wui-flyout-in` 的 8px translateY 为 Web 适配增强(偏差依据见 `docs/temp/motion-notes.md`)。
+3. **入场动画**:源通道为 FlyoutBase 50px 方向位移 + 淡入(`PopupThemeTransition`,`g_entranceThemeOffset=50`,`FlyoutBase_partial.cpp` L68/L2011-2062);实现为 `wui-popup-slide-in-*` / `wui-popup-slide-out-*` 关键帧(开/关镜像同速 250ms,MR1/A3-A4 定案)。旧的 `wui-flyout-in`(8px 上移淡入)已于 MR2/A8 删除,勿再引用。
 4. **定位**:WinUI Popup 由平台按视觉树布局,Web 以 fixed 策略 + 手写几何等效;`FlyoutBase.Placement` 默认 `Top` 而基建默认 `bottom-start`,控件需显式传值。
 5. **popup.css 引入**:应用入口 import 一次(demo 站待控制器在 `demo/main.ts` 追加 `import '../src/styles/popup.css'`;控件侧也可各自 import,Vite 会去重);文件已 `@import './animations.css'`,勿重复引入。
 6. **主题覆盖写法**:popup.css 为非 scoped 样式,`data-theme` 选择器可放心书写;但控件自己的 `<style scoped>` 内**禁止**用 `:global([data-theme=…])`(plugin-vue 编译缺陷,ProgressBar 波次实证)——主题相关覆盖放独立非 scoped style 块。

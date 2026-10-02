@@ -140,7 +140,7 @@ const open = ref(false)
 | `ToolTipMaxWidth` = 320 | `maxWidth` 属性(内联 `max-width`) | 无差异 |
 | `CornerRadius` = `ControlCornerRadius`(4px) | `--wui-hyperlink-focus-rect-corner-radius` | 该键无专属 `--wui-*` token,沿用项目对 ControlCornerRadius 的既有映射(同 Button/InfoBar) |
 | `BackgroundSizing` = `InnerBorderEdge`(背景绘于边框内缘) | `background-clip: padding-box` | CSS `background-clip` 默认 `border-box`(等价 `OuterBorderEdge`,背景伸入边框之下);MUX ToolTip 为 InnerBorderEdge,故显式收窄。fix round 1 更正:此前一行误写为「border-box 等价 InnerBorderEdge」,方向相反;1px 低对比边框下视觉差异极小 |
-| FadeIn/FadeOutThemeAnimation(纯淡入淡出) | `wui-fade-in` / `wui-fade-out`(`--wui-duration-fast`) | 无差异(时长取 animations.css 系统档) |
+| FadeIn/FadeOutThemeAnimation(纯淡入淡出) | `wui-fade-in` / `wui-fade-out`(`--wui-duration-fast`,缓动 standard/accelerate) | 曲线为已声明近似:源曲线在平台 PVL 表内、快照无值(`OpacitySplineTransform` 结构为 Bezier 样条、系数在 OS 主题数据,MR3/B2 核订);时长取 fast 档(G 模板显式 0.167 簇口径) |
 | 默认 `PlacementMode` = `Top`,主轴贴边**无间距**(`MoveNearRect` offset 0),交叉轴居中 | `placement` 默认 `'top'`,`offset` 默认 0 | 无差异(注意与基建默认 `bottom-start` 不同,本组件显式传 `top`) |
 | 放不下按「对侧 → 相邻侧」级联择位(`QueryRelativePosition`),`PlacementRect` 指定不可遮挡矩形 | 基建 `flip`(仅对侧)+ `shift`(双轴推回) | 简化为「翻转 + 推回」;`PlacementRect`(非遮挡矩形)未实现,Web 侧无等价 API,以 flip/shift 等效 majority 场景 |
 | `PlacementMode.Mouse`(跟随指针) | 未实现 | 需要时以 `horizontalOffset`/`verticalOffset` 手动近似 |

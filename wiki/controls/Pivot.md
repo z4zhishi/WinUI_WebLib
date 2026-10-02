@@ -4,7 +4,7 @@
 
 ## 概述
 
-Pivot(透视/枢轴控件)让用户在同一个表面上用**标题行选项卡**浏览多个分页:点击标题或按左右方向键切换分页,内容区即时切换。每个分页是一个 `PivotItem`(标题 + 内容),声明式写在 `<WuiPivot>` 默认 slot 下;也支持响应式数组 `v-for` 动态增删分页(增删后下标自动收敛到有效区间)。视觉按 `CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml` 的 Pivot / PivotItem / PivotHeaderItem ControlTemplate 复刻:标题项 48px 高、24px 字号、SemiLight 字重,**选中态不加粗**,而是前景色从 60% 提高到 100% 并显示 2px 主题色下划线(SelectedPipe);左右导航箭头(20×36,Segoe Fluent Icons 字形 E0E2/E0E3)默认隐藏,仅当**指针悬停标题行且标题溢出裁剪**时淡入,越界方向自动隐藏。颜色取 theme.css 的 `--wui-pivot-*` 全套 token。
+Pivot(透视/枢轴控件)让用户在同一个表面上用**标题行选项卡**浏览多个分页:点击标题或按左右方向键切换分页,内容区即时切换。每个分页是一个 `PivotItem`(标题 + 内容),声明式写在 `<WuiPivot>` 默认 slot 下;也支持响应式数组 `v-for` 动态增删分页(增删后下标自动收敛到有效区间)。视觉按 `CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml` 的 Pivot / PivotItem / PivotHeaderItem ControlTemplate 复刻:标题项 48px 高、24px 字号、SemiLight 字重,**选中态不加粗**,而是前景色从 60% 提高到 100% 并显示 2px 主题色下划线(SelectedPipe);左右导航箭头(20×36,Segoe Fluent Icons 字形 E0E2/E0E3)默认隐藏,仅当**指针悬停标题行且标题溢出裁剪**时瞬时显示(VSM 两态均为 DiscreteObjectKeyFrame KeyTime=0,无淡入,MR3/B12 起与源一致),越界方向自动隐藏。颜色取 theme.css 的 `--wui-pivot-*` 全套 token。
 
 > 提示(与官方一致):Microsoft 设计指南**不推荐**在 Windows 11 应用中继续使用 Pivot,新代码请改用 [SelectorBar](https://learn.microsoft.com/windows/apps/design/controls/selector-bar);Pivot 适合维持既有 UWP 视觉的场景。本组件按「视觉资产复刻」定位实现。
 

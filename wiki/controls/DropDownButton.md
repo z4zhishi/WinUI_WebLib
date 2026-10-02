@@ -89,7 +89,7 @@ import WuiMenuFlyoutItem from '@/components/MenuFlyoutItem.vue'
 2. **`isOpen` 属性**:WinUI `DropDownButton` 本身**没有** `IsOpen` 属性 —— 开关状态在其 `Flyout`(`FlyoutBase`)上且为只读,只能经 ShowAt/Hide 或 light dismiss 驱动;Web 侧把该状态合并为按钮上的 `v-model:is-open` 双向暴露,便于编程开关与状态读取(事件仍按 FlyoutBase 的 Opening/Opened/Closing/Closed 命名)。
 3. **Chevron 字形前景**:`DropDownButtonForegroundSecondary ← TextFillColorSecondaryBrush`(light `#0000009E` / dark `#FFFFFFC5`),PointerOver/Pressed 为 `DropDownButtonForegroundSecondaryPointerOver/Pressed ← TextFillColorTertiary`;theme.css 未提取 CommonStyles 的 `TextFill*` 系列,取最近似 token `--wui-application-secondary-foreground-theme`(light `#00000099` / dark `#FFFFFF99`),因此悬停/按下时字形与常态同色(WinUI 会略变浅);Disabled 按 XAML 用 `--wui-button-foreground-disabled`(`ButtonForegroundDisabled`),无偏差。
 4. **Chevron 微动画**:WinUI 用 `AnimatedChevronDownSmallVisualSource`(悬停/按下的字形微动画)+ 12x12 `AnimatedIcon`;Web 以静态字形(E96E、8px、Segoe Fluent 字体栈)+ 状态换色近似,不做逐帧动画。
-5. **弹层基建级差异**(阴影为 ThemeShadow 的双层 box-shadow 近似、圆角取 `OverlayCornerRadius` 8px、入场为淡入 + 8px 位移的 Web 适配增强、间距为显式 `offset=4px`):统一见 [弹层公共基建](./_popup-infra.md) 差异节,此处不重复。
+5. **弹层基建级差异**(阴影为 ThemeShadow 的双层 box-shadow 近似、圆角取 `OverlayCornerRadius` 8px、入场为 FlyoutBase 50px 方向位移 + 淡入淡出(开/关同速 250ms,MR1/A3-A4 起,见 `wui-popup-slide-*`)、间距为显式 `offset=4px`):统一见 [弹层公共基建](./_popup-infra.md) 差异节,此处不重复。
 
 ## 互链
 

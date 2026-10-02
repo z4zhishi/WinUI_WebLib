@@ -108,7 +108,7 @@ function onDateChanged(value: Date | null): void {
 - **范围约束只作用于 UI**:程序化把 `date` 写到 min/max 之外不会回写模型(WinUI 亦不静默改值),只会在日历中呈 Blackout 且无法再次选中;导航按钮按月界钳制(对照 `HasMoreContentBefore` / `After`)。
 - **打开月与焦点落点**:打开时显示「已选日所在月」,未选则今天所在月(整月越界时钳入 min/max 月);WinUI 对未选时显示月的官方描述较模糊,此处取最贴近期望交互的实现。
 - **键盘范围**:`Home` / `End` 为周行首 / 行尾(ARIA grid 惯例);WinUI CalendarView 另支持 Home/End 跳月首/月末、年份级快捷键(依赖年视图),未复刻。焦点可落在 Blackout 日(呈禁用态,Enter 无效),与 WinUI 的禁用项焦点行为近似。
-- **阴影 / 圆角 / 动画**:弹层圆角与阴影取弹层基建的 `--wui-popup-corner-radius` / `--wui-popup-shadow`(ThemeShadow 的 Web 近似),入场 `wui-flyout-in` / 离场 `wui-fade-out` 近似 WinUI 弹层淡入淡出,见 [_popup-infra](./_popup-infra.md) 差异节。
+- **阴影 / 圆角 / 动画**:弹层圆角与阴影取弹层基建的 `--wui-popup-corner-radius` / `--wui-popup-shadow`(ThemeShadow 的 Web 近似),出入场为 `wui-popup-slide-in-bottom` / `wui-popup-slide-out-bottom`(FlyoutBase 50px 方向位移 + 淡入淡出,开/关同速 250ms,MR1/A1/A4 起),见 [_popup-infra](./_popup-infra.md) 差异节。
 - **本地化名称**:`{month.full}` / `{dayofweek.*}` 与周名行、头部「月 年」文案经 `Intl.DateTimeFormat` 取宿主 locale 名称;WinUI 按应用全球化设置,二者在无显式 locale 配置时表现一致。
 - **事件参数**:`dateChanged` 将 WinUI `CalendarDatePickerDateChangedEventArgs` 摊平为单个新值参数。
 
