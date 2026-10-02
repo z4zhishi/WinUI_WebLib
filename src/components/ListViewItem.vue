@@ -15,8 +15,15 @@
 //       Selected    = ListViewItemBackgroundSelected       (ListAccentLow,强调色 40%)
 //       Selected×hover  = ListViewItemBackgroundSelectedPointerOver  (强调色 60%)
 //       Selected×pressed= ListViewItemBackgroundSelectedPressed      (强调色 70%)
-//     (reveal 画刷的光晕层 SystemControl*Reveal*Brush 无法纯 CSS 复刻,取其平色回退层;
-//     RevealBorderBrush 在 Win11 默认即透明,忽略。)
+//   - Reveal 揭示光照(默认启用:WinUI 3 默认项样式即 ListViewItemRevealStyle,L20595
+//     keyless BasedOn):源 RevealBackground=ListViewItemRevealBackground(退役为透明回退色,
+//     即 WinUI 2 时代被 pointer 光照点亮的底板层)、RevealBorderBrush(VSM 按 hover/pressed
+//     切 ListViewItemRevealBorderBrushPointerOver/Pressed,均透明)+ DisabledStates 厚度归 0。
+//     Web 以公共层(src/styles/reveal.css + useReveal)复刻 WinUI 2 材料:底板光半径
+//     = Clamp(Max(W,H)+12,16,512)(RevealHoverLight.cpp L141-149/L163)、边框光半径 77px
+//     (RevealBorderLight.cpp wide 配置 L37-48)、光环厚度 = RevealBorderThemeThickness 1
+//     (G.xaml L1399);静态 1px 揭示边框结构由 .reveal-border span 消费
+//     --wui-list-view-item-reveal-* token(theme.css L1290-1292,各态透明,逐点对齐源)。
 //   - 前景:ListViewItemForeground / -PointerOver / -Selected(SystemControlForegroundBaseHigh
 //     与 SystemControlHighlightAltBaseHigh 族);
 //   - 多重选择勾选框(CheckMode = Inline,SelectionCheckMarkVisualEnabled = True):
@@ -26,6 +33,9 @@
 //     选中项取反色(FocusBorderBrush / FocusSecondaryBorderBrush)。
 // 行为:本组件只承载「容器视觉 + 勾选框 + 内容呈现」,选择逻辑(点选/区间/键盘)由
 // ListView.vue 统一裁决;单击经 activated 事件(携原生 MouseEvent,供修饰键判断)上报。
+import { useReveal } from '../composables/useReveal'
+import '../styles/reveal.css'
+
 defineOptions({ name: 'WuiListViewItem', inheritAttrs: false })
 
 const props = withDefaults(
@@ -38,12 +48,19 @@ const props = withDefaults(
     focused?: boolean
     /** 禁用(DisabledStates → Disabled:内容 0.55 透明度,不响应悬停/按压)。 */
     disabled?: boolean
+    /**
+     * 是否启用 reveal 揭示光照(悬浮时跟随指针的底板光 + 1px 边框光环)。
+     * 默认 true:WinUI 3 默认项样式即 ListViewItemRevealStyle(generic.xaml L20595
+     * keyless BasedOn)。设 false 回到无光照的静态悬停态。
+     */
+    enableReveal?: boolean
   }>(),
   {
     selected: false,
     checkVisible: false,
     focused: false,
     disabled: false,
+    enableReveal: true,
   },
 )
 
@@ -51,6 +68,10 @@ const emit = defineEmits<{
   /** 单击项(对齐 WinUI ItemClick 的触发时机);携带原生事件供上层处理 Ctrl/Shift 修饰键。 */
   (e: 'activated', event: MouseEvent): void
 }>()
+
+// reveal 光照(公共层):指针位置/光斑半径写入 CSS 变量(仅 enableReveal、非禁用且
+// 指针设备启用);光晕渲染在 reveal.css 的 ::before(底板光)/::after(边框光)。
+const revealHandlers = useReveal(() => props.enableReveal && !props.disabled)
 
 function onRootClick(event: MouseEvent): void {
   if (!props.disabled) emit('activated', event)
@@ -61,13 +82,24 @@ function onRootClick(event: MouseEvent): void {
   <div
     v-bind="$attrs"
     class="wui-list-view-item"
-    :class="{ 'is-selected': selected, 'is-check-visible': checkVisible, 'is-disabled': disabled }"
+    :class="{
+      'is-selected': selected,
+      'is-check-visible': checkVisible,
+      'is-disabled': disabled,
+      'wui-reveal': enableReveal,
+      'wui-reveal--border': enableReveal,
+    }"
     role="option"
     :aria-selected="selected"
     :aria-disabled="disabled || undefined"
     :tabindex="disabled ? -1 : focused ? 0 : -1"
+    v-on="enableReveal ? revealHandlers : undefined"
     @click="onRootClick"
   >
+    <!-- 揭示边框(RevealBorderThickness=1,G.xaml L1399;源画刷各态透明,本 span 只承担
+         静态 1px 描边结构并消费 --wui-list-view-item-reveal-border 系 token;悬停光环由
+         公共层 ::after 边框光提供;DisabledStates → RevealBorderThickness=0(L17824-17829)) -->
+    <span v-if="enableReveal" class="reveal-border" aria-hidden="true"></span>
     <!-- 多重选择勾选框(CheckMode=Inline):未选描边空框,选中 accent 铺底 + 白对勾。
          多选模式切换时滑入/滑出(audit A10,Transition 挂 wui-listitem-check 组) -->
     <Transition name="wui-listitem-check">
@@ -146,6 +178,47 @@ function onRootClick(event: MouseEvent): void {
 
 .wui-list-view-item.is-disabled .wui-list-view-item-content {
   opacity: 0.55; /* ListViewItemDisabledThemeOpacity */
+}
+
+/* ======================================================================
+ * Reveal 揭示光照(公共层 reveal.css)::before 底板光 / ::after 边框光。
+ * 底板光半径由 useReveal 按源公式 Clamp(Max(W,H)+12,16,512) 在进入时写入;
+ * 边框光半径取源 wide 配置 ≈ 77px(RevealBorderLight.cpp L37-48:256·tan(16.7403°),
+ * 列表行属宽幅大件,同 GridViewItem 口径);光环厚度 = RevealBorderThemeThickness 1。
+ * ====================================================================== */
+.wui-list-view-item.wui-reveal {
+  --wui-reveal-border-width: 1px;
+  --wui-reveal-border-radius: 77px;
+}
+
+/* —— 揭示边框静态结构(RevealBorderThickness=1):各态透明,逐态消费源 token —— */
+.reveal-border {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--wui-list-view-item-reveal-border);
+  pointer-events: none;
+}
+
+/* CommonStates:hover/pressed 切 ListViewItemRevealBorderBrushPointerOver/Pressed
+   (VSM L17776-17816;源值均透明) */
+.wui-list-view-item:not(.is-disabled):hover .reveal-border {
+  border-color: var(--wui-list-view-item-reveal-border-brush-pointer-over);
+}
+
+.wui-list-view-item:not(.is-disabled):active .reveal-border {
+  border-color: var(--wui-list-view-item-reveal-border-brush-pressed);
+}
+
+/* DisabledStates → Disabled:RevealBorderThickness=0(L17824-17829)+
+   禁用项不点亮光晕(容器为 div,公共层 :disabled 门覆盖不到 is-disabled 类) */
+.wui-list-view-item.is-disabled .reveal-border {
+  border-width: 0;
+}
+
+.wui-list-view-item.is-disabled.wui-reveal:hover::before,
+.wui-list-view-item.is-disabled.wui-reveal:hover::after {
+  opacity: 0;
 }
 
 /* ======================================================================

@@ -7,6 +7,14 @@
 //     MenuFlyoutItemPlaceholderThemeThickness="28,0,0,0"(勾选列/图标列宽 = 16 内容 + 12 间距);
 //   - 快捷键文本 KeyboardAcceleratorTextBlock:CaptionTextBlockStyle(12px)、Margin="24,0,0,0"、右对齐;
 //   - 状态色 MenuFlyoutItemReveal* / MenuFlyoutItemKeyboardAcceleratorTextForeground* → theme.css token。
+// Reveal 揭示光照(MR8,默认启用):WinUI 3 MenuFlyoutItem 默认样式即
+//   MenuFlyoutItemRevealStyle(generic.xaml L18400 keyless BasedOn,L18404 起);bg 透明 →
+//   悬停 #00000019 → 按压 #00000033(既有 --mfi-bg 已消费同源 token),Border 1px 透明
+//   (MenuFlyoutItemRevealBorderThickness,L23684)。光照本体=公共层(reveal.css +
+//   useReveal):底板光半径 Clamp(Max(W,H)+12,16,512)(RevealHoverLight.cpp L141-149/L163)、
+//   边框光半径 39px(RevealBorderLight.cpp narrow 配置 L24-35)、光环厚度 1px。
+//   叠放层级(源顺序):元素底色(hover 高亮)在下,光照(SpotlightLayer)在其上、内容之下
+//   —— 由 .wui-reveal::before/::after 的 z-index:-1 承接。
 // 行为规格:点击触发 Click 并关闭整条菜单(WinUI 菜单项调用即 light dismiss);
 //   禁用项不触发且不参与方向键导航(aria-disabled,导航方按此跳过)。
 // 列对齐:勾选列/图标列是否渲染由所在菜单层注入的 glyphs 状态推导(对齐 WinUI 的
@@ -14,7 +22,9 @@
 // 上下文契约:由 MenuFlyout(根层)或 MenuFlyoutSubItem(子菜单层)provide,键 'wuiMenuFlyoutLevel';
 //   各组件文件各自声明同构接口(结构化类型兼容),避免跨组件文件导入。
 import { computed, inject, onScopeDispose, useSlots, watch, type Ref } from 'vue'
+import { useReveal } from '../composables/useReveal'
 import { symbolToGlyph } from '@/utils/symbolIcons'
+import '../styles/reveal.css'
 
 /** 菜单层上下文(MenuFlyout 根层 / MenuFlyoutSubItem 子菜单层提供)。 */
 interface MenuFlyoutLevelContext {
@@ -68,6 +78,10 @@ if (level) {
 // —— 列渲染:自身有内容或同层出现对应列时渲染空占位,保证勾选列/图标列纵向对齐 ——
 const showCheckCol = computed(() => level?.glyphs.value.check === true)
 const showIconCol = computed(() => hasIcon.value || level?.glyphs.value.icon === true)
+
+// reveal 光照(公共层):指针位置/光斑半径写入 CSS 变量(非禁用且指针设备启用);
+// 光晕渲染在 reveal.css 的 ::before(底板光)/::after(边框光)。
+const revealHandlers = useReveal(() => !props.disabled)
 
 /* -------------------------------------------------------------------------
  * 快捷键(acceleratorKeys):'Ctrl+S' / 'Ctrl+Alt+Delete' 等字符串解析。
@@ -175,13 +189,14 @@ onScopeDispose(() => {
 
 <template>
   <div
-    class="wui-menu-flyout-item"
+    class="wui-menu-flyout-item wui-reveal wui-reveal--border"
     :class="{ 'is-disabled': disabled }"
     role="menuitem"
     tabindex="-1"
     data-wui-menu-item
     :aria-disabled="disabled || undefined"
     v-bind="$attrs"
+    v-on="revealHandlers"
     @click="invoke($event)"
     @keydown.enter.prevent="invoke()"
     @keydown.space.prevent="invoke()"
@@ -309,5 +324,22 @@ onScopeDispose(() => {
   line-height: normal;
   text-align: right;
   color: var(--mfi-accel);
+}
+
+/* ======================================================================
+ * Reveal 揭示光照(公共层 reveal.css,默认启用):边框光半径取源 narrow 配置 ≈ 39px
+ * (RevealBorderLight.cpp L24-35,菜单行约 32px 高);光环厚度 =
+ * MenuFlyoutItemRevealBorderThickness 1(generic.xaml L23684)。底色各态已消费
+ * --wui-menu-flyout-item-reveal-* token(与源画刷同源值),光照叠于其上。
+ * ====================================================================== */
+.wui-menu-flyout-item.wui-reveal {
+  --wui-reveal-border-width: 1px;
+  --wui-reveal-border-radius: 39px;
+}
+
+/* 禁用项不点亮光晕(div 无 :disabled,由类门抑制) */
+.wui-menu-flyout-item.is-disabled.wui-reveal:hover::before,
+.wui-menu-flyout-item.is-disabled.wui-reveal:hover::after {
+  opacity: 0;
 }
 </style>

@@ -54,6 +54,9 @@ const docsUsageTitle = useBilingual(i18n, DOCS_USAGE_TITLE)
 // DemoOptionRow 的 v-model 契约要求联合类型(见 demo/components/README.md)。
 const demoMode = ref<string | number | boolean>('Extended')
 const demoFollows = ref<string | number | boolean>(true)
+// 项的 Reveal 揭示光照(ListView.revealBorder 透传 ListViewItem.enableReveal;默认 true =
+// 源默认项样式即 ListViewItemRevealStyle)。默认开启,开关用于对照关闭态。
+const demoReveal = ref<string | number | boolean>(true)
 
 /** 选择模式(WinUI SelectionMode)。 */
 type SelectionMode = 'None' | 'Single' | 'Multiple' | 'Extended'
@@ -63,6 +66,7 @@ const modeValue = computed<SelectionMode>(() => {
   return value === 'None' || value === 'Multiple' || value === 'Extended' ? value : 'Single'
 })
 const followsValue = computed(() => demoFollows.value === true)
+const revealValue = computed(() => demoReveal.value === true)
 
 // —— 演示一:基础列表(对照官方 BasicListviewSimpleDatatemplate:邮箱文件夹名单列)——
 const folders = [
@@ -158,6 +162,7 @@ const propsRows: (string | number)[][] = [
   ['selectedItems (v-model)', 'unknown[]', '[]', '选中项集合(WinUI SelectedItems),双向;程序化赋值按引用相等回查索引'],
   ['selectionMode', "'None' | 'Single' | 'Multiple' | 'Extended'", "'Single'", '选择模式:None 不可选;Single 单选;Multiple 带勾选框点选;Extended 支持 Ctrl 切换与 Shift 区间'],
   ['singleSelectionFollowsFocus', 'boolean', 'true', 'Single 模式下方向键移动焦点时选中是否随焦点走(WinUI SingleSelectionFollowsFocus)'],
+  ['revealBorder', 'boolean', 'true', '项的 Reveal 揭示光照(透传 ListViewItem.enableReveal;WinUI 3 默认项样式即 ListViewItemRevealStyle,故默认开启)'],
   ['displayMemberPath', 'string', "''", "对象项的显示字段路径(WinUI DisplayMemberPath),如 'name'"],
   ['#item slot', "slot '{ item: unknown; index: number }'", '—', '自定义项模板(WinUI ItemTemplate);缺省渲染显示文本'],
   ['#header / #footer slot', '—', '—', '列表顶部/底部内容(WinUI Header/Footer),随内容滚动'],
@@ -222,6 +227,7 @@ const usageCode = computed(
               :selection-mode="modeValue"
               aria-label="联系人列表"
               :single-selection-follows-focus="followsValue"
+              :reveal-border="revealValue"
               display-member-path="name"
               class="demo-list"
               style="width: 400px"
@@ -315,6 +321,7 @@ const usageCode = computed(
           ]"
         />
         <DemoOptionRow :label="labelFollows" type="toggle" v-model="demoFollows" />
+        <DemoOptionRow label="Reveal(揭示光照)" type="toggle" v-model="demoReveal" />
       </DemoOptions>
     </template>
 

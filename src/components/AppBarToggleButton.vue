@@ -35,9 +35,22 @@
 // 加速键:KeyboardAcceleratorTextOverride(如 'Ctrl+S')按源只在溢出菜单(UseOverflowStyle)内以
 //   Caption 字号右对齐呈现(主命令区 PlacementMode=Hidden 不呈现,仅 Tooltip);本组件另按任务要求
 //   注册全局按键监听(匹配即触发一次切换,WinUI KeyboardAccelerator 语义),差异与理由见 wiki。
-import { computed, onScopeDispose, watch } from 'vue'
+// Reveal 揭示光照(MR8,按源默认样式判定为 opt-in):
+//   AppBarToggleButtonRevealStyle(generic.xaml L17336)非控件默认样式 —— keyless 默认
+//   (L19468)用 AppBarToggleButtonBackground 系非 reveal token;reveal 仅在 CommandBar 内经
+//   CommandBarRevealStyle 模板 Grid.Resources 隐式样式挂接(L16222),而 CommandBar 自身
+//   默认即 CommandBarRevealStyle(L20206)。故独立使用默认无光照(reveal 缺省关闭),
+//   CommandBar 内默认启用(inject,等价源隐式样式作用域);悬停/按压高亮 ListLow/ListMedium
+//   与 reveal HighLightOverlay 系画刷(L1468-1480,→ SystemControlHighlightListLow/Medium*)
+//   同源值,无状态色切换。光照本体=公共层(reveal.css + useReveal):底板光半径
+//   Clamp(Max(W,H)+12,16,512)(RevealHoverLight.cpp L141-149/L163)、边框光半径 39px
+//   (RevealBorderLight.cpp narrow 配置 L24-35)、光环厚度 =
+//   AppBarToggleButtonRevealBorderThemeThickness 1(G.xaml L1398)。
+import { computed, inject, onScopeDispose, watch } from 'vue'
 import type { CSSProperties } from 'vue'
+import { useReveal } from '../composables/useReveal'
 import { symbolToGlyph } from '@/utils/symbolIcons'
+import '../styles/reveal.css'
 
 // class/style 等透传属性统一由根元素 v-bind="$attrs" 承接(避免落到 button 之外的继承位)。
 defineOptions({ name: 'WuiAppBarToggleButton', inheritAttrs: false })
@@ -52,12 +65,19 @@ const props = withDefaults(
     isCompact?: boolean
     /** 三态:允许用户点击进入不确定态(WinUI IsThreeState;源模板无不确定视觉,仅影响点击环与语义)。 */
     isThreeState?: boolean
-    /** 加速键文本(WinUI KeyboardAcceleratorTextOverride,如 'Ctrl+S'):行尾角标显示,同时注册全局按键监听;空串不显示也不监听。 */
+    /** 加速键文本(WinUI KeyboardAcceleratorTextOverride,如 'Ctrl+S'):行尾角标显示,同时注册全局按键监听,匹配即触发 click;空串不显示也不监听。 */
     keyboardAcceleratorText?: string
     /** 是否禁用(对应 WinUI IsEnabled)。 */
     disabled?: boolean
     /** 按钮宽度(WinUI Width);缺省 68(默认 Style 的 Width=68)。 */
     width?: number | string
+    /**
+     * 是否启用 reveal 揭示光照(悬浮时跟随指针的底板光 + 1px 边框光环)。
+     * 缺省跟随宿主:CommandBar 内默认启用(源 CommandBarRevealStyle 隐式样式,
+     * generic.xaml L16222)、独立使用默认关闭(源 keyless 默认样式 L19468 为非 reveal)。
+     * 显式设 true/false 强制覆盖。
+     */
+    reveal?: boolean
   }>(),
   {
     icon: '',
@@ -67,6 +87,7 @@ const props = withDefaults(
     keyboardAcceleratorText: '',
     disabled: false,
     width: 68,
+    reveal: undefined,
   },
 )
 
@@ -89,6 +110,14 @@ const isCheckedModel = defineModel<boolean | 'indeterminate'>('isChecked', { def
 
 const isChecked = computed(() => isCheckedModel.value === true)
 const isIndeterminate = computed(() => isCheckedModel.value === 'indeterminate')
+
+// —— reveal 生效值:显式 prop > CommandBar 上下文(源隐式样式作用域)> 关闭 ——
+const inCommandBar = inject<boolean>('wuiCommandBarReveal', false)
+const effectiveReveal = computed(() => props.reveal ?? inCommandBar)
+
+// reveal 光照(公共层):指针位置/光斑半径写入根元素 CSS 变量(仅生效、未禁用且
+// 指针设备启用);底板光/边框光渲染在根的 ::before/::after(根 ::after 未被占用)。
+const revealHandlers = useReveal(() => effectiveReveal.value && !props.disabled)
 
 // —— 图标解析:Symbol 枚举名 → 字形字符;非枚举名按字面字形字符使用(与 MenuFlyoutItem 同款)——
 const iconGlyph = computed(() => symbolToGlyph(props.icon) ?? props.icon)
@@ -240,12 +269,15 @@ onScopeDispose(() => {
       'wui-appbar-toggle-button--checked': isChecked,
       'wui-appbar-toggle-button--indeterminate': isIndeterminate,
       'wui-appbar-toggle-button--compact': isCompact,
+      'wui-reveal': effectiveReveal,
+      'wui-reveal--border': effectiveReveal,
     }"
     :style="widthStyle"
     :disabled="disabled"
     :aria-pressed="ariaPressed"
     :aria-label="ariaLabel"
     v-bind="$attrs"
+    v-on="effectiveReveal ? revealHandlers : undefined"
     @click="onToggle"
   >
     <!-- 选中强调色底(CheckedHighlightBackground):Opacity 0,选中态 → 1,盖满圆角 -->
@@ -432,5 +464,26 @@ onScopeDispose(() => {
   outline: var(--wui-focus-visual-primary-thickness) solid var(--wui-focus-visual-primary);
   outline-offset: var(--wui-focus-visual-offset);
   box-shadow: 0 0 0 var(--wui-focus-visual-secondary-thickness) var(--wui-focus-visual-secondary);
+}
+
+/* ======================================================================
+ * Reveal 揭示光照(reveal prop / CommandBar 内默认,公共层 reveal.css):
+ * ::before 底板光 + ::after 边框光(根未占用,双类直挂)。边框光半径取源 narrow
+ * 配置 ≈ 39px(RevealBorderLight.cpp L24-35,小尺寸控件同 Button 系口径);光环
+ * 厚度 = AppBarToggleButtonRevealBorderThemeThickness 1(G.xaml L1398)。悬停/按压
+ * 高亮保持 ListLow/ListMedium:源 reveal HighLightOverlay 系画刷解析到同源值
+ * (L1468-1480),无状态色切换。
+ * ====================================================================== */
+.wui-appbar-toggle-button.wui-reveal {
+  --wui-reveal-border-width: 1px;
+  --wui-reveal-border-radius: 39px;
+}
+
+/* 光层压到内容之下(源 SpotlightLayer 在背景之上、内容之下):根由 .wui-reveal
+   建立 z-index:0 层叠上下文,-1 使 ::before/::after 落在 __highlight/__overlay
+   (z-index:0)与内容(z-index:1)之下、根背景之上 */
+.wui-appbar-toggle-button.wui-reveal::before,
+.wui-appbar-toggle-button.wui-reveal--border::after {
+  z-index: -1;
 }
 </style>

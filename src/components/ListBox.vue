@@ -36,8 +36,14 @@
 //   - singleSelectionFollowsFocus(WinUI 同名属性,默认 true)仅作用于 Single 模式;
 //   - 与 ListView 的实现差异:无虚拟化面板配置、Multiple 模式无勾选框(源 ListBoxItem
 //     模板即无 CheckBox,多选以 accent 铺底表达)、项无 MinHeight。
+//   - Reveal 揭示光照(默认启用):源无 ListBoxItemRevealStyle(MR8 按工单「ListView/
+//     ListBox 的 item 复用 useReveal」把同族 ListView 项视觉外推到 ListBox 项,登记为
+//     无源条款的借用映射)——公共层(reveal.css + useReveal)底板光 + 1px 边框光环,
+//     悬停/按压色 ListLow/ListMedium 与源 ListBoxItem 同源,静态态零变化。
 import { computed, nextTick, ref, useAttrs, useId, watch } from 'vue'
+import { useReveal } from '../composables/useReveal'
 import { useSelection } from '@/composables/useSelection'
+import '../styles/reveal.css'
 
 defineOptions({ name: 'WuiListBox', inheritAttrs: false })
 
@@ -75,12 +81,15 @@ const props = withDefaults(
     singleSelectionFollowsFocus?: boolean
     /** 整控禁用(WinUI IsEnabled=false):全部项进入 Disabled 态,不响应交互。 */
     disabled?: boolean
+    /** 项的 reveal 揭示光照(同 ListView.revealBorder 的借用映射)。默认 true;设 false 关闭。 */
+    revealBorder?: boolean
   }>(),
   {
     selectionMode: 'Single',
     displayMemberPath: '',
     singleSelectionFollowsFocus: true,
     disabled: false,
+    revealBorder: true,
   },
 )
 
@@ -99,6 +108,10 @@ const emit = defineEmits<{
 }>()
 
 const listId = useId()
+
+// reveal 光照(公共层):指针位置/光斑半径写入 CSS 变量(非禁用且指针设备启用);
+// 光晕渲染在 reveal.css 的 ::before(底板光)/::after(边框光),v-on 对象绑到每一项。
+const revealHandlers = useReveal(() => !props.disabled)
 
 /* -------------------------------------------------------------------------
  * 选择状态(useSelection 公共底座):内部唯一事实源在组合式内,
@@ -388,12 +401,18 @@ function onListKeydown(event: KeyboardEvent): void {
           :id="`${listId}-opt-${index}`"
           :key="index"
           class="wui-list-box-item"
-          :class="{ 'is-selected': selection.isIndexSelected(index), 'is-disabled': disabled }"
+          :class="{
+            'is-selected': selection.isIndexSelected(index),
+            'is-disabled': disabled,
+            'wui-reveal': revealBorder,
+            'wui-reveal--border': revealBorder,
+          }"
           :data-item-index="index"
           role="option"
           :aria-selected="selection.isIndexSelected(index)"
           :aria-disabled="disabled || undefined"
           :tabindex="disabled ? -1 : index === focusedIndex ? 0 : -1"
+          v-on="revealBorder ? revealHandlers : undefined"
           @click="onItemActivated(index, $event)"
         >
           <!-- ContentPresenter:HorizontalAlignment=Left、VerticalAlignment=Top、
@@ -538,6 +557,24 @@ function onListKeydown(event: KeyboardEvent): void {
 /* SelectedPressed:SystemControlHighlightListAccentHighBrush */
 .wui-list-box-item.is-selected:not(.is-disabled):active {
   background: var(--wui-system-control-highlight-list-accent-high);
+}
+
+/* ======================================================================
+ * Reveal 揭示光照(公共层 reveal.css):底板光半径由 useReveal 按源公式
+ * Clamp(Max(W,H)+12,16,512) 在进入时写入;边框光半径取源 wide 配置 ≈ 77px
+ * (RevealBorderLight.cpp L37-48,列表行属宽幅大件,同 ListViewItem 口径);
+ * 光环厚度 1px(同族 RevealBorderThemeThickness)。源无 ListBoxItemRevealStyle,
+ * 本节为工单指定的同族借用映射。
+ * ====================================================================== */
+.wui-list-box-item.wui-reveal {
+  --wui-reveal-border-width: 1px;
+  --wui-reveal-border-radius: 77px;
+}
+
+/* 禁用项不点亮光晕(div 无 :disabled,由类门抑制) */
+.wui-list-box-item.is-disabled.wui-reveal:hover::before,
+.wui-list-box-item.is-disabled.wui-reveal:hover::after {
+  opacity: 0;
 }
 
 /* Disabled:内容前景 = SystemControlDisabledBaseMediumLowBrush(底色不变,无透明度衰减);

@@ -61,11 +61,17 @@ const props = withDefaults(
     displayMemberPath?: string
     /** Single 模式下方向键移动焦点时选中是否随焦点走(WinUI SingleSelectionFollowsFocus,默认 true)。 */
     singleSelectionFollowsFocus?: boolean
+    /**
+     * 项的 reveal 揭示光照(透传 ListViewItem.enableReveal)。默认 true:WinUI 3
+     * 默认项样式即 ListViewItemRevealStyle(generic.xaml L20595);设 false 关闭光照。
+     */
+    revealBorder?: boolean
   }>(),
   {
     selectionMode: 'Single',
     displayMemberPath: '',
     singleSelectionFollowsFocus: true,
+    revealBorder: true,
   },
 )
 
@@ -363,6 +369,7 @@ function onListKeydown(event: KeyboardEvent): void {
           :selected="selection.isIndexSelected(index)"
           :check-visible="showChecks"
           :focused="index === focusedIndex"
+          :enable-reveal="revealBorder"
           @activated="onItemActivated(index, $event)"
         >
           <!-- ItemTemplate:slot 优先,缺省按 displayMemberPath / String(item) 渲染 -->

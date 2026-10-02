@@ -26,10 +26,26 @@
 //     打开态 ↓/↑ 循环导航、Home/End 首/末、Enter/Space 选、Esc/Tab 关;
 //   - 下拉面板走 usePopupLayer(matchAnchorWidth 等宽 + light dismiss 三手势),
 //     嵌套豁免由弹层注册表内置。
+// Reveal 揭示光照(MR8,默认启用):WinUI 3 ComboBoxItem 默认样式即
+//   ComboBoxItemRevealStyle(generic.xaml L20202 keyless BasedOn,L17933 起):bg=
+//   ComboBoxItemRevealBackground(透明 → 悬停 #00000019 → 按压 #00000033,L1448 系)、
+//   Border 1px 透明(ComboBoxItemRevealBorderThemeThickness,L1401)。既有静态态已消费
+//   --wui-combo-box-item-reveal-* token(与源画刷同源值),此处补公共层光照
+//   (reveal.css + useReveal):底板光半径 Clamp(Max(W,H)+12,16,512)
+//   (RevealHoverLight.cpp L141-149/L163)、边框光半径 39px(RevealBorderLight.cpp
+//   narrow 配置 L24-35)、光环厚度 1px。源 SpotlightLayer 叠放位=背景之上、内容之下,
+//   由 .wui-reveal::before 的 z-index:-1 承接(悬停底色在下、光照在上)。
 import { computed, nextTick, onUnmounted, ref, useAttrs, useId, watch } from 'vue'
 import { usePopupAnchor, usePopupLayer } from '@/composables/usePopup'
+import { useReveal } from '../composables/useReveal'
+import '../styles/reveal.css'
 
 defineOptions({ name: 'WuiComboBox', inheritAttrs: false })
+
+// 下拉项 reveal 光照(公共层):指针位置/光斑半径写入当前项的 CSS 变量
+// (currentTarget 即所悬项);v-on 对象绑定与项上既有 @pointermove 经编译期
+// mergeProps 合并,互不覆盖。
+const itemRevealHandlers = useReveal()
 
 const props = withDefaults(
   defineProps<{
@@ -617,7 +633,7 @@ const rootClass = computed(() => ({
             v-for="(visible, visibleIndex) in visibleItems"
             :id="`${listboxId}-opt-${visibleIndex}`"
             :key="visible.index"
-            class="wui-combo-box-item"
+            class="wui-combo-box-item wui-reveal wui-reveal--border"
             :class="{
               'is-selected': visible.index === selectedIndex,
               'is-active': visibleIndex === activeVisible,
@@ -625,6 +641,7 @@ const rootClass = computed(() => ({
             role="option"
             :aria-selected="visible.index === selectedIndex"
             :data-option-index="visibleIndex"
+            v-on="itemRevealHandlers"
             @click="selectItem(visible.index)"
             @pointermove="activeVisible = visibleIndex"
           >
@@ -873,6 +890,16 @@ const rootClass = computed(() => ({
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
+}
+
+/* —— reveal 揭示光照(公共层,默认启用):边框光半径取源 narrow 配置 ≈ 39px
+   (RevealBorderLight.cpp L24-35,约 32px 行高的菜单型小件);光环厚度 1px
+   (ComboBoxItemRevealBorderThemeThickness,L1401)。悬停底色已消费
+   --wui-combo-box-item-reveal-background-pointer-over(与源画刷同源值),光照
+   ::before(z-index:-1)叠于底色之上、内容之下 = 源 SpotlightLayer 叠放位 —— */
+.wui-combo-box-item.wui-reveal {
+  --wui-reveal-border-width: 1px;
+  --wui-reveal-border-radius: 39px;
 }
 
 .wui-combo-box-item:hover,

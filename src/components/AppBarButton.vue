@@ -34,8 +34,22 @@
 //   - keyboardAcceleratorText(WinUI KeyboardAcceleratorTextOverride)按源只在溢出菜单
 //     (UseOverflowStyle)内以 Caption 字号右对齐呈现,主命令区不呈现(PlacementMode=Hidden,仅 Tooltip);
 //     真实按键监听未实现(accelerators 的全局激活属宿主应用行为,见 wiki 差异节)。
-import { computed } from 'vue'
+// Reveal 揭示光照(MR8,按源默认样式判定为 opt-in):
+//   AppBarButtonRevealStyle(generic.xaml L17041)非控件默认样式 —— keyless 默认(L19126)
+//   用 AppBarButtonBackground 系非 reveal token;reveal 仅在 CommandBar 内经
+//   CommandBarRevealStyle 模板 Grid.Resources 的隐式样式挂接(L16221-16222),而
+//   CommandBar 自身默认即 CommandBarRevealStyle(L20206,WinUI 3 无第二种 CommandBar 样式)。
+//   故:独立使用默认无光照(reveal prop 缺省关闭),CommandBar 内默认启用(inject,
+//   等价源隐式样式作用域);悬停/按压底色 ListLow/ListMedium 与 reveal 系画刷
+//   (AppBarButtonRevealBackgroundPointerOver → SystemControlHighlightListLowRevealBackgroundBrush,
+//   L1459-1461)同源值,无需状态色切换。光照本体=公共层(reveal.css + useReveal):
+//   底板光半径 Clamp(Max(W,H)+12,16,512)(RevealHoverLight.cpp L141-149/L163)、
+//   边框光半径 39px(RevealBorderLight.cpp narrow 配置 L24-35)、光环厚度 =
+//   AppBarButtonRevealBorderThemeThickness 1(G.xaml L1397)。
+import { computed, inject } from 'vue'
 import type { CSSProperties } from 'vue'
+import { useReveal } from '../composables/useReveal'
+import '../styles/reveal.css'
 
 const props = withDefaults(
   defineProps<{
@@ -49,6 +63,13 @@ const props = withDefaults(
     keyboardAcceleratorText?: string
     /** 按钮宽度(WinUI Width);缺省 68(默认 Style 的 Width=68)。 */
     width?: number | string
+    /**
+     * 是否启用 reveal 揭示光照(悬浮时跟随指针的底板光 + 1px 边框光环)。
+     * 缺省跟随宿主:CommandBar 内默认启用(源 CommandBarRevealStyle 隐式样式,
+     * generic.xaml L16221)、独立使用默认关闭(源 keyless 默认样式 L19126 为非 reveal)。
+     * 显式设 true/false 强制覆盖。
+     */
+    reveal?: boolean
   }>(),
   {
     label: '',
@@ -56,6 +77,7 @@ const props = withDefaults(
     disabled: false,
     keyboardAcceleratorText: '',
     width: 68,
+    reveal: undefined,
   },
 )
 
@@ -69,6 +91,16 @@ defineOptions({
   // class/style 由根节点 v-bind="$attrs" 透传,其余 attrs(aria-* 等)一并透传。
   inheritAttrs: false,
 })
+
+// —— reveal 生效值:显式 prop > CommandBar 上下文(源隐式样式作用域)> 关闭 ——
+// CommandBar.vue provide('wuiCommandBarReveal', true);独立使用注入不到 → false。
+const inCommandBar = inject<boolean>('wuiCommandBarReveal', false)
+const effectiveReveal = computed(() => props.reveal ?? inCommandBar)
+
+// reveal 光照(公共层):指针位置/光斑半径写入根元素 CSS 变量(仅生效、未禁用且
+// 指针设备启用);底板光渲染在根 ::before,边框光渲染在 __reveal 层的 ::after
+// (根 ::after 已被焦点下划线视觉占用,见模板注释)。
+const revealHandlers = useReveal(() => effectiveReveal.value && !props.disabled)
 
 // —— 宽度解析:WinUI Width → CSS width ——
 const widthStyle = computed<CSSProperties>(() => {
@@ -90,13 +122,19 @@ function onClick(event: MouseEvent): void {
   <button
     type="button"
     class="wui-appbar-button"
-    :class="{ 'wui-appbar-button--compact': isCompact }"
+    :class="{ 'wui-appbar-button--compact': isCompact, 'wui-reveal': effectiveReveal }"
     :style="widthStyle"
     :disabled="disabled"
     :aria-label="ariaLabel"
     v-bind="$attrs"
+    v-on="effectiveReveal ? revealHandlers : undefined"
     @click="onClick"
   >
+    <!-- 揭示边框光层(wui-reveal--border 的 ::after 载体):根 ::after 已被焦点下划线
+         视觉(:focus-visible 虚线)占用,故边框光环独立成层;变量 --wui-reveal-x/y 由
+         useReveal 写在根元素,经继承到达本层。z-index:-1 = 元素背景之上、内容之下(源
+         SpotlightLayer 位置)。AppBarButtonRevealBorderThemeThickness = 1(G.xaml L1397) -->
+    <span v-if="effectiveReveal" class="wui-appbar-button__reveal wui-reveal--border" aria-hidden="true"></span>
     <!-- 图标列(第 0 行第 * 列):高 16、Margin 0,16,0,2,内容水平居中 -->
     <span class="wui-appbar-button__icon" aria-hidden="true">
       <slot name="icon" />
@@ -230,5 +268,28 @@ function onClick(event: MouseEvent): void {
 
 .wui-appbar-button:focus:not(:focus-visible) {
   outline: none;
+}
+
+/* ======================================================================
+ * Reveal 揭示光照(reveal prop / CommandBar 内默认,公共层 reveal.css):
+ * ::before 底板光在根(半径由 useReveal 按源公式 Clamp(Max(W,H)+12,16,512) 写入);
+ * 边框光在 __reveal 层的 ::after(mask 环)。边框光半径取源 narrow 配置 ≈ 39px
+ * (RevealBorderLight.cpp L24-35:128·tan(16.94532°),小尺寸控件同 Button 系口径);
+ * 光环厚度 = AppBarButtonRevealBorderThemeThickness 1(G.xaml L1397)。
+ * 悬停/按压底色保持 ListLow/ListMedium token:源 reveal 系画刷解析到同源值
+ * (AppBarButtonRevealBackgroundPointerOver → SystemControlHighlightListLow*Reveal*,
+ * L1459-1461),故无状态色切换。
+ * ====================================================================== */
+.wui-appbar-button.wui-reveal {
+  --wui-reveal-border-width: 1px;
+  --wui-reveal-border-radius: 39px;
+}
+
+.wui-appbar-button__reveal {
+  position: absolute;
+  inset: 0;
+  z-index: -1; /* 元素背景之上、内容之下(源 SpotlightLayer 叠放位) */
+  border-radius: inherit;
+  pointer-events: none;
 }
 </style>

@@ -56,10 +56,21 @@
 // isOverflowOpen 说明:WinUI CommandBar 公开 API 只有 IsOpen(模板内部 OverflowPopup.IsOpen 由
 //   它驱动);本组件按任务要求补 isOverflowOpen 双向模型,作为同一开关状态的便捷镜像
 //   (两者写入任一即同步,读值一致),差异与理由见 wiki。
-import { Comment, Fragment, computed, nextTick, watch } from 'vue'
+// Reveal 揭示光照(MR8,默认启用):WinUI 3 的 CommandBar 默认样式即 CommandBarRevealStyle
+//   (generic.xaml L20206 keyless BasedOn,L16205 起;平台无第二种 CommandBar 样式),其模板
+//   Grid.Resources 隐式挂接 AppBarButton/AppBarToggleButton → Reveal 样式(L16221-16222)、
+//   MoreButton 硬挂 EllipsisButtonRevealStyle(L16961)。故本组件:provide('wuiCommandBarReveal')
+//   供槽内 AppBarButton/AppBarToggleButton 注入(等价源隐式样式的作用域,主命令区与溢出层
+//   同受),EllipsisButton 直挂公共层光照。EllipsisButtonRevealStyle 底色透明 → 悬停
+//   #00000019 → 按压 #00000033(L1450-1453),与既有 --wui-app-bar-ellipsis-button-background*
+//   token 同值,无状态色切换;光环厚度 = AppBarEllipsisButtonRevealBorderThemeThickness 1
+//   (G.xaml L1396);光照本体=公共层(reveal.css + useReveal)。
+import { Comment, Fragment, computed, nextTick, provide, watch } from 'vue'
 import type { VNode } from 'vue'
 import { usePopupAnchor, usePopupLayer } from '@/composables/usePopup'
+import { useReveal } from '../composables/useReveal'
 import '../styles/popup.css'
+import '../styles/reveal.css'
 
 defineOptions({ name: 'WuiCommandBar', inheritAttrs: false })
 
@@ -98,6 +109,15 @@ const emit = defineEmits<{
 // 两者写入任一即互相同步,读值一致(见头注说明)。
 const isOpen = defineModel<boolean>('isOpen', { default: false })
 const isOverflowOpen = defineModel<boolean>('isOverflowOpen', { default: false })
+
+// —— Reveal 隐式样式作用域(源 CommandBarRevealStyle Grid.Resources L16221-16222):
+//    槽内 AppBarButton/AppBarToggleButton 经 inject 读到 true 即默认启用光照;
+//    作用域覆盖主命令区与溢出层(Teleport 不改变 provide/inject 的组件链)——
+//    溢出项在源中挂 AppBarButtonRevealOverflowStyle(BasedOn reveal,L17327/L17723)。 ——
+provide('wuiCommandBarReveal', true)
+
+// —— EllipsisButton(MoreButton)光照:ElliipsisButtonRevealStyle 硬挂(L16961)——
+const moreRevealHandlers = useReveal()
 
 // —— 镜像同步:守卫相等判断,避免互相回写造成死循环 ——
 watch(isOpen, (value) => {
@@ -348,11 +368,12 @@ watch(isOpen, (value) => {
     <button
       v-if="showMoreButton"
       type="button"
-      class="wui-commandbar__more"
+      class="wui-commandbar__more wui-reveal wui-reveal--border"
       aria-haspopup="true"
       :aria-expanded="isOpen ? 'true' : 'false'"
       aria-label="More"
       :disabled="disabled"
+      v-on="moreRevealHandlers"
       @click="onMoreClick"
       @keydown="onMoreKeydown"
     >
@@ -480,6 +501,19 @@ watch(isOpen, (value) => {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 1px;
   box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
+}
+
+/* ======================================================================
+ * EllipsisButton reveal 揭示光照(默认启用:MoreButton 硬挂 EllipsisButtonRevealStyle,
+ * generic.xaml L16961;公共层 reveal.css):底板光半径由 useReveal 按源公式
+ * Clamp(Max(W,H)+12,16,512) 在进入时写入;边框光半径取源 narrow 配置 ≈ 39px
+ * (RevealBorderLight.cpp L24-35,48px 小按钮);光环厚度 =
+ * AppBarEllipsisButtonRevealBorderThemeThickness 1(G.xaml L1396)。底色各态与既有
+ * --wui-app-bar-ellipsis-button-background* token 同值(L1450-1453),无状态色切换。
+ * ====================================================================== */
+.wui-commandbar__more.wui-reveal {
+  --wui-reveal-border-width: 1px;
+  --wui-reveal-border-radius: 39px;
 }
 
 /* 整栏禁用(CommonStates → Disabled 仅置灰 EllipsisIcon:CommandBarEllipsisIconForegroundDisabled

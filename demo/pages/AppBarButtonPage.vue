@@ -67,12 +67,14 @@ const demoIsCompact = ref<string | number | boolean>(false)
 const demoDisabled = ref<string | number | boolean>(false)
 const demoAccelerator = ref<string | number | boolean>('Ctrl+S')
 const demoWidth = ref<string | number | boolean>(68)
+const demoReveal = ref<string | number | boolean>(false)
 const demoClickCount = ref(0)
 
 const labelText = computed(() => String(demoLabel.value))
 const isCompactValue = computed(() => demoIsCompact.value === true)
 const isDisabled = computed(() => demoDisabled.value === true)
 const acceleratorText = computed(() => String(demoAccelerator.value))
+const revealValue = computed(() => demoReveal.value === true)
 const widthValue = computed(() => {
   const parsed = Number(demoWidth.value)
   return Number.isFinite(parsed) ? parsed : 68
@@ -90,6 +92,7 @@ const propRows: (string | number)[][] = [
   ['disabled', 'boolean', 'false', '禁用(WinUI IsEnabled 的取反映射):不触发 click'],
   ['keyboardAcceleratorText', 'string', "''", '加速键角标文本(WinUI KeyboardAcceleratorTextOverride,如 Ctrl+S);空串不显示'],
   ['width', 'number | string', '68', '按钮宽度(WinUI Width;默认 Style 固定 68)'],
+  ['reveal', 'boolean', 'CommandBar 内 true / 独立 false', 'Reveal 揭示光照(对照 AppBarButtonRevealStyle):CommandBar 内默认启用(源隐式样式),独立使用 opt-in;跟随指针光晕,仅指针设备,reduced-motion 退化静态 hover'],
   ['#icon (slot)', 'any', '—', '图标内容:FontIcon / SymbolIcon / PathIcon 或任意元素(WinUI Icon 属性;Content 被忽略)'],
 ]
 const eventHeaders = ['事件', '参数', '触发时机']
@@ -189,6 +192,7 @@ const usageCode = computed(
               :disabled="isDisabled"
               :keyboard-accelerator-text="acceleratorText"
               :width="widthValue"
+              :reveal="revealValue ? true : undefined"
               @click="onDemoClick"
             >
               <template #icon><WuiSymbolIcon symbol="Save" :font-size="16" /></template>
@@ -206,6 +210,7 @@ const usageCode = computed(
         <DemoOptionRow label="Disabled 禁用" type="toggle" v-model="demoDisabled" />
         <DemoOptionRow label="KeyboardAcceleratorText" type="text" v-model="demoAccelerator" placeholder="如 Ctrl+S,留空隐藏" />
         <DemoOptionRow label="Width" type="slider" v-model="demoWidth" :min="40" :max="120" :step="1" />
+        <DemoOptionRow label="Reveal(揭示光照)" type="toggle" v-model="demoReveal" />
       </DemoOptions>
     </template>
 

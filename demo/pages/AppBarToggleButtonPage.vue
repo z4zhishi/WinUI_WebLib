@@ -100,6 +100,7 @@ const demoThreeState = ref<string | number | boolean>(false)
 const demoCompact = ref<string | number | boolean>(false)
 const demoDisabled = ref<string | number | boolean>(false)
 const demoAccelerator = ref<string | number | boolean>('Ctrl+S')
+const demoReveal = ref<string | number | boolean>(false)
 
 // 状态下拉与 isChecked 模型双向同步:下拉设置状态,点击按钮后下拉回显当前态。
 const demoChecked = ref<boolean | 'indeterminate'>(false)
@@ -111,6 +112,7 @@ const isThreeStateValue = computed(() => demoThreeState.value === true)
 const isCompactValue = computed(() => demoCompact.value === true)
 const isDisabledValue = computed(() => demoDisabled.value === true)
 const acceleratorText = computed(() => String(demoAccelerator.value))
+const revealValue = computed(() => demoReveal.value === true)
 
 const stateOptions = [
   { label: 'Unchecked', value: 'unchecked' },
@@ -158,6 +160,7 @@ const propRows: (string | number)[][] = [
   ['keyboardAcceleratorText', 'string', "''", '加速键文本(WinUI KeyboardAcceleratorTextOverride,如 Ctrl+S):角标显示并注册全局按键监听'],
   ['disabled', 'boolean', 'false', '禁用交互(WinUI IsEnabled = false 的取反映射)'],
   ['width', 'number | string', '68', '按钮宽度(WinUI Width;默认 Style 固定 68)'],
+  ['reveal', 'boolean', 'CommandBar 内 true / 独立 false', 'Reveal 揭示光照(对照 AppBarToggleButtonRevealStyle):CommandBar 内默认启用(源隐式样式),独立使用 opt-in;跟随指针光晕,仅指针设备,reduced-motion 退化静态 hover'],
 ]
 const eventHeaders = ['事件', '参数', '触发时机']
 const eventRows: (string | number)[][] = [
@@ -241,6 +244,7 @@ const usageCode = computed(
               :is-three-state="isThreeStateValue"
               :disabled="isDisabledValue"
               :keyboard-accelerator-text="acceleratorText"
+              :reveal="revealValue ? true : undefined"
               @click="onDemoClick"
               @checked="onDemoChecked"
               @unchecked="onDemoUnchecked"
@@ -262,6 +266,7 @@ const usageCode = computed(
         <DemoOptionRow :label="labelCompact" type="toggle" v-model="demoCompact" />
         <DemoOptionRow :label="labelDisabled" type="toggle" v-model="demoDisabled" />
         <DemoOptionRow label="KeyboardAcceleratorText" type="text" v-model="demoAccelerator" placeholder="如 Ctrl+S,留空禁用" />
+        <DemoOptionRow label="Reveal(揭示光照)" type="toggle" v-model="demoReveal" />
       </DemoOptions>
     </template>
 

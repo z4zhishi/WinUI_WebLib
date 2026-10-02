@@ -7,6 +7,11 @@
 //     Margin=MenuFlyoutItemChevronMargin="24,0,0,0"(此处以内联 SVG 等形复刻);
 //   - 状态:CommonStates Normal/PointerOver/Pressed/Disabled + SubMenuOpened(子菜单展开时
 //     行底色 accent-light-3 高亮),全部取 theme.css 的 --wui-menu-flyout-sub-item-* token。
+// Reveal 揭示光照(MR8,默认启用):WinUI 3 MenuFlyoutSubItem 默认样式即
+//   MenuFlyoutSubItemRevealStyle(generic.xaml L18402 keyless BasedOn,L18728 起);光照本体
+//   =公共层(reveal.css + useReveal),口径同 MenuFlyoutItem(底板光半径
+//   Clamp(Max(W,H)+12,16,512)、边框光 39px narrow、光环厚度 1px);v-on 对象绑定与行上既有
+//   @pointerenter/@pointerleave 经编译期 mergeProps 合并,互不覆盖。
 // 行为规格(对照 WinUI MenuFlyoutSubItem):
 //   - hover(150ms 延迟)/点击/Enter/Space/→ 展开子菜单;子菜单层 placement='right-start'(级联右开,
 //     usePopupLayer 空间不足自动翻转/推回);hover 离开 300ms 后收起;
@@ -16,8 +21,10 @@
 //     并以 registerOpenSubmenu 向父层登记,用于兄弟互斥与 Escape 逐级。
 import { computed, inject, nextTick, onScopeDispose, provide, reactive, ref, useSlots, type Ref } from 'vue'
 import { usePopupAnchor, usePopupLayer } from '@/composables/usePopup'
+import { useReveal } from '../composables/useReveal'
 import { symbolToGlyph } from '@/utils/symbolIcons'
 import '../styles/popup.css'
+import '../styles/reveal.css'
 
 /** 菜单层上下文(与 MenuFlyoutItem 同构,结构化类型兼容)。 */
 interface MenuFlyoutLevelContext {
@@ -71,6 +78,10 @@ if (parentLevel) {
 // 本行是否渲染勾选列/图标列:跟随父层的列情况(自身有图标则恒渲染图标列)
 const rowShowCheckCol = computed(() => parentLevel?.glyphs.value.check === true)
 const rowShowIconCol = computed(() => hasIcon.value || parentLevel?.glyphs.value.icon === true)
+
+// reveal 光照(公共层):指针位置/光斑半径写入 CSS 变量(非禁用且指针设备启用);
+// 光晕渲染在 reveal.css 的 ::before(底板光)/::after(边框光)。
+const revealHandlers = useReveal(() => !props.disabled)
 
 /* -------------------------------------------------------------------------
  * 子菜单层:复用弹层基建(placement='right-start' 级联右开 + flip/shift)
@@ -340,7 +351,7 @@ function stepFocus(container: HTMLElement | null, direction: 1 | -1): void {
 <template>
   <div
     ref="rowRef"
-    class="wui-menu-flyout-sub-item"
+    class="wui-menu-flyout-sub-item wui-reveal wui-reveal--border"
     :class="{ 'is-disabled': disabled, 'is-submenu-open': open }"
     role="menuitem"
     aria-haspopup="menu"
@@ -349,6 +360,7 @@ function stepFocus(container: HTMLElement | null, direction: 1 | -1): void {
     data-wui-menu-item
     :aria-disabled="disabled || undefined"
     v-bind="$attrs"
+    v-on="revealHandlers"
     @click="onRowClick"
     @pointerenter="onRowPointerEnter"
     @pointerleave="onRowPointerLeave"
@@ -455,6 +467,23 @@ function stepFocus(container: HTMLElement | null, direction: 1 | -1): void {
   box-shadow: inset 0 0 0 2px var(--wui-system-control-focus-visual-primary);
   outline: 1px solid var(--wui-system-control-focus-visual-secondary);
   outline-offset: -3px;
+}
+
+/* ======================================================================
+ * Reveal 揭示光照(公共层 reveal.css,默认启用):口径同 MenuFlyoutItem ——
+ * 边框光半径 39px(narrow,RevealBorderLight.cpp L24-35);光环厚度 1px
+ * (MenuFlyoutItemRevealBorderThickness 同族)。底色各态已消费
+ * --wui-menu-flyout-sub-item-reveal-* token(与源画刷同源值),光照叠于其上。
+ * ====================================================================== */
+.wui-menu-flyout-sub-item.wui-reveal {
+  --wui-reveal-border-width: 1px;
+  --wui-reveal-border-radius: 39px;
+}
+
+/* 禁用行不点亮光晕(div 无 :disabled,由类门抑制) */
+.wui-menu-flyout-sub-item.is-disabled.wui-reveal:hover::before,
+.wui-menu-flyout-sub-item.is-disabled.wui-reveal:hover::after {
+  opacity: 0;
 }
 
 .menu-col {

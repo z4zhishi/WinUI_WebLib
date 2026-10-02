@@ -71,6 +71,13 @@ export function useReveal(enabled?: () => boolean): RevealHandlers {
       if (!isActive()) return
       const el = event.currentTarget
       if (!(el instanceof HTMLElement)) return
+      // 半径补写(MR8):宿主在指针已位于其上时才挂上光照(demo 开关实时调节、
+      // reveal prop 动态切换)时 pointerenter 不会再触发,首次 move 补算一次半径;
+      // 半径已在内联样式上(enter 已写过)则跳过,常态零额外开销。
+      if (el.style.getPropertyValue('--wui-reveal-radius') === '') {
+        const rect = el.getBoundingClientRect()
+        el.style.setProperty('--wui-reveal-radius', `${revealHaloRadius(rect.width, rect.height)}px`)
+      }
       writePosition(el, event)
     },
   }
