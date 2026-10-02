@@ -130,7 +130,7 @@ function onClosing(e: { cancel: boolean; getDeferral(): { complete(): void } }) 
 | 宽度模式第三值 | `TabWidthMode` 枚举为 `SizeToContent` / `Equal` / `Compact`(Compact 仅在非选中页生效,源 `UpdateWidthModeVisualState`) | 一致实现三模式;部分派发材料所写 "SizeToHeader" 在源与官方 Gallery 中不存在,以源为准记为 Compact |
 | 宽度模式默认值 | 源 `TabView.idl` L105 以 `[MUX_DEFAULT_VALUE("winrt::TabViewWidthMode::Equal")]` 声明默认 **Equal**(Microsoft Learn API 文档同) | 一致:组件默认 `'Equal'` |
 | 关闭按钮显隐 | `CloseButtonOverlayMode`:源 `UpdateCloseButton` 中 `OnPointerOver` → 悬停或选中显示;`Auto`/`Always` 走 default 分支恒显 | 一致;`OnHover` 即源 `OnPointerOver` 的别名 |
-| 拖拽重排 | 源由内部 `TabViewListView`(`CanReorderItems`)直接改写 `TabItems` 集合 | HTML5 DnD 复刻(拖拽态 Opacity + 插入指示线);重排作用于**组件内部展示顺序** —— 声明式子项的数据源顺序不变,建议子项带稳定 `key` 保证重排跨渲染稳定(无 key 的子项回退天然顺序,父组件重渲染后重排可能复位);选中项跟随被拖标签 |
+| 拖拽重排 | 源由内部 `TabViewListView`(`CanReorderItems`)直接改写 `TabItems` 集合;动效:拖动中标签 Opacity 0.80 @240ms(`Reordering`)、被悬停目标 Opacity 0.50 @240ms(`ReorderingTarget`)、悬停方向提示 `DragOverThemeAnimation` 位移 10px(`ReorderHintStates`,水平标签条仅 Left/Right),离开 0.2s 恢复 | Pointer 指针拖拽复刻(headless Chrome 实测 HTML5 DnD 事件不随真实鼠标序列触发);动效逐键对源;插入指示线为源 ListView 实时换位的 Web 等价指示;重排作用于**组件内部展示顺序** —— 声明式子项的数据源顺序不变,建议子项带稳定 `key` 保证重排跨渲染稳定(无 key 的子项回退天然顺序,父组件重渲染后重排可能复位);选中项跟随被拖标签;事件 `tabDragStarting` / `tabDragCompleted` / `tabDroppedOutside`(条外松手) |
 | `TabItemsSource` / `TabItemTemplate` | 数据源 + DataTemplate 自动生成 TabViewItem | 未实现;响应式数组 `v-for` + 声明式 `WuiTabViewItem` 即等价用法 |
 | `SelectedItem` 双向 | 与 `SelectedIndex` 联动 | 未提供;以 `selectedIndex` 为准(WinUI 侧两者等价可换算) |
 | `TabStripHeader/Footer` | 标签条左右附加内容区 | 提供 `#tab-strip-header` / `#tab-strip-footer` slot |

@@ -23,8 +23,20 @@
 //     对照官方示例 sender.TabItems.Remove(args.Tab));未处理 closing / cancel=false 才提交;
 //   - 键盘:方向键移动标签焦点(源 TabViewListView SingleSelectionFollowsFocus=False,焦点不联动选中,
 //     Enter/Space 选中)、Ctrl+Tab / Ctrl+Shift+Tab 切换选中、Ctrl+W 关闭选中页(Gallery 键盘示例语义);
-//   - 拖拽重排(CanReorderTabs,默认 true):HTML5 DnD,重排为组件内部展示顺序(WinUI 直接改集合,
-//     Web 声明式子项由组件内部维护顺序映射,建议子项带稳定 key,见 wiki 差异节)。
+//   - 拖拽重排(CanReorderTabs,默认 true):Pointer Events 指针拖拽。源把重排委托给内部
+//     TabViewListView(CanReorderItems + AllowDrop,平台 DnD);Web 弃用 HTML5 Drag Events
+//     (headless Chrome 与触控路径下 dragstart/dragover 不随真实鼠标序列触发,已实测)改用指针
+//     事件等价复刻:按下 → 超过拖拽阈值进入拖拽态 → 悬停几何决定插入槽位 → 松手提交。重排为
+//     组件内部展示顺序(WinUI 直接改集合,Web 声明式子项由组件内部维护顺序映射,建议子项带
+//     稳定 key,见 wiki 差异节);
+//   - 拖拽动效(TabView.xaml L411-473,逐键对照):拖动中标签透明度 → ListViewItemReorderThemeOpacity
+//     0.80 @0:0:0.240(Reordering 态);被悬停目标 → ListViewItemReorderTargetThemeOpacity 0.50
+//     @0:0:0.240(ReorderingTarget 态);悬停方向提示 ReorderHintStates(DragOverThemeAnimation
+//     ToOffset = ListViewItemReorderHintThemeOffset 10px,水平标签条仅触发 Left/Right,离开经
+//     GeneratedDuration 0:0:0.2 恢复 NoReorderHint);拖拽态退出同样 0.2s 恢复(→NotDragging);
+//   - 拖拽事件(源 TabView.cpp OnListViewDragItemsStarting / OnListViewDragItemsCompleted):
+//     tabDragStarting / tabDragCompleted;在标签条之外松手(源 DropResult=None 分支)时在
+//     completed 之后追加 tabDroppedOutside。
 // 组合方式:默认 slot 声明 <WuiTabViewItem header="..."> 子项(动态增删即响应式数组 v-for);
 //   selectedIndex 为 defineModel 双向绑定;tabWidthMode / isAddTabButtonVisible / closeButtonOverlayMode
 //   等参数对照官方 Gallery 示例页(CK/WinUI-Gallery/WinUIGallery/Samples/TabView/TabViewPage.xaml)。
@@ -52,6 +64,14 @@ export interface TabViewSelectionChangedEventArgs {
   /** 当前选中下标。 */
   index: number
   /** 当前选中项(默认 slot 模式为对应 TabViewItem 的 VNode)。 */
+  item: unknown
+}
+
+/** 拖拽事件参数(WinUI TabViewTabDragStartingEventArgs / TabDragCompletedEventArgs / TabDroppedOutsideEventArgs 的 Web 简化)。 */
+export interface TabViewTabDragEventArgs {
+  /** 该标签在展示顺序中的下标(tabDragCompleted 为落定后的新下标)。 */
+  index: number
+  /** 对应 TabViewItem 子项(默认 slot 模式为其 VNode,可读 props 定位数据源记录)。 */
   item: unknown
 }
 
@@ -86,11 +106,15 @@ const props = withDefaults(
 // —— SelectedIndex 双向绑定(WinUI SelectedIndex)——
 const selectedIndex = defineModel<number>('selectedIndex', { default: 0 })
 
-// —— 事件(WinUI AddTabButtonClick / TabCloseRequested / SelectionChanged;closing 由 TabViewItem 声明)——
+// —— 事件(WinUI AddTabButtonClick / TabCloseRequested / SelectionChanged / TabDragStarting /
+//    TabDragCompleted / TabDroppedOutside;closing 由 TabViewItem 声明)——
 const emit = defineEmits<{
   addTabButtonClick: []
   tabCloseRequested: [args: TabViewTabCloseRequestedEventArgs]
   selectionChanged: [args: TabViewSelectionChangedEventArgs]
+  tabDragStarting: [args: TabViewTabDragEventArgs]
+  tabDragCompleted: [args: TabViewTabDragEventArgs]
+  tabDroppedOutside: [args: TabViewTabDragEventArgs]
 }>()
 
 defineOptions({ inheritAttrs: false })
@@ -311,8 +335,12 @@ function onAddButtonClick(): void {
   emit('addTabButtonClick')
 }
 
-/** 点击标签选中(disabled 时忽略)。 */
+/** 点击标签选中(disabled 时忽略;拖拽落定后的伴生点击不选中,源拖拽手势不派生 Click)。 */
 function selectTab(index: number): void {
+  if (suppressNextClick) {
+    suppressNextClick = false
+    return
+  }
   if (!props.disabled && index !== activeIndex.value) selectedIndex.value = index
 }
 
@@ -381,43 +409,171 @@ onMounted(() => {
   }
 })
 
-onBeforeUnmount(() => resizeObserver?.disconnect())
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+  press = null // 拖拽按压状态不跨卸载存活(指针捕获随元素移除自动释放)
+})
 
-// —— 拖拽重排(HTML5 DnD;重排内部顺序映射,选中跟随被拖标签)——
-const dragIndex = ref<number | null>(null)
-const dropBeforeIndex = ref<number | null>(null)
+// —— 拖拽重排(Pointer Events;源 TabView.cpp 把重排委托给内部 ListView 的 CanReorderItems DnD,
+//    Web 以指针事件等价复刻:按下 → 超过阈值进入拖拽态 → 悬停几何决定插入槽位与方向提示 → 松手提交)——
+/** WinUI DragOverThemeAnimation Direction(源模板四态;水平标签条仅触发 Left/Right,Top/Bottom 为竖排宿主态)。 */
+type ReorderHintDirection = 'left' | 'right' | 'top' | 'bottom'
 
-function onTabDragStart(event: DragEvent, index: number): void {
-  if (!props.canReorderTabs || props.disabled) {
-    event.preventDefault()
+const dragIndex = ref<number | null>(null) // Reordering 态:被拖标签的展示序下标
+const dropTargetIndex = ref<number | null>(null) // ReorderingTarget 态:被悬停目标下标(0.5 透明度)
+const dropBeforeIndex = ref<number | null>(null) // 插入槽位(0..n;插入指示线锚点)
+const hintIndex = ref<number | null>(null) // ReorderHintStates:方向提示作用的标签下标
+const hintDirection = ref<ReorderHintDirection | null>(null)
+
+/** 拖拽启动阈值(px;系统拖拽阈值量级 SM_CXDRAG=4),区分点击与拖拽。 */
+const DRAG_START_THRESHOLD = 4
+
+/** 进行中的按压(pointerdown 到拖拽态之间;非响应式,拖拽路径不走渲染)。 */
+interface DragPress {
+  index: number
+  pointerId: number
+  startX: number
+  startY: number
+  element: HTMLDivElement
+}
+let press: DragPress | null = null
+let dragId: string | null = null
+let suppressNextClick = false
+
+function onTabPointerdown(event: PointerEvent, index: number): void {
+  if (!props.canReorderTabs || props.disabled) return
+  if (event.button !== 0 || event.ctrlKey || event.shiftKey || event.altKey) return
+  // 关闭按钮有自己的按压/点击语义,不作为拖拽手柄(源 CloseButton 独立子树)
+  if (event.target instanceof Element && event.target.closest('.wui-tab-view-item-close')) return
+  const el = event.currentTarget
+  if (!(el instanceof HTMLDivElement)) return
+  press = { index, pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, element: el }
+  try {
+    el.setPointerCapture(event.pointerId) // 拖拽全程锁定指针:移出标签条仍可跟踪(源 DnD 语义)
+  } catch {
+    press = null
+  }
+}
+
+function onTabPointermove(event: PointerEvent): void {
+  if (!press || event.pointerId !== press.pointerId) return
+  if (dragIndex.value === null) {
+    if (Math.hypot(event.clientX - press.startX, event.clientY - press.startY) < DRAG_START_THRESHOLD) return
+    startDrag(press.index)
+  }
+  updateDragTarget(event.clientX, event.clientY)
+}
+
+/** 进入拖拽态(源 OnListViewDragItemsStarting:m_isItemBeingDragged=true + TabDragStarting 事件)。 */
+function startDrag(index: number): void {
+  const entry = orderedEntries.value[index]
+  if (!entry) {
+    press = null
     return
   }
   dragIndex.value = index
-  if (event.dataTransfer) {
-    event.dataTransfer.effectAllowed = 'move'
-    event.dataTransfer.setData('text/plain', String(index))
+  dragId = entry.id
+  emit('tabDragStarting', { index, item: entry.child })
+}
+
+/** 悬停几何 → 插入槽位 + ReorderingTarget + ReorderHint(方向 = 目标让位方向)。 */
+function updateDragTarget(x: number, y: number): void {
+  const scroller = scrollerRef.value
+  if (!scroller || dragIndex.value === null) return
+  const scRect = scroller.getBoundingClientRect()
+  if (x < scRect.left || x > scRect.right || y < scRect.top || y > scRect.bottom) {
+    // 移出标签条:清目标与提示(源 OnListViewDragLeave → UpdateIsItemDraggedOver(false))
+    dropTargetIndex.value = null
+    dropBeforeIndex.value = null
+    clearHint()
+    return
   }
+  const rects = tabRefs.value.slice(0, count.value).map((el) => el?.getBoundingClientRect())
+  let hovered = -1
+  for (let i = 0; i < rects.length; i++) {
+    const rect = rects[i]
+    if (rect && x >= rect.left && x <= rect.right) {
+      hovered = i
+      break
+    }
+  }
+  if (hovered < 0) {
+    // 标签间缝隙/两端:就近端点槽位,无被悬停项则无目标态与方向提示
+    dropBeforeIndex.value = x < (rects[0]?.left ?? scRect.left) ? 0 : rects.length
+    dropTargetIndex.value = null
+    clearHint()
+    return
+  }
+  const rect = rects[hovered]
+  if (!rect) return
+  const before = x - rect.left < rect.width / 2
+  dropBeforeIndex.value = before ? hovered : hovered + 1
+  if (hovered === dragIndex.value) {
+    // 被拖标签自身不作为目标(源跳过 IsBeingDragged 项);悬停自身等价「回到原位」
+    dropTargetIndex.value = null
+    clearHint()
+    return
+  }
+  dropTargetIndex.value = hovered
+  // 指针在目标左半 → 插到其前 → 目标向右让位(RightReorderHint);右半反之(LeftReorderHint)
+  setHint(hovered, before ? 'right' : 'left')
 }
 
-function onTabDragOver(event: DragEvent, index: number): void {
-  if (dragIndex.value === null || dragIndex.value === index) return
-  event.preventDefault()
-  if (event.dataTransfer) event.dataTransfer.dropEffect = 'move'
-  const el = event.currentTarget as HTMLElement
-  const rect = el.getBoundingClientRect()
-  const before = event.clientX - rect.left < rect.width / 2
-  dropBeforeIndex.value = before ? index : index + 1
+function setHint(index: number, direction: ReorderHintDirection): void {
+  if (hintIndex.value === index && hintDirection.value === direction) return
+  hintIndex.value = index
+  hintDirection.value = direction
 }
 
-function onTabDrop(event: DragEvent): void {
-  if (dragIndex.value === null || dropBeforeIndex.value === null) return
-  event.preventDefault()
-  reorderTab(dragIndex.value, dropBeforeIndex.value)
+function clearHint(): void {
+  if (hintIndex.value === null && hintDirection.value === null) return
+  hintIndex.value = null
+  hintDirection.value = null
 }
 
-function onTabDragEnd(): void {
+/** 清拖拽态(透明度/位移经 200ms 恢复过渡,源 VisualTransition To=NotDragging / To=NoReorderHint 0.2s)。 */
+function finishDragState(): void {
   dragIndex.value = null
+  dropTargetIndex.value = null
   dropBeforeIndex.value = null
+  clearHint()
+  dragId = null
+}
+
+function onTabPointerup(event: PointerEvent): void {
+  if (!press || event.pointerId !== press.pointerId) return
+  press = null
+  if (dragIndex.value === null) return // 未达阈值:普通点击,交由 @click 选中
+  const from = dragIndex.value
+  const id = dragId
+  const slot = dropBeforeIndex.value
+  const scRect = scrollerRef.value?.getBoundingClientRect()
+  const insideStrip =
+    scRect !== undefined &&
+    event.clientX >= scRect.left &&
+    event.clientX <= scRect.right &&
+    event.clientY >= scRect.top &&
+    event.clientY <= scRect.bottom
+  finishDragState()
+  suppressNextClick = true // 拖拽落定不派生点击选中(源拖拽手势不触发 Click 选中)
+  if (insideStrip && slot !== null) reorderTab(from, slot)
+  // 拖拽后该标签的新展示下标(源 TabDragCompleted 以 Item 标识;Web 附最终下标便于定位)
+  const newIndex = id === null ? from : orderedEntries.value.findIndex((entry) => entry.id === id)
+  const at = newIndex >= 0 ? newIndex : from
+  const item = orderedEntries.value[at]?.child
+  // 事件序对齐源 OnListViewDragItemsCompleted:先 TabDragCompleted;DropResult=None(条外)再 TabDroppedOutside
+  emit('tabDragCompleted', { index: at, item })
+  if (!insideStrip) emit('tabDroppedOutside', { index: at, item })
+}
+
+function onTabPointercancel(event: PointerEvent): void {
+  if (!press || event.pointerId !== press.pointerId) return
+  press = null
+  if (dragIndex.value === null) return
+  const from = dragIndex.value
+  finishDragState()
+  // 外部取消(滚动手势接管等):对齐源完成路径(DropResult=None),不计 droppedOutside
+  emit('tabDragCompleted', { index: from, item: orderedEntries.value[from]?.child })
 }
 
 function reorderTab(from: number, insertBefore: number): void {
@@ -448,7 +604,7 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
 </script>
 
 <template>
-  <div v-bind="$attrs" class="wui-tab-view" :class="[`wui-tab-view--${tabWidthMode.toLowerCase()}`, { 'wui-tab-view--disabled': disabled }]" @keydown="onRootKeydown">
+  <div v-bind="$attrs" class="wui-tab-view" :class="[`wui-tab-view--${tabWidthMode.toLowerCase()}`, { 'wui-tab-view--disabled': disabled, 'wui-tab-view--reorderable': canReorderTabs && !disabled }]" @keydown="onRootKeydown">
     <!-- 标签条(TabContainerGrid:LeftContent | TabColumn | AddButtonColumn | RightContent;底线 1px) -->
     <div class="wui-tab-view-header">
       <div v-if="$slots['tab-strip-header']" class="wui-tab-view-header-left">
@@ -469,20 +625,22 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
               'wui-tab-view-item--no-close': !entry.isClosable,
               'wui-tab-view-item--close-on-hover': closeButtonOverlayMode === 'OnHover' && index !== activeIndex,
               'wui-tab-view-item--drop-before': dropBeforeIndex === index,
+              'wui-tab-view-item--drop-after': dropBeforeIndex === count && index === count - 1,
+              'wui-tab-view-item--reorder-target': dropTargetIndex === index,
               'wui-tab-view-item--dragging': dragIndex === index,
             }"
+            :data-hint="hintIndex === index ? hintDirection : undefined"
             role="tab"
             :aria-selected="index === activeIndex"
             :aria-controls="panelId(index)"
             :aria-label="entry.header || undefined"
             :tabindex="index === activeIndex ? 0 : -1"
-            :draggable="canReorderTabs && !disabled"
             @click="selectTab(index)"
             @keydown="onTabKeydown($event, index)"
-            @dragstart="onTabDragStart($event, index)"
-            @dragover="onTabDragOver($event, index)"
-            @drop="onTabDrop"
-            @dragend="onTabDragEnd"
+            @pointerdown="onTabPointerdown($event, index)"
+            @pointermove="onTabPointermove"
+            @pointerup="onTabPointerup"
+            @pointercancel="onTabPointercancel"
           >
             <span v-if="entry.icon" class="wui-tab-view-item-icon">
               <WuiFontIcon :glyph="entry.icon" :font-size="16" />
@@ -609,6 +767,16 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
   border-bottom: none;
   border-radius: var(--wui-popup-corner-radius, 8px) var(--wui-popup-corner-radius, 8px) 0 0; /* OverlayCornerRadius 仅上两角 */
   user-select: none;
+  /* 拖拽恢复过渡:源 DragStates/ReorderHintStates 的 VisualTransition GeneratedDuration 0:0:0.2
+     (→NotDragging L471 / →NoReorderHint L434);源只给时长未给缓动 → 线性插值 */
+  transition:
+    opacity 200ms linear,
+    transform 200ms linear;
+}
+
+/* 可重排时把手势让位给拖拽:纵向滚动仍交浏览器(横向拖拽进入组件,源 DnD 手势语义) */
+.wui-tab-view--reorderable .wui-tab-view-item {
+  touch-action: pan-y;
 }
 
 /* 无关闭按钮的标签:右内边距 8(源 CloseButtonCollapsed 态 Padding 8,3,8,3) */
@@ -864,13 +1032,70 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
   min-width: 0;
 }
 
-/* —— 拖拽重排视觉(DragStates:Reordering Opacity;目标位插入指示线)—— */
+/* —— 拖拽重排视觉(源 DragStates / ReorderHintStates,TabView.xaml L411-473;逐键对照见 MR5 报告)—— */
+
+/* Reordering(L449-453):被拖标签 Opacity → ListViewItemReorderThemeOpacity 0.80,
+   Duration 0:0:0.240(源 DoubleAnimation 未指定缓动 → 线性) */
 .wui-tab-view-item--dragging {
-  opacity: 0.4; /* ListViewItemReorderThemeOpacity 观感 */
+  opacity: 0.8;
+  transition: opacity 240ms linear;
 }
 
+/* ReorderingTarget(L454-458):被悬停目标 Opacity → ListViewItemReorderTargetThemeOpacity 0.50,
+   Duration 0:0:0.240(同上线性)。transform 过渡显式并入(ReorderHint 与本态可同时作用同一标签,
+   覆写 transition 时不得丢掉 0.2s 的 hint 进出节奏) */
+.wui-tab-view-item--reorder-target {
+  opacity: 0.5;
+  transition:
+    opacity 240ms linear,
+    transform 200ms linear;
+}
+
+/* ReorderHintStates(L411-436):DragOverThemeAnimation ToOffset =
+   ListViewItemReorderHintThemeOffset(10px),Direction = 目标让位方向(水平标签条仅触发
+   Left/Right;Bottom/Top 为源模板竖排宿主态,结构保留不触发)。进入提示的动画时长源未找到
+   (theme-animations.md §1.9「源未找到」),与恢复同取 200ms 线性;离开 → NoReorderHint 走
+   基础规则的 0.2s 恢复过渡 */
+.wui-tab-view-item[data-hint='right'] {
+  transform: translateX(10px);
+}
+
+.wui-tab-view-item[data-hint='left'] {
+  transform: translateX(-10px);
+}
+
+.wui-tab-view-item[data-hint='bottom'] {
+  transform: translateY(10px);
+}
+
+.wui-tab-view-item[data-hint='top'] {
+  transform: translateY(-10px);
+}
+
+[dir='rtl'] .wui-tab-view-item[data-hint='right'] {
+  transform: translateX(-10px); /* RTL 物理镜像:让位方向随阅读方向翻转 */
+}
+
+[dir='rtl'] .wui-tab-view-item[data-hint='left'] {
+  transform: translateX(10px);
+}
+
+/* 插入位置指示(Web 对源 ListView 实时换位的等价指示,悬停槽位即时显隐):
+   槽位锚在标签左/右缘;RTL 下「前/后」随阅读方向镜像 */
 .wui-tab-view-item--drop-before {
-  box-shadow: -3px 0 0 0 var(--wui-system-accent-color, #0067c0); /* 插入位置指示(Web 增强,主题色) */
+  box-shadow: -3px 0 0 0 var(--wui-system-accent-color, #0067c0); /* 插入位置指示(主题色) */
+}
+
+.wui-tab-view-item--drop-after {
+  box-shadow: 3px 0 0 0 var(--wui-system-accent-color, #0067c0); /* 末尾槽位(标签后插入) */
+}
+
+[dir='rtl'] .wui-tab-view-item--drop-before {
+  box-shadow: 3px 0 0 0 var(--wui-system-accent-color, #0067c0);
+}
+
+[dir='rtl'] .wui-tab-view-item--drop-after {
+  box-shadow: -3px 0 0 0 var(--wui-system-accent-color, #0067c0);
 }
 
 /* RTL:滚动按钮与加号区换侧观感由 flex 自动镜像,无需额外规则 */
