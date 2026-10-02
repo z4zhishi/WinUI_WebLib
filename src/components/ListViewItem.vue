@@ -68,10 +68,13 @@ function onRootClick(event: MouseEvent): void {
     :tabindex="disabled ? -1 : focused ? 0 : -1"
     @click="onRootClick"
   >
-    <!-- 多重选择勾选框(CheckMode=Inline):未选描边空框,选中 accent 铺底 + 白对勾 -->
-    <span v-if="checkVisible" class="wui-list-view-item-check" aria-hidden="true">
-      <span class="wui-list-view-item-check-glyph">&#xE73E;</span>
-    </span>
+    <!-- 多重选择勾选框(CheckMode=Inline):未选描边空框,选中 accent 铺底 + 白对勾。
+         多选模式切换时滑入/滑出(audit A10,Transition 挂 wui-listitem-check 组) -->
+    <Transition name="wui-listitem-check">
+      <span v-if="checkVisible" class="wui-list-view-item-check" aria-hidden="true">
+        <span class="wui-list-view-item-check-glyph">&#xE73E;</span>
+      </span>
+    </Transition>
 
     <!-- ContentPresenter:缺省单行省略;自定义模板可内联覆盖文本截断行为 -->
     <span class="wui-list-view-item-content"><slot /></span>
@@ -193,5 +196,28 @@ function onRootClick(event: MouseEvent): void {
 
 .wui-list-view-item.is-selected .wui-list-view-item-check-glyph {
   color: var(--wui-check-box-check-glyph-foreground-checked); /* 选中白对勾(同 CheckBox) */
+}
+
+/* ======================================================================
+ * 多选勾选滑入(audit A10;源 G.xaml L20787-20819 MultiSelectStates):
+ *   进入 Multiple:MultiSelectCheckBoxTransform X −32→0 @0.333s
+ *   KeySpline 0.1,0.9,0.2,1,方块 Visible@0;退出 Multiple:X 0→−32 @0.333s
+ *   同曲线,方块 Collapsed@0.333s。
+ * Web 以 Vue Transition 挂 translateX(−32px 起点/终点)+ opacity 333ms
+ * (工单口径:勾选框 translateX ±32px 333ms + 方块 opacity 333ms;
+ * 入场瞬现改随滑淡入为已声明近似)。离场过渡期间元素保持占位,
+ * 对齐源 ContentPresenterGrid 预留 32px 的瞬时布局语义。
+ * ====================================================================== */
+.wui-listitem-check-enter-active,
+.wui-listitem-check-leave-active {
+  transition:
+    transform 333ms var(--wui-easing-standard),
+    opacity 333ms var(--wui-easing-standard);
+}
+
+.wui-listitem-check-enter-from,
+.wui-listitem-check-leave-to {
+  transform: translateX(-32px);
+  opacity: 0;
 }
 </style>

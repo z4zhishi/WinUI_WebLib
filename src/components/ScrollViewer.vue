@@ -424,11 +424,50 @@ onMounted(() => {
 onBeforeUnmount(() => {
   observer?.disconnect()
   observer = null
+  if (sbExpandTimer.value !== null) window.clearTimeout(sbExpandTimer.value)
+  if (sbContractTimer.value !== null) window.clearTimeout(sbContractTimer.value)
   if (viewChangedTimer !== null) {
     window.clearTimeout(viewChangedTimer)
     viewChangedTimer = null
   }
 })
+
+// —— 滚动条自动隐藏(audit A11):源 ScrollBarExpand/ContractBeginTime = 0.4s / 2s、
+// Duration = 0.1s(G.xaml L612-616,L7855-7936 Expanded/Collapsed 编排;ScrollViewerSeparator
+// 键族同构)。注意:Chromium(实测 154)对 ::-webkit-scrollbar-* 伪元素不支持
+// transition/animation(样式瞬变、Element.getAnimations 无伪元素条目),0.1s 补间在
+// 原生滚动条上不生效——0.4s / 2s 延迟改由 JS 定时器驱动 .is-sb-expanded 类(两轴同源,
+// 对照 ScrollViewer 指示态挂在容器一级);0.1s 过渡声明保留在 CSS,受支持的平台即时生效。
+// reduced-motion 降级由 animations.css 全局媒体查询统一处理。
+const SCROLLBAR_EXPAND_DELAY_MS = 400 /* ScrollBarExpandBeginTime */
+const SCROLLBAR_CONTRACT_DELAY_MS = 2000 /* ScrollBarContractBeginTime */
+const sbExpandTimer = ref<number | null>(null)
+const sbContractTimer = ref<number | null>(null)
+const sbExpanded = ref(false)
+
+function onScrollerPointerEnter(): void {
+  if (sbContractTimer.value !== null) {
+    window.clearTimeout(sbContractTimer.value)
+    sbContractTimer.value = null
+  }
+  if (sbExpanded.value || sbExpandTimer.value !== null) return
+  sbExpandTimer.value = window.setTimeout(() => {
+    sbExpandTimer.value = null
+    sbExpanded.value = true
+  }, SCROLLBAR_EXPAND_DELAY_MS)
+}
+
+function onScrollerPointerLeave(): void {
+  if (sbExpandTimer.value !== null) {
+    window.clearTimeout(sbExpandTimer.value)
+    sbExpandTimer.value = null
+  }
+  if (!sbExpanded.value || sbContractTimer.value !== null) return
+  sbContractTimer.value = window.setTimeout(() => {
+    sbContractTimer.value = null
+    sbExpanded.value = false
+  }, SCROLLBAR_CONTRACT_DELAY_MS)
+}
 
 defineExpose({
   /** 对照 WinUI ChangeView:(h, v, zoom, disableAnimation),返回是否接受请求。 */
@@ -453,12 +492,15 @@ defineExpose({
       :class="{
         'wui-scrollviewer__scroller--hide-h-bar': hideHorizontalBar,
         'wui-scrollviewer__scroller--hide-v-bar': hideVerticalBar,
+        'is-sb-expanded': sbExpanded,
       }"
       :style="scrollerStyle"
       :tabindex="0"
       @scroll="onScroll"
       @wheel="onWheel"
       @keydown="onKeyDown"
+      @pointerenter="onScrollerPointerEnter"
+      @pointerleave="onScrollerPointerLeave"
     >
       <div class="wui-scrollviewer__content" :style="contentStyle">
         <slot />
@@ -520,7 +562,17 @@ defineExpose({
   min-height: 100%;
 }
 
-/* —— 原生滚动条样式化:WinUI 细拇指观感(栏宽恒定,悬停拇指 4px→6px + 显轨道)—— */
+/* —— 原生滚动条样式化 + 自动隐藏(audit A11;源 G.xaml L612-628 资源键 +
+   L7855-7905 收缩 / L7890-7936 展开编排,ScrollViewerSeparator 键同构 L8191-8203):
+ *   收起态(默认):thumb 细条 4px 可见厚,色 = ScrollBarPanningThumbBackground
+ *     (--wui-scroll-bar-thumb-fill,VR-B6 FIX11 定案不回退);
+ *   悬停展开(.is-sb-expanded,JS 0.4s 延迟后挂,见脚本注):thumb 增厚至 6px、
+ *     色转 ScrollBarThumbBackgroundColor(--wui-scroll-bar-thumb-background,
+ *     SystemBaseLow,源 Expanded 态 ColorAnimation 终值)+ 轨道显形;
+ *   离开收缩(JS 2s 延迟后摘):回收起态。
+ *   0.1s 过渡声明(ScrollBarExpand/ContractDuration)保留:受支持的平台生效;
+ *   Chromium 对滚动条伪元素不支持 transition/animation,呈瞬时切换(已实测登记)。
+ *   thumb 直接悬停 / 按下:状态色即时(源 Pressed/重叠态 Duration=0)。 */
 .wui-scrollviewer__scroller::-webkit-scrollbar {
   width: var(--wui-scrollviewer-bar-size);
   height: var(--wui-scrollviewer-bar-size);
@@ -529,33 +581,45 @@ defineExpose({
 
 .wui-scrollviewer__scroller::-webkit-scrollbar-track {
   background: transparent;
+  transition: background-color 100ms linear 2s;
 }
 
-.wui-scrollviewer__scroller:hover::-webkit-scrollbar-track {
+.wui-scrollviewer__scroller.is-sb-expanded::-webkit-scrollbar-track {
   background: var(--wui-scroll-bar-track-fill);
+  transition-delay: 0.4s;
 }
 
 .wui-scrollviewer__scroller::-webkit-scrollbar-thumb {
-  /* 静置 thumb = WinUI Visible 滚动条收起态色 ScrollBarPanningThumbBackground
-     (SystemChromeDisabledLowColor #7A7A7A/#858585),与 ScrollView 组件同用
-     --wui-scroll-bar-thumb-fill;#00000033/#FFFFFF33(--wui-scroll-bar-thumb-background,
-     SystemBaseLow)是源「展开态」色,不作静置色(VR-B6 FIX11 定案) */
-  background: var(--wui-scroll-bar-thumb-fill);
   /* 透明边框做「细拇指」:12px 栏 - 2×4px = 4px 可见厚度,无布局跳动 */
+  background: var(--wui-scroll-bar-thumb-fill);
   border: 4px solid transparent;
   background-clip: padding-box;
   /* 源 thumb 为无圆角 Rectangle,半径无 token 依据 → 按 ScrollView 口径取满圆pill
      (999px,4px 厚下即半圆端),观感与同库 ScrollView 一致(wiki 差异 1 登记) */
   border-radius: 999px;
+  transition:
+    background-color 100ms linear 2s,
+    border-width 100ms linear 2s;
 }
 
-.wui-scrollviewer__scroller:hover::-webkit-scrollbar-thumb {
+.wui-scrollviewer__scroller.is-sb-expanded::-webkit-scrollbar-thumb {
+  background: var(--wui-scroll-bar-thumb-background);
+  border-width: 3px;
+  transition:
+    background-color 100ms linear 0.4s,
+    border-width 100ms linear 0.4s;
+}
+
+/* thumb 直接命中:状态色即时切换(源 Pressed/重叠态 Duration=0);
+   厚度维持展开态(规则序在本组之后,覆盖上面的延迟展开色) */
+.wui-scrollviewer__scroller::-webkit-scrollbar-thumb:hover {
   background: var(--wui-scroll-bar-thumb-fill-pointer-over);
-  border: 3px solid transparent;
+  transition-delay: 0s, 0s;
 }
 
-.wui-scrollviewer__scroller:active::-webkit-scrollbar-thumb {
+.wui-scrollviewer__scroller::-webkit-scrollbar-thumb:active {
   background: var(--wui-scroll-bar-thumb-fill-pressed);
+  transition-delay: 0s, 0s;
 }
 
 .wui-scrollviewer__scroller::-webkit-scrollbar-corner {

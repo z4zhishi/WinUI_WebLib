@@ -27,7 +27,7 @@
 //   LeftCompact,否则 LeftMinimal;WinUI 默认阈值,Web 以容器宽代替窗口宽)。
 // 交互:itemInvoked / selectionChanged(WinUI 同名事件)、IsPaneOpen 双向绑定、选中指示条、子项展开
 //   (chevron 旋转取 animations.css token)、Esc 关浮层窗格(经 SplitView Overlay)。
-import { computed, defineComponent, h, inject, onBeforeUnmount, onMounted, provide, ref, useAttrs, useSlots, watch } from 'vue'
+import { computed, defineComponent, h, inject, nextTick, onBeforeUnmount, onMounted, provide, ref, useAttrs, useSlots, watch } from 'vue'
 import type { InjectionKey, PropType, VNode } from 'vue'
 import FontIcon from './FontIcon.vue'
 import WuiSplitView from './SplitView.vue'
@@ -180,8 +180,8 @@ export const WuiNavigationViewItem = defineComponent({
           onClick: onRowClick,
         },
         [
-          // 选中指示条(NavigationViewItemPill/SelectionIndicator):左窗格 3x16、顶栏 16x3,由宿主按模式定形
-          h('span', { class: 'wui-nav-item__pill', 'aria-hidden': 'true' }),
+          // 选中指示条自 A9 起由宿主的共享 .wui-navview__indicator 承载(600ms Scale+Offset
+          // 编排需跨条目位移,逐项 pill 无法表达;脱离宿主时本组件无选中视觉,同源行为)
           viewIcon.value
             ? h(FontIcon, { glyph: viewIcon.value, fontSize: 16, class: 'wui-nav-item__iconbox' })
             : h('span', { class: 'wui-nav-item__iconbox wui-nav-item__iconbox--empty', 'aria-hidden': 'true' }),
@@ -354,15 +354,31 @@ onMounted(() => {
       observer = new ResizeObserver((entries) => {
         const rect = entries[0]?.contentRect
         if (rect) containerWidth.value = rect.width
+        // 容器缩放改变条目几何:指示条直接落位(A9,不播放编排)
+        void nextTick(() => placeIndicator(false))
       })
       observer.observe(el)
     }
   }
   // 初始即处于 Minimal(窄容器 / 显式 LeftMinimal):窗格默认收起(WinUI 同)
   if (resolvedPaneMode.value === 'LeftMinimal' && isPaneOpen.value) isPaneOpen.value = false
+  // 初始已有选中(预设 v-model:selectedItem):直接落位,不播编排
+  void nextTick(() => placeIndicator(false))
 })
 
-onBeforeUnmount(() => observer?.disconnect())
+// A9:选中变化播 600ms 编排;模式切换 / 窗格开合改变几何,直接落位
+watch(selectedItem, () => {
+  void nextTick(() => placeIndicator(true))
+})
+watch([resolvedPaneMode, isPaneOpen], () => {
+  void nextTick(() => placeIndicator(false))
+})
+
+onBeforeUnmount(() => {
+  observer?.disconnect()
+  indicatorPhase?.cancel()
+  indicatorPhase = null
+})
 
 // —— 选中标签回查(数据项 + slot 项注册表)——
 const dataLabels = computed<Map<string | number, string>>(() => {
@@ -416,6 +432,172 @@ provide(NAVIGATION_VIEW_CONTEXT, {
     slotLabels.value = next
   },
 })
+
+// ======================================================================
+// 选择指示条(audit A9):共享 pill + 源 600ms Scale+Offset 编排
+// ----------------------------------------------------------------------
+// 源:controls/dev/NavigationView/NavigationView.cpp
+//   - PlayIndicatorAnimations(L2184-2234):posAnim(Offset.X/Y)600ms,0.333(=200ms)
+//     处 singleStep 跳变(前段保持起点、后段保持终点);scaleAnim(Scale.X/Y)600ms,
+//     0→0.333 以 c_frame1 自 1 拉伸至 |Δ|/dimension+1、0.333→1 以 c_frame2 收回 1;
+//     centerAnim(CenterPoint.X/Y)200ms,终帧 singleStep —— 200ms 处中心点自起侧边
+//     跳到终侧边;离场指示条 opacity 保持至 0.333 后以 c_frame2 淡出至 600ms;
+//   - 曲线常量(L1990-1993):c_frame1 = (0.9,0.1)-(1.0,0.2)(加速,拉伸段)、
+//     c_frame2 = (0.1,0.9)-(0.2,1.0)(减速,收回段)。
+// Web 复刻:指示条不再逐项渲染,改为每容器一枚共享 pill(跨条目位移无法用逐项
+// 元素表达);选中变化时以 WAAPI 两段播放:0-200ms 在旧位、origin 贴起侧边
+// scale 1→peak;200ms 处 top/left 跳新位 + origin 翻到终侧边;200-600ms scale
+// peak→1。首选中 / 跨容器(菜单↔页脚,对应源跨级路径)/ reduced-motion:直接落位。
+// ======================================================================
+const INDICATOR_DURATION_MS = 600
+const INDICATOR_JUMP_MS = 200
+const INDICATOR_DIMENSION_PX = 16 // pill 沿运动轴边长(左窗格 3x16 / 顶栏 16x3)
+const INDICATOR_EASE_STRETCH = 'cubic-bezier(0.9, 0.1, 1, 0.2)' // c_frame1(L1990-1991)
+const INDICATOR_EASE_SHRINK = 'cubic-bezier(0.1, 0.9, 0.2, 1)' // c_frame2(L1992-1993)
+const INDICATOR_CONTAINER_SELECTOR =
+  '.wui-navview__menu, .wui-navview__footer-menu, .wui-navview__topbar-items, .wui-navview__topbar-footer'
+
+interface IndicatorPlace {
+  container: Element
+  top: number
+  left: number
+}
+
+let indicatorPhase: Animation | null = null
+let indicatorLast: IndicatorPlace | null = null
+
+function prefersReducedMotion(): boolean {
+  return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
+/** 测量选中项 pill 的容器内位置与所在容器(Top 模式沿 X 编排,左窗格系沿 Y)。 */
+function measureIndicatorPlace(): (IndicatorPlace & { el: HTMLElement; horizontal: boolean }) | null {
+  const root = rootRef.value
+  if (!root) return null
+  const item = root.querySelector('.wui-nav-item--selected')
+  if (!item) return null
+  const container = item.closest(INDICATOR_CONTAINER_SELECTOR)
+  if (!container) return null
+  const el = container.querySelector(':scope > .wui-navview__indicator') as HTMLElement | null
+  if (!el) return null
+  const containerRect = container.getBoundingClientRect()
+  const itemRect = item.getBoundingClientRect()
+  if (itemRect.width === 0 && itemRect.height === 0) return null // 窗格收起等不可见态:隐藏
+  const scrollTop = container.scrollTop
+  if (isTop.value) {
+    return {
+      container,
+      el,
+      horizontal: true,
+      top: itemRect.bottom - containerRect.top + scrollTop - 3 - 4, // 16x3 贴底,margin 4
+      left: itemRect.left - containerRect.left + (itemRect.width - INDICATOR_DIMENSION_PX) / 2,
+    }
+  }
+  return {
+    container,
+    el,
+    horizontal: false,
+    top: itemRect.top - containerRect.top + scrollTop + (itemRect.height - INDICATOR_DIMENSION_PX) / 2,
+    left: itemRect.left - containerRect.left, // 3x16 贴条目左缘
+  }
+}
+
+/** 200ms 折返两侧的 transform-origin(对应 CenterPoint:前段贴起侧边、后段贴终侧边)。 */
+function indicatorOrigin(horizontal: boolean, positive: boolean, afterJump: boolean): string {
+  const startSide = positive !== afterJump // 正向下前段贴上/左缘、后段贴下/右缘;反向互换
+  if (horizontal) return startSide ? 'left center' : 'right center'
+  return startSide ? 'center top' : 'center bottom'
+}
+
+function applyIndicatorPlace(place: IndicatorPlace & { el: HTMLElement; horizontal: boolean }): void {
+  indicatorPhase?.cancel()
+  indicatorPhase = null
+  place.el.style.top = `${place.top}px`
+  place.el.style.left = `${place.left}px`
+  place.el.style.transform = ''
+  place.el.style.transformOrigin = ''
+  place.el.style.opacity = '1'
+}
+
+function hideIndicator(): void {
+  indicatorPhase?.cancel()
+  indicatorPhase = null
+  rootRef.value?.querySelectorAll<HTMLElement>(':scope .wui-navview__indicator').forEach((el) => {
+    el.style.opacity = '0'
+  })
+  indicatorLast = null
+}
+
+/** 选中指示条落位 / 编排(PlayIndicatorAnimations 的 Web 复刻)。 */
+function placeIndicator(animated: boolean): void {
+  const next = measureIndicatorPlace()
+  if (!next) {
+    hideIndicator()
+    return
+  }
+  // 其他容器的指示条隐藏(菜单 ↔ 页脚跨容器按源跨级语义直接落位)
+  rootRef.value?.querySelectorAll<HTMLElement>(':scope .wui-navview__indicator').forEach((el) => {
+    if (el !== next.el) el.style.opacity = '0'
+  })
+
+  const prev = indicatorLast
+  indicatorLast = { container: next.container, top: next.top, left: next.left }
+  const delta = next.horizontal ? next.left - (prev?.left ?? next.left) : next.top - (prev?.top ?? next.top)
+  const canAnimate =
+    animated &&
+    prev !== null &&
+    prev.container === next.container &&
+    delta !== 0 &&
+    !prefersReducedMotion() &&
+    typeof next.el.animate === 'function'
+  if (!canAnimate) {
+    applyIndicatorPlace(next)
+    return
+  }
+
+  // 两段编排:0-200ms 旧位拉伸(c_frame1)→ 200ms Offset 跳新位 + CenterPoint 翻终侧
+  // (posAnim/centerAnim singleStep)→ 200-600ms 新位收回(c_frame2)
+  const peak = Math.abs(delta) / INDICATOR_DIMENSION_PX + 1
+  const axis = next.horizontal ? 'X' : 'Y'
+  const positive = delta > 0
+  const el = next.el
+  el.style.opacity = '1'
+  el.style.top = `${next.horizontal ? next.top : prev.top}px`
+  el.style.left = `${next.horizontal ? prev.left : next.left}px`
+  el.style.transformOrigin = indicatorOrigin(next.horizontal, positive, false)
+  const phase1 = el.animate([{ transform: `scale${axis}(1)` }, { transform: `scale${axis}(${peak})` }], {
+    duration: INDICATOR_JUMP_MS,
+    easing: INDICATOR_EASE_STRETCH,
+    fill: 'forwards',
+  })
+  indicatorPhase = phase1
+  void phase1.finished
+    .then(() => {
+      if (indicatorPhase !== phase1) return // 已被新一次选中打断
+      el.style.top = `${next.top}px`
+      el.style.left = `${next.left}px`
+      el.style.transformOrigin = indicatorOrigin(next.horizontal, positive, true)
+      const phase2 = el.animate(
+        [{ transform: `scale${axis}(${peak})` }, { transform: `scale${axis}(1)` }],
+        {
+          duration: INDICATOR_DURATION_MS - INDICATOR_JUMP_MS,
+          easing: INDICATOR_EASE_SHRINK,
+          fill: 'forwards',
+        },
+      )
+      indicatorPhase = phase2
+      void phase2.finished.then(() => {
+        if (indicatorPhase !== phase2) return
+        indicatorPhase = null
+        phase2.cancel() // 撤除 forwards 锁定,静止态回归无 transform(落位于新条目)
+        el.style.transform = ''
+        el.style.transformOrigin = ''
+      })
+    })
+    .catch(() => {
+      /* 被后续编排打断(cancel)属正常路径 */
+    })
+}
 
 function togglePane(): void {
   isPaneOpen.value = !isPaneOpen.value
@@ -482,6 +664,8 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
               :entry="entry"
             />
           </slot>
+          <!-- 共享选中指示条(A9):位置/编排由脚本写入,见样式注 -->
+          <span class="wui-navview__indicator" aria-hidden="true"></span>
         </nav>
         <div class="wui-navview__topbar-spring" aria-hidden="true"></div>
         <nav v-if="hasFooterMenu" class="wui-navview__topbar-footer" :aria-label="footerNavLabel">
@@ -492,6 +676,7 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
               :entry="entry"
             />
           </slot>
+          <span class="wui-navview__indicator" aria-hidden="true"></span>
         </nav>
       </div>
       <div class="wui-navview__content">
@@ -553,6 +738,8 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
                   :entry="entry"
                 />
               </slot>
+              <!-- 共享选中指示条(A9):位置/编排由脚本写入,见样式注 -->
+              <span class="wui-navview__indicator" aria-hidden="true"></span>
             </nav>
             <div v-if="$slots['pane-footer']" class="wui-navview__pane-footer">
               <slot name="pane-footer" />
@@ -565,6 +752,7 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
                   :entry="entry"
                 />
               </slot>
+              <span class="wui-navview__indicator" aria-hidden="true"></span>
             </nav>
           </div>
         </template>
@@ -709,6 +897,7 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
 }
 
 .wui-navview__menu {
+  position: relative; /* 共享选中指示条(A9)的定位容器 */
   flex: 1 1 auto;
   min-height: 0;
   padding-bottom: 8px;
@@ -722,6 +911,7 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
 }
 
 .wui-navview__footer-menu {
+  position: relative; /* 共享选中指示条(A9)的定位容器 */
   flex: none;
   padding: 4px 0;
   overflow-x: hidden;
@@ -757,6 +947,7 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
 }
 
 .wui-navview__topbar-items {
+  position: relative; /* 共享选中指示条(A9)的定位容器 */
   display: flex;
   align-items: center;
   min-width: 0;
@@ -767,6 +958,7 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
 }
 
 .wui-navview__topbar-footer {
+  position: relative; /* 共享选中指示条(A9)的定位容器 */
   display: flex;
   align-items: center;
   flex: none;
@@ -873,22 +1065,26 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
   cursor: default;
 }
 
-/* 选中指示条(SelectionIndicator / "pill"):3x16、圆角 2、高亮色,选中淡入 */
-.wui-navview :deep(.wui-nav-item__pill) {
+/* 共享选中指示条(SelectionIndicator / "pill",A9):每容器一枚,替代逐项 pill ——
+   源选中切换为 600ms Scale+Offset 编排(NavigationView.cpp PlayIndicatorAnimations
+   L2184-2234:Offset 200ms 处 singleStep 跳变、Scale 以 c_frame1/c_frame2 两段
+   拉伸-收回、CenterPoint 200ms 折返,曲线常量 L1990-1993),编排由脚本 WAAPI
+   驱动(见脚本注),此处只承载静态形。无选中/不可见时 opacity 0,位置由脚本写入。 */
+.wui-navview__indicator {
   position: absolute;
-  top: 50%;
+  top: 0;
   left: 0;
   width: 3px; /* NavigationViewSelectionIndicatorWidth */
   height: 16px; /* NavigationViewSelectionIndicatorHeight */
   border-radius: 2px; /* NavigationViewSelectionIndicatorRadius */
   background: var(--wui-system-accent-color); /* ← AccentFillColorDefaultBrush */
   opacity: 0;
-  transform: translateY(-50%);
-  transition: opacity var(--wui-duration-fast) var(--wui-easing-standard);
+  pointer-events: none;
 }
 
-.wui-navview :deep(.wui-nav-item--selected .wui-nav-item__pill) {
-  opacity: 1;
+.wui-navview--top .wui-navview__indicator {
+  width: 16px; /* 顶栏 pill 16x3(margin 16,0,16,4) */
+  height: 3px;
 }
 
 /* 图标盒(NavigationViewIconBoxWidth 40 x IconBoxHeight 16;无图标收缩为 8 宽列) */
@@ -974,15 +1170,6 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
   margin: 0 12px 0 8px; /* TopNavigationViewItemContentPresenterMargin 8,-1,12,-1 */
 }
 
-.wui-navview--top :deep(.wui-nav-item__pill) {
-  top: auto;
-  bottom: 4px;
-  left: 50%;
-  width: 16px;
-  height: 3px;
-  transform: translateX(-50%);
-}
-
 .wui-navview--top :deep(.wui-nav-item--selected) {
   background: transparent; /* TopNavigationViewItemBackgroundSelected = 透明,仅 pill */
 }
@@ -1007,7 +1194,6 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wui-navview :deep(.wui-nav-item__pill),
   .wui-navview :deep(.wui-nav-item__chevron-icon) {
     transition-duration: 0.01ms;
   }

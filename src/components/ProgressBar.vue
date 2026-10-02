@@ -347,9 +347,9 @@ html[data-theme='dark'] .wui-progressbar {
 
 /* ======================================================================
  * 不确定 + Error/Paused(源 IndeterminateError / IndeterminatePaused 状态):
- *   指示条一与确定指示条隐藏,指示条二变满宽(100%);颜色切到 Error/Paused 色(167ms);
- *   进入状态时播放一次性脉冲(0.75s:先扫至右端、回落至 -150%、再归位 0,
- *   KeySpline 1,1,0,1 与 0,0,0,1 → cubic-bezier);轨道隐藏。
+ *   指示条一与确定指示条隐藏,指示条二变满宽(100%,SetProgressBarIndicatorWidth
+ *   ProgressBar.cpp L181);颜色切到 Error/Paused 色(167ms);
+ *   进入状态时播放一次性三段折返脉冲(见下方 keyframes 注);轨道隐藏。
  * ====================================================================== */
 .wui-progressbar--indeterminate-error .wui-progressbar__track,
 .wui-progressbar--indeterminate-paused .wui-progressbar__track {
@@ -375,15 +375,20 @@ html[data-theme='dark'] .wui-progressbar {
   animation: wui-progressbar-state-pulse 750ms both;
 }
 
+/* 三段折返的精确化(audit B5):源两条 SplineDoubleKeyFrame 同为 KeyTime 0.167s ——
+   0→167ms 扫至终点(Container2AnimationEndPosition = 1.66×60% 宽 = 99.6% 轨道,
+   KeySpline 1,1,0,1),167ms 同刻折返起点(Container2AnimationStartPosition =
+   −1.5×60% 宽 = −90%,取双停 keyframe 表达瞬时跳变),167→750ms 缓至中点 0
+   (ContainerAnimationMidPosition,KeySpline 0,0,0,1)。22.267% = 0.167s / 0.75s。 */
 @keyframes wui-progressbar-state-pulse {
   0% {
     transform: translateX(0);
     animation-timing-function: cubic-bezier(1, 1, 0, 1);
   }
-  22.2% {
+  22.267% {
     transform: translateX(99.6%);
   }
-  22.3% {
+  22.267% {
     transform: translateX(-90%);
     animation-timing-function: cubic-bezier(0, 0, 0, 1);
   }

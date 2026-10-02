@@ -219,14 +219,29 @@ html[data-theme='dark'] .wui-item-container {
   border-color: var(--ic-solid-fill);
 }
 
+/* SelectedNormal:PART_SelectionVisual Opacity 0→1 Duration="0"(ItemContainer.xaml L36-37,
+   瞬时)—— 无 transition,选中即现(audit A12 前半:瞬时按源) */
 .wui-item-container.is-selected::after {
   opacity: 1;
 }
 
-/* DisabledStates:PART_ContainerRoot Opacity = ItemContainerDisabledOpacity = 0.3;
-   且 PART_SelectionVisual Visibility=Collapsed(外环隐藏) */
+/* SelectedPointerOver / SelectedPressed:PART_SelectionVisual Opacity →1
+   SplineDoubleKeyFrame @ControlFastAnimationDuration(167ms) KeySpline 0,0,0,1
+   (ItemContainer.xaml L53-55 / L74-96)—— transition 声明在目标态规则,仅悬停/按压
+   路径上的选中淡入走 167ms,普通选中保持瞬时(audit A12) */
+.wui-item-container.is-selected:not(.is-disabled):hover::after,
+.wui-item-container.is-selected:not(.is-disabled):active::after {
+  opacity: 1;
+  transition: opacity 167ms cubic-bezier(0, 0, 0, 1);
+}
+
+/* DisabledStates:PART_ContainerRoot Opacity = ItemContainerDisabledOpacity = 0.3
+   SplineDoubleKeyFrame @167ms KeySpline 0,0,0,1(ItemContainer.xaml L106);
+   且 PART_SelectionVisual Visibility=Collapsed(外环隐藏,瞬时)。
+   过渡仅声明在 Disabled 目标态:恢复启用回瞬时(源 Enabled 态无 Storyboard) */
 .wui-item-container.is-disabled {
   opacity: 0.3;
+  transition: opacity 167ms cubic-bezier(0, 0, 0, 1);
   cursor: default;
 }
 

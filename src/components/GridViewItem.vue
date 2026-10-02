@@ -231,7 +231,7 @@ function onClick(event: MouseEvent): void {
   top: 6px;
   left: 6px;
   box-sizing: border-box;
-  display: none;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 20px;
@@ -240,6 +240,17 @@ function onClick(event: MouseEvent): void {
   border: 1px solid var(--wui-grid-view-item-check-box);
   border-radius: 50%;
   pointer-events: none;
+  /* 多选方块 fade(audit A10;G.xaml L9693-9705 MultiSelectStates):
+     进入 Multiple:MultiSelectSquare Visible@0 + FadeInThemeAnimation;退出:
+     FadeOutThemeAnimation + Collapsed@0.333s。FadeIn/Out 平台时长源未找到
+     (PVL 表),取方块 Visible↔Collapsed 的 0.333s 门控窗为时长。
+     过渡恒挂:出现 333ms 淡入(delay 0),消失 333ms 淡出后折 visibility;
+     单选直接选中/取消亦走同一 fade(源单选为瞬时,已声明近似)。 */
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 333ms var(--wui-easing-standard) 0s,
+    visibility 0s linear 333ms;
 }
 
 .check-mark svg {
@@ -255,14 +266,18 @@ function onClick(event: MouseEvent): void {
   stroke-linejoin: round;
 }
 
-/* 选中:显示实心勾选圈 */
+/* 选中:显示实心勾选圈(出现方向 visibility 立即、opacity 333ms 淡入) */
 .wui-grid-view-item.is-selected .check-mark {
-  display: inline-flex;
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s, 0s;
 }
 
 /* 多选(Multiple 模式):未选中项显示空心圈 */
 .wui-grid-view-item.multi-halo:not(.is-selected) .check-mark {
-  display: inline-flex;
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s, 0s;
   background: transparent;
   border-color: var(--wui-grid-view-item-check);
 }

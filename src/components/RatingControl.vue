@@ -17,6 +17,8 @@ export interface RatingControlValueChangedEventArgs {
 //   - 点击当前值星星 = 清空(isClearEnabled),键盘 ←/→/↑/↓ ±1、Home 清空、End 满值,
 //     未评分时按方向键取 initialSetValue(源 ChangeRatingBy 语义);
 //   - 未评分时显示 placeholderValue(半星精度),评分后星条 + 文字收窄为紧凑态;
+//   - 悬停星星跟手缩放(audit A14):源 ExpressionAnimation scale = max(0.8 − 0.0004·d源², 0.5)
+//     (RatingControl.cpp L350-372,中心 16,16),Web 以 pointermove 直写每星 transform 复刻;
 //   - a11y:源 AutomationPeer 为 Slider 控制类型 + RangeValue 模式(min 0 / max maxRating /
 //     未评分报 0),故 role="slider" + aria-valuemin/max/now/valuetext。
 import { computed, ref, watch } from 'vue'
@@ -156,11 +158,54 @@ const starFractions = computed<number[]>(() => {
   return fractions
 })
 
-function starStyle(fraction: number): CSSProperties {
-  if (fraction >= 1) return {}
-  // 保留 4 位小数,消除 0.30000000000000004 之类的浮点噪声。
-  const clipRight = ((1 - fraction) * 100).toFixed(4)
-  return { clipPath: `inset(0 ${clipRight}% 0 0)` }
+function starStyle(fraction: number, index: number): CSSProperties {
+  const styles: CSSProperties = { ...starScaleStyle(index) }
+  if (fraction < 1) {
+    // 保留 4 位小数,消除 0.30000000000000004 之类的浮点噪声。
+    const clipRight = ((1 - fraction) * 100).toFixed(4)
+    styles.clipPath = `inset(0 ${clipRight}% 0 0)`
+  }
+  return styles
+}
+
+// —— 悬停星星跟手缩放(audit A14;RatingControl.cpp ApplyScaleExpressionAnimation L350-372)——
+// 源表达式:scale = max(−0.0005 × pointerScalar × (starCenterX − focal)² + pointerScalar, 0.5),
+// 其中 pointerScalar = c_mouseOverScale 0.8(L116,常量)、缩放中心 = 星自身中心 (16,16)
+// (c_scaleAnimationCenterPoint L14-15)。源星以 FontSize 32 渲染 ×0.5 缩放(0.5 即静息
+// 比例);本组件以 16px 直绘,按 scale/0.5 换算相对倍率:max(1.6 − 0.0032·d², 1),d 为
+// 指针到星心的 16px 空间距离(星心距 24px:16 星 + 8 间距;星心处 1.6 倍 = 25.6px,同源
+// 0.8×32px;d≥13.69px 落底 1 倍)。源为表达式跟手、无固定时长,Web 以 pointermove 直写
+// transform 复刻(reduced-motion 下不启用)。
+const RATING_STAR_SIZE_PX = 16
+const RATING_STAR_GAP_PX = 8
+
+const starScales = ref<number[]>([])
+
+function resetStarScales(): void {
+  if (starScales.value.length > 0) starScales.value = []
+}
+
+function updateStarScales(event: PointerEvent): void {
+  const el = starsEl.value
+  if (!el || !previewActive.value) return
+  if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    return
+  }
+  const rect = el.getBoundingClientRect()
+  const focal = event.clientX - rect.left
+  const scales: number[] = []
+  for (let i = 0; i < effMaxRating.value; i += 1) {
+    const d = focal - (i * (RATING_STAR_SIZE_PX + RATING_STAR_GAP_PX) + RATING_STAR_SIZE_PX / 2)
+    scales.push(Math.max(1.6 - 0.0032 * d * d, 1))
+  }
+  starScales.value = scales
+}
+
+/** 星缩放内联样式(1 倍时不写 transform,保持无变换静息态)。 */
+function starScaleStyle(index: number): CSSProperties {
+  const scale = starScales.value[index]
+  if (scale === undefined || scale === 1) return {}
+  return { transform: `scale(${scale})`, transformOrigin: 'center' }
 }
 
 // —— 提交路径(对照 SetRatingTo / ChangeRatingBy)——
@@ -259,18 +304,21 @@ function onPointerEnter(event: PointerEvent): void {
   if (!isInteractive()) return
   isPointerOver.value = true
   updatePointerRatio(event)
+  updateStarScales(event)
 }
 
 function onPointerMove(event: PointerEvent): void {
   if (!isInteractive()) return
   isPointerOver.value = true
   updatePointerRatio(event)
+  updateStarScales(event)
 }
 
 function onPointerLeave(): void {
   // 按住期间(拖动清空)不退出预览,与源 m_isPointerDown 守卫一致。
   if (isPointerDown.value) return
   isPointerOver.value = false
+  resetStarScales()
 }
 
 function onPointerDown(event: PointerEvent): void {
@@ -295,6 +343,7 @@ function onPointerUp(): void {
 function onPointerCancel(): void {
   isPointerDown.value = false
   isPointerOver.value = false
+  resetStarScales()
 }
 
 // —— a11y(对照 RatingControlAutomationPeer:Slider 类型 + RangeValue/Value 模式)——
@@ -338,13 +387,18 @@ const ariaValueText = computed(() => {
       @pointercancel="onPointerCancel"
       @lostpointercapture="onPointerCancel"
     >
-      <span v-for="i in effMaxRating" :key="`bg-${i}`" class="wui-rating__star wui-rating__star--background">&#xE734;</span>
+      <span
+        v-for="i in effMaxRating"
+        :key="`bg-${i}`"
+        class="wui-rating__star wui-rating__star--background"
+        :style="starScaleStyle(i - 1)"
+      >&#xE734;</span>
       <span class="wui-rating__foreground" :class="`wui-rating__foreground--${foregroundState}`">
         <span
           v-for="(fraction, i) in starFractions"
           :key="`fg-${i}`"
           class="wui-rating__star wui-rating__star--foreground"
-          :style="starStyle(fraction)"
+          :style="starStyle(fraction, i)"
         >&#xE735;</span>
       </span>
     </div>

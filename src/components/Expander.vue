@@ -347,13 +347,20 @@ const hasHeaderText = computed(() => props.header !== '')
   transition-timing-function: cubic-bezier(0, 0, 0, 1);
 }
 
-/* 收起后不可见:移出焦点序与可访问性树(过渡完成后隐藏;展开立即可见) */
+/* 收起后不可见:移出焦点序与可访问性树(过渡完成后隐藏;展开立即可见)。
+   visibility 折返时长按源方向区分(audit B3):CollapseDown 内容 Collapsed @0.2s
+   (Expander.xaml L53)→ 默认 200ms;CollapseUp @0.167s(L82)→ Up 向覆盖 167ms。
+   水平 Left/Right 为 Web 扩展方向(源无此向模板),随 Down 口径取 200ms。 */
 .wui-expander-clip-inner {
   min-height: 0;
   min-width: 0;
   overflow: hidden;
   visibility: hidden;
-  transition: visibility 0s linear var(--wui-duration-fast);
+  transition: visibility 0s linear 200ms;
+}
+
+.wui-expander--up .wui-expander-clip-inner {
+  transition-delay: 167ms;
 }
 
 .wui-expander--expanded .wui-expander-clip-inner {
