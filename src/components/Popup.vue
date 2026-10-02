@@ -234,7 +234,10 @@ function onAfterLeave(): void {
 
 /* 出入场:打开纯淡入(源 OverlayOpeningAnimation 语义),关闭淡出为 Web 增强;
    关键帧与时长/缓动 token 来自 animations.css(popup.css 已随本组件引入)。
-   prefers-reduced-motion 由 animations.css 全局降级,Transition 钩子仍按时序触发。 */
+   曲线口径同 ToolTip(MR3/B2 核订):源 FadeIn/Out 曲线为平台 PVL 数据
+   (palcore.h L195-204 OpacitySplineTransform,系数不在快照内),库取
+   standard/accelerate 为已声明近似;prefers-reduced-motion 由 animations.css
+   全局降级,Transition 钩子仍按时序触发。 */
 .wui-popup-enter-active {
   animation: wui-fade-in var(--wui-duration-fast) var(--wui-easing-standard) both;
 }

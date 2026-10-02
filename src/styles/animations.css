@@ -52,6 +52,58 @@
      依据:KeySpline="0.2,0 0,1" CommandBar overflow 关闭 L10220(首处,
      另见 NavigationView/CommandBar 收拢 L10268、L10344 等成对出现)。 */
   --wui-easing-accelerate: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ------------------------------------------------------------------
+   * 代码侧缓动函数的 CSS linear() 精确采样(MR3/B10)
+   * ------------------------------------------------------------------
+   * 源:导航过渡以代码构造 EasingFunction(ThemeTransitions.cpp /
+   * NavigateTransitionHelper.cpp),求值公式在平台插值器实现
+   * xcp/components/animation/EasingFunctions.cpp:
+   *   EaseOut = 1 − EaseInCore(1−t)(CEasingFunctionImpl::Ease,L52-79);
+   *   ExponentialEase EaseInCore = (e^(exponent·t) − 1)/(e^exponent − 1)
+   *     (CExponentialInterpolator::EaseInCore,L139-147);
+   *   CircleEase EaseInCore = −(sqrt(1−t²) − 1)
+   *     (CCircInterpolator::EaseInCore,L97-110)。
+   * cubic-bezier 无精确等价(theme-animations.md §3.3 标注的替代曲线即
+   * CSS linear());以下为按公式 1/64 步长的采样值(最大弦差 <0.2%)。
+   * linear() 需 Chromium 113+;更早引擎回退声明为 `ease`。
+   *
+   * 注意(MR3 实测):@keyframes 段内的 animation-timing-function 引用 var()
+   * 在 Chromium 不解析(段缓动退回 linear),故关键帧内一律**内联字面量**
+   * linear() 采样(本 token 供 JS/WAAPI 与动画级声明使用)。 */
+  --wui-easing-expo-out-6: linear(
+    0, 0.0897, 0.1714, 0.2458, 0.3135, 0.3751, 0.4313, 0.4824, 0.5289,
+    0.5713, 0.6099, 0.645, 0.677, 0.7062, 0.7327, 0.7568, 0.7788, 0.7988,
+    0.817, 0.8336, 0.8487, 0.8625, 0.875, 0.8864, 0.8968, 0.9063, 0.9149,
+    0.9227, 0.9299, 0.9364, 0.9423, 0.9477, 0.9526, 0.957, 0.9611, 0.9648,
+    0.9682, 0.9713, 0.974, 0.9766, 0.9789, 0.981, 0.9829, 0.9847, 0.9863,
+    0.9877, 0.9891, 0.9903, 0.9913, 0.9923, 0.9933, 0.9941, 0.9948, 0.9955,
+    0.9961, 0.9967, 0.9972, 0.9977, 0.9981, 0.9985, 0.9989, 0.9992, 0.9995,
+    0.9998, 1
+  );
+
+  --wui-easing-expo-in-6: linear(
+    0, 0.0002, 0.0005, 0.0008, 0.0011, 0.0015, 0.0019, 0.0023, 0.0028,
+    0.0033, 0.0039, 0.0045, 0.0052, 0.0059, 0.0067, 0.0077, 0.0087, 0.0097,
+    0.0109, 0.0123, 0.0137, 0.0153, 0.0171, 0.019, 0.0211, 0.0234, 0.026,
+    0.0287, 0.0318, 0.0352, 0.0389, 0.043, 0.0474, 0.0523, 0.0577, 0.0636,
+    0.0701, 0.0773, 0.0851, 0.0937, 0.1032, 0.1136, 0.125, 0.1375, 0.1513,
+    0.1664, 0.183, 0.2012, 0.2212, 0.2432, 0.2673, 0.2938, 0.323, 0.355,
+    0.3901, 0.4287, 0.4711, 0.5176, 0.5687, 0.6249, 0.6865, 0.7542, 0.8286,
+    0.9103, 1
+  );
+
+  /* CircleEase(EaseOut,CircleEase 唯一公开模式,PT 用作 Continuum 背景层曲线) */
+  --wui-easing-circle-out: linear(
+    0, 0.1761, 0.248, 0.3026, 0.348, 0.3875, 0.4227, 0.4547, 0.4841,
+    0.5113, 0.5367, 0.5605, 0.583, 0.6041, 0.6242, 0.6433, 0.6614, 0.6787,
+    0.6953, 0.7111, 0.7262, 0.7407, 0.7545, 0.7679, 0.7806, 0.7929, 0.8046,
+    0.8159, 0.8268, 0.8372, 0.8472, 0.8568, 0.866, 0.8749, 0.8833, 0.8914,
+    0.8992, 0.9067, 0.9138, 0.9205, 0.927, 0.9332, 0.9391, 0.9446, 0.9499,
+    0.9549, 0.9596, 0.9641, 0.9682, 0.9721, 0.9758, 0.9792, 0.9823, 0.9851,
+    0.9877, 0.9901, 0.9922, 0.994, 0.9956, 0.9969, 0.998, 0.9989, 0.9995,
+    0.9999, 1
+  );
 }
 
 /* ======================================================================
@@ -391,16 +443,25 @@
  * 类名由 src/utils/transitions.ts 的 getNavigationTransition() 生成
  * (wui-nav-<kind>-<dir>-enter|leave);进入用关键帧 from 端,离开用 fill both
  * 保持末态直到 Vue 移除元素。时长保留源中的精确颗粒(未并入 fast/normal/slow
- * 三档 token,见 motion-notes.md 采样口径),缓动一律用 --wui-easing-* token;
- * 离开曲线源用 (0.7,0 1,.5) 等加速 spline,统一以 --wui-easing-accelerate 近似。
+ * 三档 token,见 motion-notes.md 采样口径),缓动按源落值:显式 KeySpline 用
+ * --wui-easing-* token;代码构造的 ExponentialEase(6)/CircleEase 用
+ * linear() 采样 token(MR3/B10,见 :root 段注释与 EasingFunctions.cpp 行号);
+ * 离开曲线源用 (0.7,0 1,.5) 等 spline 处仍以 --wui-easing-accelerate 近似。
  * 交互视图进入页恒 z-index:1(源中 NavigatingTo 页为前景页)。
  * ====================================================================== */
 
 /* 视图堆叠容器:过渡期间新旧视图同格重叠(等价 WinUI Frame 两页叠放),
-   供 NavigationThemeTransition.vue 与裸 vue-router 用法共用。 */
+   供 NavigationThemeTransition.vue 与裸 vue-router 用法共用。
+   perspective 999px(MR3/B10):源 Turnstile 挂 PlaneProjection,其透视由
+   平台固定视锥给出(near 1 / far 1001 / FOV 57° / zOffset −999,
+   xcp/core/inc/PlaneProjection.h L139-143 + components/transforms/
+   PlaneProjection.cpp L10-39)—— 元素平面距相机 ≈999 单位,等价 CSS
+   perspective(999px)(原 1200px 为无源近似,已订正)。挂在容器上,对
+   纯 2D 位移的转场无影响。 */
 .wui-nav-frame {
   display: grid;
   overflow: hidden;
+  perspective: 999px;
 }
 
 .wui-nav-frame > * {
@@ -617,20 +678,37 @@
   animation: wui-nav-slide-left-back-out 150ms var(--wui-easing-accelerate) both;
 }
 
-/* ---- Slide 纵向(Effect=FromBottom 缺省/FromTop,NavigateTransitionHelper.h
-   SLIDE_OFFSET_IN=200、SLIDE_MID_TIME=250、SLIDE_END_TIME=600,ExponentialEase):
-   进页:从 ±200px 升入(250ms 隐藏后 350ms 指数缓出 → decelerate token);
-   离页:250ms 后被进页覆盖淡出;退导航:退页滑出 ±200px(600ms 指数缓入 →
-   accelerate token),新页 250ms 淡入。注:源纵滑分支未按 FromTop/FromBottom
-   区分符号,Web 端按语义镜像实现(wiki 差异节)。 */
+/* ---- Slide 纵向(Effect=FromBottom 缺省/FromTop,ThemeTransitions.cpp
+   L1598-1680 + NavigateTransitionHelper.h SLIDE_OFFSET_IN=200、SLIDE_MID_TIME=250、
+   SLIDE_END_TIME=600,SLIDE_EASE=6):
+   进页(L1602-1612):translate 恒 200px 至 250ms,ExpoEase(6,Out) 归 0 至 600ms;
+   opacity 离散切 1(0@240 → 1@250,Discrete 帧)。
+   离页(L1616-1625):无位移时间线,opacity 1@240 → 0@250(250ms 处消失)。
+   退进(L1655-1665):与离页同构 —— 纯 opacity 0@240 → 1@250,无位移(BackNavigatingTo)。
+   退离(L1666-1680):translate 0→200px ExpoEase(6,In) 至 600ms,opacity 1@240 → 0@250。
+   注:源纵滑分支未按 FromTop/FromBottom 区分符号,Web 端按语义镜像实现(wiki 差异节)。 */
 @keyframes wui-nav-slide-bottom-fwd-in {
   from {
     opacity: 0;
     transform: translateY(200px);
   }
+  40% {
+    opacity: 0;
+    transform: translateY(200px);
+    animation-timing-function: linear(
+    0, 0.0897, 0.1714, 0.2458, 0.3135, 0.3751, 0.4313, 0.4824,
+    0.5289, 0.5713, 0.6099, 0.645, 0.677, 0.7062, 0.7327, 0.7568,
+    0.7788, 0.7988, 0.817, 0.8336, 0.8487, 0.8625, 0.875, 0.8864,
+    0.8968, 0.9063, 0.9149, 0.9227, 0.9299, 0.9364, 0.9423, 0.9477,
+    0.9526, 0.957, 0.9611, 0.9648, 0.9682, 0.9713, 0.974, 0.9766,
+    0.9789, 0.981, 0.9829, 0.9847, 0.9863, 0.9877, 0.9891, 0.9903,
+    0.9913, 0.9923, 0.9933, 0.9941, 0.9948, 0.9955, 0.9961, 0.9967,
+    0.9972, 0.9977, 0.9981, 0.9985, 0.9989, 0.9992, 0.9995, 0.9998,
+    1
+  );
+  }
   41.667% {
     opacity: 1;
-    transform: translateY(200px);
   }
   to {
     opacity: 1;
@@ -642,6 +720,9 @@
   from {
     opacity: 1;
   }
+  96% {
+    opacity: 1;
+  }
   to {
     opacity: 0;
   }
@@ -649,6 +730,9 @@
 
 @keyframes wui-nav-slide-bottom-back-in {
   from {
+    opacity: 0;
+  }
+  96% {
     opacity: 0;
   }
   to {
@@ -660,6 +744,24 @@
   from {
     opacity: 1;
     transform: translateY(0);
+    animation-timing-function: linear(
+    0, 0.0002, 0.0005, 0.0008, 0.0011, 0.0015, 0.0019, 0.0023,
+    0.0028, 0.0033, 0.0039, 0.0045, 0.0052, 0.0059, 0.0067, 0.0077,
+    0.0087, 0.0097, 0.0109, 0.0123, 0.0137, 0.0153, 0.0171, 0.019,
+    0.0211, 0.0234, 0.026, 0.0287, 0.0318, 0.0352, 0.0389, 0.043,
+    0.0474, 0.0523, 0.0577, 0.0636, 0.0701, 0.0773, 0.0851, 0.0937,
+    0.1032, 0.1136, 0.125, 0.1375, 0.1513, 0.1664, 0.183, 0.2012,
+    0.2212, 0.2432, 0.2673, 0.2938, 0.323, 0.355, 0.3901, 0.4287,
+    0.4711, 0.5176, 0.5687, 0.6249, 0.6865, 0.7542, 0.8286, 0.9103,
+    1
+  );
+  }
+  40% {
+    opacity: 1;
+    animation-timing-function: linear;
+  }
+  41.667% {
+    opacity: 0;
   }
   to {
     opacity: 0;
@@ -669,7 +771,7 @@
 
 .wui-nav-slide-bottom-fwd-enter {
   z-index: 1;
-  animation: wui-nav-slide-bottom-fwd-in 600ms var(--wui-easing-decelerate) both;
+  animation: wui-nav-slide-bottom-fwd-in 600ms linear both;
 }
 
 .wui-nav-slide-bottom-fwd-leave {
@@ -682,7 +784,7 @@
 }
 
 .wui-nav-slide-bottom-back-leave {
-  animation: wui-nav-slide-bottom-back-out 600ms var(--wui-easing-accelerate) both;
+  animation: wui-nav-slide-bottom-back-out 600ms linear both;
 }
 
 @keyframes wui-nav-slide-top-fwd-in {
@@ -690,9 +792,23 @@
     opacity: 0;
     transform: translateY(-200px);
   }
+  40% {
+    opacity: 0;
+    transform: translateY(-200px);
+    animation-timing-function: linear(
+    0, 0.0897, 0.1714, 0.2458, 0.3135, 0.3751, 0.4313, 0.4824,
+    0.5289, 0.5713, 0.6099, 0.645, 0.677, 0.7062, 0.7327, 0.7568,
+    0.7788, 0.7988, 0.817, 0.8336, 0.8487, 0.8625, 0.875, 0.8864,
+    0.8968, 0.9063, 0.9149, 0.9227, 0.9299, 0.9364, 0.9423, 0.9477,
+    0.9526, 0.957, 0.9611, 0.9648, 0.9682, 0.9713, 0.974, 0.9766,
+    0.9789, 0.981, 0.9829, 0.9847, 0.9863, 0.9877, 0.9891, 0.9903,
+    0.9913, 0.9923, 0.9933, 0.9941, 0.9948, 0.9955, 0.9961, 0.9967,
+    0.9972, 0.9977, 0.9981, 0.9985, 0.9989, 0.9992, 0.9995, 0.9998,
+    1
+  );
+  }
   41.667% {
     opacity: 1;
-    transform: translateY(-200px);
   }
   to {
     opacity: 1;
@@ -704,6 +820,9 @@
   from {
     opacity: 1;
   }
+  96% {
+    opacity: 1;
+  }
   to {
     opacity: 0;
   }
@@ -711,6 +830,9 @@
 
 @keyframes wui-nav-slide-top-back-in {
   from {
+    opacity: 0;
+  }
+  96% {
     opacity: 0;
   }
   to {
@@ -722,6 +844,24 @@
   from {
     opacity: 1;
     transform: translateY(0);
+    animation-timing-function: linear(
+    0, 0.0002, 0.0005, 0.0008, 0.0011, 0.0015, 0.0019, 0.0023,
+    0.0028, 0.0033, 0.0039, 0.0045, 0.0052, 0.0059, 0.0067, 0.0077,
+    0.0087, 0.0097, 0.0109, 0.0123, 0.0137, 0.0153, 0.0171, 0.019,
+    0.0211, 0.0234, 0.026, 0.0287, 0.0318, 0.0352, 0.0389, 0.043,
+    0.0474, 0.0523, 0.0577, 0.0636, 0.0701, 0.0773, 0.0851, 0.0937,
+    0.1032, 0.1136, 0.125, 0.1375, 0.1513, 0.1664, 0.183, 0.2012,
+    0.2212, 0.2432, 0.2673, 0.2938, 0.323, 0.355, 0.3901, 0.4287,
+    0.4711, 0.5176, 0.5687, 0.6249, 0.6865, 0.7542, 0.8286, 0.9103,
+    1
+  );
+  }
+  40% {
+    opacity: 1;
+    animation-timing-function: linear;
+  }
+  41.667% {
+    opacity: 0;
   }
   to {
     opacity: 0;
@@ -731,7 +871,7 @@
 
 .wui-nav-slide-top-fwd-enter {
   z-index: 1;
-  animation: wui-nav-slide-top-fwd-in 600ms var(--wui-easing-decelerate) both;
+  animation: wui-nav-slide-top-fwd-in 600ms linear both;
 }
 
 .wui-nav-slide-top-fwd-leave {
@@ -744,7 +884,7 @@
 }
 
 .wui-nav-slide-top-back-leave {
-  animation: wui-nav-slide-top-back-out 600ms var(--wui-easing-accelerate) both;
+  animation: wui-nav-slide-top-back-out 600ms linear both;
 }
 
 /* ---- DrillIn(源 L2830-L2987):进页 scale 0.94→1(783ms 标准曲线)+ 淡入
@@ -819,92 +959,178 @@
   transform-origin: center;
 }
 
-/* ---- Common(Turnstile 旋转门,源 L557-L880、TURNSTILE_* 常量):绕左/右缘
-   rotateY 三维翻转 —— 进页 -80°→0(128ms 隐藏后至 556ms 指数缓出)、128ms 淡入;
-   离页 0→50°(128ms 指数缓入)后淡出;退进 +50°→0(L958-960)、退离 0→−80°
-   (L1020-1021)—— 源规则:进页与退离用 OFFSET_IN=80、离页与退进用 OFFSET_OUT=50。
-   透视 1200px 与绕轴手性为 Web 近似;源轴心 TURNSTILE_AXIS_X = -0.1(L8)。 */
+/* ---- Common(Turnstile 旋转门,ThemeTransitions.cpp L557-880、TURNSTILE_* 常量
+   NavigateTransitionHelper.h L114-133):绕左缘 rotateY 三维翻转 —— 进页 −80°
+   保持至 128ms 后 ExpoEase(6,Out) 归 0(556ms),opacity 离散切 1(128→129ms);
+   离页 0→50° ExpoEase(6,In) 128ms;退进 +50°→0(L958-960)、退离 0→−80°
+   (L1058-1059)—— 源规则:进页与退离用 OFFSET_IN=80、离页与退进用 OFFSET_OUT=50。
+   旋转轴心(MR3/B10 核源):四分支一律 CenterOfRotationX=TURNSTILE_AXIS_X=−0.1、
+   CenterOfRotationZ=TURNSTILE_AXIS_Z=−100(ThemeTransitions.cpp L8-9 定义,
+   L763/L862/L963/L1062 消费)⇒ transform-origin: -10% center
+   + translateZ(±100px) 夹层(原 left/right origin 为无源近似,已订正);
+   透视 999px 见 .wui-nav-frame 注释。 */
 @keyframes wui-nav-common-fwd-in {
   from {
     opacity: 0;
-    transform: perspective(1200px) rotateY(-80deg);
+    transform: translateZ(100px) rotateY(-80deg) translateZ(-100px);
   }
   23.022% {
+    opacity: 0;
+    transform: translateZ(100px) rotateY(-80deg) translateZ(-100px);
+    animation-timing-function: linear(
+    0, 0.0897, 0.1714, 0.2458, 0.3135, 0.3751, 0.4313, 0.4824,
+    0.5289, 0.5713, 0.6099, 0.645, 0.677, 0.7062, 0.7327, 0.7568,
+    0.7788, 0.7988, 0.817, 0.8336, 0.8487, 0.8625, 0.875, 0.8864,
+    0.8968, 0.9063, 0.9149, 0.9227, 0.9299, 0.9364, 0.9423, 0.9477,
+    0.9526, 0.957, 0.9611, 0.9648, 0.9682, 0.9713, 0.974, 0.9766,
+    0.9789, 0.981, 0.9829, 0.9847, 0.9863, 0.9877, 0.9891, 0.9903,
+    0.9913, 0.9923, 0.9933, 0.9941, 0.9948, 0.9955, 0.9961, 0.9967,
+    0.9972, 0.9977, 0.9981, 0.9985, 0.9989, 0.9992, 0.9995, 0.9998,
+    1
+  );
+  }
+  23.202% {
     opacity: 1;
-    transform: perspective(1200px) rotateY(-80deg);
   }
   to {
     opacity: 1;
-    transform: perspective(1200px) rotateY(0deg);
+    transform: translateZ(100px) rotateY(0deg) translateZ(-100px);
   }
 }
 
 @keyframes wui-nav-common-fwd-out {
   from {
     opacity: 1;
-    transform: perspective(1200px) rotateY(0deg);
+    transform: translateZ(100px) rotateY(0deg) translateZ(-100px);
+    animation-timing-function: linear(
+    0, 0.0002, 0.0005, 0.0008, 0.0011, 0.0015, 0.0019, 0.0023,
+    0.0028, 0.0033, 0.0039, 0.0045, 0.0052, 0.0059, 0.0067, 0.0077,
+    0.0087, 0.0097, 0.0109, 0.0123, 0.0137, 0.0153, 0.0171, 0.019,
+    0.0211, 0.0234, 0.026, 0.0287, 0.0318, 0.0352, 0.0389, 0.043,
+    0.0474, 0.0523, 0.0577, 0.0636, 0.0701, 0.0773, 0.0851, 0.0937,
+    0.1032, 0.1136, 0.125, 0.1375, 0.1513, 0.1664, 0.183, 0.2012,
+    0.2212, 0.2432, 0.2673, 0.2938, 0.323, 0.355, 0.3901, 0.4287,
+    0.4711, 0.5176, 0.5687, 0.6249, 0.6865, 0.7542, 0.8286, 0.9103,
+    1
+  );
+  }
+  99.2% {
+    opacity: 1;
   }
   to {
     opacity: 0;
-    transform: perspective(1200px) rotateY(50deg);
+    transform: translateZ(100px) rotateY(50deg) translateZ(-100px);
   }
 }
 
 @keyframes wui-nav-common-back-in {
   from {
     opacity: 0;
-    transform: perspective(1200px) rotateY(50deg);
+    transform: translateZ(100px) rotateY(50deg) translateZ(-100px);
   }
   23.022% {
+    opacity: 0;
+    transform: translateZ(100px) rotateY(50deg) translateZ(-100px);
+    animation-timing-function: linear(
+    0, 0.0897, 0.1714, 0.2458, 0.3135, 0.3751, 0.4313, 0.4824,
+    0.5289, 0.5713, 0.6099, 0.645, 0.677, 0.7062, 0.7327, 0.7568,
+    0.7788, 0.7988, 0.817, 0.8336, 0.8487, 0.8625, 0.875, 0.8864,
+    0.8968, 0.9063, 0.9149, 0.9227, 0.9299, 0.9364, 0.9423, 0.9477,
+    0.9526, 0.957, 0.9611, 0.9648, 0.9682, 0.9713, 0.974, 0.9766,
+    0.9789, 0.981, 0.9829, 0.9847, 0.9863, 0.9877, 0.9891, 0.9903,
+    0.9913, 0.9923, 0.9933, 0.9941, 0.9948, 0.9955, 0.9961, 0.9967,
+    0.9972, 0.9977, 0.9981, 0.9985, 0.9989, 0.9992, 0.9995, 0.9998,
+    1
+  );
+  }
+  23.202% {
     opacity: 1;
-    transform: perspective(1200px) rotateY(50deg);
   }
   to {
     opacity: 1;
-    transform: perspective(1200px) rotateY(0deg);
+    transform: translateZ(100px) rotateY(0deg) translateZ(-100px);
   }
 }
 
 @keyframes wui-nav-common-back-out {
   from {
     opacity: 1;
-    transform: perspective(1200px) rotateY(0deg);
+    transform: translateZ(100px) rotateY(0deg) translateZ(-100px);
+    animation-timing-function: linear(
+    0, 0.0002, 0.0005, 0.0008, 0.0011, 0.0015, 0.0019, 0.0023,
+    0.0028, 0.0033, 0.0039, 0.0045, 0.0052, 0.0059, 0.0067, 0.0077,
+    0.0087, 0.0097, 0.0109, 0.0123, 0.0137, 0.0153, 0.0171, 0.019,
+    0.0211, 0.0234, 0.026, 0.0287, 0.0318, 0.0352, 0.0389, 0.043,
+    0.0474, 0.0523, 0.0577, 0.0636, 0.0701, 0.0773, 0.0851, 0.0937,
+    0.1032, 0.1136, 0.125, 0.1375, 0.1513, 0.1664, 0.183, 0.2012,
+    0.2212, 0.2432, 0.2673, 0.2938, 0.323, 0.355, 0.3901, 0.4287,
+    0.4711, 0.5176, 0.5687, 0.6249, 0.6865, 0.7542, 0.8286, 0.9103,
+    1
+  );
+  }
+  99.2% {
+    opacity: 1;
   }
   to {
     opacity: 0;
-    transform: perspective(1200px) rotateY(-80deg);
+    transform: translateZ(100px) rotateY(-80deg) translateZ(-100px);
   }
 }
 
 .wui-nav-common-fwd-enter {
   z-index: 1;
-  animation: wui-nav-common-fwd-in 556ms var(--wui-easing-decelerate) both;
-  transform-origin: left center;
+  animation: wui-nav-common-fwd-in 556ms linear both;
+  transform-origin: -10% center;
 }
 
 .wui-nav-common-fwd-leave {
-  animation: wui-nav-common-fwd-out 128ms var(--wui-easing-accelerate) both;
-  transform-origin: left center;
+  animation: wui-nav-common-fwd-out 128ms linear both;
+  transform-origin: -10% center;
 }
 
 .wui-nav-common-back-enter {
   z-index: 1;
-  animation: wui-nav-common-back-in 556ms var(--wui-easing-decelerate) both;
-  transform-origin: right center;
+  animation: wui-nav-common-back-in 556ms linear both;
+  transform-origin: -10% center;
 }
 
 .wui-nav-common-back-leave {
-  animation: wui-nav-common-back-out 128ms var(--wui-easing-accelerate) both;
-  transform-origin: right center;
+  animation: wui-nav-common-back-out 128ms linear both;
+  transform-origin: -10% center;
 }
 
-/* ---- Continuum(源 L1826-L1910):背景层 scale 0.9→1 + 淡入(staggeringFactor
-   267ms 后 350ms);离页淡出。源中 continuum 目标元素的 3D 翻转/飞行与
-   ConnectedAnimation 协同,Web 端仅映射页面层(wiki 差异节)。 */
+/* ---- Continuum(源 ThemeTransitions.cpp L1826-2197,四触发态各有独立分支):
+   页面层(背景层)语义 ——
+   进页(L1903-1941, staggeringFactor 267):scale 0.9→1 @267→617ms CircleEaseOut,
+   opacity 0→1 离散切 @267ms;transform-origin {0.5,0.5}(L1924)。
+   离页(L1996-2029):opacity 1 保持至 120ms → 0 @250ms CircleEaseOut(250ms 总长)。
+   退进(L2084-2150):背景层仅 opacity 0→1 @267→617ms CircleEaseOut(无缩放;
+   入场元素 rotationX −90→0 + translateY −20→0 @267→467 ExpoEase(4,Out) 属
+   IsEntranceElement 目标层,Web 无该 API,页面层不实现,见 wiki 差异节)。
+   退离(L2151-2176):translateY 0→200px ExpoEase(6,In) 250ms,opacity 1@240 → 0@250。
+   (原「退导航复用正向」为误记:源四分支齐全,MR3/B10 已订正。) */
 @keyframes wui-nav-continuum-fwd-in {
   from {
     opacity: 0;
     transform: scale(0.9);
+  }
+  43.273% {
+    opacity: 0;
+    transform: scale(0.9);
+    animation-timing-function: linear(
+    0, 0.1761, 0.248, 0.3026, 0.348, 0.3875, 0.4227, 0.4547,
+    0.4841, 0.5113, 0.5367, 0.5605, 0.583, 0.6041, 0.6242, 0.6433,
+    0.6614, 0.6787, 0.6953, 0.7111, 0.7262, 0.7407, 0.7545, 0.7679,
+    0.7806, 0.7929, 0.8046, 0.8159, 0.8268, 0.8372, 0.8472, 0.8568,
+    0.866, 0.8749, 0.8833, 0.8914, 0.8992, 0.9067, 0.9138, 0.9205,
+    0.927, 0.9332, 0.9391, 0.9446, 0.9499, 0.9549, 0.9596, 0.9641,
+    0.9682, 0.9721, 0.9758, 0.9792, 0.9823, 0.9851, 0.9877, 0.9901,
+    0.9922, 0.994, 0.9956, 0.9969, 0.998, 0.9989, 0.9995, 0.9999,
+    1
+  );
+  }
+  43.274% {
+    opacity: 1;
   }
   to {
     opacity: 1;
@@ -916,30 +1142,91 @@
   from {
     opacity: 1;
   }
+  48% {
+    opacity: 1;
+    animation-timing-function: linear(
+    0, 0.1761, 0.248, 0.3026, 0.348, 0.3875, 0.4227, 0.4547,
+    0.4841, 0.5113, 0.5367, 0.5605, 0.583, 0.6041, 0.6242, 0.6433,
+    0.6614, 0.6787, 0.6953, 0.7111, 0.7262, 0.7407, 0.7545, 0.7679,
+    0.7806, 0.7929, 0.8046, 0.8159, 0.8268, 0.8372, 0.8472, 0.8568,
+    0.866, 0.8749, 0.8833, 0.8914, 0.8992, 0.9067, 0.9138, 0.9205,
+    0.927, 0.9332, 0.9391, 0.9446, 0.9499, 0.9549, 0.9596, 0.9641,
+    0.9682, 0.9721, 0.9758, 0.9792, 0.9823, 0.9851, 0.9877, 0.9901,
+    0.9922, 0.994, 0.9956, 0.9969, 0.998, 0.9989, 0.9995, 0.9999,
+    1
+  );
+  }
   to {
     opacity: 0;
   }
 }
 
+@keyframes wui-nav-continuum-back-in {
+  from {
+    opacity: 0;
+  }
+  43.274% {
+    opacity: 0;
+    animation-timing-function: linear(
+    0, 0.1761, 0.248, 0.3026, 0.348, 0.3875, 0.4227, 0.4547,
+    0.4841, 0.5113, 0.5367, 0.5605, 0.583, 0.6041, 0.6242, 0.6433,
+    0.6614, 0.6787, 0.6953, 0.7111, 0.7262, 0.7407, 0.7545, 0.7679,
+    0.7806, 0.7929, 0.8046, 0.8159, 0.8268, 0.8372, 0.8472, 0.8568,
+    0.866, 0.8749, 0.8833, 0.8914, 0.8992, 0.9067, 0.9138, 0.9205,
+    0.927, 0.9332, 0.9391, 0.9446, 0.9499, 0.9549, 0.9596, 0.9641,
+    0.9682, 0.9721, 0.9758, 0.9792, 0.9823, 0.9851, 0.9877, 0.9901,
+    0.9922, 0.994, 0.9956, 0.9969, 0.998, 0.9989, 0.9995, 0.9999,
+    1
+  );
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes wui-nav-continuum-back-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    animation-timing-function: linear(
+    0, 0.0002, 0.0005, 0.0008, 0.0011, 0.0015, 0.0019, 0.0023,
+    0.0028, 0.0033, 0.0039, 0.0045, 0.0052, 0.0059, 0.0067, 0.0077,
+    0.0087, 0.0097, 0.0109, 0.0123, 0.0137, 0.0153, 0.0171, 0.019,
+    0.0211, 0.0234, 0.026, 0.0287, 0.0318, 0.0352, 0.0389, 0.043,
+    0.0474, 0.0523, 0.0577, 0.0636, 0.0701, 0.0773, 0.0851, 0.0937,
+    0.1032, 0.1136, 0.125, 0.1375, 0.1513, 0.1664, 0.183, 0.2012,
+    0.2212, 0.2432, 0.2673, 0.2938, 0.323, 0.355, 0.3901, 0.4287,
+    0.4711, 0.5176, 0.5687, 0.6249, 0.6865, 0.7542, 0.8286, 0.9103,
+    1
+  );
+  }
+  96% {
+    opacity: 1;
+    animation-timing-function: linear;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(200px);
+  }
+}
+
 .wui-nav-continuum-fwd-enter {
   z-index: 1;
-  animation: wui-nav-continuum-fwd-in 350ms var(--wui-easing-standard) both;
+  animation: wui-nav-continuum-fwd-in 617ms linear both;
   transform-origin: center;
 }
 
 .wui-nav-continuum-fwd-leave {
-  animation: wui-nav-continuum-fwd-out 150ms var(--wui-easing-accelerate) both;
+  animation: wui-nav-continuum-fwd-out 250ms linear both;
 }
 
-/* 退导航:continuum 无独立 Back 分支,复用正向(fwd)规格。 */
 .wui-nav-continuum-back-enter {
   z-index: 1;
-  animation: wui-nav-continuum-fwd-in 350ms var(--wui-easing-standard) both;
-  transform-origin: center;
+  animation: wui-nav-continuum-back-in 617ms linear both;
 }
 
 .wui-nav-continuum-back-leave {
-  animation: wui-nav-continuum-fwd-out 150ms var(--wui-easing-accelerate) both;
+  animation: wui-nav-continuum-back-out 250ms linear both;
 }
 
 /* ---- 内容入场 stagger(EntranceThemeTransition / CommonNavigationTransitionInfo
@@ -966,6 +1253,14 @@
  * 无障碍降级:用户偏好减少动态效果时,所有动画/过渡时长趋近 0
  * (取 0.01ms 而非 0,保证 animationend 事件仍会触发,便于 Vue transition 钩子收尾)。
  * 阶段 7 补充:延迟同步清零(入场 stagger / 转场 hold 段不再空等)。
+ *
+ * 双通道约定(MR3/B8):本块是 CSS 驱动路径(关键帧/过渡)的**唯一**降级声明,
+ * 组件内不得再写局部 @media (prefers-reduced-motion) 块 —— infinite 动画由
+ * iteration-count:1 定格静态终态、普通动画瞬时完成,语义已覆盖。JS 驱动路径
+ * (WAAPI / rAF 补间 / 指针驱动 transform)不受媒体查询影响,组件必须改用
+ * src/composables/useReducedMotion.ts 的 prefersReducedMotion()(时点判定)或
+ * useReducedMotion()(响应式)显式降级。 ProgressBar/ProgressRing 的
+ * 「定格循环中点/满宽」静态终态例外:全局块只能停住动画,给不出那个终态。
  * ====================================================================== */
 
 @media (prefers-reduced-motion: reduce) {

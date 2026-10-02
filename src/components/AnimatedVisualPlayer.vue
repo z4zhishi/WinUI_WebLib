@@ -236,6 +236,7 @@ export type { AnimationItem }
 // 无障碍:动效图形,role="img",可访问名经 attrs 的 aria-label 提供(同 AnimatedVisualPlayerAutomationPeer)。
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { CSSProperties } from 'vue'
+import { prefersReducedMotion } from '../composables/useReducedMotion'
 import lottie from 'lottie-web'
 
 defineOptions({ name: 'WuiAnimatedVisualPlayer', inheritAttrs: false })
@@ -305,10 +306,9 @@ const progress = ref(0)
 /** 最近一次 play() 的区间参数(completed 事件载荷来源;缺省即 PlayAsync(0, 1, false) 语义)。 */
 let lastPlay: AnimatedVisualPlayerCompletedEventArgs = { from: 0, to: 1, looped: false }
 
-// —— prefers-reduced-motion:动画环境不支持自动播放时不自动起播(用户手动 Play 不受限)——
-const reducedMotion =
-  typeof window.matchMedia === 'function' &&
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+// —— prefers-reduced-motion:动画环境不支持自动播放时不自动起播(用户手动 Play 不受限)
+//    (MR3/B8:改用共享工具,替代本组件裸 matchMedia)——
+const reducedMotion = prefersReducedMotion()
 
 /** 把 Lottie JSON 深拷贝:lottie-web 会原地改写 animationData,不能把调用方对象交给它。 */
 function cloneAnimationData(data: object): object {

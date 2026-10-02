@@ -38,6 +38,8 @@ export interface ScrollViewerViewChangedDetail {
 // 滚轮豁免内容内嵌套可滚子区域,栏位覆盖层仅在该轴滚动条实际显示时渲染(fix round 2)。
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { CSSProperties } from 'vue'
+// MR6/P2-2:滚动条 0.4s/2s 定时器的 RM 门控(与 ScrollView、A9 指示条同口径)
+import { prefersReducedMotion } from '../composables/useReducedMotion'
 
 defineOptions({ name: 'WuiScrollViewer', inheritAttrs: false })
 
@@ -438,7 +440,10 @@ onBeforeUnmount(() => {
 // transition/animation(样式瞬变、Element.getAnimations 无伪元素条目),0.1s 补间在
 // 原生滚动条上不生效——0.4s / 2s 延迟改由 JS 定时器驱动 .is-sb-expanded 类(两轴同源,
 // 对照 ScrollViewer 指示态挂在容器一级);0.1s 过渡声明保留在 CSS,受支持的平台即时生效。
-// reduced-motion 降级由 animations.css 全局媒体查询统一处理。
+// MR6/P2-2:定时器属 JS 驱动路径,媒体查询管不到 —— RM 下跳过 0.4s/2s 延迟直接落
+// 终态(与 A9 指示条 prefersReducedMotion 门控同口径);非 RM 路径零变化。
+// (此前注「RM 降级由 animations.css 全局媒体查询统一处理」仅覆盖 CSS 补间声明,
+// 不覆盖本定时器路径,已由 MR-QA1 复审登记为工单。)
 const SCROLLBAR_EXPAND_DELAY_MS = 400 /* ScrollBarExpandBeginTime */
 const SCROLLBAR_CONTRACT_DELAY_MS = 2000 /* ScrollBarContractBeginTime */
 const sbExpandTimer = ref<number | null>(null)
@@ -449,6 +454,15 @@ function onScrollerPointerEnter(): void {
   if (sbContractTimer.value !== null) {
     window.clearTimeout(sbContractTimer.value)
     sbContractTimer.value = null
+  }
+  if (prefersReducedMotion()) {
+    // RM:跳过 0.4s 延迟,直接展开终态(无定时切换)
+    if (sbExpandTimer.value !== null) {
+      window.clearTimeout(sbExpandTimer.value)
+      sbExpandTimer.value = null
+    }
+    sbExpanded.value = true
+    return
   }
   if (sbExpanded.value || sbExpandTimer.value !== null) return
   sbExpandTimer.value = window.setTimeout(() => {
@@ -461,6 +475,15 @@ function onScrollerPointerLeave(): void {
   if (sbExpandTimer.value !== null) {
     window.clearTimeout(sbExpandTimer.value)
     sbExpandTimer.value = null
+  }
+  if (prefersReducedMotion()) {
+    // RM:跳过 2s 延迟,直接收起终态(无定时切换)
+    if (sbContractTimer.value !== null) {
+      window.clearTimeout(sbContractTimer.value)
+      sbContractTimer.value = null
+    }
+    sbExpanded.value = false
+    return
   }
   if (!sbExpanded.value || sbContractTimer.value !== null) return
   sbContractTimer.value = window.setTimeout(() => {

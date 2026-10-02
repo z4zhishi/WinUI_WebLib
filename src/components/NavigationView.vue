@@ -26,11 +26,13 @@
 //   ResizeObserver 断点解析(≥ ExpandedModeThresholdWidth 1008 → Left,≥ CompactModeThresholdWidth 641 →
 //   LeftCompact,否则 LeftMinimal;WinUI 默认阈值,Web 以容器宽代替窗口宽)。
 // 交互:itemInvoked / selectionChanged(WinUI 同名事件)、IsPaneOpen 双向绑定、选中指示条、子项展开
-//   (chevron 旋转取 animations.css token)、Esc 关浮层窗格(经 SplitView Overlay)。
+//   (chevron 旋转取 animations.css token)、Esc 关浮层窗格(经 SplitView Overlay)、方向键 roving
+//   focus(左窗格 ↑/↓、Top ←/→,MR6/P2-1,见 onNavRootKeyDown 注)。
 import { computed, defineComponent, h, inject, nextTick, onBeforeUnmount, onMounted, provide, ref, useAttrs, useSlots, watch } from 'vue'
 import type { InjectionKey, PropType, VNode } from 'vue'
 import FontIcon from './FontIcon.vue'
 import WuiSplitView from './SplitView.vue'
+import { prefersReducedMotion } from '../composables/useReducedMotion'
 
 /** 数据驱动的菜单项模型(对应 NavigationViewItem / NavigationViewItemHeader / NavigationViewItemSeparator)。 */
 export interface NavigationViewItemData {
@@ -466,10 +468,6 @@ interface IndicatorPlace {
 let indicatorPhase: Animation | null = null
 let indicatorLast: IndicatorPlace | null = null
 
-function prefersReducedMotion(): boolean {
-  return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-}
-
 /** 测量选中项 pill 的容器内位置与所在容器(Top 模式沿 X 编排,左窗格系沿 Y)。 */
 function measureIndicatorPlace(): (IndicatorPlace & { el: HTMLElement; horizontal: boolean }) | null {
   const root = rootRef.value
@@ -599,6 +597,61 @@ function placeIndicator(animated: boolean): void {
     })
 }
 
+// ======================================================================
+// 方向键 roving focus(MR6/P2-1):WinUI NavigationView 键盘语义 ——
+//   源 OnKeyDown(NavigationView.cpp L3092)只接 Gamepad/Tab 追踪/Alt+←,注释明言
+//   「arrow keys navigation through ItemsRepeater don't get here」:方向键由平台
+//   焦点引擎在条目间移动**焦点**(不移动选中;Space/Enter 经条目 click 通道
+//   invoke/选中,文档「The space or enter key always invokes/selects an item」)。
+//   learn.microsoft.com NavigationView「Keyboarding」节:左窗格系 ↑/↓ 移动焦点、
+//   ←/→ Does nothing;Top 模式(TopNavArea XYFocusKeyboardNavigation=Enabled)
+//   ←/→ 移动焦点、↑/↓ Does nothing;且「焦点可自窗格列表末项移到 settings 项」
+//   —— 即导航跨容器(菜单 ↔ 页脚)。
+//   Web 实现:根级 keydown 委托,焦点在 .wui-nav-item 上时按轴步进;序列 =
+//   菜单 + 页脚(Top 为主栏 + 页脚栏)按 DOM 序拼接(即视觉序),首尾回绕
+//   (MR6 工单规格);禁用 / 隐藏(display:none、SplitView 收拢窗格
+//   visibility:hidden)条目跳过;Tab 序不经此路径,零影响;Enter/Space 原生
+//   click → onItemInvoked → 选中 → A9 600ms 指示条编排照常。
+// ======================================================================
+
+/** 当前轴上的步进方向:左窗格系 ↑(-1)/↓(+1),Top ←(-1)/→(+1);其余键(含反向轴)0。 */
+function navArrowStep(key: string): number {
+  if (isTop.value) {
+    if (key === 'ArrowRight') return 1
+    if (key === 'ArrowLeft') return -1
+    return 0
+  }
+  if (key === 'ArrowDown') return 1
+  if (key === 'ArrowUp') return -1
+  return 0
+}
+
+/** 条目可否入列:未禁用且可见(checkVisibility 覆盖 display:none 与 visibility:hidden)。 */
+function isNavItemFocusable(el: HTMLElement): boolean {
+  if (el.matches(':disabled')) return false
+  const checker = (el as HTMLElement & { checkVisibility?: (options?: { checkVisibilityCSS?: boolean }) => boolean })
+    .checkVisibility
+  if (typeof checker === 'function') return checker.call(el, { checkVisibilityCSS: true })
+  return el.getClientRects().length > 0
+}
+
+function onNavRootKeyDown(event: KeyboardEvent): void {
+  const target = event.target
+  if (!(target instanceof Element)) return
+  const item = target.closest<HTMLElement>('.wui-nav-item')
+  const root = rootRef.value
+  if (!item || !root || !root.contains(item)) return
+  const step = navArrowStep(event.key)
+  if (step === 0) return
+  const items = Array.from(root.querySelectorAll<HTMLElement>('.wui-nav-item')).filter(isNavItemFocusable)
+  const index = items.indexOf(item)
+  if (index === -1) return
+  event.preventDefault() // 焦点已在条目上,方向键不再驱动滚动容器
+  // 首尾回绕:首项 ↑ → 末项,末项 ↓ → 首项(工单 MR6 规格)
+  const next = items[(index + step + items.length) % items.length]
+  next?.focus()
+}
+
 function togglePane(): void {
   isPaneOpen.value = !isPaneOpen.value
 }
@@ -651,6 +704,7 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
       'wui-navview--minimal': resolvedPaneMode === 'LeftMinimal',
       'wui-navview--compact-closed': isCompactClosed,
     }"
+    @keydown="onNavRootKeyDown"
   >
     <!-- ============ Top 模式:48px 顶栏 + 内容卡 ============ -->
     <template v-if="isTop">
@@ -1193,9 +1247,7 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
   margin: 0 3px 0 4px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .wui-navview :deep(.wui-nav-item__chevron-icon) {
-    transition-duration: 0.01ms;
-  }
-}
+/* reduced-motion:chevron 过渡由 animations.css 全局块压至 0.01ms(MR3/B8 去重,
+   局部块与全局语义重复已删);指示条 WAAPI 编排的 JS 降级走
+   composables/useReducedMotion 的 prefersReducedMotion() */
 </style>

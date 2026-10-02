@@ -23,6 +23,7 @@ export interface RatingControlValueChangedEventArgs {
 //     未评分报 0),故 role="slider" + aria-valuemin/max/now/valuetext。
 import { computed, ref, watch } from 'vue'
 import type { CSSProperties } from 'vue'
+import { prefersReducedMotion } from '../composables/useReducedMotion'
 
 defineOptions({ inheritAttrs: false, name: 'WuiRatingControl' })
 
@@ -188,7 +189,7 @@ function resetStarScales(): void {
 function updateStarScales(event: PointerEvent): void {
   const el = starsEl.value
   if (!el || !previewActive.value) return
-  if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (prefersReducedMotion()) {
     return
   }
   const rect = el.getBoundingClientRect()

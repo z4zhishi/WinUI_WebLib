@@ -88,6 +88,8 @@ export interface ScrollViewZoomCompletedArgs {
 //      等未复刻,wiki 记录。
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { CSSProperties } from 'vue'
+// MR3/B8:共享工具替代本组件裸 matchMedia(JS 滚动补间的降级通道)
+import { prefersReducedMotion } from '../composables/useReducedMotion'
 
 defineOptions({ inheritAttrs: false, name: 'WuiScrollView' })
 
@@ -182,10 +184,6 @@ let cancelZoomTween: (() => void) | null = null
 function cancelMotion(): void {
   cancelScrollTween?.()
   cancelZoomTween?.()
-}
-
-function prefersReducedMotion(): boolean {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
 /** 通用 rAF 补间;返回取消函数。reduced-motion 或时长 <= 0 时直接到终值。 */
@@ -448,6 +446,9 @@ function onWheel(event: WheelEvent): void {
 // BeginTime = 0.4s / 2s(G.xaml L612-616,L7855-7936)。Chromium(实测 154)对
 // ::-webkit-scrollbar-* 伪元素不支持 transition/animation,0.1s 补间不生效——
 // 0.4s / 2s 延迟由 JS 定时器驱动 .is-sb-expanded 类;0.1s 过渡声明保留在 CSS。
+// MR6/P2-2:定时器属 JS 驱动路径,媒体查询管不到 —— RM 下跳过 0.4s/2s 延迟
+// 直接落终态(与 runTween / A9 指示条 prefersReducedMotion 门控同口径);
+// 非 RM 路径零变化。
 const SCROLLBAR_EXPAND_DELAY_MS = 400 /* ScrollBarExpandBeginTime */
 const SCROLLBAR_CONTRACT_DELAY_MS = 2000 /* ScrollBarContractBeginTime */
 const sbExpandTimer = ref<number | null>(null)
@@ -460,6 +461,15 @@ function onRootPointerEnter(): void {
     window.clearTimeout(sbContractTimer.value)
     sbContractTimer.value = null
   }
+  if (prefersReducedMotion()) {
+    // RM:跳过 0.4s 延迟,直接展开终态(无定时切换)
+    if (sbExpandTimer.value !== null) {
+      window.clearTimeout(sbExpandTimer.value)
+      sbExpandTimer.value = null
+    }
+    sbExpanded.value = true
+    return
+  }
   if (sbExpanded.value || sbExpandTimer.value !== null) return
   sbExpandTimer.value = window.setTimeout(() => {
     sbExpandTimer.value = null
@@ -471,6 +481,15 @@ function onRootPointerLeave(): void {
   if (sbExpandTimer.value !== null) {
     window.clearTimeout(sbExpandTimer.value)
     sbExpandTimer.value = null
+  }
+  if (prefersReducedMotion()) {
+    // RM:跳过 2s 延迟,直接收起终态(无定时切换)
+    if (sbContractTimer.value !== null) {
+      window.clearTimeout(sbContractTimer.value)
+      sbContractTimer.value = null
+    }
+    sbExpanded.value = false
+    return
   }
   if (!sbExpanded.value || sbContractTimer.value !== null) return
   sbContractTimer.value = window.setTimeout(() => {

@@ -442,8 +442,10 @@ defineExpose({
 }
 
 .wui-refreshcontainer__content {
-  /* 刷新请求/完成与松手回弹的位移过渡(源 100ms KeyFrame;取最近时长 token,wiki 记录差异) */
-  transition: transform var(--wui-duration-fast) var(--wui-easing-standard);
+  /* 刷新请求/完成与松手回弹的位移过渡(源 REFRESH_ANIMATION_DURATION = 100ms,
+     ScrollViewerIRefreshInfoProviderDefaultAnimationHandler.cpp L12;MR3/B6 由
+     fast token 订正为源字面量) */
+  transition: transform 100ms var(--wui-easing-standard);
 }
 
 .wui-refreshcontainer__visualizer-host {
@@ -457,7 +459,8 @@ defineExpose({
   z-index: 1;
   /* 视觉器为纯指示覆盖层,不拦截内容的指针交互 */
   pointer-events: none;
-  transition: transform var(--wui-duration-fast) var(--wui-easing-standard);
+  /* 同上:100ms 源字面量 */
+  transition: transform 100ms var(--wui-easing-standard);
 }
 
 /* 槽内自备视觉器同样横向铺满(源 presenter 为 Grid,子项默认 HorizontalAlignment=Stretch;

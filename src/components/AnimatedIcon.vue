@@ -12,8 +12,9 @@
 // 视觉对照:AnimatedIcon 在 generic.xaml 无 ControlTemplate(视觉全部来自 Source),
 // 尺寸 / 前景由使用方决定;图标为装饰性内容,默认 aria-hidden,可访问名由宿主承载(同 FontIcon 族)。
 // 动效:部件过渡时长 / 缓动取 src/styles/animations.css 的 token(本组件引入该文件)。
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { CSSProperties } from 'vue'
+import { useReducedMotion } from '../composables/useReducedMotion'
 import '../styles/animations.css'
 import {
   ANIMATED_ICON_TRANSITION_DURATION,
@@ -87,25 +88,10 @@ function onPointerUp(): void {
   pressed.value = false
 }
 
-// —— 动画环境检测:用户偏好减少动态(prefers-reduced-motion: reduce)→ 降级静态图标 ——
-const reducedMotion = ref(false)
-let motionQuery: MediaQueryList | undefined
-
-function onMotionQueryChange(event: MediaQueryListEvent): void {
-  reducedMotion.value = event.matches
-}
-
-onMounted(() => {
-  if (typeof window.matchMedia !== 'function') return
-  motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-  reducedMotion.value = motionQuery.matches
-  motionQuery.addEventListener('change', onMotionQueryChange)
-})
-
-onUnmounted(() => {
-  motionQuery?.removeEventListener('change', onMotionQueryChange)
-  motionQuery = undefined
-})
+// —— 动画环境检测:用户偏好减少动态(prefers-reduced-motion: reduce)→ 降级静态图标
+//    (MR3/B8:改用共享组合式,替代本组件手挂 MediaQueryList;CSS 路径由
+//    animations.css 全局块承担)——
+const reducedMotion = useReducedMotion()
 
 // —— 降级判定:强制 / 减少动态偏好 / 源缺失 / 未知 kind(等价 WinUI 动画创建失败走 fallback)——
 const showFallback = computed(
@@ -260,10 +246,6 @@ const svgFallback = computed(() => {
   line-height: 1;
 }
 
-/* 无障碍降级兜底:animations.css 已全局压短过渡时长;此处保证部件瞬时到位 */
-@media (prefers-reduced-motion: reduce) {
-  .wui-animatedicon__part {
-    transition-duration: 0.01ms;
-  }
-}
+/* reduced-motion:部件过渡由 animations.css 全局块压至 0.01ms(MR3/B8 去重,
+   局部块与全局语义重复已删);JS 侧静态图标降级走 useReducedMotion() */
 </style>

@@ -436,10 +436,11 @@ const NEXT_GLYPH = '\uE0E3'
   background: var(--wui-pivot-next-button-background);
   border: 0 solid var(--wui-pivot-next-button-border); /* PivotNavButtonBorderThemeThickness = 0 */
   cursor: pointer;
-  /* 源默认 Opacity 0,悬停标题行时显示(GoToState useTransitions=true → 快速淡入) */
+  /* 源默认 Opacity 0,悬停标题行时显示 —— VSM NavigationButtonsHidden/Visible
+     两态均为 DiscreteObjectKeyFrame KeyTime=0 瞬时切换(generic.xaml L12265-12271),
+     无淡入;悬停/按下仅状态色瞬时(G L12349-12415)。MR3/B12 移除自加淡入 */
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--wui-duration-fast) var(--wui-easing-standard);
 }
 
 .wui-pivot-nav--previous {

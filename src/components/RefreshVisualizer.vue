@@ -320,9 +320,9 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
-  transition:
-    opacity var(--wui-duration-fast) var(--wui-easing-standard),
-    transform var(--wui-duration-fast) var(--wui-easing-standard);
+  /* 逐态取值(opacity/translate)不做过渡:源 UpdateContent(L269-310)按状态
+     直写 Composition 属性,瞬时生效(MR3/B6 订正,原 fast+standard 过渡为自加);
+     Interacting 的 translate 随 ratio 逐帧更新,源为表达式直驱无插值 */
 }
 
 .wui-refreshviz__rotator {
@@ -347,9 +347,11 @@ defineExpose({
   }
 }
 
-/* Pending:300ms 缩放脉冲(中点 1.5 倍,源 ExecuteScaleUpAnimation) */
+/* Pending:300ms 缩放脉冲(中点 1.5 倍,源 ExecuteScaleUpAnimation L410-412:
+   InsertKeyFrame(0.5, 1.5)/InsertKeyFrame(1.0, 1.0)/Duration(300ms),未传缓动
+   函数 = Composition 关键帧默认线性;MR3/B6 由 standard 订正为 linear) */
 .wui-refreshviz__indicator.is-popping {
-  animation: wui-refreshviz-pop 300ms var(--wui-easing-standard);
+  animation: wui-refreshviz-pop 300ms linear;
 }
 
 @keyframes wui-refreshviz-pop {
@@ -364,11 +366,6 @@ defineExpose({
   }
 }
 
-/* 无障碍:减弱动态时停止自转与脉冲(站点既有约定,ProgressRing 同口径) */
-@media (prefers-reduced-motion: reduce) {
-  .wui-refreshviz__rotator.is-spinning,
-  .wui-refreshviz__indicator.is-popping {
-    animation: none;
-  }
-}
+/* reduced-motion:spin/pop 由 animations.css 全局块停
+   (duration 0.01ms + iteration 1 → 瞬时完成回静态终态,见该文件双通道约定) */
 </style>

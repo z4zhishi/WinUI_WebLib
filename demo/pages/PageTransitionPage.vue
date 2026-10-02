@@ -332,7 +332,7 @@ const themeFamilyRows: (string | number)[][] = [
   [
     'PopupThemeTransition',
     '(弹层开合)',
-    '由 Popup / MenuFlyout 等弹层组件承担(animations.css wui-flyout-in 系),本页不重复',
+    '由 Popup / MenuFlyout 等弹层组件承担(animations.css wui-popup-slide-* 50px 位移组),本页不重复',
   ],
 ]
 

@@ -446,7 +446,13 @@ const layerStyle = computed(() => ({ maxWidth: `${props.maxWidth}px` }))
   pointer-events: none; /* 非交互瞬时提示:层不截获指针(WinUI ToolTip 同语义) */
 }
 
-/* 出入场:纯透明度(对照源 FadeInThemeAnimation / FadeOutThemeAnimation,系统时长) */
+/* 出入场:纯透明度。源 FadeIn/OutThemeAnimation 的时长/曲线在平台 PVL 表内,
+   快照无值(theme-animations.md §1.1/1.2「源未找到」;MR3/B2 核订:PVL 经
+   ThemingData::OpacitySplineTransform 提供数据,palcore.h L195-204 —— 结构证明为
+   Bezier 样条 opacity 段,系数在 OS 主题数据内,既非可证实的「默认线性」,
+   快照内也无「源默认曲线」可取)。落值:时长取 fast 档(G 模板显式 0.167 簇,
+   global-resources.md §4);缓动取 --wui-easing-standard / --wui-easing-accelerate
+   (平台入场/退出 KeySpline 惯例,global-resources.md §3),均为已声明近似。 */
 .wui-tooltip-enter-active {
   animation: wui-fade-in var(--wui-duration-fast) var(--wui-easing-standard) both;
 }
