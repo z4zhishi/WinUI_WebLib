@@ -252,9 +252,14 @@ const revealHandlers = useReveal(() => props.reveal === true)
   cursor: default;
   user-select: none;
   touch-action: manipulation;
+  /* 背景色隐式过渡:源 RepeatButton_themeresources.xaml L97-99 在 ContentPresenter 上声明
+     BackgroundTransition = BrushTransition Duration=0:0:0.083(83ms);源无缓动参数 → 平台线性
+     (SharedTransitionAnimations.cpp L14-17)→ CSS linear。仅 background-color。 */
+  transition: background-color 83ms linear;
 }
 
-/* 状态色一律即时切换(generic.xaml 各态均为 DiscreteObjectKeyFrame,无过渡动画) */
+/* 前景 / 边框状态色即时切换(源各态为 DiscreteObjectKeyFrame,无过渡动画);
+   背景色经上面的 BrushTransition 83ms 线性过渡 */
 
 .wui-repeat-button:hover:not(:disabled) {
   --rb-fg: var(--wui-repeat-button-foreground-pointer-over);

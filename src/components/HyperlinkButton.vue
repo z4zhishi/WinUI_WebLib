@@ -116,9 +116,14 @@ function onClick(event: MouseEvent): void {
   cursor: pointer;
   user-select: none;
   touch-action: manipulation;
+  /* 背景色隐式过渡:源 HyperlinkButton_themeresources.xaml L69-71 在 ContentPresenter 上声明
+     BackgroundTransition = BrushTransition Duration=0:0:0.083(83ms);源无缓动参数 → 平台线性
+     (SharedTransitionAnimations.cpp L14-17)→ CSS linear。仅 background-color(前景色无过渡)。 */
+  transition: background-color 83ms linear;
 }
 
-/* 状态色一律即时切换(generic.xaml 各态均为 DiscreteObjectKeyFrame,无过渡动画) */
+/* 前景状态色即时切换(源各态为 DiscreteObjectKeyFrame,无过渡动画);
+   背景色经上面的 BrushTransition 83ms 线性过渡 */
 
 .wui-hyperlink-button:hover:not(:disabled):not(.is-disabled) {
   /* PointerOver = SystemControlPageTextBaseMedium */

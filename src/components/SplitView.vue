@@ -575,6 +575,13 @@ const attrs = useAttrs()
   flex: none; /* 恒为展开长度,不随轨道 / 紧凑外壳收缩 */
   background: var(--wui-system-control-page-background-chrome-low); /* PaneBackground 默认值 */
   color: var(--wui-application-foreground-theme);
+  /* 背景色隐式过渡:源 SplitView_themeresources.xaml L702 在 PaneRoot(Grid,
+     Background={TemplateBinding PaneBackground})上声明 `<BrushTransition />`(无 Duration)。
+     默认时长取 SimplePropertiesMetadata.g.h L361-364:BrushTransition_Duration 默认
+     1500000 ticks(×100ns)= 150ms(非 83ms);缓动取平台线性(SharedTransitionAnimations.cpp
+     L14-17)→ CSS linear。Web 版 PaneBackground 落在 __pane-inner(外层 __pane 是裁剪壳,
+     无底色)→ 过渡加在承载底色的 __pane-inner。仅 background-color。 */
+  transition: background-color 150ms linear;
 }
 
 .wui-splitview--left .wui-splitview__pane-inner,
@@ -592,15 +599,20 @@ const attrs = useAttrs()
 /* Overlay 系滑移(PaneTransform):开 = 0.35s + standard(源 0.35s KeySpline 0.1,0.9 0.2,1.0);
    关 = 0.12s + standard(源 0.12s)。拖移量 --wui-splitview-drag 叠加在目标位移上。 */
 .wui-splitview--is-overlay .wui-splitview__pane-inner {
-  transition: transform var(--sv-close-ms) var(--wui-easing-standard);
+  /* transform = 源 PaneTransform 滑移;background-color 150ms = PaneRoot BrushTransition(默认时长) */
+  transition:
+    transform var(--sv-close-ms) var(--wui-easing-standard),
+    background-color 150ms linear;
 }
 
 .wui-splitview--is-overlay.wui-splitview--is-open .wui-splitview__pane-inner {
-  transition-duration: var(--sv-open-ms);
+  /* 逐属性时长与上面的 transition-property 顺序对应:transform=开时长,background-color 恒 150ms */
+  transition-duration: var(--sv-open-ms), 150ms;
 }
 
 .wui-splitview--is-overlay.wui-splitview--is-dragging .wui-splitview__pane-inner {
-  transition: none; /* 跟手拖移 */
+  /* 跟手拖移:仅停 transform 过渡,保留 background-color 的 BrushTransition */
+  transition: background-color 150ms linear;
 }
 
 /* 关闭且非 compact:窗格内容整体滑出(模板 Closed 态 PaneRoot 隐藏 + PaneTransform 滑移);

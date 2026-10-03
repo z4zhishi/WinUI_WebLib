@@ -214,6 +214,10 @@ const revealHandlers = useReveal(() => props.reveal === true)
   cursor: default;
   user-select: none;
   touch-action: manipulation;
+  /* 背景色隐式过渡:源 ToggleButton_themeresources.xaml L199-201 在 ContentPresenter 上声明
+     BackgroundTransition = BrushTransition Duration=0:0:0.083(83ms);源无缓动参数 → 平台线性
+     (SharedTransitionAnimations.cpp L14-17)→ CSS linear。仅 background-color。 */
+  transition: background-color 83ms linear;
 }
 
 .wui-toggle-button.is-disabled {

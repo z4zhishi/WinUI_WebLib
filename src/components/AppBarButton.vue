@@ -170,6 +170,12 @@ function onClick(event: MouseEvent): void {
   user-select: none;
   touch-action: manipulation;
   position: relative;
+  /* 背景色隐式过渡:源 AppBarButton_themeresources.xaml L352-354 在
+     AppBarButtonInnerBorder(Border,Background={TemplateBinding Background})上声明
+     BackgroundTransition = BrushTransition Duration=0:0:0.083(83ms)。Web 版 InnerBorder 背景
+     直接落在根元素(根底色即 InnerBorder 底色)→ 过渡加在根。源无缓动参数 → 平台线性
+     (SharedTransitionAnimations.cpp L14-17)→ CSS linear。仅 background-color。 */
+  transition: background-color 83ms linear;
 }
 
 /* 图标列:ContentViewbox Height=16 + AppBarButtonContentViewboxCollapsedMargin=0,16,0,2(WinUI 3) */
@@ -223,7 +229,8 @@ function onClick(event: MouseEvent): void {
   display: none;
 }
 
-/* 状态色一律即时切换(generic.xaml 各态经 VisualState.Setters 直接改属性,无过渡动画):
+/* 前景/边框状态色即时切换(generic.xaml 各态经 VisualState.Setters 直接改属性,无过渡动画);
+   背景色经根元素上的 BrushTransition 83ms 线性过渡(L352-354):
    PointerOver 背景 = SystemControlHighlightListLowBrush,前景 = SystemControlHighlightAltBaseHighBrush */
 .wui-appbar-button:hover:not(:disabled) {
   color: var(--wui-system-control-highlight-alt-base-high);

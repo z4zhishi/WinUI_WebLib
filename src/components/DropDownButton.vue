@@ -361,6 +361,11 @@ provide('wuiMenuFlyoutLevel', {
   cursor: default;
   user-select: none;
   touch-action: manipulation;
+  /* 背景色隐式过渡:源 DropDownButton.xaml L22-24 在模板根 Grid(RootGrid,
+     Background={TemplateBinding Background})上声明 BackgroundTransition = BrushTransition
+     Duration=0:0:0.083(83ms)。Web 版底色直接落在根元素 → 过渡加在根。源无缓动参数 →
+     平台线性(SharedTransitionAnimations.cpp L14-17)→ CSS linear。仅 background-color。 */
+  transition: background-color 83ms linear;
 }
 
 /* 内容列(*):ContentPresenter 水平居中(Control 默认对齐);字形列(Auto)+ Margin 8,0,0,0 */
@@ -384,7 +389,8 @@ provide('wuiMenuFlyoutLevel', {
   color: var(--ddb-chevron);
 }
 
-/* 状态色一律即时切换(generic.xaml 各态均为 DiscreteObjectKeyFrame,无过渡动画) */
+/* 前景 / 边框状态色即时切换(源各态为 DiscreteObjectKeyFrame,无过渡动画);
+   背景色经上面的 BrushTransition 83ms 线性过渡 */
 
 .wui-dropdown-button:hover:not(:disabled) {
   color: var(--wui-button-foreground-pointer-over);

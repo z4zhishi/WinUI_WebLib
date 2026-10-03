@@ -302,7 +302,8 @@ onScopeDispose(() => {
 /* ======================================================================
  * 组合态配色(CommonStates:Unchecked/Checked × Normal/PointerOver/Pressed/
  * Disabled):根元素按状态写中间变量,图层就地消费,对应 generic.xaml 各
- * VisualState 的 DiscreteObjectKeyFrame(即时切换,无过渡动画)。
+ * VisualState 的 Setters(前景即时切换;底色则另有 InnerBorder.BackgroundTransition
+ * = BrushTransition 83ms,见 __highlight/__overlay 规则)。
  * ====================================================================== */
 .wui-appbar-toggle-button {
   /* Normal(未选中):底色未点亮、高亮透明、前景 BaseHigh */
@@ -372,7 +373,12 @@ onScopeDispose(() => {
   position: relative;
 }
 
-/* 选中强调色底(CheckedHighlightBackground Rectangle):盖满圆角,随状态色/透明度切换 */
+/* 选中强调色底(CheckedHighlightBackground Rectangle):盖满圆角,随状态色/透明度切换。
+   背景色隐式过渡:源 AppBarToggleButton_themeresources.xaml L470-472 在
+   AppBarToggleButtonInnerBorder 上声明 BackgroundTransition = BrushTransition 83ms
+   (Checked/CheckedDisabled 改 InnerBorder.Background);本层承载该底色 → 83ms 线性。
+   注:Checked 态本库以 opacity 0→1 复刻(非 background-color 变化),故此处过渡不呈现;
+   仅 Checked→CheckedDisabled 的底色切换(accent→disabled accent)经此过渡。 */
 .wui-appbar-toggle-button__highlight {
   position: absolute;
   inset: 0;
@@ -381,9 +387,12 @@ onScopeDispose(() => {
   background: var(--atb-highlight);
   opacity: var(--atb-highlight-opacity);
   pointer-events: none;
+  transition: background-color 83ms linear;
 }
 
-/* 悬停/按下列表高亮(AccentOverlayBackground Rectangle) */
+/* 悬停/按下列表高亮(AccentOverlayBackground Rectangle)。背景色隐式过渡:
+   源 InnerBorder.BackgroundTransition(L470-472)的 PointerOver/Pressed 底色切换
+   (ListLow/ListMedium)映射到本层 → 83ms 线性(源无缓动参数 → 平台线性)。 */
 .wui-appbar-toggle-button__overlay {
   position: absolute;
   inset: 0;
@@ -391,6 +400,7 @@ onScopeDispose(() => {
   border-radius: inherit;
   background: var(--atb-overlay);
   pointer-events: none;
+  transition: background-color 83ms linear;
 }
 
 /* 图标列:ContentViewbox Height=16 + AppBarButtonContentViewboxCollapsedMargin=0,16,0,2(WinUI 3);
