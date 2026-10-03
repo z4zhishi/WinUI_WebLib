@@ -503,8 +503,10 @@ const usageCode = `<!-- WinUI:资源定义在 ResourceDictionary,引用用 Stati
 
 .res-tag {
   font-size: 11px;
+  /* MR10/W2(a11y 对比度):原 opacity 0.75 把白字压成 #BFDDF4/#EAD3F0/#F8C8C6,
+     对三块实色底仅 3.12~3.33:1;去透明度后纯白对 #0078D4/#A94DC1/#E2241A
+     分别为 4.53/4.65/4.67:1,达标 */
   color: var(--demo-page-font-color, #ffffff);
-  opacity: 0.75;
 }
 
 .res-text {

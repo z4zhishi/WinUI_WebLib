@@ -950,7 +950,10 @@ const entranceUsageCode = computed(
 .swap-chip {
   padding: 2px 8px;
   font-size: var(--wui-tool-tip-content-theme-font-size);
-  color: var(--wui-system-control-foreground-accent);
+  /* MR10/W6(a11y 对比度):accent #0078D4 对 list-low 灰底(复合后浅 #E6E6E6 /
+     深 #191919)仅 3.62:1 / 3.88:1;改用壳层链接达标色
+     --wui-shell-hyperlink-foreground(浅 #0067C0 = 4.55:1 / 深 #4CC2FF = 8.76:1) */
+  color: var(--wui-shell-hyperlink-foreground);
   background: var(--wui-system-control-background-list-low);
   border: 1px solid var(--wui-system-control-background-base-medium);
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius);

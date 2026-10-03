@@ -633,10 +633,16 @@ const usageCode = computed(() => {
   font-size: var(--wui-tool-tip-content-theme-font-size);
 }
 
-/* 当前生效的预设值(与被动画属性当前值一致) */
+/* 当前生效的预设值(与被动画属性当前值一致)
+   MR10/W5(a11y 对比度):accent 字落按钮半透明灰底(复合后浅 #CCCCCC / 深 #333333)
+   仅 2.81:1 / 2.79:1。选中态改经按钮本地透传变量声明(与 PageTransition 页
+   .mini-button.active 同模式,交互态由组件 VSM 确定接管):字色用壳层链接达标色,
+   底色垫 chrome-medium-low 灰(浅 #F2F2F2 → 5.07:1 / 深 #2B2B2B → 7.06:1),
+   边框保持 accent 以示选中 */
 .preset-group .mini-button.active {
-  color: var(--wui-system-control-foreground-accent);
-  border-color: var(--wui-system-accent-color);
+  --wui-button-local-foreground: var(--wui-shell-hyperlink-foreground);
+  --wui-button-local-background: var(--wui-system-control-background-chrome-medium-low);
+  --wui-button-local-border: var(--wui-system-accent-color);
 }
 
 .preset-group .swatch {

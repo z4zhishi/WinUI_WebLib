@@ -130,9 +130,8 @@ const editableEcho = computed(() => {
   const parsed = Number(editableText.value)
   return Number.isFinite(parsed) && editableText.value !== '' ? parsed : 14
 })
-const editableEchoValid = computed(
-  () => Number.isFinite(Number(editableText.value)) && editableText.value !== '',
-)
+// MR10/W7:原随有效性降透明度的 editableEchoValid 已随 opacity 绑定一并移除
+// (降透明度字号回显不达对比度,未命中状态由 .demo-echo 的 “item = —” 表达)
 
 function onEditableSelectionChanged(_index: number, item: unknown): void {
   editableItem.value = item
@@ -251,10 +250,11 @@ const usageCode = computed(
               text = “{{ editableText }}” · item = {{ editableItem === null ? '—' : String(editableItem) }}
             </span>
           </div>
-          <p
-            class="demo-output font-echo"
-            :style="{ fontSize: `${editableEcho}px`, opacity: editableEchoValid ? 1 : 0.5 }"
-          >
+          <!-- MR10/W7(a11y 对比度):原 opacity 0.5 把次级前景压到 2.09:1(浅)/
+               2.48:1(深);去掉降透明度,回显文字直接走 .demo-output 的语义次级
+               前景 token(--wui-application-secondary-foreground-theme,
+               浅 5.74:1 / 深 7.37:1)。未命中状态由上方 .demo-echo 的 “item = —” 表达 -->
+          <p class="demo-output font-echo" :style="{ fontSize: `${editableEcho}px` }">
             You can set the font size used for this text.
           </p>
         </section>

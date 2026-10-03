@@ -558,7 +558,11 @@ geometryBounds(geo) // { x: 1, y: 2, width: 19, height: 14 }
   padding: 2px 8px;
   font-family: ui-monospace, Consolas, 'Courier New', monospace;
   font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
+  /* MR10/W1(a11y 对比度):accent #0078D4 在 chrome 灰底上仅 4.04:1(浅色)/
+     3.12:1(深色),不达 WCAG AA 4.5:1;改用壳层链接达标色
+     --wui-shell-hyperlink-foreground(浅 #0067C0 = 5.07:1 / 深 #4CC2FF = 7.06:1),
+     与 TS1 壳层链接、App.vue 同口径 */
+  color: var(--wui-shell-hyperlink-foreground);
   background: var(--wui-system-control-background-chrome-medium-low);
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
   text-align: center;

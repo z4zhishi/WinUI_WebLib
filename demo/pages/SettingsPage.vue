@@ -231,4 +231,12 @@ const aboutRows = computed<{ label: string; value?: string }[]>(() => [
   font-weight: 600;
   color: var(--wui-application-header-foreground-theme);
 }
+
+/* MR10/T-1(a11y 对比度,TS1 遗留 #3 落地):组件默认链接色 SystemAccentColor
+   #0078D4 在页底 #F3F3F3(浅)/#202020(深)上仅 4.08:1 / 3.59:1;关于区外链
+   改用壳层链接达标色 --wui-shell-hyperlink-foreground(浅 #0067C0 = 5.07:1 /
+   深 #4CC2FF = 8.12:1)。悬停/按压仍走组件 VSM 状态色(两主题均 ≥4.5:1 达标) */
+.settings-about-value .wui-hyperlink-button {
+  color: var(--wui-shell-hyperlink-foreground);
+}
 </style>

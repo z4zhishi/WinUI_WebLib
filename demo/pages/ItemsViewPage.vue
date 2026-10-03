@@ -275,7 +275,7 @@ const usageCode = computed(
               <span class="file-row">
                 <span
                   class="file-badge"
-                  :style="{ background: `hsl(${(item as FileItem).hue} 55% 45%)` }"
+                  :style="{ background: `hsl(${(item as FileItem).hue} 55% 32%)` }"
                   aria-hidden="true"
                 >{{ (item as FileItem).ext }}</span>
                 <span class="file-name">{{ (item as FileItem).name }}</span>
@@ -341,7 +341,7 @@ const usageCode = computed(
               <span class="file-row">
                 <span
                   class="file-badge"
-                  :style="{ background: `hsl(${(item as FileItem).hue} 55% 45%)` }"
+                  :style="{ background: `hsl(${(item as FileItem).hue} 55% 32%)` }"
                   aria-hidden="true"
                 >{{ (item as FileItem).ext }}</span>
                 <span class="file-name">{{ (item as FileItem).name }}</span>
@@ -465,7 +465,12 @@ const usageCode = computed(
   font-weight: 600;
   letter-spacing: 0.5px;
   text-align: center;
-  color: var(--wui-system-control-foreground-alt-high);
+  /* MR10/W3(a11y 对比度):徽标底为演示数据的彩色实色,原字色
+     --wui-system-control-foreground-alt-high 随主题翻转(浅白/深黑),两主题各有
+     一组底色不达标(浅色白字最低 2.58:1 / 深色黑字最低 2.80:1)。统一改用
+     双主题恒白的 chrome-white 前景 token,并把底色明度 45% → 32%,最暗组合
+     (ZIP 黄)对白字 4.81:1,10 个色相全部 ≥4.5:1 */
+  color: var(--wui-system-control-foreground-chrome-white);
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
 }
 
