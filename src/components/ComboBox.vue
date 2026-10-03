@@ -645,6 +645,10 @@ const rootClass = computed(() => ({
             @click="selectItem(visible.index)"
             @pointermove="activeVisible = visibleIndex"
           >
+            <!-- Pill(源模板 L759-763):3×16 强调色圆角条,默认 Opacity 0,
+                 选中 → 1;选中且按下 → PillTransform.ScaleY 1 → 0.625(167ms,
+                 KeySpline 0,0,0,1)。规格见 <style> 中 .wui-combo-box-item__pill -->
+            <span class="wui-combo-box-item__pill" aria-hidden="true"></span>
             <!-- 自定义项模板 slot(WinUI ItemTemplate);缺省渲染显示文本 -->
             <slot name="item" :item="visible.item" :index="visible.index">
               {{ itemText(visible.item) }}
@@ -881,6 +885,15 @@ const rootClass = computed(() => ({
 
 /* —— 列表项(ComboBoxItemRevealStyle:Padding 10,4,10,7、Border 1px 透明)—— */
 .wui-combo-box-item {
+  /* ComboBoxItemPillFillBrush(controls/dev/ComboBox/ComboBox_themeresources.xaml
+     L106/L316)= AccentFillColorDefaultBrush:Light = SystemAccentColorDark1、
+     Default(深) = SystemAccentColorLight2(Common_themeresources_any.xaml L329/L125)。
+     下拉面板 Teleport 到 body,不继承 .wui-combo-box 上的变量 → token 落在项自身。 */
+  --cb-item-pill-fill: var(
+    --wui-system-accent-color-dark-1,
+    var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme))
+  );
+  position: relative; /* Pill 绝对定位锚点(源 LayoutRoot 同格兄弟) */
   padding: 4px 10px 7px;
   border: 1px solid transparent; /* ComboBoxItemRevealBorderThemeThickness = 1 */
   color: var(--wui-combo-box-item-foreground);
@@ -890,6 +903,62 @@ const rootClass = computed(() => ({
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
+}
+
+/* 深色主题源值覆盖(AccentFillColorDefaultBrush = SystemAccentColorLight2) */
+html[data-theme='dark'] .wui-combo-box-item {
+  --cb-item-pill-fill: var(
+    --wui-system-accent-color-light-2,
+    var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme))
+  );
+}
+
+/* —— Pill(MR14 新增;权威 controls/dev/ComboBox/ComboBox_themeresources.xaml)——
+   常量:ComboBoxItemPillWidth 3 / Height 16(L324-325)、ComboBoxItemPillMinScale 0.625
+   (L326)、ComboBoxItemScaleAnimationDuration 167ms(L330)、ComboBoxItemPillCornerRadius
+   1.5(L346);样式 ComboBoxItemPill(L349-356):HorizontalAlignment=Left、Fill=Accent、
+   RadiusX/Y=1.5、RenderTransformOrigin=0.5,0.5;模板 L759-763:Pill 与 ContentPresenter
+   同格,默认 Opacity 0。
+   状态(SelectionStates 各分支 L657-739):Selected/SelectedUnfocused/SelectedDisabled/
+   SelectedPointerOver/SelectedPressed 均以 DiscreteObjectKeyFrame KeyTime=0 把 Opacity 置 1
+   → **瞬时**(无补间);仅 SelectedPressed 追加 PillTransform.ScaleY → ComboBoxItemPillMinScale
+   0.625 的 SplineDoubleKeyFrame(167ms,KeySpline 0,0,0,1,L726-728)→ 按下时缩短,
+   形变中心为自身中心。
+   离开 SelectedPressed 无 VisualTransition(该组未声明)→ 回弹瞬时:故 transition 只写在
+   :active 规则上(CSS 补间取目标态声明),基线无补间 —— 与源语义一致。 */
+.wui-combo-box-item__pill {
+  position: absolute;
+  left: 0; /* HorizontalAlignment = Left(源 Pill 位于 LayoutRoot 左缘) */
+  top: 50%; /* 源 VerticalAlignment 默认 Stretch + 显式 Height 16 → 垂直居中 */
+  width: 3px; /* ComboBoxItemPillWidth */
+  height: 16px; /* ComboBoxItemPillHeight */
+  margin-top: -8px;
+  border-radius: 1.5px; /* ComboBoxItemPillCornerRadius(源经 2x 圆角过滤器 → RadiusX/Y 1.5) */
+  background: var(--cb-item-pill-fill);
+  opacity: 0;
+  transform: scaleY(1);
+  transform-origin: 50% 50%; /* ComboBoxItemPill.RenderTransformOrigin = 0.5,0.5 */
+  pointer-events: none; /* 不参与命中(源 Pill 为纯视觉层) */
+}
+
+/* 选中态任一分支 → Opacity 1(源 DiscreteObjectKeyFrame KeyTime=0 → 瞬时) */
+.wui-combo-box-item.is-selected > .wui-combo-box-item__pill {
+  opacity: 1;
+}
+
+/* SelectedPressed:PillTransform.ScaleY 1 → 0.625 / 167ms / cubic-bezier(0,0,0,1)
+   (源 KeySpline 0,0,0,1 = ControlFastOutSlowInKeySpline 同族)。仅在按下期补间,
+   松开即瞬时回弹(基线无 transition 声明)。 */
+.wui-combo-box-item.is-selected:active > .wui-combo-box-item__pill {
+  transform: scaleY(0.625); /* ComboBoxItemPillMinScale */
+  transition: transform 167ms cubic-bezier(0, 0, 0, 1); /* ComboBoxItemScaleAnimationDuration */
+}
+
+/* Reduced motion:按下反馈仍成立,仅去掉补间(与库内 Pointer 反馈同口径,终态保留) */
+@media (prefers-reduced-motion: reduce) {
+  .wui-combo-box-item.is-selected:active > .wui-combo-box-item__pill {
+    transition: none;
+  }
 }
 
 /* —— reveal 揭示光照(公共层,默认启用):边框光半径取源 narrow 配置 ≈ 39px

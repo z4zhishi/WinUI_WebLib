@@ -442,15 +442,20 @@ function onWheel(event: WheelEvent): void {
   bumpActivity()
 }
 
-// —— 滚动条自动隐藏(audit A11,与 ScrollViewer 统一口径):源 ScrollBarExpand/Contract
-// BeginTime = 0.4s / 2s(G.xaml L612-616,L7855-7936)。Chromium(实测 154)对
-// ::-webkit-scrollbar-* 伪元素不支持 transition/animation,0.1s 补间不生效——
-// 0.4s / 2s 延迟由 JS 定时器驱动 .is-sb-expanded 类;0.1s 过渡声明保留在 CSS。
+// —— 滚动条自动隐藏(audit A11,与 ScrollViewer 统一口径):源 ScrollBarExpandBeginTime
+// = 0.4s / ScrollBarContractDelay = 2s(L188 / L178)。MR14 订正:补间时长归 ScrollBar 族
+// (controls/dev/CommonStyles/ScrollBar_themeresources.xaml)—— ScrollBarExpandDuration /
+// ScrollBarContractDuration = 167ms(L173/L176,thumb 宽 8→12,L586-587 展开 / L542-543 收缩,
+// KeySpline 0,0,0,1)、ScrollBarOpacityChangeDuration = ScrollBarColorChangeDuration = 83ms
+// (L174/L175);此前注「0.1s」取错了 ScrollView/Viewer「Separator」族
+// (ScrollViewerSeparatorExpand/ContractDuration,那是 ScrollBarSeparator 分隔条,非本组)。
+// Chromium(实测 154)对 ::-webkit-scrollbar-* 伪元素不支持 transition/animation,补间不生效——
+// 0.4s / 2s 延迟由 JS 定时器驱动 .is-sb-expanded 类;过渡声明保留在 CSS。
 // MR6/P2-2:定时器属 JS 驱动路径,媒体查询管不到 —— RM 下跳过 0.4s/2s 延迟
 // 直接落终态(与 runTween / A9 指示条 prefersReducedMotion 门控同口径);
 // 非 RM 路径零变化。
-const SCROLLBAR_EXPAND_DELAY_MS = 400 /* ScrollBarExpandBeginTime */
-const SCROLLBAR_CONTRACT_DELAY_MS = 2000 /* ScrollBarContractBeginTime */
+const SCROLLBAR_EXPAND_DELAY_MS = 400 /* ScrollBarExpandBeginTime = 0.40s(L188) */
+const SCROLLBAR_CONTRACT_DELAY_MS = 2000 /* ScrollBarContractDelay = 2s(L178) */
 const sbExpandTimer = ref<number | null>(null)
 const sbContractTimer = ref<number | null>(null)
 const sbExpanded = ref(false)
@@ -667,7 +672,11 @@ defineExpose({
  *   悬停展开(.is-sb-expanded,JS 0.4s 延迟后挂,见脚本注):thumb 增厚 6px、
  *     色转 ScrollBarThumbBackground(--wui-scroll-bar-thumb-background)+ 轨道显形;
  *   离开收缩(JS 2s 延迟后摘)。
- *   0.1s 过渡声明(ScrollBarExpand/ContractDuration)保留:受支持的平台生效;
+ *   补间时长 = ScrollBar 族(MR14 订正,权威 controls/dev/CommonStyles/
+ *   ScrollBar_themeresources.xaml):厚度 ScrollBarExpand/ContractDuration 167ms
+ *   (L173/L176),色/透明度 ScrollBarOpacity/ColorChangeDuration 83ms(L174/L175);
+ *   此前误取 ScrollView/Viewer「Separator」族的 100ms(见脚本注)。
+ *   过渡声明保留:受支持的平台生效;
  *   Chromium 对滚动条伪元素不支持 transition/animation,呈瞬时切换(已实测登记)。
  *   thumb 直接悬停/按下:状态色即时(源 Pressed/重叠态 Duration=0)。 */
 .wui-scroll-view::-webkit-scrollbar {
@@ -677,7 +686,8 @@ defineExpose({
 
 .wui-scroll-view::-webkit-scrollbar-track {
   background: transparent;
-  transition: background-color 100ms linear 2s;
+  /* 轨道显形 = 源 TrackRect.Opacity 补间 → ScrollBarOpacityChangeDuration 83ms */
+  transition: background-color 83ms linear 2s;
 }
 
 .wui-scroll-view.is-sb-expanded::-webkit-scrollbar-track {
@@ -690,17 +700,19 @@ defineExpose({
   border: 4px solid transparent;
   border-radius: 999px;
   background-clip: padding-box;
+  /* 色 = ScrollBarColorChangeDuration 83ms;厚度 = ScrollBarContractDuration 167ms */
   transition:
-    background-color 100ms linear 2s,
-    border-width 100ms linear 2s;
+    background-color 83ms linear 2s,
+    border-width 167ms linear 2s;
 }
 
 .wui-scroll-view.is-sb-expanded::-webkit-scrollbar-thumb {
   background: var(--wui-scroll-bar-thumb-background);
   border-width: 3px;
+  /* 色 = 83ms;厚度 = ScrollBarExpandDuration 167ms(同 BeginTime 0.4s,L584-596) */
   transition:
-    background-color 100ms linear 0.4s,
-    border-width 100ms linear 0.4s;
+    background-color 83ms linear 0.4s,
+    border-width 167ms linear 0.4s;
 }
 
 /* thumb 直接命中:状态色即时(源 Pressed/重叠态 Duration=0),厚度维持展开态 */

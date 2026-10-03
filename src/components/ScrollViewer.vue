@@ -435,17 +435,21 @@ onBeforeUnmount(() => {
 })
 
 // —— 滚动条自动隐藏(audit A11):源 ScrollBarExpand/ContractBeginTime = 0.4s / 2s、
-// Duration = 0.1s(G.xaml L612-616,L7855-7936 Expanded/Collapsed 编排;ScrollViewerSeparator
-// 键族同构)。注意:Chromium(实测 154)对 ::-webkit-scrollbar-* 伪元素不支持
-// transition/animation(样式瞬变、Element.getAnimations 无伪元素条目),0.1s 补间在
+// Duration = 167ms(ScrollBarExpandDuration / ScrollBarContractDuration,
+// controls/dev/CommonStyles/ScrollBar_themeresources.xaml L173/L176;L586-587 展开 /
+// L542-543 收缩,KeySpline 0,0,0,1),辅以 Opacity/ColorChange 83ms(L174/L175)。
+// MR14 订正:此前注「Duration = 0.1s」取错族 —— 0.1s 是 ScrollViewerSeparator
+// Expand/ContractDuration(ScrollViewer_themeresources.xaml L16/L19),属 ScrollBarSeparator
+// 分隔条,非本组 thumb。注意:Chromium(实测 154)对 ::-webkit-scrollbar-* 伪元素不支持
+// transition/animation(样式瞬变、Element.getAnimations 无伪元素条目),补间在
 // 原生滚动条上不生效——0.4s / 2s 延迟改由 JS 定时器驱动 .is-sb-expanded 类(两轴同源,
-// 对照 ScrollViewer 指示态挂在容器一级);0.1s 过渡声明保留在 CSS,受支持的平台即时生效。
+// 对照 ScrollViewer 指示态挂在容器一级);过渡声明保留在 CSS,受支持的平台即时生效。
 // MR6/P2-2:定时器属 JS 驱动路径,媒体查询管不到 —— RM 下跳过 0.4s/2s 延迟直接落
 // 终态(与 A9 指示条 prefersReducedMotion 门控同口径);非 RM 路径零变化。
 // (此前注「RM 降级由 animations.css 全局媒体查询统一处理」仅覆盖 CSS 补间声明,
 // 不覆盖本定时器路径,已由 MR-QA1 复审登记为工单。)
-const SCROLLBAR_EXPAND_DELAY_MS = 400 /* ScrollBarExpandBeginTime */
-const SCROLLBAR_CONTRACT_DELAY_MS = 2000 /* ScrollBarContractBeginTime */
+const SCROLLBAR_EXPAND_DELAY_MS = 400 /* ScrollBarExpandBeginTime = 0.40s(L188) */
+const SCROLLBAR_CONTRACT_DELAY_MS = 2000 /* ScrollBarContractDelay = 2s(L178;L179 FinalKeyframe 2.1s) */
 const sbExpandTimer = ref<number | null>(null)
 const sbContractTimer = ref<number | null>(null)
 const sbExpanded = ref(false)
@@ -593,8 +597,16 @@ defineExpose({
  *     色转 ScrollBarThumbBackgroundColor(--wui-scroll-bar-thumb-background,
  *     SystemBaseLow,源 Expanded 态 ColorAnimation 终值)+ 轨道显形;
  *   离开收缩(JS 2s 延迟后摘):回收起态。
- *   0.1s 过渡声明(ScrollBarExpand/ContractDuration)保留:受支持的平台生效;
- *   Chromium 对滚动条伪元素不支持 transition/animation,呈瞬时切换(已实测登记)。
+ *   补间时长取 ScrollBar 族(权威 controls/dev/CommonStyles/ScrollBar_themeresources.xaml):
+ *     ScrollBarExpandDuration / ScrollBarContractDuration = 167ms(L173/L176,thumb 宽
+ *     MinWidth 8 → ScrollBarSize 12,L586-587 展开 / L542-543 收缩,Spline 0,0,0,1);
+ *     ScrollBarOpacityChangeDuration = ScrollBarColorChangeDuration = 83ms(L174/L175,
+ *     轨道/按键 Opacity 淡入淡出、画刷色 DiscreteObjectKeyFrame 关键帧)。
+ *   MR14 订正:此前误取 ScrollViewer/ScrollView「Separator」族的 100ms
+ *   (ScrollViewerSeparatorExpand/ContractDuration = 0.1s,那是 ScrollBarSeparator
+ *   单列分隔条的 Opacity 时长,与本组 thumb 展开非同源);族归属依据见 MR14 报告。
+ *   Chromium 对滚动条伪元素不支持 transition/animation,呈瞬时切换(已实测登记);
+ *   声明保留,受支持的平台即时生效。
  *   thumb 直接悬停 / 按下:状态色即时(源 Pressed/重叠态 Duration=0)。 */
 .wui-scrollviewer__scroller::-webkit-scrollbar {
   width: var(--wui-scrollviewer-bar-size);
@@ -604,7 +616,8 @@ defineExpose({
 
 .wui-scrollviewer__scroller::-webkit-scrollbar-track {
   background: transparent;
-  transition: background-color 100ms linear 2s;
+  /* 轨道显形 = 源 Vertical/HorizontalTrackRect.Opacity 补间 → ScrollBarOpacityChangeDuration 83ms */
+  transition: background-color 83ms linear 2s;
 }
 
 .wui-scrollviewer__scroller.is-sb-expanded::-webkit-scrollbar-track {
@@ -620,17 +633,20 @@ defineExpose({
   /* 源 thumb 为无圆角 Rectangle,半径无 token 依据 → 按 ScrollView 口径取满圆pill
      (999px,4px 厚下即半圆端),观感与同库 ScrollView 一致(wiki 差异 1 登记) */
   border-radius: 999px;
+  /* 色 = ScrollBarColorChangeDuration 83ms;厚度 = ScrollBarContractDuration 167ms */
   transition:
-    background-color 100ms linear 2s,
-    border-width 100ms linear 2s;
+    background-color 83ms linear 2s,
+    border-width 167ms linear 2s;
 }
 
 .wui-scrollviewer__scroller.is-sb-expanded::-webkit-scrollbar-thumb {
   background: var(--wui-scroll-bar-thumb-background);
   border-width: 3px;
+  /* 色 = ScrollBarColorChangeDuration 83ms;厚度 = ScrollBarExpandDuration 167ms
+     (两者同 BeginTime 0.4s,源 L584-596 展开编排) */
   transition:
-    background-color 100ms linear 0.4s,
-    border-width 100ms linear 0.4s;
+    background-color 83ms linear 0.4s,
+    border-width 167ms linear 0.4s;
 }
 
 /* thumb 直接命中:状态色即时切换(源 Pressed/重叠态 Duration=0);
