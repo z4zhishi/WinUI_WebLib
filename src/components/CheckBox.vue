@@ -89,8 +89,10 @@ function onToggle(event: MouseEvent): void {
     <!-- 勾选框图形区:对应模板中 VerticalAlignment=Top Height=32 的 32px 高子网格 -->
     <span class="check-area" aria-hidden="true">
       <span class="check-box"></span>
-      <!-- 勾/减字形:WinUI 用 Segoe Fluent Icons 的 E001(CheckMark)/E73C(Subtract),
-           此处以内联 SVG 等形复刻,颜色取 --wui-check-box-check-glyph-foreground-* token -->
+      <!-- 勾/减字形:源 CheckGlyph 为 controls:AnimatedIcon + AnimatedAcceptVisualSource
+           (NormalOff 默认 / NormalOn 勾选 / NormalIndeterminate 三态;资产时长 266.67ms,
+           c_durationTicks=26666666)。字形本身以内联 SVG 等形复刻(勾 E001 / 减 E73C),
+           颜色取 --wui-check-box-check-glyph-foreground-* token;绘制过渡见样式注。 -->
       <svg class="glyph glyph-check" viewBox="0 0 20 20" focusable="false">
         <path d="M4.5 10.5 L8.5 14.5 L15.5 6.5" />
       </svg>
@@ -252,8 +254,15 @@ function onToggle(event: MouseEvent): void {
   border: 2px solid var(--cb-stroke);
 }
 
-/* CheckGlyph(FontIcon Glyph=E001/E73C,FontSize=20,Opacity=0):
-   矩形内垂直居中(显式尺寸 + Stretch 对齐在 XAML 中表现为居中),勾选/不确定态淡入 */
+/* CheckGlyph(源 controls:AnimatedIcon + AnimatedAcceptVisualSource;FontIcon 降级字形
+   E001/E73C,FontSize=20):
+   矩形内垂直居中(显式尺寸 + Stretch 对齐在 XAML 中表现为居中),勾选/不确定态淡入。
+   动效复刻:源 AnimatedIcon 状态 NormalOff → NormalOn / NormalIndeterminate 的迁移由
+   LottieGen 编译资产驱动,资产总时长 266.67ms(AnimatedAcceptVisualSource.cpp
+   c_durationTicks=26666666,1 tick=100ns);原始 .json 不在 CK 快照内,Web 以
+   stroke-dashoffset 描绘(勾 / 减)+ opacity 交叉淡入复刻,时长严格取 266.67ms。
+   缓动:源过渡曲线烘焙在 Lottie 关键帧内,CK 无 XAML KeySpline 可提取,故取 linear
+   (见 wiki/controls/CheckBox.md 差异节)。 */
 .glyph {
   position: absolute;
   top: 6px;
@@ -264,15 +273,33 @@ function onToggle(event: MouseEvent): void {
   padding: 2px;
   color: var(--cb-glyph);
   opacity: 0;
+  transition: opacity 266.67ms linear;
 }
 .glyph path {
   fill: none;
   stroke: currentcolor;
   stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  /* 描绘过渡:虚线全隐 → 全显(dashoffset 归零) */
+  transition: stroke-dashoffset 266.67ms linear;
+}
+/* 路径长度实测:勾折线 5.657+10.630=16.287 ≈ 16.3;减号 11 */
+.glyph-check path {
+  stroke-dasharray: 16.3;
+  stroke-dashoffset: 16.3;
+}
+.glyph-minus path {
+  stroke-dasharray: 11;
+  stroke-dashoffset: 11;
 }
 .wui-check-box.is-checked .glyph-check,
 .wui-check-box.is-indeterminate .glyph-minus {
   opacity: 1;
+}
+.wui-check-box.is-checked .glyph-check path,
+.wui-check-box.is-indeterminate .glyph-minus path {
+  stroke-dashoffset: 0;
 }
 
 /* ContentPresenter:Margin=Padding=8,5,0,0(XAML Thickness 顺序:左,上,右,下) */

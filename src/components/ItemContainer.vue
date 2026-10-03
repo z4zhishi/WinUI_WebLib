@@ -275,11 +275,16 @@ html[data-theme='dark'] .wui-item-container {
   pointer-events: none; /* IsHitTestVisible=False */
 }
 
-/* CheckGlyph(AnimatedAcceptVisualSource;State=NormalOff 未选态不绘制勾选字形) */
+/* CheckGlyph(源 controls:AnimatedIcon + AnimatedAcceptVisualSource;
+   State=NormalOff 未选态不绘制勾选字形,CheckedNormal → NormalOn 描绘勾)。
+   动效复刻:资产总时长 266.67ms(c_durationTicks=26666666,1 tick=100ns);
+   原始 .json 不在 CK 快照内,Web 以 stroke-dashoffset 描绘 + opacity 淡入复刻,
+   时长严格取 266.67ms(见 wiki/controls/ItemsView.md 差异节)。 */
 .check-mark svg {
   width: 12px;
   height: 12px;
-  visibility: hidden;
+  opacity: 0;
+  transition: opacity 266.67ms linear;
 }
 
 .check-mark svg path {
@@ -288,17 +293,25 @@ html[data-theme='dark'] .wui-item-container {
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
+  /* 勾折线路径长度实测 ≈ 10.64(源 SVG viewBox 12×12:M2.5 6.5 L5 9 L9.5 3.5) */
+  stroke-dasharray: 10.7;
+  stroke-dashoffset: 10.7;
+  transition: stroke-dashoffset 266.67ms linear;
 }
 
 /* CheckedNormal:底/描边 = CheckBoxCheckBackgroundFill/StrokeChecked = AccentFillColorDefault,
-   字形 State=NormalOn 显示 */
+   字形 State=NormalOn 描绘并显示 */
 .wui-item-container.is-selected .check-mark {
   background: var(--ic-accent-fill);
   border-color: var(--ic-accent-fill);
 }
 
 .wui-item-container.is-selected .check-mark svg {
-  visibility: visible;
+  opacity: 1;
+}
+
+.wui-item-container.is-selected .check-mark svg path {
+  stroke-dashoffset: 0;
 }
 
 /* —— 内容 —— */

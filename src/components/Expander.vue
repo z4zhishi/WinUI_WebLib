@@ -297,8 +297,12 @@ const hasHeaderText = computed(() => props.header !== '')
   display: flex;
   color: var(--wui-default-text-foreground-theme); /* ExpanderChevronForeground(TextFillColorPrimary 最近似) */
   transform: rotate(var(--wui-chevron-rot, 0deg));
-  /* 源 AnimatedChevronUpDownSmallVisualSource 的翻面动画 → 旋转过渡(normal + standard 近似) */
-  transition: transform var(--wui-duration-normal) var(--wui-easing-standard);
+  /* 源 ExpandCollapseChevron = controls:AnimatedIcon + AnimatedChevronUpDownSmallVisualSource
+     (State NormalOff 收起 / NormalOn 展开;资产总时长 433.33ms,c_durationTicks=43333333,
+     1 tick=100ns)。原始 .json 不在 CK 快照内,Web 以旋转过渡复刻翻面;CK 的 Expander.xaml /
+     themeresources 仅对内容位移动画定义了 KeySpline,chevron 自身无 XAML KeySpline 可提取
+     (曲线烘焙在 Lottie 内),故取 linear(见 wiki/controls/Expander.md 差异节)。 */
+  transition: transform 433.33ms linear;
 }
 
 /* —— PointerOver:头部前景 / 边框与 Normal 同色(源 themeresources 同键),chevron 底色变 Subtle 次级 —— */

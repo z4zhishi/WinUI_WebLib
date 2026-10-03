@@ -349,9 +349,26 @@ onBeforeUnmount(() => {
   outline: none;
 }
 
-/* 字形(源按钮 Content 为 Segoe Fluent Icons 码点) */
+/* 字形(源按钮 Content 为 Segoe Fluent Icons 码点)。
+   返回 / 窗格按钮的源为 controls:AnimatedIcon + AnimatedBackVisualSource /
+   AnimatedGlobalNavigationButtonVisualSource(资产总时长均 133.33ms,c_durationTicks=13333333,
+   State Normal/PointerOver/Pressed);原始 .json 不在快照内,Web 以字形 transform 过渡近似
+   (PointerOver 微放大 / Pressed 收缩)。caption 按钮(最小化/最大化/关闭)源为静态字形,
+   不受本规则影响(作用域限 __button)。 */
 .wui-title-bar__glyph {
   line-height: 1;
+}
+
+.wui-title-bar__button .wui-title-bar__glyph {
+  transition: transform 133.33ms linear;
+}
+
+.wui-title-bar__button:hover:not(:disabled) .wui-title-bar__glyph {
+  transform: scale(1.08);
+}
+
+.wui-title-bar__button:active:not(:disabled) .wui-title-bar__glyph {
+  transform: scale(0.9);
 }
 
 /* —— PART_LeftHeaderPresenter(列 4)—— */

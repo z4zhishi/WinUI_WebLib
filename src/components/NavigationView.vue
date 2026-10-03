@@ -761,7 +761,15 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
         @click="togglePane"
       >
         <span class="wui-navview__toggle-icon" aria-hidden="true">
-          <FontIcon glyph="&#xE700;" :font-size="16" />
+          <!-- 源 PaneToggleButton 的 Icon = controls:AnimatedIcon + AnimatedGlobalNavigationButtonVisualSource
+               (State Normal/PointerOver/Pressed;资产总时长 133.33ms,c_durationTicks=13333333)。
+               原始 .json 不在 CK 快照内,Web 以内联 SVG 三横条等形复刻 E700 汉堡字形,
+               悬停/按压以横条位移 + 整体缩放过渡近似(见 wiki/controls/NavigationView.md 差异节)。 -->
+          <svg class="wui-navview__pane-toggle-glyph" viewBox="0 0 16 16" focusable="false">
+            <path class="wui-navview__pane-toggle-bar wui-navview__pane-toggle-bar--top" d="M2.5 4.5 H13.5" />
+            <path class="wui-navview__pane-toggle-bar wui-navview__pane-toggle-bar--mid" d="M2.5 8 H13.5" />
+            <path class="wui-navview__pane-toggle-bar wui-navview__pane-toggle-bar--bot" d="M2.5 11.5 H13.5" />
+          </svg>
         </span>
         <span v-if="showPaneTitle" class="wui-navview__pane-title">{{ paneTitle }}</span>
       </button>
@@ -879,6 +887,35 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
   flex: none;
   width: 40px;
   height: 36px;
+}
+
+/* 汉堡字形(源 AnimatedGlobalNavigationButtonVisualSource,133.33ms):三横条内联 SVG 等形 E700,
+   Normal→PointerOver→Pressed 以横条位移 / 整体缩放过渡近似(原始 Lottie .json 不在快照内)。 */
+.wui-navview__pane-toggle-glyph {
+  width: 16px;
+  height: 16px;
+  overflow: visible;
+  transition: transform 133.33ms linear;
+}
+
+.wui-navview__pane-toggle-bar {
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 133.33ms linear;
+}
+
+/* PointerOver:三横条横向收拢(保持三横可辨;源 GlobalNav 悬停形变的务实近似) */
+.wui-navview__toggle:hover .wui-navview__pane-toggle-bar {
+  transform: scaleX(0.78);
+}
+
+/* Pressed:整体收缩 */
+.wui-navview__toggle:active .wui-navview__pane-toggle-glyph {
+  transform: scale(0.82);
 }
 
 .wui-navview__toggle:hover {
@@ -1174,8 +1211,12 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
   background: transparent;
 }
 
+/* 展开箭头(源 ExpandCollapseChevronIcon = controls:AnimatedIcon +
+   AnimatedChevronUpDownSmallVisualSource;资产总时长 433.33ms,c_durationTicks=43333333;
+   State NormalOn(展开,chevron 朝上)/ NormalOff(收起,朝下)↔ 旋转 180°。
+   原始 .json 不在快照内,Web 以旋转过渡复刻;源无 XAML KeySpline(曲线烘焙在 Lottie 内)故取 linear) */
 .wui-navview :deep(.wui-nav-item__chevron-icon) {
-  transition: transform var(--wui-duration-fast) var(--wui-easing-standard);
+  transition: transform 433.33ms linear;
 }
 
 .wui-navview :deep(.wui-nav-item__chevron-icon--open) {
