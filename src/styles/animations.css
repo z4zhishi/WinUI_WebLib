@@ -1278,4 +1278,16 @@
     transition-duration: 0.01ms !important;
     transition-delay: 0.01ms !important;
   }
+
+  /* Chromium 滚动条伪元素不在 `*` 选择器族内(MR-QA6 §7 漏网),需显式列出:
+     否则 RM 下仍保留 83/167ms 与 2s 延迟声明(当前引擎对滚动条伪元素不补间、
+     无可见运动,但声明应归零以保持降级语义一致)。 */
+  ::-webkit-scrollbar,
+  ::-webkit-scrollbar-thumb,
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-button,
+  ::-webkit-scrollbar-corner {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0.01ms !important;
+  }
 }
