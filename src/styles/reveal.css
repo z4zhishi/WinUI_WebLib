@@ -113,7 +113,10 @@
     pointer-events: none;
   }
 
-  .wui-reveal--border:not(:disabled):hover::after {
+  /* 边框光载体可能是宿主自身(::after,Button 系)或内部载体 span(AppBarButton __reveal,
+     pointer-events:none 自身永不 :hover,MR-QA3 P1-A)——点亮条件统一锚定宿主 hover,两式并存 */
+  .wui-reveal--border:not(:disabled):hover::after,
+  .wui-reveal:not(:disabled):hover .wui-reveal--border::after {
     opacity: 1;
   }
 }
