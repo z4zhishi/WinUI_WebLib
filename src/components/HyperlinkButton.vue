@@ -1,11 +1,14 @@
 <script setup lang="ts">
 // HyperlinkButton.vue —— WinUI HyperlinkButton 控件的 Web 复刻(阶段 1 基础控件)。
-// 视觉与状态对照源:CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml L6387 起
-// TargetType="HyperlinkButton" 的 Style/ControlTemplate —— 背景各状态均透明、边框厚度 0,
-// 四态仅切换前景色:Normal=SystemControlHyperlinkTextBrush(强调色),
-// PointerOver=SystemControlPageTextBaseMedium / Pressed=SystemControlHighlightBaseMediumLow(变灰),
-// Disabled=SystemControlDisabledBaseMediumLow;HyperlinkUnderlineVisible=True 决定文字
-// 默认带下划线(悬停/按下仅变色,下划线不消失)。
+// 视觉与状态对照源(权威 = controls/dev,generic.xaml 为 UWP 遗留):
+//   CK/WinUI-Reference/controls/dev/CommonStyles/HyperlinkButton_themeresources.xaml
+//   L5-17/L20-32 —— 前景四态取 AccentTextFillColorPrimary/Secondary/Tertiary/Disabled;
+//   底色四态取 SubtleFillColor*(Normal/Disabled=Transparent,PointerOver=
+//   SubtleFillColorSecondary, Pressed=SubtleFillColorTertiary,即半透明叠加),
+//   边框四态均为 Transparent。各态切换为 DiscreteObjectKeyFrame(即时),
+//   底色另经 ContentPresenter 上的 BrushTransition 83ms 线性过渡(L68-71)。
+//   遗留参照:CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml L6387 起
+//   TargetType="HyperlinkButton" 旧 Style(其底色恒透明、前景变灰,已弃用)。
 // 语义:navigateUri 有值渲染 <a>(浏览器默认导航,调用方在 click 处理器中
 // event.preventDefault() 可拦截);为空渲染 <button>(仅触发 click 不导航,
 // 对应官方示例二「只处理 Click」)。
@@ -100,10 +103,13 @@ function onClick(event: MouseEvent): void {
   font-family: var(--wui-content-control-theme-font-family);
   /* ControlContentThemeFontSize = 14px */
   font-size: var(--wui-control-content-theme-font-size);
-  /* HyperlinkButtonForeground = SystemControlHyperlinkTextBrush(主题强调色) */
+  /* HyperlinkButtonForeground = AccentTextFillColorPrimaryBrush(主题强调色) */
   color: var(--wui-hyperlink-button-foreground);
-  /* 背景/边框各状态均透明(HyperlinkButton*Background/BorderBrush 资源);
-     HyperlinkButtonBorderThemeThickness = 0 */
+  /* 底色/边框四态(HyperlinkButton*Background/BorderBrush 资源):Normal/Disabled
+     = SubtleFillColorTransparent;PointerOver = SubtleFillColorSecondary;
+     Pressed = SubtleFillColorTertiary(后两者为半透明叠加,见 theme.css)。
+     边框四态 Brush 均透明(权威 BorderThemeThickness=1,Web 以 border:none 保持
+     既有盒尺寸,仅登记差异,见报告)。 */
   background: var(--wui-hyperlink-button-background);
   border: none;
   /* 圆角:模板根 ContentPresenter CornerRadius={TemplateBinding CornerRadius},
@@ -126,20 +132,21 @@ function onClick(event: MouseEvent): void {
    背景色经上面的 BrushTransition 83ms 线性过渡 */
 
 .wui-hyperlink-button:hover:not(:disabled):not(.is-disabled) {
-  /* PointerOver = SystemControlPageTextBaseMedium */
+  /* 前景:遗留 generic.xaml SystemControlPageTextBaseMedium(灰,未在本次订正范围);
+     底色:权威 SubtleFillColorSecondary(L10/L25),经 83ms BrushTransition 过渡 */
   color: var(--wui-hyperlink-button-foreground-pointer-over);
   background: var(--wui-hyperlink-button-background-pointer-over);
 }
 
 .wui-hyperlink-button:active:not(:disabled):not(.is-disabled) {
-  /* Pressed = SystemControlHighlightBaseMediumLow */
+  /* 前景:遗留 SystemControlHighlightBaseMediumLow;底色:权威 SubtleFillColorTertiary(L11/L26) */
   color: var(--wui-hyperlink-button-foreground-pressed);
   background: var(--wui-hyperlink-button-background-pressed);
 }
 
 .wui-hyperlink-button:disabled,
 .wui-hyperlink-button.is-disabled {
-  /* Disabled = SystemControlDisabledBaseMediumLow */
+  /* 前景:遗留 SystemControlDisabledBaseMediumLow;底色:权威 SubtleFillColorTransparent */
   color: var(--wui-hyperlink-button-foreground-disabled);
   background: var(--wui-hyperlink-button-background-disabled);
   cursor: default;

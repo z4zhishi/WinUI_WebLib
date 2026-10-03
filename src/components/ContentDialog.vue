@@ -17,13 +17,15 @@ export interface ContentDialogButtonClickEventArgs {
 <script setup lang="ts">
 // ContentDialog.vue —— WinUI ContentDialog 控件的 Web 复刻(阶段 3 弹层族)。
 //
-// 视觉规格(WinUI 3 模板,取分隔线版):
-//   CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml L8370-8665(TargetType="ContentDialog"
-//   模板段:LayoutRoot 全屏底 → BackgroundElement 面板 MinWidth 320/MaxWidth 548/MinHeight 184/
-//   MaxHeight 756 → DialogSpace[标题 20px / 内容 14px / CommandSpace 命令区]);
+// 视觉规格(WinUI 3 模板,取分隔线版;权威 = controls/dev,dxaml generic.xaml 仅作模板结构锚点):
 //   CK/WinUI-Reference/controls/dev/CommonStyles/ContentDialog_themeresources.xaml(WinUI 3 现行
 //   模板:ContentDialogPadding 24 均分、标题 SemiBold、内容区底部分隔线
-//   ContentDialogSeparatorThickness 0,0,0,1、命令区五列网格 ContentDialogButtonSpacing 8)。
+//   ContentDialogSeparatorThickness 0,0,0,1、命令区五列网格 ContentDialogButtonSpacing 8;
+//   出入场动效 = DialogShowing 1.05→1 @250ms + DialogHidden 1→1.05 @167ms,
+//   KeySpline 0,0,0,1,层根 Opacity 83ms 线性 —— 见 <style> 尾段注释);
+//   CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml L8370-8665(TargetType="ContentDialog"
+//   遗留模板段:LayoutRoot 全屏底 → BackgroundElement 面板 MinWidth 320/MaxWidth 548/MinHeight 184/
+//   MaxHeight 756 → DialogSpace[标题 20px / 内容 14px / CommandSpace 命令区];其 500ms 动效已弃用)。
 //   颜色一律 theme.css 既有 --wui-* token(面板三色 --wui-content-dialog-*、遮罩取锚定模板
 //   LayoutRoot 的 SystemControlPageBackgroundMediumAltMedium → --wui-system-control-page-background-
 //   medium-alt-medium;按钮状态复用 WuiButton 同款 button/accent token),无硬编码色值,
@@ -235,12 +237,16 @@ function onPanelKeydown(event: KeyboardEvent): void {
 
 <template>
   <Teleport to="body">
-    <!-- 出入场(源 DialogShowing / DialogHidden 双时间线,各走各的元素):
-         层根(LayoutRoot)= Opacity 线性 167ms 开 / 83ms 关;面板(BackgroundElement)
-         = scale 1.05↔1 500ms spline(0.1,0.9,0.2,1)。:duration 显式给 500ms:
-         面板缩放时间线长于层根淡变,Vue 须等最长时间线结束再摘类/卸层,
-         关闭途中 pointer-events:none(源 IsHitTestVisible=False 等价) -->
-    <Transition name="wui-content-dialog" :duration="{ enter: 500, leave: 500 }">
+    <!-- 出入场(源 DialogShowing / DialogHidden 双时间线,各走各的元素;权威 = WinUI 3
+         controls/dev/CommonStyles/ContentDialog_themeresources.xaml L74-113):
+         入场:面板(BackgroundElement/ScaleTransform)= scale 1.05→1 @250ms
+         (ControlNormalAnimationDuration)+ KeySpline 0,0,0,1;层根(LayoutRoot)=
+         Opacity 0→1 @83ms 线性(ControlFasterAnimationDuration)。
+         出场:面板 scale 1→1.05 @167ms(ControlFastAnimationDuration)+ 同 spline;
+         层根 Opacity 1→0 @83ms 线性。:duration 显式给各自最长时间线(入场 250 /
+         出场 167),Vue 须等最长时间线结束再摘类/卸层;关闭途中 pointer-events:none
+         (源 IsHitTestVisible=False @0s 等价) -->
+    <Transition name="wui-content-dialog" :duration="{ enter: 250, leave: 167 }">
       <div v-if="isOpen" class="wui-content-dialog">
         <!-- 面板(BackgroundElement):$attrs(class/style/aria-*)透传到对话框本体 -->
         <div
@@ -475,22 +481,25 @@ function onPanelKeydown(event: KeyboardEvent): void {
 }
 
 /*
- * 出入场(generic.xaml L8395-8423 DialogShowing / DialogHidden 双时间线,
- * 关键帧见 animations.css 的 wui-dialog-scale-* / wui-fade-*):
- *   入场:层根 Opacity 0→1 线性 167ms(LinearDoubleKeyFrame L8421-8423)+
- *         面板 scale 1.05→1 500ms spline(0.1,0.9,0.2,1)(L8413-8419,
+ * 出入场(权威 = WinUI 3 controls/dev/CommonStyles/ContentDialog_themeresources.xaml
+ * L74-113 的 DialogHidden / DialogShowing VisualTransition;关键帧见 animations.css 的
+ * wui-dialog-scale-* / wui-fade-*):
+ *   入场:层根 Opacity 0→1 @83ms 线性(LinearDoubleKeyFrame @ControlFasterAnimationDuration,
+ *         L109-112)+ 面板 scale 1.05→1 @250ms(ControlNormalAnimationDuration)
+ *         spline 0,0,0,1(ControlFastOutSlowInKeySpline,L101-108,
  *         RenderTransformOrigin 0.5,0.5 = CSS 缺省原点);
- *   出场:层根 Opacity 1→0 线性 83ms(L8401-8403)+ 面板 scale 1→1.05
- *         500ms 同 spline(L8393-8399),层根 pointer-events:none
+ *   出场:层根 Opacity 1→0 @83ms 线性(L90-93)+ 面板 scale 1→1.05 @167ms
+ *         (ControlFastAnimationDuration)同 spline(L82-89),层根 pointer-events:none
  *         (源 IsHitTestVisible=False @0s 等价)。
- * 两条时间线并行、淡变先于缩放完成;Vue 经 Transition :duration 等最长时间线。
+ * 两条时间线并行、淡变先于缩放完成;Vue 经 Transition :duration 等最长时间线
+ * (入场 250 / 出场 167)。注:generic.xaml L8393-8423 为 UWP 遗留 500ms 版,已弃用。
  */
 .wui-content-dialog-enter-active {
-  animation: wui-fade-in 167ms linear both;
+  animation: wui-fade-in 83ms linear both;
 }
 
 .wui-content-dialog-enter-active .wui-content-dialog__panel {
-  animation: wui-dialog-scale-in 500ms var(--wui-easing-standard) both;
+  animation: wui-dialog-scale-in 250ms cubic-bezier(0, 0, 0, 1) both;
 }
 
 .wui-content-dialog-leave-active {
@@ -499,6 +508,6 @@ function onPanelKeydown(event: KeyboardEvent): void {
 }
 
 .wui-content-dialog-leave-active .wui-content-dialog__panel {
-  animation: wui-dialog-scale-out 500ms var(--wui-easing-standard) both;
+  animation: wui-dialog-scale-out 167ms cubic-bezier(0, 0, 0, 1) both;
 }
 </style>

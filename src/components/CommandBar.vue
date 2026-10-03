@@ -385,7 +385,8 @@ watch(isOpen, (value) => {
        复用 .wui-popup-layer 外壳(z-index 自动分配);菜单语义(role/键盘导航/点击关闭)。
        动效走 MenuPopup 通道(MR1/A3:源 CommandBar overflow 为 MenuPopup 机制)——
        复用 wui-menu-flyout-layer 展开组(popup.css:scaleY 0.5→1 250ms + 83ms 线性
-       淡入,离场 83ms 线性淡出),与 MenuFlyout/MenuBarItem 同通道 -->
+       淡入),与 MenuFlyout/MenuBarItem 同通道;离场经 scoped 规则按权威订正为
+       167ms + spline 0,0,0,1(CommandBar_themeresources L164/L230) -->
   <Teleport to="body">
     <Transition name="wui-menu-flyout">
       <div
@@ -642,7 +643,16 @@ watch(isOpen, (value) => {
 }
 
 /* 入场 / 离场:溢出层走 MenuPopup 通道(MR1/A3)—— 层根已带 wui-menu-flyout-layer
-   类,展开缩放 + 淡入淡出由 popup.css 的 .wui-menu-flyout-layer 全局规则
-   (wui-menu-popup-expand-in 250ms (0,0,0,1) + 83ms 线性淡入;离场 83ms 线性淡出)
-   经上方 <Transition name="wui-menu-flyout"> 挂接,此处不再有 scoped 规则 */
+   类,展开缩放 + 淡入由 popup.css 的 .wui-menu-flyout-layer 全局规则
+   (wui-menu-popup-expand-in 250ms (0,0,0,1) + 83ms 线性淡入)经上方
+   <Transition name="wui-menu-flyout"> 挂接。 */
+/* 权威校正(controls/dev/CommonStyles/CommandBar_themeresources.xaml):溢出层离场
+   (CompactOpenUp/Down → CompactClosed)GeneratedDuration = ControlFastAnimationDuration
+   167ms、KeySpline ControlFastOutSlowInKeySpline = 0,0,0,1(L164/L230);入场 GeneratedDuration
+   = ControlNormalAnimationDuration 250ms(L124/L196),与上方 250ms 缩放档一致。展开缩放
+   本身为 MenuPopup 机制近似(源为 ContentTransform Y 位移,controls/dev 无 scaleY 相),
+   登记为 Web 扩展/近似;仅将离场时长/曲线订正为权威值。 */
+.wui-commandbar__overflow.wui-menu-flyout-leave-active {
+  animation: wui-fade-out 167ms cubic-bezier(0, 0, 0, 1) both;
+}
 </style>

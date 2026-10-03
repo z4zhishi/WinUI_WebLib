@@ -1,10 +1,13 @@
 <script setup lang="ts">
 // WuiRadioButton —— WinUI RadioButton 的 Web 复刻。
-// 视觉规格:CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml
-//   <Style TargetType="RadioButton">(L6541 起):20x20 外圈(未选中 BaseMediumHigh 描边,
-//   选中强调色描边)+ 10x10 实心内点(CheckGlyph),内容 Padding=8,6,0,0;
-//   CommonStates(Normal/PointerOver/Pressed/Disabled)× CheckStates(Checked/Unchecked),
-//   颜色一律取 theme.css 的 --wui-radio-button-* token(无对应 token 的值在 wiki 记录差异)。
+// 视觉规格(权威 = controls/dev,generic.xaml 为 UWP 遗留):
+//   CK/WinUI-Reference/controls/dev/CommonStyles/RadioButton_themeresources.xaml:
+//   20x20 外圈(未选中 BaseMediumHigh 描边,选中强调色描边)+ 实心内点 CheckGlyph
+//   (基尺寸 RadioButtonCheckGlyphSize=12,CommonStates 尺寸 morph 14/10/14),内容
+//   Padding=8,6,0,0;CommonStates(Normal/PointerOver/Pressed/Disabled)× CheckStates
+//   (Checked/Unchecked),颜色一律取 theme.css 的 --wui-radio-button-* token
+//   (无对应 token 的值在 wiki 记录差异)。
+//   遗留参照:dxaml generic.xaml L6541 起 Style(内点固定 10x10、无尺寸 morph,已弃用)。
 // 互斥与键盘:与 CheckBox 不同,radio 组内上下左右方向键移动选中、组内仅选中项可 Tab 到。
 //   该组语义优先用原生 input[type=radio][name] 承载(互斥 / 方向键 / Tab / role / aria-checked
 //   全部由原生提供),视觉自绘 —— 隐藏的 input 与自绘圆形为兄弟节点,选中态用
@@ -186,7 +189,8 @@ function onNativeClick(event: MouseEvent): void {
     <span class="check-area" aria-hidden="true">
       <!-- OuterEllipse(未选中)/ CheckOuterEllipse(选中):同位 20x20 圆,切交换色 -->
       <span class="outer"></span>
-      <!-- CheckGlyph:10x10 实心内点,选中态淡入(模板 Duration=0,即时切换) -->
+      <!-- CheckGlyph:实心内点(基尺寸 12;PointerOver/Pressed/Disabled 尺寸 morph),
+           选中态淡入(模板 Duration=0,即时切换) -->
       <span class="dot"></span>
     </span>
     <span class="content"><slot>{{ content }}</slot></span>
@@ -324,22 +328,49 @@ function onNativeClick(event: MouseEvent): void {
   border-color: var(--rb-checked-stroke);
 }
 
-/* CheckGlyph:10x10 实心内点(10/2=5 居中于外圈),选中态 Opacity 0→1(Duration=0) */
+/* CheckGlyph:实心内点,基尺寸 = RadioButtonCheckGlyphSize = 12
+   (RadioButton_themeresources.xaml L179;遗留 generic.xaml L6716 为 10,已弃用)。
+   inset:0 + margin:auto 使其恒居中于 20x20 外圈(中心 10,16)。
+   选中态 Opacity 0→1(Duration=0,即时,无过渡);
+   CommonStates 尺寸 morph(PointerOver→14 @250ms、Pressed→10 @250ms、
+   Disabled→14 @167ms,均 KeySpline 0,0,0,1,源 L255-260/L292-297/L338-343)。 */
 .dot {
   position: absolute;
-  top: 11px;
-  left: 5px;
+  inset: 0;
+  margin: auto;
   box-sizing: border-box;
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   background: var(--rb-dot-fill);
   border: 1px solid var(--rb-dot-stroke);
   border-radius: 50%;
   opacity: 0;
+  transition:
+    width 250ms cubic-bezier(0, 0, 0, 1),
+    height 250ms cubic-bezier(0, 0, 0, 1);
 }
 
 .radio-input:checked + .check-area .dot {
   opacity: 1;
+}
+
+/* PointerOver → 14x14 @250ms(spline 0,0,0,1) */
+.wui-radio-button:not(.is-disabled):hover .check-area .dot {
+  width: 14px;
+  height: 14px;
+}
+
+/* Pressed → 10x10 @250ms(spline 0,0,0,1) */
+.wui-radio-button:not(.is-disabled):active .check-area .dot {
+  width: 10px;
+  height: 10px;
+}
+
+/* Disabled → 14x14 @167ms(spline 0,0,0,1,ControlFastAnimationDuration) */
+.wui-radio-button.is-disabled .check-area .dot {
+  width: 14px;
+  height: 14px;
+  transition-duration: 167ms;
 }
 
 /* ContentPresenter:Margin=Padding=8,6,0,0;TextWrapping=Wrap 由默认流式换行承接 */

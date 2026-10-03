@@ -124,7 +124,8 @@
 
 /* 淡出(纯透明度)。
    依据:generic.xaml ToolTip Closed 态 <FadeOutThemeAnimation> L11566;
-   ContentDialog DialogHidden Opacity 1→0 L8397-8403。 */
+   ContentDialog DialogHidden 层根 Opacity 1→0(权威 controls/dev/
+   ContentDialog_themeresources.xaml L90-93,83ms 线性)。 */
 @keyframes wui-fade-out {
   from {
     opacity: 1;
@@ -355,13 +356,15 @@
 /* ======================================================================
  * ContentDialog 双时间线(DialogShowing / DialogHidden VisualTransition)
  * ----------------------------------------------------------------------
- * 源:generic.xaml L8395-8423 —— LayoutRoot(全屏烟幕层)承担 Opacity:
- * 显示 LinearDoubleKeyFrame 0→1 @0.167s、隐藏 1→0 @0.083s(L8401-8403、
- * L8421-8423);BackgroundElement(对话框面板)承担 Scale:显示 1.05→1.0、
- * 隐藏 1.0→1.05,SplineDoubleKeyFrame KeyTime 0.5s、KeySpline 0.1,0.9 0.2,1.0
- * (L8393-8399、L8413-8419),RenderTransformOrigin 0.5,0.5(L8561)。
- * 两条时间线并行、各走各的元素 —— 拆成独立关键帧供 ContentDialog.vue 分别
- * 挂在层根与面板上(取代旧的 wui-dialog-in 合并单时间线)。
+ * 权威源:controls/dev/CommonStyles/ContentDialog_themeresources.xaml L74-113(WinUI 3 现行)
+ * —— 层根(LayoutRoot)Opacity:显示 0→1 @ControlFasterAnimationDuration(83ms)线性、
+ * 隐藏 1→0 @83ms 线性;BackgroundElement(对话框面板)Scale(X/Y 同步):
+ * 显示 1.05→1.0 @ControlNormalAnimationDuration(250ms)、隐藏 1.0→1.05
+ * @ControlFastAnimationDuration(167ms),SplineDoubleKeyFrame KeySpline
+ * ControlFastOutSlowInKeySpline = 0,0,0,1(常量 Common_themeresources_any.xaml L602-604),
+ * RenderTransformOrigin 0.5,0.5。两条时间线并行、各走各的元素 —— 拆成独立关键帧供
+ * ContentDialog.vue 分别挂在层根与面板上(取代旧的 wui-dialog-in 合并单时间线)。
+ * 注:dxaml generic.xaml L8393-8423 为 UWP 遗留 500ms / spline 0.1,0.9,0.2,1 版,已弃用。
  * ====================================================================== */
 
 @keyframes wui-dialog-scale-in {

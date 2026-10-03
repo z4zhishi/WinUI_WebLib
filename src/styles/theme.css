@@ -344,9 +344,14 @@
   --wui-hyperlink-button-foreground-pointer-over: #00000099;
   --wui-hyperlink-button-foreground-pressed: #00000066;
   --wui-hyperlink-button-foreground-disabled: #00000066;
+  /* 底色取 controls/dev HyperlinkButton_themeresources.xaml L9-12(SubtleFillColor*;
+     XAML 为 #AARRGGBB,CSS 8 位 hex 为 #RRGGBBAA,故 A 位须后置):
+     Normal/Disabled = SubtleFillColorTransparent(#00FFFFFF)→ 透明,PointerOver =
+     SubtleFillColorSecondary(#09000000 → #00000009),Pressed =
+     SubtleFillColorTertiary(#06000000 → #00000006) */
   --wui-hyperlink-button-background: transparent;
-  --wui-hyperlink-button-background-pointer-over: transparent;
-  --wui-hyperlink-button-background-pressed: transparent;
+  --wui-hyperlink-button-background-pointer-over: #00000009;
+  --wui-hyperlink-button-background-pressed: #00000006;
   --wui-hyperlink-button-background-disabled: transparent;
   --wui-hyperlink-button-border: transparent;
   --wui-hyperlink-button-border-brush-pointer-over: transparent;
@@ -2256,9 +2261,14 @@
   --wui-hyperlink-button-foreground-pointer-over: #ffffff99;
   --wui-hyperlink-button-foreground-pressed: #ffffff66;
   --wui-hyperlink-button-foreground-disabled: #ffffff66;
+  /* 底色取 controls/dev HyperlinkButton_themeresources.xaml L9-12(SubtleFillColor*;
+     XAML 为 #AARRGGBB,CSS 8 位 hex 为 #RRGGBBAA,故 A 位须后置):
+     Normal/Disabled = SubtleFillColorTransparent(#00FFFFFF)→ 透明,PointerOver =
+     SubtleFillColorSecondary(#0FFFFFFF → #FFFFFF0F),Pressed =
+     SubtleFillColorTertiary(#0AFFFFFF → #FFFFFF0A) */
   --wui-hyperlink-button-background: transparent;
-  --wui-hyperlink-button-background-pointer-over: transparent;
-  --wui-hyperlink-button-background-pressed: transparent;
+  --wui-hyperlink-button-background-pointer-over: #FFFFFF0F;
+  --wui-hyperlink-button-background-pressed: #FFFFFF0A;
   --wui-hyperlink-button-background-disabled: transparent;
   --wui-hyperlink-button-border: transparent;
   --wui-hyperlink-button-border-brush-pointer-over: transparent;

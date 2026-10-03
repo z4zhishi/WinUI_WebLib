@@ -68,17 +68,24 @@ function shortenWeekDay(label: string): string {
 // IsGroupLabelVisible / IsOutOfScopeEnabled / Language)与 CalendarView_Partial_*.cpp(三视图层级:
 // 头部按钮下钻 Month→Year→Decade、单元点击回退、前后翻页、键盘方向键/Enter)。
 // 颜色/字号一律 --wui-* token(theme.css 已含 --wui-calendar-view-* 全族,明暗主题自动跟随)。
-// 动效(源逐键):
-//   模式切换 = generic.xaml DisplayModeStates Transitions(L14486-14654):下钻(Month→Year、
-//   Year→Decade)旧视图 scale 1→0.84 + Opacity→0 @233ms、新视图 scale 1.29→1 / Opacity 0→1
-//   自 233ms 起至 733ms(KeySpline 0.1,0.9,0.2,1);回退(Year→Month、Decade→Year)镜像
-//   (旧 →1.29、新自 0.84)。BackgroundLayer(L14513-14515 等)透明度 0 保持 250ms(线性)后以
-//   (0.15,0.64,0.25,1) 淡入至 733ms,回退方向另有 0.84→1 缩放相;z 序随源固定 Month<Year<Decade。
+// 动效(权威 = controls/dev,generic.xaml 为 UWP 遗留):
+//   模式切换 = CK/WinUI-Reference/controls/dev/CommonStyles/CalendarView_themeresources.xaml
+//   L495-666(及 L910-1080 同值第二模板)DisplayModeStates Transitions:下钻(Month→Year、
+//   Year→Decade)旧视图 scale 1→0.84 + Opacity→0 @150ms;新视图 scale 1.29→1 /
+//   Opacity 0→1 自 150ms 起至 500ms(KeySpline 0,0,0,1 = ControlFastOutSlowInKeySpline);
+//   回退(Year→Month、Decade→Year)镜像(旧 →1.29、新自 0.84)。BackgroundLayer
+//   (L523-527 等)透明度 0 线性保持至 200ms 后以同 spline 淡入至 500ms,回退方向另有
+//   0.84→1 缩放相;z 序随源固定 Month<Year<Decade。头部文案淡入 = HeaderButtonStates.
+//   ViewChanging 的 <DoubleAnimation Opacity 0→1 Duration=0:0:0.167>(L463/L878,
+//   无 EasingFunction → 线性)167ms。
+//   遗留参照:dxaml generic.xaml L14486-14654(UWP 版为 233ms/733ms、spline 0.1,0.9,0.2,1、
+//   backdrop 250ms 保持 + (0.15,0.64,0.25,1),已弃用)。
 //   前后翻页 = CalendarPanel 三面板 Orientation=Horizontal(CalendarView_Partial.cpp L651-679),
 //   导航按钮经 ScrollToDateWithAnimation → ScrollViewer.ChangeViewWithOptionalAnimation
 //   (CalendarView_Partial.cpp L1608)把面板水平 pan 一页:下一页 = 旧页左滑出 / 新页右滑入,
-//   上一页镜像;源时长为平台 DManip 惯性动画(repo 无键值),Web 取 CalendarView 转换簇 233ms +
-//   standard spline 近似(登记于报告)。头部淡入 167ms(L14447)不变。
+//   上一页镜像;源时长/曲线为平台 DManip 惯性动画(repo 无键值,controls/dev 无对应
+//   VisualTransition)→ 登记为 Web 扩展/近似,取权威常量 ControlNormalAnimationDuration
+//   250ms + ControlFastOutSlowInKeySpline 0,0,0,1。
 import { computed, nextTick, ref, watch } from 'vue'
 import '../styles/animations.css'
 import { useReveal } from '../composables/useReveal'
@@ -777,9 +784,10 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   overflow: hidden;
 }
 
-/* 头部文案切换淡入(源 HeaderButtonStates.ViewChanging:Opacity 0→1,167ms,generic.xaml L14441) */
+/* 头部文案切换淡入(权威 HeaderButtonStates.ViewChanging:Opacity 0→1,167ms,
+   DoubleAnimation 无 EasingFunction → 线性;CalendarView_themeresources L463/L878) */
 .cv-header-text {
-  animation: wui-calendar-view-header-in 167ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+  animation: wui-calendar-view-header-in 167ms linear both;
   white-space: nowrap;
 }
 
@@ -847,8 +855,9 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
 }
 
 /* 背景层(BackgroundLayer):静置恒显;模式切换时按源故事板重现 ——
-   透明度 0 线性保持至 250ms,再以 KeySpline (0.15,0.64,0.25,1) 淡入至 733ms(L14513-14515 等);
-   回退方向(Year→Month / Decade→Year)另有 BackgroundTransform 0.84→1 缩放(233ms 起,0.1,0.9,0.2,1)。 */
+   透明度 0 线性保持至 200ms,再以 KeySpline 0,0,0,1 淡入至 500ms
+   (CalendarView_themeresources L523-527/L568-572 等);
+   回退方向(Year→Month / Decade→Year)另有 BackgroundTransform 0.84→1 缩放(150ms 起,同 spline)。 */
 .cv-backdrop {
   position: absolute;
   inset: 0;
@@ -856,13 +865,13 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
 }
 
 .cv-backdrop--animate {
-  animation: cv-backdrop-opacity 733ms linear both;
+  animation: cv-backdrop-opacity 500ms linear both;
 }
 
 .cv-backdrop--animate.cv-backdrop--scale-in {
   animation:
-    cv-backdrop-opacity 733ms linear both,
-    cv-backdrop-scale-in 733ms linear both;
+    cv-backdrop-opacity 500ms linear both,
+    cv-backdrop-scale-in 500ms linear both;
 }
 
 /* 视图容器:模式切换经 <Transition> 双相过渡;z 序随源模板固定(MonthView 底 / YearView 中 / DecadeView 顶) */
@@ -882,9 +891,10 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   z-index: 3;
 }
 
-/* —— 模式切换双相(DisplayModeStates Transitions,generic.xaml L14486-14654)——
-   下钻(Month→Year / Year→Decade):旧视图 scale 1→0.84 + Opacity→0 @233ms;
-   新视图 scale 1.29→1、Opacity 0→1 自 233ms 至 733ms,KeySpline 0.1,0.9,0.2,1;
+/* —— 模式切换双相(DisplayModeStates Transitions;权威 CalendarView_themeresources
+   L495-666,与 L910-1080 同值)——
+   下钻(Month→Year / Year→Decade):旧视图 scale 1→0.84 + Opacity→0 @150ms;
+   新视图 scale 1.29→1、Opacity 0→1 自 150ms 至 500ms,spline 0,0,0,1;
    回退(Year→Month / Decade→Year)镜像:旧视图 →1.29、新视图自 0.84。离场视图绝对定位铺满视图区。 */
 .cv-mode-down-leave-active,
 .cv-mode-up-leave-active {
@@ -893,38 +903,39 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
 }
 
 .cv-mode-down-leave-active {
-  animation: cv-mode-shrink-out 233ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+  animation: cv-mode-shrink-out 150ms cubic-bezier(0, 0, 0, 1) both;
 }
 
 .cv-mode-down-enter-active {
-  animation: cv-mode-grow-in 733ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+  animation: cv-mode-grow-in 500ms cubic-bezier(0, 0, 0, 1) both;
 }
 
 .cv-mode-up-leave-active {
-  animation: cv-mode-grow-out 233ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+  animation: cv-mode-grow-out 150ms cubic-bezier(0, 0, 0, 1) both;
 }
 
 .cv-mode-up-enter-active {
-  animation: cv-mode-shrink-in 733ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+  animation: cv-mode-shrink-in 500ms cubic-bezier(0, 0, 0, 1) both;
 }
 
 /* —— 前后翻页水平滑动(源 CalendarPanel Orientation=Horizontal 按页 pan;月/年/十年同构)——
    下一页 = 旧页左滑出 / 新页右滑入;上一页镜像。两侧位移同曲线同步推进,拼成整幅平移条带
-   (ChangeViewWithOptionalAnimation 的 DManip pan 等价;时长口径见脚本注释)。 */
+   (ChangeViewWithOptionalAnimation 的 DManip pan 等价;controls/dev 无对应 VisualTransition,
+   登记为 Web 扩展/近似:取权威常量 250ms + spline 0,0,0,1)。 */
 .cv-nav-next-enter-active {
-  animation: cv-slide-in-next 233ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+  animation: cv-slide-in-next 250ms cubic-bezier(0, 0, 0, 1) both;
 }
 
 .cv-nav-next-leave-active {
-  animation: cv-slide-out-next 233ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+  animation: cv-slide-out-next 250ms cubic-bezier(0, 0, 0, 1) both;
 }
 
 .cv-nav-prev-enter-active {
-  animation: cv-slide-in-prev 233ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+  animation: cv-slide-in-prev 250ms cubic-bezier(0, 0, 0, 1) both;
 }
 
 .cv-nav-prev-leave-active {
-  animation: cv-slide-out-prev 233ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+  animation: cv-slide-out-prev 250ms cubic-bezier(0, 0, 0, 1) both;
 }
 
 /* 离场页绝对定位(月视图让出星期行 38px;年/十年铺满),与进场页对齐成条带 */
@@ -1148,8 +1159,8 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   pointer-events: none;
 }
 
-/* —— 动画关键帧(时长/曲线逐键取自 generic.xaml,见各规则注释;token 表在 animations.css,
-      入口未引入全局,故以字面量书写,值与源 KeyTime / KeySpline 一一对应)—— */
+/* —— 动画关键帧(权威 = controls/dev/CommonStyles/CalendarView_themeresources.xaml,
+       KeyTime/KeySpline 逐键转写;入口未引入全局 token,故以字面量书写)—— */
 @keyframes wui-calendar-view-header-in {
   from {
     opacity: 0;
@@ -1159,16 +1170,17 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   }
 }
 
-/* BackgroundLayer 透明度:0 线性保持至 250ms(34.107% = 250/733)→ (0.15,0.64,0.25,1) 淡入至 733ms */
+/* BackgroundLayer 透明度:0 线性保持至 200ms(40% = 200/500)→ spline 0,0,0,1 淡入至 500ms
+   (CalendarView_themeresources L523-527) */
 @keyframes cv-backdrop-opacity {
   0% {
     opacity: 0;
     animation-timing-function: linear;
   }
 
-  34.107% {
+  40% {
     opacity: 0;
-    animation-timing-function: cubic-bezier(0.15, 0.64, 0.25, 1);
+    animation-timing-function: cubic-bezier(0, 0, 0, 1);
   }
 
   100% {
@@ -1176,16 +1188,17 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   }
 }
 
-/* BackgroundTransform(回退向):scale 1 →(离散 0.84 @233ms)→ 1 @733ms,spline 0.1,0.9,0.2,1 */
+/* BackgroundTransform(回退向):scale 1 →(离散 0.84 @150ms)→ 1 @500ms,spline 0,0,0,1
+   (CalendarView_themeresources L560-567) */
 @keyframes cv-backdrop-scale-in {
   0% {
     transform: scale(1);
     animation-timing-function: linear;
   }
 
-  31.786% {
+  30% {
     transform: scale(0.84);
-    animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1);
+    animation-timing-function: cubic-bezier(0, 0, 0, 1);
   }
 
   100% {
@@ -1193,7 +1206,7 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   }
 }
 
-/* 下钻出场(旧视图):scale 1→0.84 + 淡出,233ms */
+/* 下钻出场(旧视图):scale 1→0.84 + 淡出,150ms(CalendarView_themeresources L501-514) */
 @keyframes cv-mode-shrink-out {
   from {
     opacity: 1;
@@ -1206,7 +1219,8 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   }
 }
 
-/* 下钻入场(新视图):scale 1.29 保持至 233ms(31.786%)→ 1 @733ms,同步淡入 */
+/* 下钻入场(新视图):scale 1.29 保持至 150ms(30%)→ 1 @500ms,同步淡入
+   (CalendarView_themeresources L504-522) */
 @keyframes cv-mode-grow-in {
   0% {
     opacity: 0;
@@ -1214,10 +1228,10 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
     animation-timing-function: linear;
   }
 
-  31.786% {
+  30% {
     opacity: 0;
     transform: scale(1.29);
-    animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1);
+    animation-timing-function: cubic-bezier(0, 0, 0, 1);
   }
 
   100% {
@@ -1226,7 +1240,8 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   }
 }
 
-/* 回退出场(旧视图):scale 1→1.29 + 淡出,233ms(源 Year→Month 的 YearViewTransform) */
+/* 回退出场(旧视图):scale 1→1.29 + 淡出,150ms(源 Year→Month 的 YearViewTransform,
+   CalendarView_themeresources L546-551) */
 @keyframes cv-mode-grow-out {
   from {
     opacity: 1;
@@ -1239,7 +1254,8 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   }
 }
 
-/* 回退入场(新视图):scale 0.84 保持至 233ms → 1 @733ms,同步淡入 */
+/* 回退入场(新视图):scale 0.84 保持至 150ms(30%)→ 1 @500ms,同步淡入
+   (CalendarView_themeresources L552-559) */
 @keyframes cv-mode-shrink-in {
   0% {
     opacity: 0;
@@ -1247,10 +1263,10 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
     animation-timing-function: linear;
   }
 
-  31.786% {
+  30% {
     opacity: 0;
     transform: scale(0.84);
-    animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1);
+    animation-timing-function: cubic-bezier(0, 0, 0, 1);
   }
 
   100% {
