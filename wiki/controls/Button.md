@@ -25,6 +25,7 @@ Button 控件提供 `click` 事件,用于响应来自触摸、鼠标、键盘、
 | `fontSize` | `number \| string` | `14`(`ControlContentThemeFontSize`) | 字号,单位 px |
 | `fontWeight` | `number \| string` | `Normal`(400) | 字重;接受 WinUI `FontWeight` 命名(如 `SemiBold`)、数字(如 `600`)或 CSS 关键字 |
 | `cornerRadius` | `number \| string` | `4` | 圆角半径,单位 px |
+| `reveal` | `boolean` | `false` | Reveal 揭示光照(对照 `ButtonRevealStyle`,generic.xaml L15824):开启后状态色切换到 `--wui-button-reveal-*` token,并叠加跟随指针的光照(底板光 + 2px 边框光环,悬停点亮、离开熄灭)。源中该样式为非默认 keyed 样式,故 opt-in 默认关闭;机制与降级语义见 [_reveal.md](./_reveal.md) |
 
 其余 HTML 属性(`class`、`style`、`aria-*` 等)经 `v-bind="$attrs"` 透传至根 `<button>` 元素。
 
@@ -88,4 +89,5 @@ function onButtonClick(): void {
 
 - 在线示例:`/#/button`
 - 演示页源码:`demo/pages/ButtonPage.vue`
+- Reveal 材料:[_reveal.md](./_reveal.md)(`reveal` prop 的机制、降级与常量口径)
 - 相关控件:ToggleButton、RepeatButton、HyperlinkButton(后续阶段)

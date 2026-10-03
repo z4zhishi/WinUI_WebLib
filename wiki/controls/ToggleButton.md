@@ -18,6 +18,7 @@ ToggleButton 看起来像 Button,行为却像 CheckBox:在**选中(checked / on)
 | `Content` | `string` | `''` | 按钮文本内容;同名默认 slot 兜底(slot 内容优先) |
 | `checked` (v-model) | `boolean \| 'indeterminate'` | `false` | 选中状态;`'indeterminate'` 对应 WinUI `IsChecked = null`,双向绑定 |
 | `isThreeState` | `boolean` | `false` | 是否允许用户点击进入不确定态(WinUI `IsThreeState`) |
+| `reveal` | `boolean` | `false` | Reveal 揭示光照(对照 `ToggleButtonRevealStyle`,generic.xaml L15953):开启后全部组合态(checked / indeterminate × 交互态)切换到 `--wui-toggle-button-reveal-*` token(checked 底色为强调色纯色),并叠加跟随指针的光照(底板光 + 2px 边框光环)。源中该样式为非默认 keyed 样式,故 opt-in 默认关闭;见 [_reveal.md](./_reveal.md) |
 | `disabled` | `boolean` | `false` | 禁用交互与焦点(WinUI `IsEnabled = false` 的取反映射) |
 
 ## 事件
@@ -80,4 +81,4 @@ WinUI 的 `ToggleButton.IsChecked` 是 `Nullable<bool>`:`true` / `false` / `null
 
 ---
 
-演示页源码:[demo/pages/ToggleButtonPage.vue](../../demo/pages/ToggleButtonPage.vue) · 组件源码:[src/components/ToggleButton.vue](../../src/components/ToggleButton.vue)
+演示页源码:[demo/pages/ToggleButtonPage.vue](../../demo/pages/ToggleButtonPage.vue) · 组件源码:[src/components/ToggleButton.vue](../../src/components/ToggleButton.vue) · Reveal 材料:[_reveal.md](./_reveal.md)

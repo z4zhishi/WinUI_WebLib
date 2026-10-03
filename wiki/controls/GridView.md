@@ -32,7 +32,7 @@ GridView 把集合中的项排成「按行换行、可滚动」的行列网格,�
 | `padding` | `string` | `'0,0,0,10'` | 控件内边距(WinUI `Padding`,XAML Thickness 顺序:左,上,右,下) |
 | `itemMargin` | `string` | `'0,0,4,4'` | 项外边距(对应官方示例改 `ItemContainerStyle` 的 `Margin`) |
 | `selectionCheckMarkVisualEnabled` | `boolean` | `true` | 选择勾选标记(WinUI `GridViewItemSelectionCheckMarkVisualEnabled`) |
-| `revealBorder` | `boolean` | `false` | 悬浮揭示边框(近似 WinUI 2 reveal 效果,见下方差异说明) |
+| `revealBorder` | `boolean` | `false` | 项的 Reveal 揭示光照(透传 GridViewItem 的 `enableReveal`:悬浮时跟随指针的底板光 + 1px 边框光环)。源默认项样式 `GridViewItemRevealStyle` 即 reveal(generic.xaml L22885),本组件按 opt-in 迁移默认关闭(与源默认的差异有登记,见 [_reveal.md](./_reveal.md) §5) |
 | `disabled` | `boolean` | `false` | 禁用态,项进入 Disabled 视觉状态且不可交互 |
 | `#item` slot | `{ item: unknown; index: number; selected: boolean }` | — | 自定义项模板(WinUI `ItemTemplate` 的等价物);缺省渲染显示文本 |
 
@@ -48,7 +48,7 @@ GridView 把集合中的项排成「按行换行、可滚动」的行列网格,�
 | `disabled` | `boolean` | `false` | 禁用(WinUI `IsEnabled`) |
 | `selectionCheckMarkVisualEnabled` | `boolean` | `true` | 是否渲染勾选标记 |
 | `multiSelectHalo` | `boolean` | `false` | 未选中时也显示空心勾选圈(Multiple 模式的呈现,GridView 自动下发) |
-| `enableReveal` | `boolean` | `false` | 悬浮 1px 跟随指针光环(reveal 边框近似) |
+| `enableReveal` | `boolean` | `false` | Reveal 揭示光照(悬浮时跟随指针的底板光 + 1px 边框光环,公共层实现)。源默认样式即 reveal(generic.xaml L22885),本组件 opt-in 默认关闭;机制见 [_reveal.md](./_reveal.md) |
 | `contentMargin` | `string` | `'0,0,0,0'` | 内容边距(WinUI `ContentMargin`,即模板里的 `Padding`) |
 | `margin` | `string` | `'0,0,4,4'` | 项外边距(WinUI `Margin`,取默认样式的 `0,0,4,4`) |
 
@@ -129,7 +129,7 @@ function onItemClick(event: { item: unknown; index: number }): void {
 ## 与 WinUI 的差异说明
 
 - **布局引擎**:WinUI 默认 `ItemsWrapGrid`(按内容宽换行)/ `UniformGridLayout`(定格尺寸)。Web 版以 CSS Grid 等价实现:给了 `itemWidth`/`itemHeight` 即定格单元格;`maximumRowsOrColumns` 映射为列数上限;两者都不给时按 `minmax(160px, 1fr)` 均分换行(源里无此基准值,是 Web 侧补的缺省,因为 `repeat(auto-fill, …)` 需要确定的轨道基准)。`orientation="Vertical"` 以 `grid-auto-flow: column` 模拟,需要容器有界高度。
-- **Reveal 边框**:源 `GridViewItemRevealBorderBrush`(SystemControlTransparentRevealBorderBrush)在 WinUI 3 中解析为透明(reveal 高光已在 WinUI 3 退役),因此默认不可见,组件保留了 1px 揭示边框结构;`reveal-border` 打开后以「跟随指针的径向渐变 1px 光环」近似 WinUI 2 的 reveal 边框,颜色取 `--wui-grid-view-item-focus-border` 的半透明近似。
+- **Reveal 揭示光照(MR4 起迁移公共层)**:源 `GridViewItemRevealBorderBrush`(SystemControlTransparentRevealBorderBrush)在 WinUI 3 中解析为透明(reveal 光照已退役为静态回退色),因此静态默认不可见,组件保留 1px 揭示边框结构;`revealBorder` / `enableReveal` 打开后经公共层([_reveal.md](./_reveal.md))复刻 WinUI 2 材料本体——底板光半径按源公式 `Clamp(Max(W,H)+12,16,512)`、边框光半径 77px(wide 配置)、0.2 白光、悬停 1ms 亮灭。早期版本以「`--wui-grid-view-item-focus-border` 半透明色渐变 + 167ms 过渡」近似,已被公共层实现取代。
 - **焦点视觉**:WinUI 为双层系统焦点框(FocusVisualMargin=-2),这里以 `outline`(2px,`--wui-grid-view-item-focus-visual-primary`)+ 内圈 `box-shadow`(1px,`--wui-grid-view-item-focus-visual-secondary`)近似。
 - **禁用透明度**:`ListViewItemDisabledThemeOpacity`(0.55)未提取为 token,按源值硬编码。
 - **勾选标记几何**:`CheckMode=Overlay` 的圆圈尺寸 / 内边距由 ListViewItemPresenter 在代码中绘制,XAML 无对应值,按 Windows 11 观感取 20px 圆圈、左上角 6px 内缩。
@@ -155,3 +155,4 @@ function onItemClick(event: { item: unknown; index: number }): void {
 - 组件源码:[src/components/GridView.vue](../../src/components/GridView.vue)、[src/components/GridViewItem.vue](../../src/components/GridViewItem.vue)
 - 同族控件:[ListView](./ListView.md)(选择模型同约定)、[FlipView](./FlipView.md)
 - 集合公共层:[_collection-infra.md](./_collection-infra.md)(阶段 5 公共层,由 T5.0 维护)
+- Reveal 材料:[_reveal.md](./_reveal.md)(`revealBorder` / `enableReveal` 的机制、默认值登记与降级语义)

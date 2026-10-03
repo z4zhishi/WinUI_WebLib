@@ -23,6 +23,7 @@ ListView 让你以可垂直滚动的列表形式展示一组数据项,并支持 
 | `selectionMode` | `'None' \| 'Single' \| 'Multiple' \| 'Extended'` | `'Single'` | 选择模式:None 不可选;Single 单选;Multiple 每项显示勾选框、单击即切换;Extended 支持 Ctrl+单击切换与 Shift+单击/方向键区间 |
 | `singleSelectionFollowsFocus` | `boolean` | `true` | Single 模式下方向键移动焦点时选中是否随焦点走(WinUI `SingleSelectionFollowsFocus`) |
 | `displayMemberPath` | `string` | `''` | 对象项的显示字段路径(WinUI `DisplayMemberPath`),如 `'name'`;缺省按 `String(item)` 渲染 |
+| `revealBorder` | `boolean` | `true` | 项的 Reveal 揭示光照(透传 ListViewItem 的 `enableReveal`:悬浮时跟随指针的底板光 + 1px 边框光环)。WinUI 3 默认项样式即 `ListViewItemRevealStyle`(generic.xaml L20595),故默认启用;设 `false` 关闭光照。机制与降级语义见 [_reveal.md](./_reveal.md) |
 | `#item` slot | `{ item: unknown; index: number }` | — | 自定义项模板(WinUI `ItemTemplate` 的等价物);缺省渲染显示文本 |
 | `#header` / `#footer` slot | — | — | 列表顶部 / 底部内容(WinUI `Header` / `Footer`),随内容滚动 |
 
@@ -102,7 +103,7 @@ function onSelectionChanged(selected: unknown[]): void {
 
 - **颜色 / 字号**:全部取自 `theme.css` 的 `--wui-list-view-item-*` token(背景 Normal 透明 / `background-pointer-over` = ListLow / `background-pressed` = ListMedium / `background-selected` = 强调色 40%、选中×hover 60%、选中×pressed 70%,前景 `foreground` / `foreground-pointer-over` / `foreground-selected`,勾选框 `check-box` / 焦点框 `focus-visual-primary` / `focus-visual-secondary` / `focus-border` / `focus-secondary-border`),浅 / 深主题随 `data-theme` 切换;滚动条拇指用 `--wui-scroll-bar-*`(与 ScrollViewer 公共样式同语言)。
 - **无 token 的结构值**(源 generic.xaml 键,按源值直接使用):`ListViewItemMinHeight` = 40、`ListViewItemMinWidth` = 88、项 `Padding` = 12,0,12,0、`ListViewItemDisabledThemeOpacity` = 0.55(只衰减内容,底色不衰减)、对勾字形 `U+E73E` 字号 12px(Segoe Fluent Icons)。
-- **Reveal 光效**:`ListViewItemRevealStyle` 的 `SystemControl*Reveal*Brush` 指针光晕层无法用纯 CSS 画刷复刻,各态取其平色回退层(与 Win11 关闭 reveal 时的呈现一致);平色层里 Pressed 与 PressedSelected 同为 ListMedium,源经 reveal 层区分的 `PointerOverPressed` / `PressedSelected` 桥接态因此合并。选中底色取 `ListViewItemBackgroundSelected` 族(强调色 40/60/70%),而非 reveal 顶层画刷解析出的 `accent-light-3` 实色——后者是光晕叠加层,平色呈现以 VSM 底色为准。`RevealBorderBrush` 在 Win11 默认即透明,未实现。
+- **Reveal 光效(状态色为回退层;指针光照 MR8 起由公共层提供)**:`ListViewItemRevealStyle` 的各态静态色取 `*RevealBrush` 退役后的平色回退层(与 Win11 关闭 reveal 时的静态呈现一致);平色层里 Pressed 与 PressedSelected 同为 ListMedium,源经 reveal 层区分的 `PointerOverPressed` / `PressedSelected` 桥接态因此合并。选中底色取 `ListViewItemBackgroundSelected` 族(强调色 40/60/70%),而非 reveal 顶层画刷解析出的 `accent-light-3` 实色——后者是光晕叠加层,静态底色以 VSM 底色为准。指针光照本体(WinUI 2 材料)已由公共层复刻并默认启用(`revealBorder` 开关可关):底板光 + 1px 揭示边框光环(源 `RevealBorderBrush` 在 Win11 静态即透明,静态结构与 token 均透明、与源一致),机制与常量见 [_reveal.md](./_reveal.md)。
 - **系统焦点框**:WinUI 用合成层绘制双线焦点框(外 2px primary + 内 1px secondary,选中项取反色 `FocusBorderBrush` / `FocusSecondaryBorderBrush`);Web 侧以 `outline`(2px,offset 1px)+ `box-shadow` 内圈 1px 近似,线宽 / 间距与系统绘制存在像素级差异。
 - **多重选择勾选框**:源由 `ListViewItemPresenter` 以 `CheckMode=Inline` + `CheckBrush` / `CheckBoxBrush` 绘制;Web 侧为 20×20、4px 圆角、右侧 12px 间距的近似框(WinUI 无独立尺寸 token),选中态用系统强调色铺底 + 白色对勾(对勾颜色借 `--wui-check-box-check-glyph-foreground-checked`,ListView 族无对应 token)。仅 Multiple 模式显示常驻勾选框;Extended 选中以强调色底色表达(与源一致)。
 - **选择模型**:`selectedIndex` 在多选模式下取**首个**选中项(WinUI 返回最后交互项索引,语义差异见事件参数);选择按「条目比较键」跟踪(默认对象引用,`useSelection` 的刻意设计)而非 WinUI 的按索引跟踪——重复的原始值条目(如两个相同字符串)会一起选中/取消,需要区分时请使用对象项。切换 `selectionMode` 不自动清空选择;`None` 模式下对 `selectedIndex` / `selectedItems` 的程序化写入被忽略(模型归一为 -1 / `[]`)。
@@ -114,4 +115,4 @@ function onSelectionChanged(selected: unknown[]): void {
 
 ---
 
-演示页源码:[demo/pages/ListViewPage.vue](../../demo/pages/ListViewPage.vue)
+演示页源码:[demo/pages/ListViewPage.vue](../../demo/pages/ListViewPage.vue) · Reveal 材料:[_reveal.md](./_reveal.md)

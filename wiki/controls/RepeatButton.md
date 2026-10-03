@@ -21,6 +21,7 @@ RepeatButton 控件与标准 Button 类似,区别在于用户按住按钮期间 
 | `delay` | `number` | `500` | 按住后开始重复前的延迟,单位 ms(源默认值:`DependencyProperty.cpp` 中 `RepeatButton_Delay = 500`);传入 < 0 时钳制为 0(源码对负值抛错) |
 | `interval` | `number` | `33` | 重复触发间隔,单位 ms(源默认值:`DependencyProperty.cpp` 中 `RepeatButton_Interval = 33`);传入 <= 0 时钳制为 1(源码对非正值抛错);按住期间修改间隔,下一次滴答即生效(与源 `TickCallback` 一致) |
 | `disabled` | `boolean` | `false` | 是否禁用(对应 WinUI `IsEnabled`);置为 true 立即停止重复 |
+| `reveal` | `boolean` | `false` | Reveal 揭示光照(对照 `RepeatButtonRevealStyle`,generic.xaml L15895):开启后状态色切换到 `--wui-repeat-button-reveal-*` token,并叠加跟随指针的光照(底板光 + 2px 边框光环);与按住重复的指针处理器共存。源中该样式为非默认 keyed 样式,故 opt-in 默认关闭;见 [_reveal.md](./_reveal.md) |
 
 其余 HTML 属性(`class`、`style`、`aria-*` 等)经 `v-bind="$attrs"` 透传至根 `<button>` 元素。
 
@@ -90,4 +91,5 @@ const clicks = ref(0)
 
 - 在线示例:`/#/repeatbutton`
 - 演示页源码:`demo/pages/RepeatButtonPage.vue`
+- Reveal 材料:[_reveal.md](./_reveal.md)(`reveal` prop 的机制、降级与常量口径)
 - 相关控件:Button、ToggleButton、HyperlinkButton

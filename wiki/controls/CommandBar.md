@@ -27,6 +27,8 @@
 | `#primary-commands` (slot) | `any` | — | 主命令区(WinUI `PrimaryCommands`):放 [AppBarButton](./AppBarButton.md) / [AppBarToggleButton](./AppBarToggleButton.md) / [AppBarSeparator](./AppBarSeparator.md),右对齐排列 |
 | `#secondary-commands` (slot) | `any` | — | 次要命令区(WinUI `SecondaryCommands`):收进「更多」溢出区,按菜单行样式满宽呈现 |
 
+Reveal 揭示光照默认启用(本组件无独立开关):WinUI 3 平台唯一 CommandBar 样式即 `CommandBarRevealStyle`(generic.xaml L20206),其模板把内部 AppBarButton / AppBarToggleButton 隐式挂到 Reveal 样式(L16221-16222)、「更多」按钮硬挂 `EllipsisButtonRevealStyle`(L16961)。本组件以 provide 上下文等价该作用域——命令区/溢出区的 [AppBarButton](./AppBarButton.md) / [AppBarToggleButton](./AppBarToggleButton.md) 默认挂接光照(各自 `reveal` prop 显式 `true` / `false` 可强制覆盖),MoreButton 直挂公共层光照;机制、常量与降级语义见 [_reveal.md](./_reveal.md)。
+
 ## 事件
 
 | 事件 | 参数 | 触发时机 |
@@ -99,9 +101,11 @@ function onAdd(): void {
 - **DefaultLabelPosition 仅实现 Bottom/Right**:WinUI 还有 `Top`/`Collapsed` 两档,未在任务范围;Right 档在 `:deep()` 适配下建议命令用 `width="auto"`(WinUI 的 `LabelOnRight` 态按钮宽度随内容,而默认样式 `Width=68` 不足以容纳右置标签)。
 - **`ClosedDisplayMode` / `IsDynamicOverflowEnabled` 未实现**:`ClosedDisplayMode`(Minimal/Hidden 收起形态)与窄宽度下主命令自动移入溢出区的动态溢出均不在本任务范围;主/次要命令的动态增减(slot 内容变化)已自适应。
 - **更多按钮焦点视觉为系统双环近似**:`EllipsisButton` 样式取 `UseSystemFocusVisuals=true`(区别于 AppBarButton 的下划线聚焦视觉),以 2px 焦点色 outline 近似 WinUI 双环;字形取 WinUI 3 的 `E712`(UWP 为 `E10C`),依赖本机 Segoe 字体栈(R1 裁决不加载网络字体)。
+- **Reveal 光照作用域为组件级 provide(登记近似)**:源隐式样式(`Grid.Resources`,L16221-16222)仅作用于命令区模板;本组件的 provide 覆盖整个 CommandBar 子树——`#content` slot 内若放置 AppBarButton / AppBarToggleButton 也会默认启用(源不会)。常见用法(命令区/溢出区)与源一致,content slot 场景属放宽;完整口径见 [_reveal.md](./_reveal.md) §5。
 
 ## 互链
 
 - 命令族:[AppBarButton](./AppBarButton.md) · [AppBarToggleButton](./AppBarToggleButton.md) · [AppBarSeparator](./AppBarSeparator.md)
 - 弹层族:[MenuFlyout](./MenuFlyout.md) · [DropDownButton](./DropDownButton.md)
 - 弹层基建:[弹层公共基建](./_popup-infra.md)
+- Reveal 材料:[_reveal.md](./_reveal.md)(命令区/溢出区/MoreButton 默认启用的口径与 provide 作用域登记)

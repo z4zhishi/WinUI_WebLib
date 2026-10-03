@@ -33,6 +33,8 @@
 
 其余 `class` / `style` 等属性经 `v-bind="$attrs"` 透传到根元素。
 
+下拉列表项的 Reveal 揭示光照**默认启用且无开关**:WinUI 3 默认项样式即 `ComboBoxItemRevealStyle`(generic.xaml L20202 keyless BasedOn,平台无非 reveal 项样式可切)——悬浮时跟随指针的底板光 + 1px 边框光环,叠于既有悬停/按压底色(reveal token,同源值)之上、内容之下。机制与降级语义见 [_reveal.md](./_reveal.md)。
+
 ## 事件
 
 | 事件 | 参数 | 触发时机 |
@@ -105,7 +107,7 @@ function onSelectionChanged(index: number, item: unknown): void {
 - **无 token 的结构值**(源 generic.xaml 键,按源值直接使用):`ComboBoxBorderThemeThickness` = 2px、控件 `Padding` = 12,5,0,7、`ComboBoxThemeMinWidth` = 64、`ComboBoxPopupThemeMinWidth` = 80、`MaxDropDownHeight` = 504、`ComboBoxDropdownBorderThickness` = 1px、`ComboBoxDropdownContentMargin` = 0,4,0,4、`ComboBoxItemRevealThemePadding` = 10,4,10,7(项内边距)、项边框 `ComboBoxItemRevealBorderThemeThickness` = 1px、箭头 glyph `U+E0E5` 字号 12px(取同值 token `--wui-tool-tip-content-theme-font-size`)、可编辑 `EditableText` 内边距 10,3,30,5、`DropDownOverlay` 宽 30 / Margin 0,2,2,2(聚焦态 0,3,2,2)。
 - **下拉面板圆角与阴影**:WinUI 弹层圆角取 `OverlayCornerRadius`(8px)、阴影由合成器 ThemeShadow 实现、XAML 无画刷 token;本实现使用弹层基建的 `--wui-popup-corner-radius` / `--wui-popup-shadow`(双层 box-shadow 视觉近似),见 [_popup-infra](./_popup-infra.md) 差异节。
 - **下拉边框色**:`ComboBoxDropDownBorderBrush` = `SystemControlTransientBorderBrush`,源里存在两档不透明度(0.36 / 0.14,分属不同主题字典),`theme.css` 依默认字典取 0.14(`#00000024`)。
-- **Reveal 光效**:`SystemControl*RevealBackgroundBrush` 的指针光晕(reveal halo)无法用纯 CSS 画刷复刻,列表项各态取其纯色回退层(flat fill),与 Win11 无 reveal 效果时的呈现一致。
+- **Reveal 光效(MR8 起提供光照)**:列表项静态各态取 `*RevealBackgroundBrush` 退役后的纯色回退层(透明 → hover `#00000019` → pressed `#00000033`,与源同值);指针光晕本体已由公共层复刻并默认启用(无开关,与源默认样式一致),机制与降级语义见 [_reveal.md](./_reveal.md)。
 - **打开 / 关闭动画**:源用 `SplitOpenThemeAnimation` / `SplitCloseThemeAnimation`(generic.xaml L9047-9060,OpenedTarget=PopupBorder、ClosedTarget=ContentPresenter);本实现按源参数复刻(关键帧 `wui-combo-split-open` / `wui-combo-split-close` / `wui-combo-face-dim` / `wui-combo-face-restore`,见 `animations.css`):开为面板自顶部锚点向下裁切展开 250ms `cubic-bezier(0,0,0,1)`(`s_OpenDuration` + `ControlFastOutSlowInKeySpline`),等价源 clip scaleY 0.5→1、clip 原点贴顶缘(ThemeAnimations.cpp L598-604/L679);**弹层本体不淡入**(源 L690 "be fully opaque");同时按钮面内容 83ms 线性压暗至 0.5(`s_OpacityChangeDuration`)并在打开期间保持(VSM storyboard HoldEnd)。关为面板向顶部收拢 167ms 同曲线(`s_CloseDuration`,closedRatio 0.15)+ **末 83ms** 线性淡出(opacity 自 `s_OpacityChangeBeginTime` = 167−83ms 起),按钮面内容 0 → 末 83ms 线性淡回 1(L861-871)。残余差异:源裁切矩形以 `OpenedLength` 内部基准(OS TransitionTarget)计算、仓库无其几何实现,Web 以 `clip-path: inset(0 0 100% 0)→inset(0 0 85% 0)` 揭示、末态对应源 closedRatio 0.15(MR1/A5 定案,收拢不再过冲到全隐,与末 83ms 淡出同步不可见),首半程可见高度的分布可能与源有细微出入;可编辑模式的 `ContentPresenter` 为 TextBox 所代,面压暗仅作用于非可编辑内容区。
 - **列表虚拟化**:源 ItemsPanel 为 `CarouselPanel`(按需虚拟化);本实现为普通 DOM 渲染,超长列表(数千项)不建议直接投放。
 - **可编辑模式的过滤**:WinUI 原生 `IsEditable` 默认不过滤(输入任意文本后由 `TextSubmitted` 决定接受与否);本实现按需求做成「输入即过滤(不区分大小写包含匹配)+ Enter 命中选中 / 未命中提交自由文本」。若要恢复纯 `TextSubmitted` 行为,可在消费侧忽略过滤结果只取 `textChanged`。
@@ -118,4 +120,4 @@ function onSelectionChanged(index: number, item: unknown): void {
 
 ---
 
-演示页源码:[demo/pages/ComboBoxPage.vue](../../demo/pages/ComboBoxPage.vue)
+演示页源码:[demo/pages/ComboBoxPage.vue](../../demo/pages/ComboBoxPage.vue) · Reveal 材料:[_reveal.md](./_reveal.md)

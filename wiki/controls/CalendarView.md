@@ -31,6 +31,7 @@ CalendarView 以大视图展示并选择日期:头部按钮把月视图下钻到
 | `isOutOfScopeEnabled` | `boolean` | `true` | 邻月日期按灰态(OutOfScope 前景/底色)渲染;`false` 时邻月按当月样式(WinUI 同名属性) |
 | `language` | `string` | `''` | BCP-47 区域标签(WinUI `Language`);空串用运行时区域。驱动星期/月份/头部文案的 `Intl.DateTimeFormat` |
 | `disabled` | `boolean` | `false` | 禁用整控件;对照模板 Disabled 视觉状态(星期行变灰、交互关闭) |
+| `dayItemReveal` | `boolean` | `false` | 日格 Reveal 揭示光照(对照 `CalendarViewDayItemRevealStyle`,generic.xaml L14269,L14268 默认挂接):开启后日格底/描边切换到 `--wui-calendar-view-calendar-item-reveal-*`(透明,即源 `CalendarViewRevealStyle` 的值)并叠加跟随指针的底板光(仅底板,DayItem 无边框光);禁选(blackout)日不挂光照。opt-in,默认关闭;见 [_reveal.md](./_reveal.md) |
 | `ariaLabelPrevious` | `string` | `'Previous'` | 前翻按钮无障碍名(WinUI 经系统资源本地化;Web 以 prop 开放给站点本地化) |
 | `ariaLabelNext` | `string` | `'Next'` | 后翻按钮无障碍名 |
 | `calendarItemBorderBrush` | `string` | token 默认 | 单元格描边色(WinUI `CalendarItemBorderBrush`);缺省 `--wui-calendar-view-calendar-item-reveal-border` |
@@ -115,4 +116,4 @@ function onSelectedDatesChanged({ addedDates, removedDates }: CalendarViewSelect
 
 ---
 
-演示页源码:[demo/pages/CalendarViewPage.vue](../../demo/pages/CalendarViewPage.vue)
+演示页源码:[demo/pages/CalendarViewPage.vue](../../demo/pages/CalendarViewPage.vue) · Reveal 材料:[_reveal.md](./_reveal.md)(`dayItemReveal` 的机制与降级语义)

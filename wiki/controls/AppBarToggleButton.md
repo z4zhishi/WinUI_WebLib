@@ -23,6 +23,7 @@ AppBarToggleButton 看起来像 AppBarButton,行为却像 CheckBox:通常在**�
 | `keyboardAcceleratorText` | `string` | `''` | 加速键文本(WinUI `KeyboardAcceleratorTextOverride`,如 `'Ctrl+S'`):按源只在**溢出菜单**内呈现(主命令区 `KeyboardAcceleratorPlacementMode=Hidden` 不呈现内联角标),并注册全局按键监听(匹配即切换一次);空串不显示也不监听 |
 | `disabled` | `boolean` | `false` | 禁用交互(WinUI `IsEnabled = false` 的取反映射) |
 | `width` | `number \| string` | `68` | 按钮宽度(WinUI `Width`;默认 Style 固定 68) |
+| `reveal` | `boolean` | `undefined` | Reveal 揭示光照(对照 `AppBarToggleButtonRevealStyle`,generic.xaml L17336):悬浮时跟随指针的底板光 + 1px 边框光环,选中强调色底与光照叠加。缺省跟随宿主——独立使用默认关闭(源 keyless 默认样式 L19468 非 reveal),CommandBar 内默认启用(源模板隐式样式 L16222 的等价 provide 作用域);显式 `true` / `false` 强制覆盖。见 [_reveal.md](./_reveal.md) |
 | `#icon` (slot) | `any` | — | 图标内容(WinUI `Icon` 属性);设置后优先于 `icon` 属性 |
 
 ## 事件
@@ -86,4 +87,4 @@ WinUI 的 `AppBarToggleButton.IsChecked` 是 `Nullable<bool>`。Web 侧(与 Chec
 
 ---
 
-演示页源码:[demo/pages/AppBarToggleButtonPage.vue](../../demo/pages/AppBarToggleButtonPage.vue) · 组件源码:[src/components/AppBarToggleButton.vue](../../src/components/AppBarToggleButton.vue) · 同族在线示例:[AppBarButton](/#/appbarbutton)
+演示页源码:[demo/pages/AppBarToggleButtonPage.vue](../../demo/pages/AppBarToggleButtonPage.vue) · 组件源码:[src/components/AppBarToggleButton.vue](../../src/components/AppBarToggleButton.vue) · 同族在线示例:[AppBarButton](/#/appbarbutton) · Reveal 材料:[_reveal.md](./_reveal.md)

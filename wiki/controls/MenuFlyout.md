@@ -126,6 +126,7 @@ const repeat = ref(true)
 - **菜单层上下文**:`MenuFlyout`(根层)与每个 `MenuFlyoutSubItem`(子菜单层)向各自 slot 内的菜单项 provide 同一形状的上下文(`isOpen` / 列对齐状态 / 项登记 / `closeAll` / 子菜单登记),嵌套项注入最近层。子菜单项点击后的「关闭整条菜单」即沿该链逐级上抛。
 - **列对齐(图标列 / 勾选列)**:同层出现图标项或勾选项时,纯文本项自动补 28px 占位列(16 内容 + 12 间距),Toggle 恒渲染勾选列,图标项恒渲染图标列——对齐 WinUI 模板中 `MenuFlyoutItemPlaceholderThemeThickness="28,0,0,0"` 与 `CheckPlaceholderStates` 的视觉意图。
 - **Escape 逐级 / 兄弟子菜单互斥**:`MenuFlyoutSubItem` 打开时向父层 `registerOpenSubmenu` 登记——父层据此在新子菜单打开时收起上一个(兄弟互斥)、在 Escape 时判断「更深层是否仍打开」实现逐级关闭。
+- **Reveal 揭示光照(默认启用,无开关)**:三个菜单项组件(Item / Toggle / SubItem)默认挂公共层光照——WinUI 3 三者默认样式即 `*RevealStyle`(generic.xaml L18400 / L11999 / L18402 keyless BasedOn,平台无非 reveal 样式可切):悬浮时跟随指针的底板光 + 1px 边框光环,叠于各态底色(reveal token,与源画刷同源值)之上、内容之下;禁用项不点亮。机制、常量与降级语义见 [_reveal.md](./_reveal.md)。
 
 ## 与 WinUI 的差异(视觉与行为对照)
 
@@ -146,4 +147,4 @@ const repeat = ref(true)
 
 ---
 
-演示页源码:[demo/pages/MenuFlyoutPage.vue](../../demo/pages/MenuFlyoutPage.vue) · 组件源码:[src/components/MenuFlyout.vue](../../src/components/MenuFlyout.vue) · [MenuFlyoutItem.vue](../../src/components/MenuFlyoutItem.vue) · [ToggleMenuFlyoutItem.vue](../../src/components/ToggleMenuFlyoutItem.vue) · [MenuFlyoutSeparator.vue](../../src/components/MenuFlyoutSeparator.vue) · [MenuFlyoutSubItem.vue](../../src/components/MenuFlyoutSubItem.vue) · 基建:[wiki/controls/_popup-infra.md](./_popup-infra.md)
+演示页源码:[demo/pages/MenuFlyoutPage.vue](../../demo/pages/MenuFlyoutPage.vue) · 组件源码:[src/components/MenuFlyout.vue](../../src/components/MenuFlyout.vue) · [MenuFlyoutItem.vue](../../src/components/MenuFlyoutItem.vue) · [ToggleMenuFlyoutItem.vue](../../src/components/ToggleMenuFlyoutItem.vue) · [MenuFlyoutSeparator.vue](../../src/components/MenuFlyoutSeparator.vue) · [MenuFlyoutSubItem.vue](../../src/components/MenuFlyoutSubItem.vue) · 基建:[wiki/controls/_popup-infra.md](./_popup-infra.md) · Reveal 材料:[_reveal.md](./_reveal.md)

@@ -4,7 +4,7 @@
 
 ## 概述
 
-ListBox 让你以一张朴素的单列列表展示一组可选项并支持选择,是 `Selector` 家族中最简单的列表控件:容器自带浅灰底色(`SystemControlBackgroundChromeMediumLow`)、项样式比 ListView 更朴素(无 MinHeight、无勾选框、无 Reveal 光效),适合内容固定、数量不多的短列表。
+ListBox 让你以一张朴素的单列列表展示一组可选项并支持选择,是 `Selector` 家族中最简单的列表控件:容器自带浅灰底色(`SystemControlBackgroundChromeMediumLow`)、项样式比 ListView 更朴素(无 MinHeight、无勾选框,悬停/按压用 `SystemControlHighlightList*` 平色刷),适合内容固定、数量不多的短列表;项的 Reveal 揭示光照按同族 ListView 口径默认启用(借用映射,见属性表与差异节)。
 
 对应 WinUI `Microsoft.UI.Xaml.Controls.ListBox`,视觉与交互状态对照 `generic.xaml` 中 `TargetType="ListBox"`(L19990 起,模板为 Border → ScrollViewer → ItemsPresenter)与 `TargetType="ListBoxItem"`(L19862 起,模板为 Grid → Rectangle PressedBackground → ContentPresenter)逐键复刻;颜色全部取自 `theme.css` 预置的 `--wui-system-control-*` token(容器底色、各项态画刷、焦点框)。选择状态机复用阶段 5 集合公共底座 [src/composables/useSelection.ts](../../src/composables/useSelection.ts),与 [ListView](./ListView.md) 同底座。
 
@@ -47,6 +47,7 @@ ListBox 让你以一张朴素的单列列表展示一组可选项并支持选择
 | `selectionMode` | `'None' \| 'Single' \| 'Multiple' \| 'Extended'` | `'Single'` | 选择模式:None 不可选;Single 单选;Multiple 单击切换;Extended 支持 Ctrl+单击切换与 Shift+单击/方向键区间(均无勾选框,选中以强调色铺底表达) |
 | `singleSelectionFollowsFocus` | `boolean` | `true` | Single 模式下方向键移动焦点时选中是否随焦点走(WinUI `SingleSelectionFollowsFocus`) |
 | `displayMemberPath` | `string` | `''` | 对象项的显示字段路径(WinUI `DisplayMemberPath`),如 `'name'`;缺省按 `String(item)` 渲染 |
+| `revealBorder` | `boolean` | `true` | 项的 Reveal 揭示光照(悬浮时跟随指针的底板光 + 1px 边框光环,公共层实现)。源无 `ListBoxItemRevealStyle`,本实现按同族 ListView 项视觉借用映射(MR8 登记的无源条款);设 `false` 关闭。见 [_reveal.md](./_reveal.md) |
 | `disabled` | `boolean` | `false` | 整控禁用(WinUI `IsEnabled=false`):全部项进入 Disabled 态(前景转 `SystemControlDisabledBaseMediumLow`,不响应交互) |
 | `#item` slot | `{ item: unknown; index: number }` | — | 自定义项模板(WinUI `ItemTemplate` 的等价物);缺省渲染显示文本 |
 
@@ -108,6 +109,7 @@ function onSelectionChanged(selected: unknown[]): void {
 - **颜色 / 字号**:全部取自 `theme.css` 的 `--wui-system-control-*` token(容器底色 `background-chrome-medium-low`、容器前景/边框刷 `foreground-base-high`、悬停 `highlight-list-low`、按压 `highlight-list-medium`、选中 `highlight-list-accent-low/medium/high`、交互态前景 `highlight-alt-base-high`、禁用前景 `disabled-base-medium-low`、焦点框 `focus-visual-primary/secondary`),浅 / 深主题随 `data-theme` 切换;选中三档强调色透明度与源一致(浅色主题 40% / 60% / 70%,深色主题 60% / 80% / 90%)。
 - **无 token 的结构值**(源 generic.xaml 键,按源值直接使用):`ListBoxItemPadding` = 12,9,12,12(项内容边距)、`ListBoxBorderThemeThickness` = 0(浅/深主题;HighContrast 主题的 2px 未实现)、`ListBoxItem` 无 MinHeight/MinWidth 键(项高由内容 + Padding 决定,区别于 `ListViewItemMinHeight` = 40)。
 - **BorderBrush 可见性**:浅/深主题边框厚度为 0,`SystemControlForegroundBaseHighBrush` 边框刷已按源接线但默认不可见;需边框时消费侧自行覆盖 `border-width`。
+- **Reveal 揭示光照(借用映射)**:源 `ListBoxItem` 样式无 reveal 光效(平台无 `ListBoxItemRevealStyle` 可挂);本实现按工单把同族 ListView 项的 reveal 视觉外推到 ListBox 项(公共层光照:`revealBorder` 默认 true,底板光 + 1px 边框光环,禁用项不点亮),登记为无源条款的借用映射;机制、常量与降级语义见 [_reveal.md](./_reveal.md)。
 - **系统焦点框**:WinUI 由合成层按 `IsTemplateFocusTarget`(项满幅 Rectangle)绘制双线焦点框;Web 侧以 `box-shadow` 内 2px 主环 + `outline` 内缩 1px 副环近似(与 ListView 项同口径)。`ListBoxItem` 未覆写 `FocusBorderBrush` 族,故选中项焦点框不反色(与 ListViewItem 的反色行为不同,与源一致)。
 - **选中项前景**:交互/选中态内容前景统一 `SystemControlHighlightAltBaseHighBrush`,默认主题下与 Normal 同色(视觉不变),token 仍按源接线,主题覆盖画刷时正确联动。
 - **Disabled**:源 `ListBoxItem` Disabled 态只把内容前景换成 `SystemControlDisabledBaseMediumLowBrush`,无透明度衰减、底色不变(区别于 ListViewItem 的 `DisabledThemeOpacity=0.55` 内容衰减);整控 `IsEnabled=false` 即全部项出该态,本实现 `disabled` prop 对齐。
@@ -119,4 +121,4 @@ function onSelectionChanged(selected: unknown[]): void {
 
 ---
 
-演示页源码:[demo/pages/ListBoxPage.vue](../../demo/pages/ListBoxPage.vue)
+演示页源码:[demo/pages/ListBoxPage.vue](../../demo/pages/ListBoxPage.vue) · Reveal 材料:[_reveal.md](./_reveal.md)
