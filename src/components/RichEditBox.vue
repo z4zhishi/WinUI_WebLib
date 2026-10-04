@@ -459,8 +459,10 @@ const rootClass = computed(() => ({
 }
 
 /* —— 内容元素:TextControlThemePadding ——
-   现值 10,3,6,6 = legacy dxaml generic.xaml L175;WinUI 3 权威(Common_themeresources
-   L12/L26)为 10,5,6,6。PL7 只改边框厚度,未改本值(差异见 PL7 报告未决项 1)。
+   PL8:取 WinUI 3 权威 controls/dev/CommonStyles/Common_themeresources.xaml
+   L12/L26/L40 = 10,5,6,6(legacy dxaml generic.xaml L175 的 10,3,6,6 已替换);
+   施加点 RichEditBox_themeresources.xaml L19 Setter `Padding` = TextControlThemePadding。
+   XAML 序 left,top,right,bottom → CSS 写 top/right/bottom/left = 5px 6px 6px 10px。
    ScrollViewer 竖向 Auto。 —— */
 .wui-rich-edit-box-editor {
   position: relative;
@@ -468,15 +470,15 @@ const rootClass = computed(() => ({
   flex: 1;
   min-width: 0;
   min-height: 0;
-  padding: 3px 6px 6px 10px;
+  padding: 5px 6px 6px 10px;
   overflow-y: auto;
   font-family: var(--wui-content-control-theme-font-family, inherit);
   font-size: var(--wui-control-content-theme-font-size); /* ControlContentThemeFontSize */
-  /* 源行距:Segoe UI 14px 行高 ≈ 19(PL7 起外盒 32 = 边框 1×2 + 内边距 3+6 + 一行 19 需
-     flex stretch 补足 2px;空盒仍锁 32)。Chromium 空行 strut(line-height normal)为 20px,
-     会把单行空盒撑到 33(VR-B7 F-B7-6 连带),故锁定 19px = 源行距;多行仍随内容增高
-     (源 ScrollViewer Auto)。 */
-  line-height: 19px;
+  /* 源行距:Segoe UI 14px 行盒 ≈ 18.6(PL7 起外盒 32 = 边框 1×2 + 内边距 5+6 + 一行 18;
+     PL8 内边距 3→5 后,行盒须锁 18:若 19 则焦点态 3+11+19=33 会顶高外盒。
+     Chromium 空行 strut(line-height normal)为 20px,会把单行空盒撑到 33(VR-B7 F-B7-6 连带),
+     故锁定 18px = 源行盒;多行仍随内容增高(源 ScrollViewer Auto)。 */
+  line-height: 18px;
   color: var(--wui-text-fill-color-primary);
   caret-color: var(--wui-text-fill-color-primary);
   outline: none;
@@ -512,7 +514,7 @@ const rootClass = computed(() => ({
   position: absolute;
   inset: 0;
   z-index: 0;
-  padding: 3px 6px 6px 10px;
+  padding: 5px 6px 6px 10px; /* PL8:TextControlThemePadding 10,5,6,6 */
   overflow: hidden;
   font-size: var(--wui-control-content-theme-font-size);
   color: var(--wui-text-fill-color-secondary);

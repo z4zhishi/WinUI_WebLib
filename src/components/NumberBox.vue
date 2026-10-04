@@ -596,12 +596,16 @@ const rootClass = computed(() => ({
 }
 
 /* —— 内容元素:TextControlThemePadding ——
-   现值 10,3,6,6 = legacy dxaml generic.xaml L175;WinUI 3 权威(Common_themeresources
-   L12/L26)为 10,5,6,6。PL7 只改边框厚度,未改本值(差异见 PL7 报告未决项 1)。 —— */
+   PL8:取 WinUI 3 权威 controls/dev/CommonStyles/Common_themeresources.xaml
+   L12/L26/L40 = 10,5,6,6(legacy dxaml generic.xaml L175 的 10,3,6,6 已替换);
+   施加点 NumberBox.xaml L12 Setter `Padding` = TextControlThemePadding。
+   XAML 序 left,top,right,bottom → CSS 写 top/right/bottom/left = 5px 6px 6px 10px。 —— */
 .wui-number-box-input {
   flex: 1;
   min-width: 0;
-  padding: 3px 6px 6px 10px;
+  padding: 5px 6px 6px 10px;
+  /* PL8:行盒锁定 18px(理由同 TextBox:保持焦点态外盒 32)。 */
+  line-height: 18px;
   font-family: inherit;
   font-size: var(--wui-control-content-theme-font-size); /* ControlContentThemeFontSize */
   color: var(--wui-text-fill-color-primary);
@@ -657,7 +661,10 @@ const rootClass = computed(() => ({
   color: var(--wui-text-fill-color-secondary);
   background: var(--wui-control-fill-color-transparent);
   border: solid var(--wui-control-fill-color-transparent);
-  border-width: 0 1px 1px 0; /* NumberBoxSpinButtonBorderThickness = 0,1,1,1 */
+  /* PL8:权威 NumberBoxSpinButtonBorderThickness(NumberBox_themeresources.xaml L29
+     = 0,1,1,1,施加点 NumberBox.xaml L188 Setter `BorderThickness`);
+     XAML 序 left,top,right,bottom → CSS top/right/bottom/left = 1px 1px 1px 0。 */
+  border-width: 1px 1px 1px 0;
   border-radius: 4px; /* CornerRadius = ControlCornerRadius(见 wiki) */
   cursor: pointer;
   user-select: none;

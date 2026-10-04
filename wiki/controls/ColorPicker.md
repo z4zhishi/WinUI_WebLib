@@ -114,6 +114,7 @@ function onColorChanged(e: { oldColor: string; newColor: string }): void {
 7. **竖向滑杆实现**:Horizontal 方向下第三维度/alpha 滑杆用原生 range 的 `writing-mode: vertical-lr; direction: rtl` 竖排(Chromium/Firefox/Safari 现代版本支持);旧内核回退为水平观感。
 8. **RGB ↔ HSV 转换精度**:转换纯函数在 `src/utils/colorConvert.ts`,严格对照源 `ColorConversion.cpp`(chroma=0 时 h=0、字节化 round(×255) 等),可用 Node 直接单测;显示值统一四舍五入(与源 `round` 一致)。
 9. **Ctrl 大步的命名色跳转**:源 `IncrementColorChannel` 的大步分支走 `FindNextNamedColor`(沿通道步进到上/下一个本地化**颜色显示名**区间中点;源码中的 ±30/±10 常量仅存在于过时注释与永假三目,不生效)。Web 版按源算法逐行移植,「颜色显示名」用 CSS 命名色表(147 个关键字)最近邻 RGB 匹配近似 WinUI 的本地化命名表——跳转算法(方向、步长、回绕、中点与栅格对齐)与源一致,但个别边界落点可能因命名表集合不同而相差一步;「零头对齐」循环的浮点漂移与源的双精度路径同级。
+10. **文本输入字段(PL8 重定向)**:`HexTextBox` / `RedTextBox` 等通道输入框在源 `ColorPicker.xaml`(L380 起 / L419)为**默认样式 `TextBox`**,故本实现按 TextControl 权威矩阵重定向:Normal Background `ControlFillColorDefaultBrush`、Normal/PointerOver 边框 `TextControlElevationBorderBrush`(渐变)、Focused Background `ControlFillColorInputActiveBrush` + 强调色实色边框(厚度 1,1,1,2)、Disabled `ControlFillColorDisabledBrush` / `ControlStrokeColorDefaultBrush` / `TemporaryTextFillColorDisabled`,内边距 `TextControlThemePadding` = 10,5,6,6。字段是 `<input>`(替换元素,无 `::before`/`::after`),故渐变描边用「双背景层」(padding-box 铺底色 + border-box 铺渐变)复刻,而不用 mask 环;`border-radius` 4px 对两层同时裁切。
 
 ## 在 WinUI 中的典型场景(对照官方示例)
 

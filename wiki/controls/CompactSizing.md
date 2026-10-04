@@ -20,7 +20,7 @@
 | 资源键(ResourceKey) | 标准值 | 紧凑值 | 影响范围 |
 | --- | --- | --- | --- |
 | `TextControlThemeMinHeight` | 32 | 24 | TextBox / PasswordBox / AutoSuggestBox / ComboBox 等输入类宿主最小高度 |
-| `TextControlThemePadding` | 10,3,6,6 | 2,2,6,1 | 同上(内容区内边距,Web 侧为 CSS `padding: 2px 6px 1px 2px`) |
+| `TextControlThemePadding` | 10,5,6,6 | 2,2,6,1 | 同上(内容区内边距,Web 侧为 CSS `padding: 2px 6px 1px 2px`) |
 | `ComboBoxMinHeight` | 32 | 24 | ComboBox 关闭态最小高度 |
 | `ComboBoxPadding` | 12,5,0,7 | 12,1,0,3 | ComboBox 关闭态内容内边距 |
 | `ComboBoxEditableTextPadding` | 11,5,38,6 | 10,0,30,0 | 可编辑 ComboBox 文本内边距 |
@@ -100,7 +100,7 @@ Web(本库):当前以**容器级密度类**复刻同一效果(演示页 `demo/pa
 - **作用机制**:WinUI 通过 `ResourceDictionary` 在主题层整体换值;Web 侧当前用容器类 + `:deep()` 覆盖组件 scoped 样式实现,等值但非同构,组件尚未内置 density prop(见待办)。
 - **DatePicker / TimePicker**:WinUI 紧凑压缩的是宿主按钮(Day/Month/Year 文本块的内边距);本站两控件为常驻展开板形态,无宿主按钮,密度类仅覆盖滚轮项内边距(项高 `DatePickerFlyoutPresenterItemHeight=40` 官方同样未覆盖),视觉差异细微。
 - **MenuBar**:官方支持清单包含 MenuBar,但 `Compact.xaml` 未提供 MenuBar 专属键,本站 MenuBar 保持 40px 高,列为待办核实项。
-- **可编辑 ComboBox**:本站可编辑文本内边距按组件实现的 `10,3,30,5` 取紧凑值 `10,0,30,0`(右 30px 让位箭头区不变);`ComboBoxEditableTextPadding` 的标准值 11,5,38,6 与本站实现存在 1-2px 的取值差,已在源注释中标注。
+- **可编辑 ComboBox**:标准密度下本站已实现权威 `ComboBoxEditableTextPadding` = 11,5,38,6(PL8,右 38 让位箭头列);紧凑值取 `Compact.xaml` L20 的 `10,0,30,0`(同其余密度键,本站尚未内置密度类,此处仅为文档值)。
 - **ListView 项内边距**:WinUI 项内容 Padding `12,0,12,0` 在紧凑下不变,本站同样不动,仅压缩项高。
 
 ---

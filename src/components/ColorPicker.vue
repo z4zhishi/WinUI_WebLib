@@ -1546,32 +1546,50 @@ html[data-theme='dark'] .wui-color-picker {
 .wui-color-picker-hex {
   grid-area: hex;
   justify-self: end; /* HexTextBox HorizontalAlignment Right */
+  /* PL8:ColorPicker 内嵌文本字段(源 HexTextBox 为默认样式 TextBox,ColorPicker.xaml L419)
+     → 按 TextControl 权威矩阵重定向:
+       Normal Background = ControlFillColorDefaultBrush、BorderBrush =
+       TextControlElevationBorderBrush(渐变,TextBox_themeresources L48-56);
+       厚度 TextControlBorderThemeThickness = 1(PL7);内边距 TextControlThemePadding
+       = 10,5,6,6(PL8,Common_themeresources L12/L26/L40)。
+     字段是 <input>(替换元素,无 ::before/::after)→ 用「双背景层」复刻渐变描边:
+     上层 padding-box 裁剪铺底色,下层 border-box 铺渐变,1px 透明 border 处即渐变环;
+     border-radius 4px 对两层同时裁切(border-image 不随圆角裁切,故不用)。 */
   box-sizing: border-box;
   width: 132px; /* HexTextBox Width 132 */
   min-height: 32px;
-  padding: 3px 10px 5px; /* TextBox 内边距(TextControlThemePadding 近似,见 wiki) */
+  padding: 5px 6px 6px 10px; /* TextControlThemePadding = 10,5,6,6 → CSS top/right/bottom/left */
   font-family: inherit;
   font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-text-control-foreground);
-  caret-color: var(--wui-text-control-foreground);
-  background: var(--wui-text-control-background);
-  border: 2px solid var(--wui-text-control-border);
+  color: var(--wui-text-fill-color-primary);
+  caret-color: var(--wui-text-fill-color-primary);
+  background:
+    linear-gradient(var(--wui-control-fill-color-default), var(--wui-control-fill-color-default)) padding-box,
+    var(--wui-text-control-elevation-border) border-box;
+  border: 1px solid transparent; /* TextControlBorderThemeThickness = 1(PL7) */
   border-radius: 4px;
   outline: none;
 }
 
 .wui-color-picker-hex:not(:disabled):not(:focus):hover {
-  background: var(--wui-text-control-background-pointer-over);
-  border-color: var(--wui-text-control-border-brush-pointer-over);
+  /* PointerOver:ControlFillColorSecondaryBrush;边框仍 TextControlElevationBorderBrush */
+  background:
+    linear-gradient(var(--wui-control-fill-color-secondary), var(--wui-control-fill-color-secondary)) padding-box,
+    var(--wui-text-control-elevation-border) border-box;
 }
 
 .wui-color-picker-hex:focus {
-  background: var(--wui-text-control-background-focused);
-  border-color: var(--wui-text-control-border-brush-focused, var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme)));
-  color: var(--wui-text-control-foreground-focused);
+  /* Focused:ControlFillColorInputActiveBrush;BorderBrush = 强调色实色,
+     厚度 TextControlBorderThemeThicknessFocused = 1,1,1,2 */
+  background: var(--wui-control-fill-color-input-active);
+  border-color: var(--wui-system-accent-color);
+  border-width: 1px 1px 2px 1px;
+  color: var(--wui-text-fill-color-primary);
 }
 
 .wui-color-picker-hex[aria-invalid='true'] {
+  /* 错误描边为系统错误色实色:还原单色底 + 实色边框(去掉渐变层) */
+  background: var(--wui-control-fill-color-default);
   border-color: var(--wui-system-control-error-text-foreground);
 }
 
@@ -1598,32 +1616,39 @@ html[data-theme='dark'] .wui-color-picker {
 
 .wui-color-picker-field-input {
   grid-area: input;
+  /* PL8:同 HexTextBox —— 源 RedTextBox 等为默认样式 TextBox(ColorPicker.xaml L380 起),
+     按 TextControl 权威矩阵重定向(双背景层复刻渐变描边,理由见 .wui-color-picker-hex)。 */
   box-sizing: border-box;
   width: 120px; /* RedTextBox Width 120 */
   min-height: 32px;
-  padding: 3px 6px 6px 10px; /* TextControlThemePadding 10,3,6,6 */
+  padding: 5px 6px 6px 10px; /* TextControlThemePadding = 10,5,6,6 → CSS top/right/bottom/left */
   font-family: inherit;
   font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-text-control-foreground);
-  caret-color: var(--wui-text-control-foreground);
-  background: var(--wui-text-control-background);
-  border: 2px solid var(--wui-text-control-border);
+  color: var(--wui-text-fill-color-primary);
+  caret-color: var(--wui-text-fill-color-primary);
+  background:
+    linear-gradient(var(--wui-control-fill-color-default), var(--wui-control-fill-color-default)) padding-box,
+    var(--wui-text-control-elevation-border) border-box;
+  border: 1px solid transparent; /* TextControlBorderThemeThickness = 1(PL7) */
   border-radius: 4px;
   outline: none;
 }
 
 .wui-color-picker-field-input:not(:disabled):not(:focus):hover {
-  background: var(--wui-text-control-background-pointer-over);
-  border-color: var(--wui-text-control-border-brush-pointer-over);
+  background:
+    linear-gradient(var(--wui-control-fill-color-secondary), var(--wui-control-fill-color-secondary)) padding-box,
+    var(--wui-text-control-elevation-border) border-box;
 }
 
 .wui-color-picker-field-input:focus {
-  background: var(--wui-text-control-background-focused);
-  border-color: var(--wui-text-control-border-brush-focused, var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme)));
-  color: var(--wui-text-control-foreground-focused);
+  background: var(--wui-control-fill-color-input-active);
+  border-color: var(--wui-system-accent-color);
+  border-width: 1px 1px 2px 1px;
+  color: var(--wui-text-fill-color-primary);
 }
 
 .wui-color-picker-field-input[aria-invalid='true'] {
+  background: var(--wui-control-fill-color-default);
   border-color: var(--wui-system-control-error-text-foreground);
 }
 
@@ -1641,9 +1666,11 @@ html[data-theme='dark'] .wui-color-picker {
 
 .wui-color-picker.is-disabled .wui-color-picker-field-input,
 .wui-color-picker.is-disabled .wui-color-picker-hex {
-  color: var(--wui-text-control-foreground-disabled);
-  background: var(--wui-text-control-background-disabled);
-  border-color: var(--wui-text-control-border-brush-disabled);
+  /* PL8:Disabled = ControlFillColorDisabledBrush / ControlStrokeColorDefaultBrush /
+     TemporaryTextFillColorDisabled(TextControl 权威矩阵) */
+  color: var(--wui-temporary-text-fill-color-disabled);
+  background: var(--wui-control-fill-color-disabled);
+  border-color: var(--wui-control-stroke-color-default);
   cursor: default;
 }
 

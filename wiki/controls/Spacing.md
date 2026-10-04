@@ -66,7 +66,7 @@ Web(本库)等价写法——WinUI 的 `StackPanel.Spacing` / `Margin` 对应 CS
 | 资源键 | 标准值 | 紧凑值 |
 | --- | --- | --- |
 | `TextControlThemeMinHeight` | 32 | 24 |
-| `TextControlThemePadding` | 10,3,6,6 | 2,2,6,1 |
+| `TextControlThemePadding` | 10,5,6,6 | 2,2,6,1 |
 | `ListViewItemMinHeight` | 40 | 32 |
 | `TreeViewItemMinHeight` | 28 | 24 |
 | `NavigationViewItemOnLeftMinHeight` | 36 | 32 |

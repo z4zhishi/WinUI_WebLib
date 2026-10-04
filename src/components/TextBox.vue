@@ -280,16 +280,21 @@ const rootClass = computed(() => ({
 }
 
 /* —— 内容元素(ContentElement):TextControlThemePadding ——
-   现值 10,3,6,6 = legacy dxaml generic.xaml L175;WinUI 3 权威(Common_themeresources
-   L12/L26)为 10,5,6,6。PL7 只改边框厚度(权威 TextControlBorderThemeThickness=1),
-   未改本内边距值(PL6 已声明冻结;改动会使单行基线再下移 1px)→ 差异登记见
-   .superpowers/.../PL7-text-border-geometry-report.md 未决项 1。
+   PL8:取 WinUI 3 权威 controls/dev/CommonStyles/Common_themeresources.xaml
+   L12/L26/L40 = 10,5,6,6(legacy dxaml generic.xaml L175 的 10,3,6,6 已替换);
+   施加点 TextBox_themeresources.xaml L194 Setter `Padding` = TextControlThemePadding。
+   XAML 序为 left,top,right,bottom → CSS 写 top/right/bottom/left = 5px 6px 6px 10px。
    内容总内缩 = 宿主 border(1px) + 本 padding,CSS 由 border-box + flex stretch 自动成立
    (对应源 ContentElement 的 Margin="{TemplateBinding BorderThickness}" + Padding)。 —— */
 .wui-text-box-input {
   flex: 1;
   min-width: 0;
-  padding: 3px 6px 6px 10px;
+  padding: 5px 6px 6px 10px;
+  /* PL8:锁定行盒 18px。Chromium 对 14px Segoe UI 的默认行盒为 19px,而 WinUI TextBoxView
+     行盒约 18.6px;在权威内边距(上 5/下 6)与焦点底边 2px 下,若行盒 19 则内容高
+     3+11+19=33 会把外盒顶到 33,违反 MinHeight=32。锁 18 后 rest 31≤32(由 MinHeight 定
+     32)、focus 3+11+18=32,外盒恒 32。 */
+  line-height: 18px;
   font-family: inherit;
   font-size: var(--wui-control-content-theme-font-size); /* ControlContentThemeFontSize */
   color: var(--wui-text-fill-color-primary);

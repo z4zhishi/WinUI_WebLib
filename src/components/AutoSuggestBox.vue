@@ -6,7 +6,8 @@
 //   - 文本框族:AutoSuggestBoxTextBoxStyle 与 TextBox 同源(TextControl* 画刷;
 //     TextControlThemeMinWidth 64、MinHeight 32、BorderThickness 1(PL7,WinUI 3 权威
 //     controls/dev/CommonStyles/Common_themeresources.xaml L10/L24;Focused = 1,1,1,2 见 L11/L25)、
-//     内容 Padding 10,3,6,6(legacy 值,权威 10,5,6,6 见 PL7 报告未决项)),
+//     内容 Padding 10,5,6,6(PL8,WinUI 3 权威 controls/dev/CommonStyles/
+//       Common_themeresources.xaml L12/L26/L40;legacy generic.xaml L175 的 10,3,6,6 已替换)),
 //     Normal / PointerOver / Focused / Disabled 四态同 TextBox 做法;
 //   - DeleteButton(清除按钮):glyph U+E10A、MinWidth 34、AutoSuggestBoxIconFontSize 12
 //     (token --wui-auto-suggest-box-icon-font-size)、TextControlButton* 四态;
@@ -622,12 +623,16 @@ const rootClass = computed(() => ({
 }
 
 /* 内容元素:TextControlThemePadding ——
-   现值 10,3,6,6 = legacy dxaml generic.xaml L175;WinUI 3 权威(Common_themeresources
-   L12/L26)为 10,5,6,6。PL7 只改边框厚度,未改本值(差异见 PL7 报告未决项 1)。 */
+   PL8:取 WinUI 3 权威 controls/dev/CommonStyles/Common_themeresources.xaml
+   L12/L26/L40 = 10,5,6,6(legacy dxaml generic.xaml L175 的 10,3,6,6 已替换);
+   施加点 AutoSuggestBox_themeresources.xaml L44 Setter `Padding` = TextControlThemePadding。
+   XAML 序 left,top,right,bottom → CSS 写 top/right/bottom/left = 5px 6px 6px 10px。 */
 .wui-auto-suggest-box-input {
   flex: 1;
   min-width: 0;
-  padding: 3px 6px 6px 10px;
+  padding: 5px 6px 6px 10px;
+  /* PL8:行盒锁定 18px(理由同 TextBox:保持焦点态外盒 32)。 */
+  line-height: 18px;
   font-family: inherit;
   font-size: var(--wui-control-content-theme-font-size); /* ControlContentThemeFontSize */
   color: var(--wui-text-fill-color-primary);

@@ -17,7 +17,7 @@
 //   - 列表项(reveal 族,默认样式即 reveal):Padding = ComboBoxItemRevealThemePadding
 //     = 10,4,10,7、Border 1px 透明;hover/pressed/selected/selected×hover/selected×pressed
 //     全部取 --wui-combo-box-item-reveal-* token;
-//   - 可编辑态:EditableText(ComboBoxTextBoxStyle,内边距 10,3,30,5、边框透明)+
+//   - 可编辑态:EditableText(ComboBoxTextBoxStyle,内边距 11,5,38,6、边框透明)+
 //     DropDownOverlay(30px 宽,EditableModeStates 四态:hover/pressed/focused 系)。
 // 行为规格(对照 WinUI ComboBox):
 //   - items / selectedItem / selectedIndex / text 双向;selectionChanged / textChanged /
@@ -577,7 +577,7 @@ const rootClass = computed(() => ({
         <span v-else class="wui-combo-box-placeholder">{{ placeholderText }}</span>
       </span>
 
-      <!-- 可编辑:EditableText(ComboBoxTextBoxStyle:Padding 10,3,30,5、边框透明) -->
+      <!-- 可编辑:EditableText(ComboBoxTextBoxStyle:Padding 11,5,38,6、边框透明) -->
       <input
         v-else
         :id="inputId"
@@ -681,9 +681,15 @@ const rootClass = computed(() => ({
  * 关闭态输入框(源模板 Background border):BorderThickness = 1、Padding = 12,5,0,7
  * ====================================================================== */
 .wui-combo-box-input {
-  /* 关闭态边框色(源 Background Border 的 BorderBrush);各状态只覆写本变量。
-     Normal 权威 = ControlElevationBorderBrush(渐变,PL2 无对应 token,P1 未决)→ 透明占位 */
+  /* 关闭态边框分两层:
+     ① 纯色层(::before 的 border,变量 --cb-input-border):Pressed/Open/Disabled = 纯色
+        ControlStrokeColorDefault,聚焦 = FocusStrokeColorOuter;Normal/PointerOver 为透明占位。
+     ② 渐变层(::after 的 mask 环,变量 --cb-input-elevation):Normal/PointerOver 权威
+        = ControlElevationBorderBrush(ComboBox_themeresources.xaml L54/L55;
+        brush-authority §4.1,PL5 token --wui-control-elevation-border),其余状态 none
+        (权威为纯色/聚焦环,不套渐变)。 */
   --cb-input-border: var(--wui-control-fill-color-transparent);
+  --cb-input-elevation: var(--wui-control-elevation-border);
   /* 关闭态边框厚度 = ComboBoxBorderThemeThickness(ComboBox_themeresources.xaml L331 = 1;
      legacy dxaml generic.xaml 的 2 已被 PL7 替换)。
      聚焦态为 HighlightBackground 层的 FocusStrokeColorOuter 环,其厚度权威
@@ -715,6 +721,26 @@ const rootClass = computed(() => ({
   box-sizing: border-box;
   border: var(--cb-input-border-width, 1px) solid var(--cb-input-border);
   border-radius: inherit;
+  pointer-events: none;
+}
+
+/* PL8 渐变描边层(ControlElevationBorderBrush):ComboBox Normal/PointerOver 的
+   BorderBrush 权威是 LinearGradientBrush(ComboBox_themeresources.xaml L54/L55),
+   单色 border 无法表达 → 用「内嵌 mask 环」复刻(同 PL5 Button / PL6 TextBox 方案):
+   绝对定位伪元素铺满,background 取渐变,再以 mask 差集(mask-composite:exclude)挖空中心,
+   只留 1px 边框一圈。宿主 border 宽 0(box-sizing 语义)故 inset:0 即 border-box 边缘;
+   绝对定位不参与布局 → 尺寸/圆角不变。非渐变状态 --cb-input-elevation: none。 */
+.wui-combo-box-input::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--cb-input-elevation, none);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
   pointer-events: none;
 }
 
@@ -757,15 +783,17 @@ const rootClass = computed(() => ({
    故排除/命中均走 .wui-combo-box:not(.is-open) / .wui-combo-box.is-open;
    :active 为按住瞬间,松开后由打开态接管(WinUI 开着即 pressed 底)。 */
 .wui-combo-box:not(.is-disabled):not(.is-open) .wui-combo-box-input:not(:focus):hover {
-  /* PointerOver:ControlFillColorSecondary;边框 ControlElevationBorderBrush(渐变,占位透明) */
+  /* PointerOver:ControlFillColorSecondary;边框 ControlElevationBorderBrush(渐变,PL8) */
   background: var(--wui-control-fill-color-secondary);
   --cb-input-border: var(--wui-control-fill-color-transparent);
+  --cb-input-elevation: var(--wui-control-elevation-border);
 }
 
 .wui-combo-box:not(.is-disabled):not(.is-open) .wui-combo-box-input:not(:focus):active {
-  /* Pressed:ControlFillColorTertiary / ControlStrokeColorDefault */
+  /* Pressed:ControlFillColorTertiary / ControlStrokeColorDefault(纯色 → 渐变环 none) */
   background: var(--wui-control-fill-color-tertiary);
   --cb-input-border: var(--wui-control-stroke-color-default);
+  --cb-input-elevation: none;
 }
 
 /* Pressed 文本色:ComboBoxForegroundPressed = TextFillColorSecondary */
@@ -777,6 +805,7 @@ const rootClass = computed(() => ({
 .wui-combo-box:not(.is-disabled).is-open .wui-combo-box-input {
   background: var(--wui-control-fill-color-tertiary); /* ComboBoxBackgroundPressed */
   --cb-input-border: var(--wui-control-stroke-color-default);
+  --cb-input-elevation: none;
 }
 
 /* 聚焦态:HighlightBackground 层 = ControlFillColorDefault 底 + FocusStrokeColorOuter 边框
@@ -788,6 +817,7 @@ const rootClass = computed(() => ({
   background: var(--wui-control-fill-color-default); /* ComboBoxBackgroundFocused */
   --cb-input-border: var(--wui-focus-stroke-color-outer); /* ComboBoxBackgroundBorderBrushFocused */
   --cb-input-border-width: 2px; /* ComboBoxBackgroundBorderThicknessFocused */
+  --cb-input-elevation: none; /* 聚焦环为纯色外扩环,不叠渐变 */
 }
 
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input:focus .wui-combo-box-content,
@@ -807,6 +837,7 @@ const rootClass = computed(() => ({
 .wui-combo-box.is-disabled .wui-combo-box-input {
   background: var(--wui-control-fill-color-disabled); /* ComboBoxBackgroundDisabled */
   --cb-input-border: var(--wui-control-stroke-color-default); /* ComboBoxBorderBrushDisabled */
+  --cb-input-elevation: none;
   cursor: default;
 }
 
@@ -823,12 +854,15 @@ const rootClass = computed(() => ({
 }
 
 /* ======================================================================
- * 可编辑态:EditableText(ComboBoxTextBoxStyle:Padding 10,3,30,5、边框透明)
+ * 可编辑态:EditableText(ComboBoxTextBoxStyle:Padding 11,5,38,6、边框透明)
  * ====================================================================== */
 .wui-combo-box-edit-text {
   flex: 1;
   min-width: 0;
-  padding: 3px 30px 5px 10px; /* EditableText Padding = 10,3,30,5(右 30 让位箭头区) */
+  /* PL8:权威 ComboBoxEditableTextPadding(ComboBox_themeresources.xaml L342 = 11,5,38,6,
+     施加点同文件 L580 EditableText.Padding);XAML 序 left,top,right,bottom →
+     CSS top/right/bottom/left = 5px 38px 6px 11px(右 38 让位 32px 箭头列 + 边距)。 */
+  padding: 5px 38px 6px 11px;
   font-family: inherit;
   font-size: var(--wui-control-content-theme-font-size);
   color: var(--wui-text-fill-color-primary); /* ComboBoxForeground */
