@@ -388,6 +388,7 @@ const severityGlyph = computed(() => SEVERITY_GLYPHS[props.severity] ?? '\uF13F'
 }
 
 .wui-infobar-close:active {
+  color: var(--wui-text-fill-color-secondary); /* ButtonForegroundPressed ← AppBarButtonForegroundPressed = TextFillColorSecondaryBrush(AppBarButton_themeresources.xaml Default L11 / Light L81) */
   background: var(--wui-subtle-fill-color-tertiary);
 }
 

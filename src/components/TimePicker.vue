@@ -807,9 +807,10 @@ function optionId(key: ColumnKey, index: number): string {
 }
 
 .wui-time-picker-sep {
-  width: 2px; /* FirstPickerSpacing / SecondPickerSpacing Width = 2 */
+  width: 2px; /* FirstColumnDivider / SecondColumnDivider Width = 2(见下方登记:权威 TimePickerSpacerThemeWidth=1) */
   height: 100%;
-  background: var(--wui-time-picker-spacer-fill);
+  /* TimePickerSpacerFill(Default L5 / Light L77)= ControlStrokeColorDefaultBrush(#0000000F 浅 / #FFFFFF12 深) */
+  background: var(--wui-control-stroke-color-default);
 }
 
 /* 空值态(HasNoTime):三段前景转 TimePickerButtonForegroundDefault
@@ -836,7 +837,8 @@ function optionId(key: ColumnKey, index: number): string {
 }
 
 .wui-time-picker--disabled .wui-time-picker-sep {
-  background: var(--wui-time-picker-spacer-fill-disabled);
+  /* TimePickerSpacerFillDisabled(Default L6 / Light L78)= ControlStrokeColorDefaultBrush(同常态) */
+  background: var(--wui-control-stroke-color-default);
 }
 
 /* 禁用 + 空值:禁用前景优先(与源 Disabled / HasNoTime 状态优先级一致) */

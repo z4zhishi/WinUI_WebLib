@@ -417,10 +417,13 @@ provide('wuiMenuFlyoutLevel', {
   --ddb-chevron: var(--wui-button-foreground-disabled);
 }
 
-/* 系统焦点视觉:WinUI 双环(FocusVisualMargin=-3)按双环实现(同 Button) */
+/* 系统焦点视觉:WinUI 双环。源 DefaultDropDownButtonStyle FocusVisualMargin="-3"
+   (DropDownButton.xaml L15,与 Button 同族)→ 两环全在元素外:primary [1,3] + secondary [0,1]。
+   主环 outline 2px offset 1、内环(secondary,FocusStrokeColorInner)由 box-shadow 外描 1px 承载。 */
 .wui-dropdown-button:focus-visible {
   outline: 2px solid var(--wui-system-control-focus-visual-primary);
   outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary);
 }
 
 .wui-dropdown-button:focus:not(:focus-visible) {

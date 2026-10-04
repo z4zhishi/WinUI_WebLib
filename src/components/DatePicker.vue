@@ -856,9 +856,10 @@ function optionId(key: ColumnKey, index: number): string {
 }
 
 .wui-date-picker-sep {
-  width: 2px; /* FirstPickerSpacing / SecondPickerSpacing Width = 2 */
+  width: 2px; /* FirstPickerSpacing / SecondPickerSpacing Width = 2(见下方登记:权威 DatePickerSpacerThemeWidth=1) */
   height: 100%;
-  background: var(--wui-date-picker-spacer-fill);
+  /* DatePickerSpacerFill(Default L11 / Light L83)= ControlStrokeColorDefaultBrush(#0000000F 浅 / #FFFFFF12 深) */
+  background: var(--wui-control-stroke-color-default);
 }
 
 /* 空值态(HasNoDate):三段前景转 DatePickerButtonForegroundDefault
@@ -885,7 +886,8 @@ function optionId(key: ColumnKey, index: number): string {
 }
 
 .wui-date-picker--disabled .wui-date-picker-sep {
-  background: var(--wui-date-picker-spacer-fill-disabled);
+  /* DatePickerSpacerFillDisabled(Default L12 / Light L84)= ControlStrokeColorDefaultBrush(同常态) */
+  background: var(--wui-control-stroke-color-default);
 }
 
 /* 禁用 + 空值:禁用前景优先(与源 Disabled/ HasNoDate 状态优先级一致) */
