@@ -441,7 +441,16 @@ const ariaSelected = computed(() => (selectable.value ? selected.value : undefin
   box-sizing: border-box;
   width: 20px;
   height: 20px;
-  border: 1px solid var(--wui-control-strong-stroke-color-default); /* 未选边框:来自 CheckBox 默认样式 CheckBoxBorderBrushUnchecked = ControlStrongStrokeColorDefaultBrush(与 PL9 CheckBox 同族一致) */
+  /* 未选边框:色取自 CheckBox 默认样式 CheckBoxCheckBackgroundStrokeUnchecked =
+     ControlStrongStrokeColorDefaultBrush(与 PL9 CheckBox 同族一致);厚度 2px 取项目
+     CheckBox 权威键 CheckBoxBorderThemeThickness = 2(dxaml generic.xaml Default L30 /
+     HighContrast L2812 / Light L3955;本库 CheckBox.vue 亦固定 2px,VR-B3 已验收),
+     TreeView 多选复选框沿用同一原生 CheckBox 口径、三态共用该厚度。box-sizing: border-box
+     + 固定 20x20,故厚度变化不改外盒。
+     权威裁定(PL22 复核):controls/dev/CommonStyles/CheckBox_themeresources.xaml L269
+     `CheckBoxBorderThickness = 1`(同文件 Deprecated 字典的旧键亦为 1),故取 1px;
+     PL21 曾按 generic.xaml legacy 层(2)取值,属权威层级误用,已订正。 */
+  border: 1px solid var(--wui-control-strong-stroke-color-default);
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
   color: var(--wui-text-fill-color-secondary); /* TreeViewItemCheckGlyphSelected ← TextFillColorSecondaryBrush */
   background: var(--wui-subtle-fill-color-transparent); /* TreeViewItemCheckBoxBackgroundSelected ← SubtleFillColorTransparentBrush */

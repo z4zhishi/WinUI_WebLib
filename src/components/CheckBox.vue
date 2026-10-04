@@ -254,7 +254,11 @@ function onToggle(event: MouseEvent): void {
   width: 20px;
   height: 20px;
   background: var(--cb-fill);
-  border: 2px solid var(--cb-stroke);
+  /* 描边厚度权威:controls/dev/CommonStyles/CheckBox_themeresources.xaml L269
+     `CheckBoxBorderThickness = 1`,应用于模板 NormalRectangle 的 StrokeThickness(L603);
+     同文件 Deprecated_themeresources 的旧键 CheckBoxBorderThemeThickness 亦为 1
+     (generic.xaml legacy 层为 2,不生效)。 */
+  border: 1px solid var(--cb-stroke);
 }
 
 /* CheckGlyph(源 controls:AnimatedIcon + AnimatedAcceptVisualSource;FontIcon 降级字形

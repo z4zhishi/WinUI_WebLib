@@ -321,7 +321,9 @@ function onNativeClick(event: MouseEvent): void {
   width: 20px;
   height: 20px;
   background: var(--rb-outer-fill);
-  border: 2px solid var(--rb-outer-stroke);
+  /* 描边厚度权威:controls/dev/CommonStyles/RadioButton_themeresources.xaml
+     L5/L63/L121 `RadioButtonBorderThemeThickness = 1`(generic.xaml legacy 层为 2,不生效)。 */
+  border: 1px solid var(--rb-outer-stroke);
   border-radius: 50%;
 }
 
