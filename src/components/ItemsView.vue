@@ -439,7 +439,10 @@ function displayText(item: unknown): string {
 .item-default-text {
   display: block;
   overflow: hidden;
-  color: var(--wui-application-foreground-theme);
+  /* 内容默认前景 = DefaultTextForegroundThemeBrush = TextFillColorPrimaryBrush
+     (controls/dev/CommonStyles/Common_themeresources.xaml L14/L28/L42;
+     ItemsView/ItemContainer 模板本身不设 Foreground,继承应用默认文本色) */
+  color: var(--wui-text-fill-color-primary);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -447,6 +450,8 @@ function displayText(item: unknown): string {
 .empty-host {
   box-sizing: border-box;
   padding: 12px;
+  /* 空态为 Web 扩展:WinUI 3 ItemsView 无 EmptyContent 属性/默认视觉
+     (ItemsView.idl 无该属性),故无权威键 → 保留 legacy token,不臆造(PL14 未决) */
   color: var(--wui-application-secondary-foreground-theme);
   font-size: var(--wui-control-content-theme-font-size);
 }

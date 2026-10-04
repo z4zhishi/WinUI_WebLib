@@ -2139,6 +2139,10 @@
   /* LayerOnAcrylicFill* */
   --wui-layer-on-acrylic-fill-color-default: #ffffff40;
 
+  /* AcrylicInAppFill*(亚克力,web 无原生材质;取权威 Fallback 不透明近似,
+     源 AcrylicBrush_themeresources.xaml L95-96,PL14 登记) */
+  --wui-acrylic-in-app-fill-color-default: #f9f9f9;
+
   /* LayerFill* */
   --wui-layer-fill-color-alt: #ffffff;
   --wui-layer-fill-color-default: #ffffff80;
@@ -4264,6 +4268,10 @@
 
   /* LayerOnAcrylicFill* */
   --wui-layer-on-acrylic-fill-color-default: #ffffff09;
+
+  /* AcrylicInAppFill*(亚克力,web 无原生材质;取权威 Fallback 不透明近似,
+     源 AcrylicBrush_themeresources.xaml L43-44,PL14 登记) */
+  --wui-acrylic-in-app-fill-color-default: #2c2c2c;
 
   /* LayerFill* */
   --wui-layer-fill-color-alt: #ffffff0d;

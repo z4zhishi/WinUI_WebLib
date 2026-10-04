@@ -20,9 +20,11 @@
 //     NormalOff/NormalOn)未选不显示,已选 = CheckBoxCheckBackgroundFill/StrokeChecked =
 //     AccentFillColorDefault 底 + CheckBoxCheckGlyphForegroundChecked =
 //     TextOnAccentFillColorPrimary(#FFFFFF/#000000)字形。
-//   - theme.css 仅抽取 generic.xaml(无 design-layer Subtle*/ControlSolid*/ControlOnImage* 组),
-//     上述源值按站内惯例在组件内承载(同 ProgressBar/Slider/InfoBadge 做法),字节序按
-//     XAML AARRGGBB → CSS RRGGBBAA 翻转。
+//   - 上述源值全部指向 Fluent 画刷(Subtle*/ControlSolid*/ControlOnImage*/Accent*/TextOnAccent*),
+//     PL2 已在 theme.css 落地同名 token(--wui-subtle-fill-color-*、--wui-control-solid-fill-color-default、
+//     --wui-control-on-image-fill-color-default、--wui-control-strong-stroke-color-default、
+//     --wui-accent-fill-color-default、--wui-text-on-accent-fill-color-primary),组件内直接消费,
+//     浅/深两主题随 token 自动切换(原深色覆盖块已移除)。
 // 模型设计:无自身状态,selected/disabled/multiSelect 由父级(ItemsView)下发;click 上抛由
 //   父级统一做选择逻辑(与 WinUI ItemContainer 的容器职责一致)。
 import { computed } from 'vue'
@@ -121,25 +123,24 @@ function onClick(event: MouseEvent): void {
  * token,值按 Common_themeresources_any.xaml 源值在组件内承载(浅/深两套)。
  * ====================================================================== */
 .wui-item-container {
-  /* SubtleFillColorSecondary(Light #09000000 AARRGGBB)→ CSS RRGGBBAA #00000009 */
-  --ic-subtle-secondary: #00000009;
-  /* SubtleFillColorTertiary(Light #06000000)→ #00000006 */
-  --ic-subtle-tertiary: #00000006;
-  /* ControlSolidFillColorDefault(Light #FFFFFF)→ 选中内描边(PART_CommonVisual Stroke) */
-  --ic-solid-fill: #ffffff;
-  /* AccentFillColorDefaultBrush(Light)= SystemAccentColorDark1(theme-hooks 系统色钩子,回退源值) */
-  --ic-accent-fill: var(
-    --wui-system-accent-color-dark-1,
-    var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme))
-  );
-  /* TextOnAccentFillColorPrimaryBrush(Light)= #FFFFFF → 勾选字形色 */
-  --ic-check-glyph: #ffffff;
-  /* ItemContainerCheckboxBackgroundUnchecked = ControlOnImageFillColorDefault(Light #C9FFFFFF)→ #FFFFFF C9 */
-  --ic-checkbox-bg: #ffffffc9;
-  /* CheckBoxCheckBackgroundStrokeUnchecked = ControlStrongStrokeColorDefault(Light #72000000)→ #00000072 */
-  --ic-checkbox-stroke: #00000072;
+  /* 权威(controls/dev/ItemContainer/ItemContainer_themeresources.xaml L5-19 / L57-71;
+     ItemContainer.xaml):各键全部指向 Fluent 画刷,本站 PL2 已落地对应 token,
+     浅/深两主题自动切换(故不再需要深色覆盖块):
+       ItemContainerBackground / SelectedBackground = SubtleFillColorTransparentBrush
+       PointerOver = SubtleFillColorSecondaryBrush;Pressed = SubtleFillColorTertiaryBrush
+       SelectionVisual 外环 = AccentFillColorDefaultBrush
+       选中内描边 = ControlSolidFillColorDefaultBrush
+       勾选框未选底 = ControlOnImageFillColorDefaultBrush;描边 = ControlStrongStrokeColorDefaultBrush
+       勾选字形 = TextOnAccentFillColorPrimaryBrush */
+  --ic-subtle-secondary: var(--wui-subtle-fill-color-secondary);
+  --ic-subtle-tertiary: var(--wui-subtle-fill-color-tertiary);
+  --ic-solid-fill: var(--wui-control-solid-fill-color-default);
+  --ic-accent-fill: var(--wui-accent-fill-color-default);
+  --ic-check-glyph: var(--wui-text-on-accent-fill-color-primary);
+  --ic-checkbox-bg: var(--wui-control-on-image-fill-color-default);
+  --ic-checkbox-stroke: var(--wui-control-strong-stroke-color-default);
 
-  --ic-bg: transparent; /* ItemContainerBackground = SubtleFillColorTransparentBrush */
+  --ic-bg: var(--wui-subtle-fill-color-transparent); /* ItemContainerBackground */
   position: relative;
   box-sizing: border-box;
   display: flex;
@@ -149,33 +150,13 @@ function onClick(event: MouseEvent): void {
   padding: 4px 8px;
   font-family: inherit;
   font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-application-foreground-theme);
+  /* 内容文本 = DefaultTextForegroundThemeBrush = TextFillColorPrimaryBrush
+     (ItemContainer 模板不设 Foreground,继承应用默认文本色) */
+  color: var(--wui-text-fill-color-primary);
   background: var(--ic-bg);
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius); /* CornerRadius = ControlCornerRadius(4) */
   outline: none;
   cursor: default;
-}
-
-/* 深色主题(Default 字典)源值覆盖;scoped 内裸祖先写法(同 ProgressBar 约定):
-   特异性 (0,3,0) 高于浅色基线 (0,2,0),不依赖样式块顺序 */
-html[data-theme='dark'] .wui-item-container {
-  /* SubtleFillColorSecondary(Default #0FFFFFFF)→ #FFFFFF 0F */
-  --ic-subtle-secondary: #ffffff0f;
-  /* SubtleFillColorTertiary(Default #0AFFFFFF)→ #FFFFFF 0A */
-  --ic-subtle-tertiary: #ffffff0a;
-  /* ControlSolidFillColorDefault(Default #454545) */
-  --ic-solid-fill: #454545;
-  /* AccentFillColorDefaultBrush(Default)= SystemAccentColorLight2 */
-  --ic-accent-fill: var(
-    --wui-system-accent-color-light-2,
-    var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme))
-  );
-  /* TextOnAccentFillColorPrimaryBrush(Default)= #000000 */
-  --ic-check-glyph: #000000;
-  /* ControlOnImageFillColorDefault(Default #B31C1C1C)→ #1C1C1C B3 */
-  --ic-checkbox-bg: #1c1c1cb3;
-  /* ControlStrongStrokeColorDefault(Default #8BFFFFFF)→ #FFFFFF 8B */
-  --ic-checkbox-stroke: #ffffff8b;
 }
 
 /* PART_CommonVisual(1px 描边叠加层,IsHitTestVisible=False):

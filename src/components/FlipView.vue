@@ -1,11 +1,14 @@
 <script setup lang="ts">
 // FlipView —— WinUI FlipView 的 Web 复刻:一次翻阅一页的集合控件(图片轮播 / 杂志页 / 逐页浏览)。
-// 视觉规格:CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml L11586-11846(Style/ControlTemplate):
+// 视觉规格:结构对照 CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml L11586-11846
+//   (Style/ControlTemplate);画刷权威取 controls/dev/CommonStyles/FlipView_themeresources.xaml
+//   L5-16 / L51-62(Fluent,WinUI 3 生效层):
 //   四个翻页箭头按钮模板(Horizontal/Vertical × Previous/Next;Width 20 / Height 36 或 36 / 20,
 //   FontIcon 字形 E0E2/E0E3/E0E4/E0E5、FontSize 12,Normal/PointerOver/Pressed 三态);
-//   颜色取 src/styles/theme.css 的 --wui-flip-view-* 专用 token(#00000066→#00000099→#000000cc 底、
-//   #ffffffcc 前景、透明描边);按钮默认隐藏,指针悬停 / 键盘聚焦时显隐(源 FlipView_Partial.cpp 的
-//   ResetButtonsFadeOutTimer / HideButtonsImmediately / nothingPrevious/nothingNext 的 Web 等价)。
+//   背景 = FlipViewBackground → SolidBackgroundFillColorBaseBrush;导航钮底 = AcrylicInAppFillColorDefaultBrush
+//   (三态同值,web 取权威 Fallback 色)、箭头 = ControlStrongFillColorDefault / TextFillColorSecondary、
+//   描边 = ControlStrokeColorDefault(BorderThemeThickness=0);按钮默认隐藏,指针悬停 / 键盘聚焦时显隐
+//   (源 FlipView_Partial.cpp 的 ResetButtonsFadeOutTimer / HideButtonsImmediately / nothingPrevious/nothingNext 的 Web 等价)。
 // 行为规格:FlipView_Partial.cpp —— MoveNext/MovePrevious 在端点截停(源不循环,wrap 为 Web 扩展);
 //   OnSelectedIndexChanged 仅相邻项且 UseTouchAnimationsForAllNavigation(默认 true:元数据回退
 //   Selector_IsSelectionActive 的默认值槽)时播放滑动动画,非相邻 / 关闭时直接跳转;触摸拖拽为直接
@@ -350,7 +353,9 @@ const nextGlyph = computed(() => (isVertical.value ? '\uE0E5' : '\uE0E3'))
   min-height: 0;
   font-family: inherit; /* XamlAutoFontFamily 占位,回退浏览器默认 */
   font-size: var(--wui-control-content-theme-font-size);
-  background: var(--wui-flip-view-background); /* FlipViewBackground */
+  /* FlipViewBackground(controls/dev/CommonStyles/FlipView_themeresources.xaml L6)
+     = SolidBackgroundFillColorBaseBrush(浅 #F3F3F3 / 深 #202020) */
+  background: var(--wui-solid-background-fill-color-base);
   outline: none;
 }
 
@@ -402,7 +407,8 @@ const nextGlyph = computed(() => (isVertical.value ? '\uE0E5' : '\uE0E3'))
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  background: var(--wui-flip-view-item-background); /* FlipViewItemBackground(透明) */
+  /* FlipViewItemBackground(L16)= SubtleFillColorTransparentBrush(透明) */
+  background: var(--wui-subtle-fill-color-transparent);
 }
 
 .wui-flipview-item > :deep(img) {
@@ -421,9 +427,15 @@ const nextGlyph = computed(() => (isVertical.value ? '\uE0E5' : '\uE0E3'))
   align-items: center;
   justify-content: center;
   padding: 0;
-  color: var(--wui-flip-view-next-previous-arrow-foreground); /* FlipViewNextPreviousArrowForeground */
-  background: var(--wui-flip-view-next-previous-button-background); /* …ButtonBackground */
-  border: 0 solid var(--wui-flip-view-next-previous-button-border); /* BorderThemeThickness = 0 */
+  /* Normal 态(L7/L10/L13):
+     Background = FlipViewNextPreviousButtonBackground = AcrylicInAppFillColorDefaultBrush
+       (亚克力;web 无原生材质 → 取权威 Fallback 色,登记见报告);
+     Arrow = FlipViewNextPreviousArrowForeground = ControlStrongFillColorDefaultBrush;
+     BorderBrush = FlipViewNextPreviousButtonBorderBrush = ControlStrokeColorDefaultBrush
+       (BorderThemeThickness = 0,不显示) */
+  color: var(--wui-control-strong-fill-color-default);
+  background: var(--wui-acrylic-in-app-fill-color-default);
+  border: 0 solid var(--wui-control-stroke-color-default);
   cursor: pointer;
   /* 源默认隐藏(m_showNavigationButtons = FALSE),悬停 / 聚焦时淡入 */
   opacity: 0;
@@ -441,14 +453,20 @@ const nextGlyph = computed(() => (isVertical.value ? '\uE0E5' : '\uE0E3'))
   transition-delay: 0s;
 }
 
+/* PointerOver / Pressed(L8/9/11/12/14/15):
+   背景仍 = AcrylicInAppFillColorDefaultBrush(三态同值);
+   箭头色 = FlipViewNextPreviousArrowForegroundPointerOver/Pressed = TextFillColorSecondaryBrush;
+   描边 = ControlStrokeColorDefaultBrush */
 .wui-flipview-nav:hover:not(:disabled) {
-  background: var(--wui-flip-view-next-previous-button-background-pointer-over);
-  border-color: var(--wui-flip-view-next-previous-button-border-brush-pointer-over);
+  background: var(--wui-acrylic-in-app-fill-color-default);
+  border-color: var(--wui-control-stroke-color-default);
+  color: var(--wui-text-fill-color-secondary);
 }
 
 .wui-flipview-nav:active:not(:disabled) {
-  background: var(--wui-flip-view-next-previous-button-background-pressed);
-  border-color: var(--wui-flip-view-next-previous-button-border-brush-pressed);
+  background: var(--wui-acrylic-in-app-fill-color-default);
+  border-color: var(--wui-control-stroke-color-default);
+  color: var(--wui-text-fill-color-secondary);
 }
 
 /* 系统焦点视觉:导航按钮(EllipsisButtonRevealStyle FocusVisualMargin=0,generic.xaml L16120)

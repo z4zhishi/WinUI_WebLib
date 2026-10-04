@@ -10,16 +10,20 @@
 //   Background=Transparent、HorizontalContentAlignment=Left、无 MinHeight(区别于
 //   ListViewItemMinHeight=40,项高由内容 + Padding 决定);模板 Grid → Rectangle
 //   PressedBackground(整项铺色,IsTemplateFocusTarget)+ ContentPresenter(Margin=Padding,
-//   左上对齐,TextWrapping=NoWrap)。VSM CommonStates 各态画刷:
-//     Normal       透明底 + 继承控件前景(SystemControlForegroundBaseHigh)
-//     PointerOver  SystemControlHighlightListLowBrush(浅 #00000019 / 深 #19FFFFFF)
-//     Pressed      SystemControlHighlightListMediumBrush(浅 #00000033 / 深 #33FFFFFF)
-//     Selected / SelectedUnfocused   SystemControlHighlightListAccentLowBrush(浅强调色 40% / 深 60%)
+//   左上对齐,TextWrapping=NoWrap)。
+//   VSM CommonStates 各态画刷(权威:controls/dev/CommonStyles/ListBox_themeresources.xaml
+//   L9-15 / L66-72;未迁移键回退 legacy generic.xaml):
+//     Normal       透明底 + 继承控件前景(ListBoxForeground = TextFillColorPrimaryBrush)
+//     PointerOver  ListBoxItemBackgroundPointerOver = SubtleFillColorSecondaryBrush
+//     Pressed      ListBoxItemBackgroundPressed = SubtleFillColorTertiaryBrush
+//     Selected / SelectedUnfocused   ListBoxItemBackgroundSelected =
+//                  SystemControlHighlightListAccentLowBrush(controls/dev 未迁移 → legacy:
+//                  浅强调色 40% / 深 60%)
 //     SelectedPointerOver            SystemControlHighlightListAccentMediumBrush(浅 60% / 深 80%)
 //     SelectedPressed                SystemControlHighlightListAccentHighBrush(浅 70% / 深 90%)
-//     Disabled     内容前景 SystemControlDisabledBaseMediumLowBrush(无透明度衰减,底色不变)
-//     以上交互/选中态内容前景均为 SystemControlHighlightAltBaseHighBrush(默认主题下与
-//     Normal 同色,token 仍按源接线,主题覆盖时正确联动)。
+//     Disabled     内容前景 ListBoxItemForegroundDisabled = TextFillColorDisabledBrush
+//     以上交互/选中态内容前景均为 ListBoxItemForeground = TextFillColorPrimaryBrush(默认主题下
+//     与 Normal 同色,token 仍按源接线,主题覆盖时正确联动)。
 //   项焦点框:UseSystemFocusVisuals 系统双线焦点框(SystemControlFocusVisualPrimary/Secondary,
 //   ListBoxItem 未覆写 FocusBorderBrush 族,选中项不反色);复用 ListView.vue 已过 QA 的
 //   item 级 CSS 模式(inset 双环近似系统绘制)。
@@ -428,14 +432,17 @@ function onListKeydown(event: KeyboardEvent): void {
 
 <style scoped>
 .wui-list-box {
-  /* Style TargetType="ListBox":
-     Background = SystemControlBackgroundChromeMediumLowBrush */
+  /* Style TargetType="ListBox"(controls/dev/CommonStyles/ListBox_themeresources.xaml
+     L6-7 / L63-64):
+     Background = ListBoxBackground → SystemControlBackgroundChromeMediumLowBrush。
+     该键在 controls/dev 未迁移(cdev 内无 Fluent 覆盖),权威即 legacy generic.xaml
+     (Light #F2F2F2 / Default #2B2B2B),故保留原 legacy token,不臆造。 */
   background: var(--wui-system-control-background-chrome-medium-low);
-  /* BorderBrush = SystemControlForegroundBaseHighBrush;
-     BorderThickness = ListBoxBorderThemeThickness(浅/深主题均 0,HighContrast 2 未实现) */
-  border: 0 solid var(--wui-system-control-foreground-base-high);
-  /* Foreground = SystemControlForegroundBaseHighBrush(项 Normal 态继承) */
-  color: var(--wui-system-control-foreground-base-high);
+  /* BorderBrush = ListBoxBorder = TextFillColorPrimaryBrush(Fluent;
+     BorderThickness = ListBoxBorderThemeThickness 浅/深均 0,故描边不显示) */
+  border: 0 solid var(--wui-text-fill-color-primary);
+  /* Foreground = ListBoxForeground = TextFillColorPrimaryBrush(Fluent;项 Normal 态继承) */
+  color: var(--wui-text-fill-color-primary);
   /* FontFamily = ContentControlThemeFontFamily;FontSize = ControlContentThemeFontSize */
   font-size: var(--wui-control-content-theme-font-size);
   box-sizing: border-box;
@@ -530,23 +537,27 @@ function onListKeydown(event: KeyboardEvent): void {
  * Pressed > PointerOver > Selected > Normal)
  * ====================================================================== */
 
-/* PointerOver:PressedBackground = SystemControlHighlightListLowBrush,
-   内容前景 = SystemControlHighlightAltBaseHighBrush */
+/* PointerOver:PressedBackground = ListBoxItemBackgroundPointerOver =
+   SubtleFillColorSecondaryBrush(Fluent;浅 #00000009 / 深 #FFFFFF0F),
+   内容前景 = ListBoxItemForeground = TextFillColorPrimaryBrush */
 .wui-list-box-item:not(.is-disabled):hover {
-  background: var(--wui-system-control-highlight-list-low);
-  color: var(--wui-system-control-highlight-alt-base-high);
+  background: var(--wui-subtle-fill-color-secondary);
+  color: var(--wui-text-fill-color-primary);
 }
 
-/* Pressed:PressedBackground = SystemControlHighlightListMediumBrush(选中与否同源值) */
+/* Pressed:PressedBackground = ListBoxItemBackgroundPressed = SubtleFillColorTertiaryBrush
+   (Fluent;浅 #00000006 / 深 #FFFFFF0A),前景 = ListBoxItemForeground */
 .wui-list-box-item:not(.is-disabled):active {
-  background: var(--wui-system-control-highlight-list-medium);
-  color: var(--wui-system-control-highlight-alt-base-high);
+  background: var(--wui-subtle-fill-color-tertiary);
+  color: var(--wui-text-fill-color-primary);
 }
 
-/* Selected / SelectedUnfocused:SystemControlHighlightListAccentLowBrush */
+/* Selected / SelectedUnfocused:ListBoxItemBackgroundSelected =
+   SystemControlHighlightListAccentLowBrush(controls/dev 未迁移 → 权威 legacy:
+   浅 accent 40% / 深 60%),保留原 legacy token */
 .wui-list-box-item.is-selected {
   background: var(--wui-system-control-highlight-list-accent-low);
-  color: var(--wui-system-control-highlight-alt-base-high);
+  color: var(--wui-text-fill-color-primary);
 }
 
 /* SelectedPointerOver:SystemControlHighlightListAccentMediumBrush */
@@ -577,10 +588,11 @@ function onListKeydown(event: KeyboardEvent): void {
   opacity: 0;
 }
 
-/* Disabled:内容前景 = SystemControlDisabledBaseMediumLowBrush(底色不变,无透明度衰减);
+/* Disabled:内容前景 = ListBoxItemForegroundDisabled = TextFillColorDisabledBrush
+   (Fluent;浅 #0000005C / 深 #FFFFFF5D),底色不变;
    整控禁用(props.disabled)与单项 IsEnabled 同视觉 */
 .is-disabled .wui-list-box-item {
-  color: var(--wui-system-control-disabled-base-medium-low);
+  color: var(--wui-text-fill-color-disabled);
 }
 
 /* ======================================================================
