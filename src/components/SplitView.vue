@@ -4,9 +4,18 @@
 //   <Style TargetType="SplitView"> 模板段(DisplayModeStates 九态:Closed / ClosedCompactLeft|Right /
 //   OpenInlineLeft|Right / OpenOverlayLeft|Right / OpenCompactOverlayLeft|Right + OverlayVisibilityStates;
 //   PaneRoot(Canvas.ZIndex=1, PaneClipRectangle 裁剪)+ ContentRoot(含 LightDismissLayer)+ HCPaneBorder)。
-//   颜色取 theme.css 的 --wui-* token:PaneBackground ← --wui-system-control-page-background-chrome-low、
-//   LightDismissLayer ← --wui-split-view-light-dismiss-overlay-background(SplitViewLightDismissOverlayBackground
-//   同键)、HCPaneBorder ← --wui-system-control-foreground-transparent(源即透明,仅高对比生效,见 forced-colors)。
+//   颜色取 theme.css 的 --wui-* token。PL15 权威判定(controls/dev/SplitView/SplitView_themeresources.xaml):
+//   PaneBackground ← SystemControlPageBackgroundChromeLowBrush(L46;该键在 controls/dev **只有引用无定义**,
+//     定义仅存 legacy generic.xaml L317 = SystemChromeLowColor L220/L4145 → 深 #171717 / 浅 #F2F2F2)
+//     ⇒ 权威即 legacy,保留 --wui-system-control-page-background-chrome-low 不臆造;
+//   LightDismissLayer ← SplitViewLightDismissOverlayBackground(L9/L31 = SystemControlPageBackgroundMediumAltMediumBrush
+//     → SystemAltMediumColor L204/L4129 = 深 #99000000 / 浅 #99FFFFFF)⇒ 权威即 legacy,保留原 token;
+//   HCPaneBorder/描边 ← BorderBrush = SystemControlForegroundTransparentBrush(L40,即透明,仅高对比生效,
+//     见 forced-colors;本组件以 1px solid transparent 落地)。
+//   唯一 Fluent 重定向:SplitView 控件样式**无 Foreground setter**,窗格文本色应取通用默认文本前景
+//   `DefaultTextForegroundThemeBrush` = TextFillColorPrimaryBrush(controls/dev/CommonStyles/
+//     Common_themeresources.xaml L14/L28/L42);原 --wui-application-foreground-theme 取自 legacy
+//     ApplicationForegroundThemeBrush(仅 generic.xaml L1023/L4950),PL15 改指 Fluent。
 // 布局语义对照模板:窗格侧轨道(Inline/CompactInline 参与布局推挤内容,CompactOverlay 恒留 compact 栏,
 //   Overlay 不留轨道)+ 窗格浮层(Overlay/CompactOverlay 时 position:absolute 盖在内容上)+ 轻扫遮罩层。
 //   Top/Bottom 为任务规格要求的 Web 同构推演(参照源模板仅实现 Left/Right,枚举含 Top/Bottom,见差异节)。
@@ -425,7 +434,11 @@ const attrs = useAttrs()
   grid-area: 1 / 1 / -1 / 2;
 }
 
-/* —— 轻扫遮罩层(LightDismissLayer:SplitViewLightDismissOverlayBackground,开 0→1 / 关 1→0 透明度过渡)—— */
+/* —— 轻扫遮罩层(LightDismissLayer:SplitViewLightDismissOverlayBackground,开 0→1 / 关 1→0 透明度过渡)。
+   权威 = controls/dev SplitView_themeresources.xaml L9/L31 → SystemControlPageBackgroundMediumAltMediumBrush
+   (该键 controls/dev 只有引用无定义,定义仅存 legacy generic.xaml L313 → SystemAltMediumColor
+    L204/L4129 = 深 #99000000 / 浅 #99FFFFFF)⇒ 权威即 legacy,--wui-split-view-light-dismiss-overlay-background
+    现值 #ffffff99/#00000099 逐条一致,PL15 保留不改。 —— */
 .wui-splitview__dismiss {
   position: absolute;
   inset: 0;
@@ -573,8 +586,9 @@ const attrs = useAttrs()
 .wui-splitview__pane-inner {
   display: block;
   flex: none; /* 恒为展开长度,不随轨道 / 紧凑外壳收缩 */
-  background: var(--wui-system-control-page-background-chrome-low); /* PaneBackground 默认值 */
-  color: var(--wui-application-foreground-theme);
+  background: var(--wui-system-control-page-background-chrome-low); /* PaneBackground 默认值(权威=legacy,保留) */
+  /* 窗格文本色:通用默认文本前景 DefaultTextForegroundThemeBrush = TextFillColorPrimaryBrush(PL15 重定向) */
+  color: var(--wui-text-fill-color-primary);
   /* 背景色隐式过渡:源 SplitView_themeresources.xaml L702 在 PaneRoot(Grid,
      Background={TemplateBinding PaneBackground})上声明 `<BrushTransition />`(无 Duration)。
      默认时长取 SimplePropertiesMetadata.g.h L361-364:BrushTransition_Duration 默认

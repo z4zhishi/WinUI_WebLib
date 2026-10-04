@@ -1,10 +1,20 @@
 <script lang="ts">
 // SwipeItem(WinUI SwipeItem 迁移)—— 轻扫操作里的单个动作项:图标 + 文本、背景色块、
 // invoked 事件。视觉对照 controls/dev/SwipeControl/SwipeItem.cpp(s_swipeItemWidth 68 /
-// s_swipeItemHeight 60)与 generic.xaml 的 SwipeItemStyle(宿主 AppBarButton 模板,
-// L22103 起):MinWidth 68、内容盒 Margin 4,4,4,2、图标 Viewbox 16px、文本 12px 居中换行,
-// 按下态背景 SwipeItemBackgroundPressed(base medium-low);默认背景/前景取
-// SwipeItemBackground / SwipeItemForeground(base low / base high)。
+// s_swipeItemHeight 60)与 SwipeItemStyle(宿主 AppBarButton 模板,SwipeControl_themeresources.xaml
+// L32-72):MinWidth 68、内容盒 Margin 4,4,4,2、图标 Viewbox 16px、文本 12px 居中换行。
+// PL15 画刷权威判定:controls/dev/SwipeControl/SwipeControl_themeresources.xaml 覆盖 legacy
+// generic.xaml(同文件 L23-29 的 SystemControl* 仅剩 HighContrast 字典)→ 生效层**全 Fluent**;
+// 逐状态键(L5-11,Default 与 Light 同构 L14-20):
+//   SwipeItemBackground                     = ControlFillColorTertiaryBrush
+//   SwipeItemForeground                     = TextFillColorPrimaryBrush
+//   SwipeItemBackgroundPressed              = ControlAltFillColorQuarternaryBrush
+//   SwipeItemPreThresholdExecuteForeground  = ControlStrongFillColorDefaultBrush
+//   SwipeItemPreThresholdExecuteBackground  = ControlFillColorTertiaryBrush(与 SwipeItemBackground 同键)
+//   SwipeItemPostThresholdExecuteForeground = TextOnAccentFillColorPrimaryBrush
+//   SwipeItemPostThresholdExecuteBackground = AccentFillColorDefaultBrush
+// 应用点对照 SwipeControl.cpp L1270-1282(Reveal → SwipeItemBackground/Foreground;Execute 未过阈值 →
+// PreThreshold*;Execute 过阈值 → PostThreshold*;UpdateThresholdReached L1625-1634,阈值 100)。
 // 行为对照 SwipeItem.cpp InvokeSwipe:派发 invoked 后按 BehaviorOnInvoked 决定去留
 // (Auto / Close → 关闭轻扫层,RemainOpen → 保持打开);Command(ICommand)不迁移。
 // 本组件既可由 SwipeControl 经 #left / #right slot 承载(注入注册),也可独立渲染预览。
@@ -117,7 +127,7 @@ const side = ref<SwipeSide | null>(null)
 
 /** Execute 模式单项满铺:宽度跟随轻扫层(100%),由 SwipeControl 决定;仅首个项生效。 */
 const isExecute = computed(() => (context && side.value ? context.isExecute(side.value) : false))
-/** Execute 阈值已跨过:post-threshold 配色(accent 背景 + chrome white 前景)。 */
+/** Execute 阈值已跨过:post-threshold 配色(AccentFillColorDefault 底 + TextOnAccentFillColorPrimary 前)。 */
 const isThresholdReached = computed(() => (context && side.value ? context.thresholdReached(side.value) : false))
 /** 项最终禁用态:控件级禁用 ∨ 项自身禁用。 */
 const isDisabled = computed(() => (context?.controlDisabled() ?? false) || props.disabled)
@@ -181,7 +191,8 @@ function onItemTap(): void {
 
 <template>
   <!-- 项按钮:满高色块;显式 background/foreground 以内联样式覆盖类默认(与 XAML 本地值优先级一致);
-       Execute 模式按阈值切换 pre(accent 前)/post(accent 底 + chrome white 前)配色 -->
+       Execute 模式按阈值切换 pre(ControlStrongFillColorDefault 前)/post(AccentFillColorDefault 底 +
+       TextOnAccentFillColorPrimary 前)配色 -->
   <button
     v-bind="$attrs"
     ref="rootEl"
@@ -219,8 +230,10 @@ function onItemTap(): void {
   padding: 4px 4px 2px;
   font-family: inherit;
   font-size: 12px;
-  color: var(--wui-system-control-foreground-base-high);
-  background: var(--wui-system-control-background-base-low);
+  /* SwipeItemForeground(L6/L15)→ TextFillColorPrimaryBrush */
+  color: var(--wui-text-fill-color-primary);
+  /* SwipeItemBackground(L5/L14)→ ControlFillColorTertiaryBrush */
+  background: var(--wui-control-fill-color-tertiary);
   border: none;
   cursor: pointer;
   user-select: none;
@@ -228,16 +241,19 @@ function onItemTap(): void {
 }
 
 /* Execute 模式:单项满铺(OnSizeChanged 设 Width=控件宽);配色取
-   SwipeItemPreThresholdExecute*(base low 底 / base medium 前,generic.xaml L1856-1857) */
+   SwipeItemPreThresholdExecuteForeground(L8/L17)→ ControlStrongFillColorDefaultBrush。
+   背景 SwipeItemPreThresholdExecuteBackground(L9/L18)= ControlFillColorTertiaryBrush,
+   与 SwipeItemBackground 同键,故沿用 .wui-swipeitem 的底色,不另立规则。 */
 .wui-swipeitem--execute {
   width: 100%;
-  color: var(--wui-system-control-background-base-medium);
+  color: var(--wui-control-strong-fill-color-default);
 }
 
-/* Execute 过阈值(post-threshold):accent 底 + chrome white 前(L1858-1859) */
+/* Execute 过阈值(post-threshold):SwipeItemPostThresholdExecuteBackground(L11/L20)
+   → AccentFillColorDefaultBrush;Foreground(L10/L19)→ TextOnAccentFillColorPrimaryBrush */
 .wui-swipeitem--execute.wui-swipeitem--threshold {
-  color: var(--wui-system-control-foreground-chrome-white);
-  background: var(--wui-system-control-background-accent);
+  color: var(--wui-text-on-accent-fill-color-primary);
+  background: var(--wui-accent-fill-color-default);
 }
 
 /* 图标:Viewbox MaxHeight 16 + Content Margin 0,0,0,2 → 16px 字形、下距 2px */
@@ -256,9 +272,10 @@ function onItemTap(): void {
   overflow-wrap: anywhere;
 }
 
-/* 按下态:SwipeItemBackgroundPressed(显式内联背景时不覆盖,与 XAML 本地值语义一致) */
+/* 按下态:SwipeItemBackgroundPressed(L7/L16)→ ControlAltFillColorQuarternaryBrush
+   (显式内联背景时不覆盖,与 XAML 本地值语义一致) */
 .wui-swipeitem:active {
-  background: var(--wui-system-control-background-base-medium-low);
+  background: var(--wui-control-alt-fill-color-quarternary);
 }
 
 /* 禁用:源 SwipeItemStyle 的 Disabled 视觉态为空(仅不可交互,颜色与常态一致),不做禁用变灰 */

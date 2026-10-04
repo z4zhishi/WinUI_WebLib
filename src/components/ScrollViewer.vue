@@ -25,8 +25,8 @@ export interface ScrollViewerViewChangedDetail {
 // 视觉与结构对照 CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml 的
 // <Style TargetType="ScrollViewer">(L8024 起):Root Border → Grid(Background)→
 // ScrollContentPresenter(Margin = Padding)+ 横/竖 ScrollBar。
-// Web 实现选型:滚动用原生 overflow 承载(滚动条按 --wui-scroll-bar-* token 样式化为
-// WinUI 细拇指观感);缩放按 WinUI 语义「内容按未缩放尺寸布局,再整体 scale 变换」
+// Web 实现选型:滚动用原生 overflow 承载(滚动条按 PL2 Fluent 语义 token 样式化为
+// WinUI 细拇指观感;PL15 由 legacy --wui-scroll-bar-* 重定向到 controls/dev 权威键);缩放按 WinUI 语义「内容按未缩放尺寸布局,再整体 scale 变换」
 // (transform 缩放的溢出计入滚动溢出区,滚动范围随缩放自动增长);
 // Ctrl+滚轮(含触控板捏合)缩放,视口中心锚定;ViewChanged 事件在滚动/缩放静止后防抖发出。
 // 编程 API 对照 WinUI ChangeView / ScrollToHorizontalOffset 系列(见 defineExpose)。
@@ -592,11 +592,18 @@ defineExpose({
 /* —— 原生滚动条样式化 + 自动隐藏(audit A11;源 G.xaml L612-628 资源键 +
    L7855-7905 收缩 / L7890-7936 展开编排,ScrollViewerSeparator 键同构 L8191-8203):
  *   收起态(默认):thumb 细条 4px 可见厚,色 = ScrollBarPanningThumbBackground
- *     (--wui-scroll-bar-thumb-fill,VR-B6 FIX11 定案不回退);
+ *     (FIX11 口径不变,仍取该键;PL15 把该键重定向到权威 controls/dev
+ *      ScrollBar_themeresources.xaml L38/L150 → ControlStrongFillColorDefaultBrush);
  *   悬停展开(.is-sb-expanded,JS 0.4s 延迟后挂,见脚本注):thumb 增厚至 6px、
- *     色转 ScrollBarThumbBackgroundColor(--wui-scroll-bar-thumb-background,
- *     SystemBaseLow,源 Expanded 态 ColorAnimation 终值)+ 轨道显形;
+ *     色取 ScrollBarThumbBackground(L37/L149,同指 ControlStrongFillColorDefaultBrush)
+ *     + 轨道显形(ScrollBarTrackFill → AcrylicInAppFillColorDefaultBrush);
  *   离开收缩(JS 2s 延迟后摘):回收起态。
+ *   PL15 权威重定向:滚动条画刷族在 controls/dev 已全 Fluent,theme.css 既有
+ *   --wui-scroll-bar-* 系为 legacy 且与 ListBox/ListView/ItemsRepeater 共享,按「只新增不改旧」
+ *   约束不改其值 —— 本组件逐处改为直接引用 PL2 已落地 Fluent 语义 token(逐键见各规则注),
+ *   共享 token 的其它消费方零影响。四态(静置/展开/直接悬停/按下)在权威中同指
+ *   ControlStrongFillColorDefaultBrush(L26-28/L37-38/L149-150),故色值一致,差异仅在
+ *   宽度 8→12(ScrollBarSize L180)与轨道是否显形。
  *   补间时长取 ScrollBar 族(权威 controls/dev/CommonStyles/ScrollBar_themeresources.xaml):
  *     ScrollBarExpandDuration / ScrollBarContractDuration = 167ms(L173/L176,thumb 宽
  *     MinWidth 8 → ScrollBarSize 12,L586-587 展开 / L542-543 收缩,Spline 0,0,0,1);
@@ -621,13 +628,15 @@ defineExpose({
 }
 
 .wui-scrollviewer__scroller.is-sb-expanded::-webkit-scrollbar-track {
-  background: var(--wui-scroll-bar-track-fill);
+  /* ScrollBarTrackFill(L31/L143)→ AcrylicInAppFillColorDefaultBrush(亚克力 Fallback 近似,PL14 §5) */
+  background: var(--wui-acrylic-in-app-fill-color-default);
   transition-delay: 0.4s;
 }
 
 .wui-scrollviewer__scroller::-webkit-scrollbar-thumb {
   /* 透明边框做「细拇指」:12px 栏 - 2×4px = 4px 可见厚度,无布局跳动 */
-  background: var(--wui-scroll-bar-thumb-fill);
+  /* 静置色 ScrollBarPanningThumbBackground(L38/L150)→ ControlStrongFillColorDefaultBrush(FIX11 口径不变) */
+  background: var(--wui-control-strong-fill-color-default);
   border: 4px solid transparent;
   background-clip: padding-box;
   /* 源 thumb 为无圆角 Rectangle,半径无 token 依据 → 按 ScrollView 口径取满圆pill
@@ -640,7 +649,8 @@ defineExpose({
 }
 
 .wui-scrollviewer__scroller.is-sb-expanded::-webkit-scrollbar-thumb {
-  background: var(--wui-scroll-bar-thumb-background);
+  /* 展开色 ScrollBarThumbBackground(L37/L149)→ ControlStrongFillColorDefaultBrush(与静置同键同值) */
+  background: var(--wui-control-strong-fill-color-default);
   border-width: 3px;
   /* 色 = ScrollBarColorChangeDuration 83ms;厚度 = ScrollBarExpandDuration 167ms
      (两者同 BeginTime 0.4s,源 L584-596 展开编排) */
@@ -649,15 +659,17 @@ defineExpose({
     border-width 167ms linear 0.4s;
 }
 
-/* thumb 直接命中:状态色即时切换(源 Pressed/重叠态 Duration=0);
-   厚度维持展开态(规则序在本组之后,覆盖上面的延迟展开色) */
+/* thumb 直接命中:状态色即时(源重叠/按下态 Duration=0);
+   厚度维持展开态(规则序在本组之后,覆盖上面的延迟展开色)。
+   权威 ScrollBarThumbFillPointerOver(L27/L139)与 ScrollBarThumbFillPressed(L28/L140)
+   同指 ControlStrongFillColorDefaultBrush,与静置同值(模板未给 thumb 独立悬停/按下色,见 L430-445) */
 .wui-scrollviewer__scroller::-webkit-scrollbar-thumb:hover {
-  background: var(--wui-scroll-bar-thumb-fill-pointer-over);
+  background: var(--wui-control-strong-fill-color-default);
   transition-delay: 0s, 0s;
 }
 
 .wui-scrollviewer__scroller::-webkit-scrollbar-thumb:active {
-  background: var(--wui-scroll-bar-thumb-fill-pressed);
+  background: var(--wui-control-strong-fill-color-default);
   transition-delay: 0s, 0s;
 }
 
@@ -699,12 +711,13 @@ defineExpose({
 @supports not selector(::-webkit-scrollbar) {
   .wui-scrollviewer__scroller {
     scrollbar-width: thin;
-    /* 静置色与 webkit 路径同 token(--wui-scroll-bar-thumb-fill,SystemChromeDisabledLow) */
-    scrollbar-color: var(--wui-scroll-bar-thumb-fill) transparent;
+    /* 静置色与 webkit 路径同 token(ScrollBarPanningThumbBackground → ControlStrongFillColorDefaultBrush) */
+    scrollbar-color: var(--wui-control-strong-fill-color-default) transparent;
   }
 
   .wui-scrollviewer__scroller:hover {
-    scrollbar-color: var(--wui-scroll-bar-thumb-fill-pointer-over) var(--wui-scroll-bar-track-fill);
+    /* 悬停:ScrollBarThumbFillPointerOver + ScrollBarTrackFill(同上,色值与静置同键) */
+    scrollbar-color: var(--wui-control-strong-fill-color-default) var(--wui-acrylic-in-app-fill-color-default);
   }
 }
 </style>
