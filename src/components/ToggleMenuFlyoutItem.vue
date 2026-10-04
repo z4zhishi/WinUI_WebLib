@@ -1,17 +1,18 @@
 <script setup lang="ts">
 // WuiToggleMenuFlyoutItem —— WinUI ToggleMenuFlyoutItem 的 Web 复刻(菜单内的开关项)。
-// 视觉规格:CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml
-//   <Style x:Key="ToggleMenuFlyoutItemRevealStyle" TargetType="ToggleMenuFlyoutItem">(L18558 起):
-//   - 布局三列:CheckGlyph(FontIcon E001 CheckMark、FontSize=16、Width=16、Margin="0,0,12,0",
-//     未勾选 Opacity=0)→ 图标盒/文本 → 快捷键文本;勾选态即 CheckGlyph 显隐(CheckStates);
-//   - 状态色 ToggleMenuFlyoutItemReveal* / ToggleMenuFlyoutItemForeground* /
-//     ToggleMenuFlyoutItemCheckGlyphForeground* / *KeyboardAcceleratorText* → theme.css token。
-// Reveal 揭示光照(MR8,默认启用):WinUI 3 ToggleMenuFlyoutItem 默认样式即
-//   ToggleMenuFlyoutItemRevealStyle(generic.xaml L12000 keyless BasedOn,L18558 起);
-//   光照本体=公共层(reveal.css + useReveal),口径同 MenuFlyoutItem(底板光半径
-//   Clamp(Max(W,H)+12,16,512)、边框光 39px narrow、光环厚度 =
-//   ToggleMenuFlyoutItemRevealBorderThickness 1,L23685);叠放层级:底色(hover 高亮)
-//   之下在上、内容之下 —— .wui-reveal::before/::after 的 z-index:-1 承接。
+// 视觉规格:CK/WinUI-Reference/controls/dev/CommonStyles/MenuFlyout_themeresources.xaml
+//   <Style x:Key="DefaultToggleMenuFlyoutItemStyle" TargetType="ToggleMenuFlyoutItem">(L398 起):
+//   - 布局三列:CheckGlyph(勾选字形以内联 SVG 等形复刻;dev 模板 FontSize=12 / Margin="0,0,16,0",
+//     本组件保持既有几何 16px 盒 + 12px 间距 = 28 占位,几何不在本批范围,见 wiki 差异节;未勾选 Opacity=0)
+//     → 图标盒/文本 → 快捷键文本;勾选态即 CheckGlyph 显隐(CheckStates);
+//   - 状态色:Background 各态取 MenuFlyoutSubItemBackground*(SubtleFillColor*,L418/L427);
+//     Foreground = MenuFlyoutItemForeground(TextFillColorPrimary/Disabled);
+//     CheckGlyph Foreground = MenuFlyoutSubItemChevron(常态)/MenuFlyoutItemForegroundPointerOver(悬停)/
+//     MenuFlyoutSubItemForegroundPressed(按压)/MenuFlyoutSubItemForegroundDisabled(禁用);
+//     快捷键色 ToggleMenuFlyoutItemKeyboardAcceleratorTextForeground* = TextFillColorSecondary/Disabled。
+// Reveal 揭示光照(MR8,既有已验收效果,本批保留):光照本体=公共层(reveal.css + useReveal),口径同
+//   MenuFlyoutItem(底板光半径 Clamp(Max(W,H)+12,16,512)、边框光 39px narrow、光环厚度 1px);
+//   叠放层级:底色(hover 高亮)之下在上、内容之下 —— .wui-reveal::before/::after 的 z-index:-1 承接。
 // 行为规格:点击切换 IsChecked 并触发 Click,但**不关闭菜单**(WinUI 开关项调用不触发
 //   light dismiss,与 MenuFlyoutItem 的关键差异);勾选字形 E001 以内联 SVG 等形复刻
 //   (与 CheckBox 同一决策:保证非 Windows 平台渲染一致,颜色取对应 token)。
@@ -208,39 +209,42 @@ onScopeDispose(() => {
  * 组合态配色(CommonStates → theme.css 的 --wui-toggle-menu-flyout-item-*)
  * ====================================================================== */
 .wui-toggle-menu-flyout-item {
-  --tmfi-bg: var(--wui-toggle-menu-flyout-item-reveal-background);
-  --tmfi-fg: var(--wui-toggle-menu-flyout-item-foreground);
-  --tmfi-accel: var(--wui-toggle-menu-flyout-item-keyboard-accelerator-text-foreground);
-  --tmfi-check: var(--wui-toggle-menu-flyout-item-check-glyph-foreground);
+  --tmfi-bg: var(--wui-subtle-fill-color-transparent); /* Background="Transparent"(DefaultToggleMenuFlyoutItemStyle L399) */
+  --tmfi-fg: var(--wui-text-fill-color-primary); /* MenuFlyoutItemForeground = TextFillColorPrimaryBrush */
+  --tmfi-accel: var(--wui-text-fill-color-secondary); /* ToggleMenuFlyoutItemKeyboardAcceleratorTextForeground = TextFillColorSecondaryBrush */
+  --tmfi-check: var(--wui-text-fill-color-secondary); /* CheckGlyph Foreground = MenuFlyoutSubItemChevron = TextFillColorSecondaryBrush(L488) */
 }
 
+/* PointerOver ← LayoutRoot.Background = MenuFlyoutSubItemBackgroundPointerOver = SubtleFillColorSecondary */
 .wui-toggle-menu-flyout-item:not(.is-disabled):hover {
-  --tmfi-bg: var(--wui-toggle-menu-flyout-item-reveal-background-pointer-over);
-  --tmfi-fg: var(--wui-toggle-menu-flyout-item-foreground-pointer-over);
-  --tmfi-accel: var(--wui-toggle-menu-flyout-item-keyboard-accelerator-text-foreground-pointer-over);
-  --tmfi-check: var(--wui-toggle-menu-flyout-item-check-glyph-foreground-pointer-over);
+  --tmfi-bg: var(--wui-subtle-fill-color-secondary);
+  --tmfi-fg: var(--wui-text-fill-color-primary);
+  --tmfi-accel: var(--wui-text-fill-color-secondary);
+  --tmfi-check: var(--wui-text-fill-color-primary); /* CheckGlyph ← MenuFlyoutItemForegroundPointerOver */
 }
 
+/* Pressed ← LayoutRoot.Background = MenuFlyoutSubItemBackgroundPressed = SubtleFillColorTertiary */
 .wui-toggle-menu-flyout-item:not(.is-disabled):active {
-  --tmfi-bg: var(--wui-toggle-menu-flyout-item-reveal-background-pressed);
-  --tmfi-fg: var(--wui-toggle-menu-flyout-item-foreground-pressed);
-  --tmfi-accel: var(--wui-toggle-menu-flyout-item-keyboard-accelerator-text-foreground-pressed);
-  --tmfi-check: var(--wui-toggle-menu-flyout-item-check-glyph-foreground-pressed);
+  --tmfi-bg: var(--wui-subtle-fill-color-tertiary);
+  --tmfi-fg: var(--wui-text-fill-color-primary);
+  --tmfi-accel: var(--wui-text-fill-color-secondary);
+  --tmfi-check: var(--wui-text-fill-color-primary); /* CheckGlyph ← MenuFlyoutSubItemForegroundPressed */
 }
 
+/* Disabled:模板仅改前景(Background 保持 Transparent),CheckGlyph ← MenuFlyoutSubItemForegroundDisabled */
 .wui-toggle-menu-flyout-item.is-disabled {
-  --tmfi-bg: var(--wui-toggle-menu-flyout-item-reveal-background-disabled);
-  --tmfi-fg: var(--wui-toggle-menu-flyout-item-foreground-disabled);
-  --tmfi-accel: var(--wui-toggle-menu-flyout-item-keyboard-accelerator-text-foreground-disabled);
-  --tmfi-check: var(--wui-toggle-menu-flyout-item-check-glyph-foreground-disabled);
+  --tmfi-bg: var(--wui-subtle-fill-color-transparent);
+  --tmfi-fg: var(--wui-text-fill-color-disabled);
+  --tmfi-accel: var(--wui-text-fill-color-disabled);
+  --tmfi-check: var(--wui-text-fill-color-disabled);
 }
 
 /* Focused:同 WinUI 3,列表高亮背景即焦点视觉 */
 .wui-toggle-menu-flyout-item:focus {
-  --tmfi-bg: var(--wui-toggle-menu-flyout-item-reveal-background-pointer-over);
-  --tmfi-fg: var(--wui-toggle-menu-flyout-item-foreground-pointer-over);
-  --tmfi-accel: var(--wui-toggle-menu-flyout-item-keyboard-accelerator-text-foreground-pointer-over);
-  --tmfi-check: var(--wui-toggle-menu-flyout-item-check-glyph-foreground-pointer-over);
+  --tmfi-bg: var(--wui-subtle-fill-color-secondary);
+  --tmfi-fg: var(--wui-text-fill-color-primary);
+  --tmfi-accel: var(--wui-text-fill-color-secondary);
+  --tmfi-check: var(--wui-text-fill-color-primary);
 }
 
 /* 布局:同 MenuFlyoutItem(Padding="11,9,11,10",列序 勾选 → 图标 → 文本 → 快捷键) */
@@ -326,10 +330,9 @@ onScopeDispose(() => {
 }
 
 /* ======================================================================
- * Reveal 揭示光照(公共层 reveal.css,默认启用):口径同 MenuFlyoutItem ——
- * 边框光半径 39px(narrow,RevealBorderLight.cpp L24-35);光环厚度 =
- * ToggleMenuFlyoutItemRevealBorderThickness 1(generic.xaml L23685)。底色各态已消费
- * --wui-toggle-menu-flyout-item-reveal-* token(与源画刷同源值),光照叠于其上。
+ * Reveal 揭示光照(公共层 reveal.css,既有已验收效果):口径同 MenuFlyoutItem ——
+ * 边框光半径 39px(narrow,RevealBorderLight.cpp L24-35);光环厚度 1px。底色各态已重定向为
+ * controls/dev 的 SubtleFill 与 TextFill 权威值(见上),光照叠于其上。
  * ====================================================================== */
 .wui-toggle-menu-flyout-item.wui-reveal {
   --wui-reveal-border-width: 1px;

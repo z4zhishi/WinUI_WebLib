@@ -230,13 +230,14 @@ provide('wuiMenuBarContext', {
 </template>
 
 <style scoped>
-/* LayoutRoot:MenuBarBackground = SubtleFillColorTransparentBrush;MinHeight = MenuBarHeight 40;
+/* LayoutRoot:MenuBarBackground = SubtleFillColorTransparentBrush(controls/dev
+   MenuBar_themeresources.xaml L5);MinHeight = MenuBarHeight 40;
    ContentRoot 水平 StackPanel = flex 行布局,项靠左、随内容伸缩 */
 .wui-menu-bar {
   display: flex;
   align-items: stretch;
   box-sizing: border-box;
   min-height: 40px;
-  background: transparent;
+  background: var(--wui-subtle-fill-color-transparent);
 }
 </style>

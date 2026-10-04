@@ -1,8 +1,11 @@
 <script setup lang="ts">
 // WuiMenuFlyout —— WinUI MenuFlyout 的 Web 复刻(轻量上下文菜单弹层,基于弹层公共基建)。
-// 视觉规格:CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml
-//   <Style x:Key="DefaultMenuFlyoutPresenterStyle" TargetType="MenuFlyoutPresenter">(L23779 起):
-//   - Background/Border = --wui-menu-flyout-presenter-background/border;BorderThickness=1;
+// 视觉规格:CK/WinUI-Reference/controls/dev/CommonStyles/MenuFlyout_themeresources.xaml
+//   <Style x:Key="DefaultMenuFlyoutPresenterStyle" TargetType="MenuFlyoutPresenter">(L270 起):
+//   - Background = --wui-menu-flyout-presenter-surface(MenuFlyoutPresenterBackground =
+//     DesktopAcrylicTransparentBrush + SystemBackdrop 亚克力材料;web 取材料回退色,见 theme.css);
+//     Border = --wui-surface-stroke-color-flyout(MenuFlyoutPresenterBorderBrush =
+//     SurfaceStrokeColorFlyoutBrush,L41/L203);BorderThickness=1;
 //   - Padding=MenuFlyoutPresenterThemePadding=1,叠加 MenuFlyoutScrollerMargin 0,4,0,4
 //     (等效 5px 1px 内边距);MinHeight=32(MenuFlyoutThemeMinHeight);
 //     Min/MaxWidth=96/456(FlyoutThemeMinWidth/FlyoutThemeMaxWidth);
@@ -294,8 +297,8 @@ onScopeDispose(() => {
   max-width: 456px;
   min-height: 32px;
   padding: 5px 1px;
-  background: var(--wui-menu-flyout-presenter-background);
-  border: 1px solid var(--wui-menu-flyout-presenter-border);
+  background: var(--wui-menu-flyout-presenter-surface);
+  border: 1px solid var(--wui-surface-stroke-color-flyout);
 }
 
 /* 入出场动画(MenuPopupThemeTransition:250ms 锚点展开缩放 + 83ms 线性淡入,

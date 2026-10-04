@@ -1,18 +1,18 @@
 <script setup lang="ts">
 // WuiMenuFlyoutItem —— WinUI MenuFlyoutItem 的 Web 复刻(MenuFlyout 菜单内的命令项)。
-// 视觉规格:CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml
-//   <Style x:Key="MenuFlyoutItemRevealStyle" TargetType="MenuFlyoutItem">(L18404 起):
-//   - 内边距 MenuFlyoutItemThemePadding="11,9,11,10"、字号 ControlContentThemeFontSize(14px);
+// 视觉规格:CK/WinUI-Reference/controls/dev/CommonStyles/MenuFlyout_themeresources.xaml
+//   <Style x:Key="DefaultMenuFlyoutItemStyle" TargetType="MenuFlyoutItem">(L298 起):
+//   - Background 各态 MenuFlyoutItemBackground* = SubtleFillColor*(Transparent/Secondary/Tertiary);
+//     Foreground 各态 = TextFillColorPrimary / Disabled = TextFillColorDisabled;
+//   - 内边距 MenuFlyoutItemThemePadding="11,9,11,10"(L260)、字号 ControlContentThemeFontSize(14px);
 //   - 图标盒 16x16(模板 Viewbox IconRoot);勾选/图标占位列
-//     MenuFlyoutItemPlaceholderThemeThickness="28,0,0,0"(勾选列/图标列宽 = 16 内容 + 12 间距);
-//   - 快捷键文本 KeyboardAcceleratorTextBlock:CaptionTextBlockStyle(12px)、Margin="24,0,0,0"、右对齐;
-//   - 状态色 MenuFlyoutItemReveal* / MenuFlyoutItemKeyboardAcceleratorTextForeground* → theme.css token。
-// Reveal 揭示光照(MR8,默认启用):WinUI 3 MenuFlyoutItem 默认样式即
-//   MenuFlyoutItemRevealStyle(generic.xaml L18400 keyless BasedOn,L18404 起);bg 透明 →
-//   悬停 #00000019 → 按压 #00000033(既有 --mfi-bg 已消费同源 token),Border 1px 透明
-//   (MenuFlyoutItemRevealBorderThickness,L23684)。光照本体=公共层(reveal.css +
-//   useReveal):底板光半径 Clamp(Max(W,H)+12,16,512)(RevealHoverLight.cpp L141-149/L163)、
-//   边框光半径 39px(RevealBorderLight.cpp narrow 配置 L24-35)、光环厚度 1px。
+//     MenuFlyoutItemPlaceholderThemeThickness="28,0,0,0"(L46;勾选列/图标列宽 = 16 内容 + 12 间距);
+//   - 快捷键文本 KeyboardAcceleratorTextBlock:CaptionTextBlockStyle(12px)、Margin="24,4,0,0"(L392)、右对齐;
+//     色 MenuFlyoutItemKeyboardAcceleratorTextForeground* = TextFillColorSecondary/Disabled。
+// Reveal 揭示光照(MR8,既有已验收效果,本批保留):光照本体=公共层(reveal.css + useReveal):
+//   底板光半径 Clamp(Max(W,H)+12,16,512)(RevealHoverLight.cpp L141-149/L163)、
+//   边框光半径 39px(RevealBorderLight.cpp narrow 配置 L24-35)、光环厚度 1px;底色由本批
+//   重定向为 controls/dev 的 SubtleFill* 权威值,光照叠加于其上(不动效)。
 //   叠放层级(源顺序):元素底色(hover 高亮)在下,光照(SpotlightLayer)在其上、内容之下
 //   —— 由 .wui-reveal::before/::after 的 z-index:-1 承接。
 // 行为规格:点击触发 Click 并关闭整条菜单(WinUI 菜单项调用即 light dismiss);
@@ -219,37 +219,37 @@ onScopeDispose(() => {
  * 对应 generic.xaml 各 VisualState 的 DiscreteObjectKeyFrame(即时切换)。
  * ====================================================================== */
 .wui-menu-flyout-item {
-  --mfi-bg: var(--wui-menu-flyout-item-reveal-background);
-  --mfi-fg: var(--wui-menu-flyout-item-foreground);
-  --mfi-accel: var(--wui-menu-flyout-item-keyboard-accelerator-text-foreground);
+  --mfi-bg: var(--wui-subtle-fill-color-transparent); /* MenuFlyoutItemBackground = SubtleFillColorTransparentBrush */
+  --mfi-fg: var(--wui-text-fill-color-primary); /* MenuFlyoutItemForeground = TextFillColorPrimaryBrush */
+  --mfi-accel: var(--wui-text-fill-color-secondary); /* MenuFlyoutItemKeyboardAcceleratorTextForeground = TextFillColorSecondaryBrush */
 }
 
-/* PointerOver */
+/* PointerOver ← MenuFlyoutItemBackgroundPointerOver / Foreground* = SubtleFillColorSecondary / TextFillColorPrimary */
 .wui-menu-flyout-item:not(.is-disabled):hover {
-  --mfi-bg: var(--wui-menu-flyout-item-reveal-background-pointer-over);
-  --mfi-fg: var(--wui-menu-flyout-item-foreground-pointer-over);
-  --mfi-accel: var(--wui-menu-flyout-item-keyboard-accelerator-text-foreground-pointer-over);
+  --mfi-bg: var(--wui-subtle-fill-color-secondary);
+  --mfi-fg: var(--wui-text-fill-color-primary);
+  --mfi-accel: var(--wui-text-fill-color-secondary);
 }
 
-/* Pressed */
+/* Pressed ← MenuFlyoutItemBackgroundPressed = SubtleFillColorTertiary */
 .wui-menu-flyout-item:not(.is-disabled):active {
-  --mfi-bg: var(--wui-menu-flyout-item-reveal-background-pressed);
-  --mfi-fg: var(--wui-menu-flyout-item-foreground-pressed);
-  --mfi-accel: var(--wui-menu-flyout-item-keyboard-accelerator-text-foreground-pressed);
+  --mfi-bg: var(--wui-subtle-fill-color-tertiary);
+  --mfi-fg: var(--wui-text-fill-color-primary);
+  --mfi-accel: var(--wui-text-fill-color-secondary);
 }
 
-/* Disabled */
+/* Disabled ← MenuFlyoutItemBackgroundDisabled = SubtleFillColorTransparent / Foreground = TextFillColorDisabled */
 .wui-menu-flyout-item.is-disabled {
-  --mfi-bg: var(--wui-menu-flyout-item-reveal-background-disabled);
-  --mfi-fg: var(--wui-menu-flyout-item-foreground-disabled);
-  --mfi-accel: var(--wui-menu-flyout-item-keyboard-accelerator-text-foreground-disabled);
+  --mfi-bg: var(--wui-subtle-fill-color-transparent);
+  --mfi-fg: var(--wui-text-fill-color-disabled);
+  --mfi-accel: var(--wui-text-fill-color-disabled);
 }
 
 /* Focused(键盘导航聚焦):WinUI 3 菜单项聚焦 = 列表高亮背景(不画焦点框) */
 .wui-menu-flyout-item:focus {
-  --mfi-bg: var(--wui-menu-flyout-item-reveal-background-pointer-over);
-  --mfi-fg: var(--wui-menu-flyout-item-foreground-pointer-over);
-  --mfi-accel: var(--wui-menu-flyout-item-keyboard-accelerator-text-foreground-pointer-over);
+  --mfi-bg: var(--wui-subtle-fill-color-secondary);
+  --mfi-fg: var(--wui-text-fill-color-primary);
+  --mfi-accel: var(--wui-text-fill-color-secondary);
 }
 
 /* ======================================================================
@@ -327,10 +327,9 @@ onScopeDispose(() => {
 }
 
 /* ======================================================================
- * Reveal 揭示光照(公共层 reveal.css,默认启用):边框光半径取源 narrow 配置 ≈ 39px
- * (RevealBorderLight.cpp L24-35,菜单行约 32px 高);光环厚度 =
- * MenuFlyoutItemRevealBorderThickness 1(generic.xaml L23684)。底色各态已消费
- * --wui-menu-flyout-item-reveal-* token(与源画刷同源值),光照叠于其上。
+ * Reveal 揭示光照(公共层 reveal.css,既有已验收效果):边框光半径取源 narrow 配置 ≈ 39px
+ * (RevealBorderLight.cpp L24-35,菜单行约 32px 高);光环厚度 1px。底色各态已重定向为
+ * controls/dev 的 SubtleFill* 权威值(见上),光照叠于其上。
  * ====================================================================== */
 .wui-menu-flyout-item.wui-reveal {
   --wui-reveal-border-width: 1px;

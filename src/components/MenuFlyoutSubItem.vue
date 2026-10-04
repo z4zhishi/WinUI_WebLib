@@ -1,17 +1,16 @@
 <script setup lang="ts">
 // WuiMenuFlyoutSubItem —— WinUI MenuFlyoutSubItem 的 Web 复刻(级联子菜单项)。
-// 视觉规格:CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml
-//   <Style x:Key="MenuFlyoutSubItemRevealStyle" TargetType="MenuFlyoutSubItem">(L18728 起):
+// 视觉规格:CK/WinUI-Reference/controls/dev/CommonStyles/MenuFlyout_themeresources.xaml
+//   <Style x:Key="DefaultMenuFlyoutSubItemStyle" TargetType="MenuFlyoutSubItem">(L628 起):
 //   - 行内列序与 MenuFlyoutItem 一致(勾选列 → 图标盒 16x16 → 文本 → 快捷键/箭头);
-//   - 右侧箭头 SubItemChevron:字形 E0E3(ChevronRight)、FontSize=12、
-//     Margin=MenuFlyoutItemChevronMargin="24,0,0,0"(此处以内联 SVG 等形复刻);
+//   - 右侧箭头 SubItemChevron:字形 ChevronRight、FontSize=12、
+//     Margin=MenuFlyoutItemChevronMargin="24,0,0,-1"(L257/L620;此处以内联 SVG 等形复刻);
 //   - 状态:CommonStates Normal/PointerOver/Pressed/Disabled + SubMenuOpened(子菜单展开时
-//     行底色 accent-light-3 高亮),全部取 theme.css 的 --wui-menu-flyout-sub-item-* token。
-// Reveal 揭示光照(MR8,默认启用):WinUI 3 MenuFlyoutSubItem 默认样式即
-//   MenuFlyoutSubItemRevealStyle(generic.xaml L18402 keyless BasedOn,L18728 起);光照本体
-//   =公共层(reveal.css + useReveal),口径同 MenuFlyoutItem(底板光半径
-//   Clamp(Max(W,H)+12,16,512)、边框光 39px narrow、光环厚度 1px);v-on 对象绑定与行上既有
-//   @pointerenter/@pointerleave 经编译期 mergeProps 合并,互不覆盖。
+//     行底色 = MenuFlyoutSubItemBackgroundSubMenuOpened = SubtleFillColorSecondary,前景
+//     TextFillColorPrimary);全部取 Fluent 权威 token(SubtleFill*/TextFill*/TextFillColorTertiary 箭头)。
+// Reveal 揭示光照(MR8,既有已验收效果,本批保留):光照本体=公共层(reveal.css + useReveal),口径同
+//   MenuFlyoutItem(底板光半径 Clamp(Max(W,H)+12,16,512)、边框光 39px narrow、光环厚度 1px);
+//   v-on 对象绑定与行上既有 @pointerenter/@pointerleave 经编译期 mergeProps 合并,互不覆盖。
 // 行为规格(对照 WinUI MenuFlyoutSubItem):
 //   - hover(150ms 延迟)/点击/Enter/Space/→ 展开子菜单;子菜单层 placement='right-start'(级联右开,
 //     usePopupLayer 空间不足自动翻转/推回);hover 离开 300ms 后收起;
@@ -404,41 +403,44 @@ function stepFocus(container: HTMLElement | null, direction: 1 | -1): void {
  * 行组合态配色(CommonStates + SubMenuOpened → --wui-menu-flyout-sub-item-*)
  * ====================================================================== */
 .wui-menu-flyout-sub-item {
-  --msi-bg: var(--wui-menu-flyout-sub-item-reveal-background);
-  --msi-fg: var(--wui-menu-flyout-sub-item-foreground);
-  --msi-chevron: var(--wui-menu-flyout-sub-item-chevron);
+  --msi-bg: var(--wui-subtle-fill-color-transparent); /* MenuFlyoutSubItemBackground = SubtleFillColorTransparentBrush */
+  --msi-fg: var(--wui-text-fill-color-primary); /* MenuFlyoutSubItemForeground = TextFillColorPrimaryBrush */
+  --msi-chevron: var(--wui-text-fill-color-secondary); /* MenuFlyoutSubItemChevron = TextFillColorSecondaryBrush */
 }
 
+/* PointerOver ← MenuFlyoutSubItemBackgroundPointerOver = SubtleFillColorSecondary */
 .wui-menu-flyout-sub-item:not(.is-disabled):hover {
-  --msi-bg: var(--wui-menu-flyout-sub-item-reveal-background-pointer-over);
-  --msi-fg: var(--wui-menu-flyout-sub-item-foreground-pointer-over);
-  --msi-chevron: var(--wui-menu-flyout-sub-item-chevron-pointer-over);
+  --msi-bg: var(--wui-subtle-fill-color-secondary);
+  --msi-fg: var(--wui-text-fill-color-primary);
+  --msi-chevron: var(--wui-text-fill-color-secondary);
 }
 
+/* Pressed ← MenuFlyoutSubItemBackgroundPressed = SubtleFillColorTertiary;Chevron = TextFillColorTertiary */
 .wui-menu-flyout-sub-item:not(.is-disabled):active {
-  --msi-bg: var(--wui-menu-flyout-sub-item-reveal-background-pressed);
-  --msi-fg: var(--wui-menu-flyout-sub-item-foreground-pressed);
-  --msi-chevron: var(--wui-menu-flyout-sub-item-chevron-pressed);
+  --msi-bg: var(--wui-subtle-fill-color-tertiary);
+  --msi-fg: var(--wui-text-fill-color-primary);
+  --msi-chevron: var(--wui-text-fill-color-tertiary);
 }
 
-/* SubMenuOpened:子菜单展开时行高亮(accent-light-3),对齐 VisualState SubMenuOpened */
+/* SubMenuOpened:子菜单展开时行高亮 ← MenuFlyoutSubItemBackgroundSubMenuOpened = SubtleFillColorSecondary */
 .wui-menu-flyout-sub-item.is-submenu-open:not(.is-disabled) {
-  --msi-bg: var(--wui-menu-flyout-sub-item-reveal-background-sub-menu-opened);
-  --msi-fg: var(--wui-menu-flyout-sub-item-foreground-sub-menu-opened);
-  --msi-chevron: var(--wui-menu-flyout-sub-item-chevron-sub-menu-opened);
+  --msi-bg: var(--wui-subtle-fill-color-secondary);
+  --msi-fg: var(--wui-text-fill-color-primary);
+  --msi-chevron: var(--wui-text-fill-color-secondary);
 }
 
+/* Disabled ← MenuFlyoutSubItemBackgroundDisabled = SubtleFillColorTransparent;Chevron = TextFillColorDisabled */
 .wui-menu-flyout-sub-item.is-disabled {
-  --msi-bg: var(--wui-menu-flyout-sub-item-reveal-background-disabled);
-  --msi-fg: var(--wui-menu-flyout-sub-item-foreground-disabled);
-  --msi-chevron: var(--wui-menu-flyout-sub-item-chevron-disabled);
+  --msi-bg: var(--wui-subtle-fill-color-transparent);
+  --msi-fg: var(--wui-text-fill-color-disabled);
+  --msi-chevron: var(--wui-text-fill-color-disabled);
 }
 
 /* Focused:列表高亮背景即焦点视觉(同 WinUI 3 菜单项) */
 .wui-menu-flyout-sub-item:focus {
-  --msi-bg: var(--wui-menu-flyout-sub-item-reveal-background-pointer-over);
-  --msi-fg: var(--wui-menu-flyout-sub-item-foreground-pointer-over);
-  --msi-chevron: var(--wui-menu-flyout-sub-item-chevron-pointer-over);
+  --msi-bg: var(--wui-subtle-fill-color-secondary);
+  --msi-fg: var(--wui-text-fill-color-primary);
+  --msi-chevron: var(--wui-text-fill-color-secondary);
 }
 
 .wui-menu-flyout-sub-item {
@@ -470,10 +472,9 @@ function stepFocus(container: HTMLElement | null, direction: 1 | -1): void {
 }
 
 /* ======================================================================
- * Reveal 揭示光照(公共层 reveal.css,默认启用):口径同 MenuFlyoutItem ——
- * 边框光半径 39px(narrow,RevealBorderLight.cpp L24-35);光环厚度 1px
- * (MenuFlyoutItemRevealBorderThickness 同族)。底色各态已消费
- * --wui-menu-flyout-sub-item-reveal-* token(与源画刷同源值),光照叠于其上。
+ * Reveal 揭示光照(公共层 reveal.css,既有已验收效果):口径同 MenuFlyoutItem ——
+ * 边框光半径 39px(narrow,RevealBorderLight.cpp L24-35);光环厚度 1px。底色各态已重定向为
+ * controls/dev 的 SubtleFill 与 TextFill 权威值(见上),光照叠于其上。
  * ====================================================================== */
 .wui-menu-flyout-sub-item.wui-reveal {
   --wui-reveal-border-width: 1px;
@@ -534,8 +535,9 @@ function stepFocus(container: HTMLElement | null, direction: 1 | -1): void {
 }
 
 /* ======================================================================
- * 子菜单层皮肤(MenuFlyoutPresenter 默认模板):
- * Background/Border=--wui-menu-flyout-presenter-*、Padding=1(PresenterThemePadding)、
+ * 子菜单层皮肤(MenuFlyoutPresenter 默认模板,controls/dev MenuFlyout_themeresources.xaml L270-297):
+ * Background=亚克力回退色(MenuFlyoutPresenterBackground)、Border=--wui-surface-stroke-color-flyout、
+ * Padding=1(PresenterThemePadding)、
  * 纵向 4px 内边距(MenuFlyoutScrollerMargin 0,4,0,4 与 1px 相加)、
  * MinHeight=32(MenuFlyoutThemeMinHeight)、Min/MaxWidth=96/456(FlyoutThemeMin/MaxWidth)。
  * ====================================================================== */
@@ -548,8 +550,8 @@ function stepFocus(container: HTMLElement | null, direction: 1 | -1): void {
   max-width: 456px;
   min-height: 32px;
   padding: 5px 1px;
-  background: var(--wui-menu-flyout-presenter-background);
-  border: 1px solid var(--wui-menu-flyout-presenter-border);
+  background: var(--wui-menu-flyout-presenter-surface);
+  border: 1px solid var(--wui-surface-stroke-color-flyout);
 }
 
 /* 出入场动画(MenuPopupThemeTransition 子菜单分支:closedRatio 0.67 展开缩放

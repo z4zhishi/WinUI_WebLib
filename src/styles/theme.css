@@ -1502,6 +1502,16 @@
   /* Menu* */
   --wui-menu-flyout-presenter-background: #f2f2f2;
   --wui-menu-flyout-presenter-border: #00000024;
+  /* PL12 增量(仅新增):MenuFlyoutPresenter 亚克力底回退色。
+     权威:controls/dev/CommonStyles/MenuFlyout_themeresources.xaml L40/L202
+       MenuFlyoutPresenterBackground = DesktopAcrylicTransparentBrush(#00000000 画刷,透明);
+       可见材质来自 DefaultMenuFlyoutPresenterStyle 的 SystemBackdrop =
+       MenuFlyoutSystemBackdrop → AcrylicBackgroundFillColorDefaultBackdrop
+       (DesktopAcrylicBackdrop,AcrylicBrush_themeresources.xaml)。
+     web 无原生亚克力材质,取材料回退色(AcrylicInAppFillColorDefaultBrush FallbackColor)
+     浅 #F9F9F9 / 深 #2C2C2C 作不透明近似(PL10 ToolTip / PL11 NavigationView 同法)。
+     未决:亚克力噪声/模糊层不可复现。 */
+  --wui-menu-flyout-presenter-surface: #f9f9f9;
   --wui-menu-flyout-item-background: transparent;
   --wui-menu-flyout-item-background-pointer-over: #00000019;
   --wui-menu-flyout-item-background-pressed: #00000033;
@@ -3647,6 +3657,8 @@
   /* Menu* */
   --wui-menu-flyout-presenter-background: #2b2b2b;
   --wui-menu-flyout-presenter-border: #0000005c;
+  /* PL12 增量:见浅色段注释;深色亚克力回退色 #2C2C2C */
+  --wui-menu-flyout-presenter-surface: #2c2c2c;
   --wui-menu-flyout-item-background: transparent;
   --wui-menu-flyout-item-background-pointer-over: #ffffff19;
   --wui-menu-flyout-item-background-pressed: #ffffff33;

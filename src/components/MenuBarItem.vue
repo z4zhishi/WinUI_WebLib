@@ -5,10 +5,13 @@
 //   - 模板:ContentRoot(Grid,CornerRadius=ControlCornerRadius 4)+ Background Border +
 //     ContentButton(Padding=MenuBarItemButtonPadding 10,4,10,4,文本取 Title);
 //   - Margin=MenuBarItemMargin 4,4,4,4;MenuBarHeight 40 为整栏最小高(在 MenuBar.vue 落地);
-//   - CommonStates:Normal(SubtleFillColorTransparent)/ PointerOver(SubtleFillColorSecondary)/
-//     Pressed(SubtleFillColorTertiary)/ Selected=下拉打开时(SubtleFillColorTertiary)——
-//     theme.css 未提取 SubtleFill* 系列,按既有约定取同值 token(见 wiki 差异节);
-//   - BorderThickness=0(Light/Default 字典;HighContrast 为 2px,Web 侧未做 HC 适配)。
+//   - CommonStates(controls/dev MenuBar_themeresources.xaml L5-L15):
+//     Normal(SubtleFillColorTransparent)/ PointerOver(SubtleFillColorSecondary)/
+//     Pressed(SubtleFillColorTertiary)/ Selected=下拉打开时(SubtleFillColorTertiary),
+//     全部走 PL2 Fluent token;前景 MenuBarItemForeground = TextFillColorPrimaryBrush;
+//   - BorderThickness=0(Light/Default 字典;MenuBarItemBorderBrush = ControlAltFillColorTertiaryBrush,
+//     悬停/按下/选中 = ControlStrokeColorDefaultBrush —— 因厚度 0 不可见,本组件不渲染边框;
+//     HighContrast 为 2px,Web 侧未做 HC 适配)。
 // 行为规格(对照 controls/dev/MenuBar/MenuBarItem.cpp):
 //   - PointerEntered:栏内已有下拉打开 → 立即切换到本项(菜单打开后横移鼠标自动换菜单,
 //     WinUI 菜单栏招牌行为);指针离开不收起(light dismiss 只认「外部点击」,与 WinUI 一致);
@@ -437,41 +440,31 @@ onScopeDispose(() => {
 
 <style scoped>
 /* ======================================================================
- * 项组合态配色(CommonStates;MenuBarItemBackground* = SubtleFill* 系列,
- * theme.css 未提取,按既有约定取同值 token,见 wiki 差异节)
+ * 项组合态配色(CommonStates;controls/dev/MenuBar/MenuBar_themeresources.xaml L5-L15):
+ * MenuBarItemBackground* = SubtleFillColor*(Transparent/Secondary/Tertiary)
+ * MenuBarItemForeground  = TextFillColorPrimaryBrush
  * ====================================================================== */
 .wui-menu-bar-item {
-  --mbi-bg: transparent; /* MenuBarItemBackground = SubtleFillColorTransparentBrush */
-  --mbi-fg: var(--wui-system-control-foreground-base-high); /* MenuBarItemForeground = TextFillColorPrimaryBrush 同值 */
-  /* SubtleFillColorSecondary/Tertiary 源值(Common_themeresources_any.xaml L25-L27/L229-L230):
-     XAML AARRGGBB light #09000000/#06000000 → CSS RRGGBBAA #00000009/#00000006;
-     dark #0FFFFFFF/#0AFFFFFF → CSS #FFFFFF0F/#FFFFFF0A。theme.css 未提取该系列,
-     按组件局部 token 承载(FIX9 ColorPicker 先例);此前借用的 grid-view-item
-     token(9.8%/20%)与源不符,VR-B17 登记后订正。 */
-  --mbi-subtle-secondary: #00000009;
-  --mbi-subtle-tertiary: #00000006;
-}
-
-html[data-theme='dark'] .wui-menu-bar-item {
-  --mbi-subtle-secondary: #ffffff0f;
-  --mbi-subtle-tertiary: #ffffff0a;
+  --mbi-bg: var(--wui-subtle-fill-color-transparent); /* MenuBarItemBackground = SubtleFillColorTransparentBrush */
+  --mbi-fg: var(--wui-text-fill-color-primary); /* MenuBarItemForeground = TextFillColorPrimaryBrush */
 }
 
 /* PointerOver ← MenuBarItemBackgroundPointerOver = SubtleFillColorSecondaryBrush */
 .wui-menu-bar-item:not(.is-disabled):hover {
-  --mbi-bg: var(--mbi-subtle-secondary);
+  --mbi-bg: var(--wui-subtle-fill-color-secondary);
 }
 
 /* Pressed ← MenuBarItemBackgroundPressed = SubtleFillColorTertiaryBrush */
 .wui-menu-bar-item:not(.is-disabled):active {
-  --mbi-bg: var(--mbi-subtle-tertiary);
+  --mbi-bg: var(--wui-subtle-fill-color-tertiary);
 }
 
 /* Selected(下拉打开)← MenuBarItemBackgroundSelected = SubtleFillColorTertiaryBrush */
 .wui-menu-bar-item.is-open:not(.is-disabled) {
-  --mbi-bg: var(--mbi-subtle-tertiary);
+  --mbi-bg: var(--wui-subtle-fill-color-tertiary);
 }
 
+/* Disabled:WinUI MenuBarItem 无 Disabled 视觉态(Web 侧增补),沿用系统禁用前景 */
 .wui-menu-bar-item.is-disabled {
   --mbi-fg: var(--wui-system-control-disabled-base-high);
 }
@@ -522,7 +515,8 @@ html[data-theme='dark'] .wui-menu-bar-item {
 /* ======================================================================
  * 下拉菜单层皮肤(MenuFlyoutPresenter 默认模板,与 MenuFlyout.vue 同规格):
  * Padding=1 + ScrollerMargin 0,4,0,4(等效 5px 1px)、MinHeight=32、Min/MaxWidth=96/456、
- * Background/Border=--wui-menu-flyout-presenter-*;圆角/阴影由 .wui-popup-layer 提供。
+ * Background=亚克力回退色(MenuFlyoutPresenterBackground)、Border=--wui-surface-stroke-color-flyout;
+ * 圆角/阴影由 .wui-popup-layer 提供。
  * ====================================================================== */
 .wui-menu-bar-layer {
   display: flex;
@@ -533,8 +527,8 @@ html[data-theme='dark'] .wui-menu-bar-item {
   max-width: 456px;
   min-height: 32px;
   padding: 5px 1px;
-  background: var(--wui-menu-flyout-presenter-background);
-  border: 1px solid var(--wui-menu-flyout-presenter-border);
+  background: var(--wui-menu-flyout-presenter-surface);
+  border: 1px solid var(--wui-surface-stroke-color-flyout);
 }
 
 /* 出入场:走 MenuFlyout 同通道(MR1/A6)—— 层根已带 wui-menu-flyout-layer 类,
