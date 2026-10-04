@@ -110,7 +110,7 @@ function onColorChanged(e: { oldColor: string; newColor: string }): void {
 3. **谱区渲染载体**:源用多张 WriteableBitmap + 透明度叠合;Web 版用 canvas 逐像素按同一公式绘制(表面合成等价),最高 512px 表面分辨率 + devicePixelRatio(上限 2),极端放大时边缘可能比源位图略软。
 4. **控件内部文案**:通道标签与自动化名称使用中文(红/绿/蓝/色相/饱和度/亮度/不透明度);WinUI 为本地化资源(英文资源为 Red/Green/Blue/Hue/Saturation/Value/Opacity、More/Less)。
 5. **无 token 的源尺寸常量**(组件内按源值实现):`ControlCornerRadius=4`(谱区/预览条/输入框圆角)、`ColorPickerSliderCornerRadius=6`、滑杆轨道高 12、拇指外圈 20 + 内圈 10、预览条宽 44、谱区 256-336px、根容器 MinWidth 312 / MaxWidth 392、输入框 120 / HEX 132、通道行距 12。
-6. **颜色映射 token**:alpha 滑杆/预览条棋盘底取 `SystemListLowColor` → `--wui-system-control-background-list-low`;`ColorPickerSliderThumbBackground`(TextFillColorPrimaryBrush)→ `--wui-text-fill-color-primary`;PointerOver(SystemControlHighlightChromeAltLowBrush)→ `--wui-system-control-highlight-chrome-alt-low`;Disabled(ControlStrongFillColorDisabledBrush)无同名 token,取 `--wui-system-control-disabled-base-low` 近似;预览条描边(`ColorPickerBorderBrush` = ControlStrokeColorDefaultBrush)→ `--wui-text-control-border`。
+6. **颜色映射 token**:alpha 滑杆/预览条棋盘底取 `SystemListLowColor` → `--wui-system-control-background-list-low`;`ColorPickerSliderThumbBackground`(TextFillColorPrimaryBrush)→ `--wui-text-fill-color-primary`;PointerOver(SystemControlHighlightChromeAltLowBrush)→ `--wui-system-control-highlight-chrome-alt-low`;Disabled(ControlStrongFillColorDisabledBrush)无同名 token,取 `--wui-system-control-disabled-base-low`;预览条描边(`ColorPickerBorderBrush` = ControlStrokeColorDefaultBrush)仍为 legacy `--wui-text-control-border`(PL8 §6-3 登记待后续批次重定向)。
 7. **竖向滑杆实现**:Horizontal 方向下第三维度/alpha 滑杆用原生 range 的 `writing-mode: vertical-lr; direction: rtl` 竖排(Chromium/Firefox/Safari 现代版本支持);旧内核回退为水平观感。
 8. **RGB ↔ HSV 转换精度**:转换纯函数在 `src/utils/colorConvert.ts`,严格对照源 `ColorConversion.cpp`(chroma=0 时 h=0、字节化 round(×255) 等),可用 Node 直接单测;显示值统一四舍五入(与源 `round` 一致)。
 9. **Ctrl 大步的命名色跳转**:源 `IncrementColorChannel` 的大步分支走 `FindNextNamedColor`(沿通道步进到上/下一个本地化**颜色显示名**区间中点;源码中的 ±30/±10 常量仅存在于过时注释与永假三目,不生效)。Web 版按源算法逐行移植,「颜色显示名」用 CSS 命名色表(147 个关键字)最近邻 RGB 匹配近似 WinUI 的本地化命名表——跳转算法(方向、步长、回绕、中点与栅格对齐)与源一致,但个别边界落点可能因命名表集合不同而相差一步;「零头对齐」循环的浮点漂移与源的双精度路径同级。
@@ -121,3 +121,4 @@ function onColorChanged(e: { oldColor: string; newColor: string }): void {
 - 完整取色器:`<ColorPicker />` + 各 `Is*Visible` 开关组合(官方示例的全部参数均可在演示页选项中实时调节)
 - 颜色应用到形状:把 `color` 绑定到 Rectangle 填充(演示页示例一的预览矩形)
 - 简单场景可换用 `ColorPickerButton` / 下拉中的 ColorPicker(WinUI 未内置 Button 变体,Web 版暂不提供)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

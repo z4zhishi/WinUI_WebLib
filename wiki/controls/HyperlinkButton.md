@@ -6,7 +6,7 @@
 
 HyperlinkButton 控件呈现为文本超链接。用户单击时,若设置了 `NavigateUri` 则在默认浏览器中打开该页面;也可以只处理 `Click` 事件,通常用于应用内导航。
 
-本组件按 WinUI 默认模板复刻视觉(权威 = `controls/dev/CommonStyles/HyperlinkButton_themeresources.xaml`,dxaml `generic.xaml` 的 `TargetType="HyperlinkButton"` 旧 Style 为 UWP 遗留):底色四态取 `SubtleFillColor*`(Normal/Disabled 透明,PointerOver = `SubtleFillColorSecondary`、Pressed = `SubtleFillColorTertiary`,均半透明叠加),边框四态透明,前景四态取 `AccentTextFillColorPrimary/Secondary/Tertiary/Disabled`(Web 前景仍沿用遗留的变灰映射,见差异节),文字默认带下划线(源 `HyperlinkUnderlineVisible = True`,状态切换不下划线消失),焦点态显示系统焦点视觉。颜色、字号、内边距均取自 `--wui-*` 主题 token,随 `html[data-theme]` 明暗切换。
+本组件按 WinUI 3 生效层(`controls/dev/CommonStyles/HyperlinkButton_themeresources.xaml`)复刻视觉(PL3 重定向):底色四态取 `SubtleFillColor*`(Normal/Disabled 透明,PointerOver = `SubtleFillColorSecondary`、Pressed = `SubtleFillColorTertiary`,均半透明叠加),边框四态透明,前景四态取 `AccentTextFillColorPrimary/Secondary/Tertiary/Disabled` 直引 `--wui-accent-text-fill-color-*`;文字默认带下划线(源 `HyperlinkUnderlineVisible = True`),焦点态显示系统焦点视觉。颜色、字号、内边距均取自 `--wui-*` 主题 token,随 `html[data-theme]` 明暗切换(画刷族总览见 [_brushes.md](./_brushes.md))。
 
 Web 语义映射:`navigateUri` 有值时渲染 `<a>`(浏览器默认导航),为空时渲染 `<button>`(仅触发 `click`、不导航);`target="_blank"` 时自动附加 `rel="noopener noreferrer"` 保证外链安全。
 
@@ -78,17 +78,13 @@ function onHyperlinkButtonClick(event: MouseEvent): void {
 
 ## 与 WinUI 的差异说明
 
-对照 generic.xaml(浅色/深色 ThemeDictionaries)与 theme.css token 的取值映射:
+对照 WinUI 3 生效层(`HyperlinkButton_themeresources.xaml` L5-12/L24-27,逐行复核)与 theme.css Fluent token 的取值映射:
 
 | WinUI 取值 | Web 实现 | 说明 |
 | --- | --- | --- |
-| `HyperlinkButtonForeground` = `AccentTextFillColorPrimaryBrush` | `--wui-hyperlink-button-foreground`(强调色) | 无差异 |
-| `HyperlinkButtonForegroundPointerOver` = `AccentTextFillColorSecondaryBrush` | `--wui-hyperlink-button-foreground-pointer-over`(浅 #00000099 / 深 #ffffff99) | **已知遗留差异(MR15 未订正)**:Web 仍取 generic.xaml 的 `SystemControlPageTextBaseMedium`(变灰),权威应为强调色 light3/dark3 变体 |
-| `HyperlinkButtonForegroundPressed` = `AccentTextFillColorTertiaryBrush` | `--wui-hyperlink-button-foreground-pressed` | 同上,Web 取遗留 `SystemControlHighlightBaseMediumLow` |
-| `HyperlinkButtonForegroundDisabled` = `AccentTextFillColorDisabledBrush`(#5C/5DFFFFFF 级) | `--wui-hyperlink-button-foreground-disabled` | 同上,Web 取遗留 `SystemControlDisabledBaseMediumLow` |
-| `HyperlinkButtonBackground` = `SubtleFillColorTransparentBrush`;PointerOver = `SubtleFillColorSecondary`(#09000000 / #0FFFFFFF,XAML #AARRGGBB → CSS #00000009 / #FFFFFF0F);Pressed = `SubtleFillColorTertiary`(#06000000 / #0AFFFFFF → #00000006 / #FFFFFF0A);Disabled = `SubtleFillColorTransparent`(源 L9-12 / L24-27) | `--wui-hyperlink-button-background*` | MR15 已订正:四态不再全透明,hover/pressed 呈半透明叠加,经 83ms BrushTransition 过渡(注意 XAML ARGB 与 CSS RGBA 位序换算) |
-| 各状态 `HyperlinkButtonBorderBrush` 均透明 | `--wui-hyperlink-button-border*`(transparent) | 无差异 |
-| `HyperlinkButtonBorderThemeThickness` = 1(源 L17/L32) | `border: none` | **已知遗留差异(MR15 未订正)**:遗留 generic.xaml 为 0;因边框四态透明、无视觉差异,Web 保留 0 以避免盒尺寸偏移,已登记 |
+| `HyperlinkButtonForeground`(Normal/PointerOver/Pressed/Disabled)= `AccentTextFillColorPrimary/Secondary/Tertiary/DisabledBrush` | `--wui-accent-text-fill-color-primary/secondary/tertiary/disabled`(浅 Primary = `SystemAccentColorDark1`、深 = `SystemAccentColorLight3`) | PL3 重定向(此前误用 legacy 灰 `#00000099/#00000066`,已订正) |
+| `HyperlinkButtonBackground` = `SubtleFillColorTransparentBrush`;PointerOver = `SubtleFillColorSecondary`(XAML `#09000000` → CSS `#00000009`);Pressed = `SubtleFillColorTertiary`(`#06000000` → `#00000006`);Disabled = `SubtleFillColorTransparent`(源 L9-12 / L24-27) | `--wui-subtle-fill-color-transparent/secondary/tertiary`(深 `#FFFFFF0F` / `#FFFFFF0A`) | PL3 直引 Fluent token(值同 MR15 订正值);经 83ms BrushTransition 过渡 |
+| 各状态 `HyperlinkButtonBorderBrush` 均透明 | `--wui-control-fill-color-transparent`(实为 `border: none`) | 权威四态均 `ControlFillColorTransparentBrush`;厚度键 `HyperlinkButtonBorderThemeThickness` = 1,Web 以 `border: none` 保持既有盒尺寸(登记差异,无视觉差异) |
 | `HyperlinkButtonPadding` = 0,6,0,7 | `padding: 6px 0 7px` | 无差异 |
 | `HyperlinkUnderlineVisible` = `True`(默认下划线) | `text-decoration: underline` 常驻 | 无差异:悬停/按下仅变色,下划线不消失 |
 | `NavigateUri`(经系统 Launcher 打开默认浏览器) | 原生 `<a href>` 导航 | 打开方式交给浏览器;`target="_blank"` 额外强制 `rel="noopener noreferrer"`(WinUI 无此概念,Web 安全必需) |
@@ -105,4 +101,5 @@ function onHyperlinkButtonClick(event: MouseEvent): void {
 
 - 在线示例:`/#/hyperlinkbutton`
 - 演示页源码:`demo/pages/HyperlinkButtonPage.vue`
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)
 - 相关控件:Button、ToggleButton、RepeatButton、AppBarButton

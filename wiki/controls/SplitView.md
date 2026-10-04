@@ -82,9 +82,12 @@ const isPaneOpen = ref(true)
 
 | 源资源 | 本组件 token | 差异说明 |
 | --- | --- | --- |
-| `PaneBackground` ← `SystemControlPageBackgroundChromeLowBrush` | `--wui-system-control-page-background-chrome-low`(#F2F2F2 / #171717) | 同键直接映射 |
-| `LightDismissLayer.Fill` ← `SplitViewLightDismissOverlayBackground` | `--wui-split-view-light-dismiss-overlay-background`(#FFFFFF99 / #00000099) | 同键直接映射(theme.css 已收录) |
-| `HCPaneBorder.Fill` ← `SystemControlForegroundTransparentBrush` | `--wui-system-control-foreground-transparent`(transparent)+ `forced-colors` 下 `CanvasText` | 源边框仅在高对比模式可见;Web 以 `@media (forced-colors: active)` 等价实现,一般主题下透明 |
+| `PaneBackground` ← `SystemControlPageBackgroundChromeLowBrush`(controls/dev 仅有引用无定义 → 权威即 legacy) | `--wui-system-control-page-background-chrome-low`(#F2F2F2 / #171717) | 同键直接映射(PL15 复核保留) |
+| `LightDismissLayer.Fill` ← `SplitViewLightDismissOverlayBackground`(legacy) | `--wui-split-view-light-dismiss-overlay-background`(#FFFFFF99 / #00000099) | 同键直接映射(PL15 复核保留) |
+| `HCPaneBorder.Fill` ← `SystemControlForegroundTransparentBrush`(legacy) | `--wui-system-control-foreground-transparent`(transparent)+ `forced-colors` 下 `CanvasText` | 源边框仅在高对比模式可见;Web 以 `@media (forced-colors: active)` 等价实现,一般主题下透明 |
+| 窗格文本前景(控件无 Foreground setter)← 通用默认文本前景 `DefaultTextForegroundThemeBrush` = `TextFillColorPrimaryBrush` | `--wui-text-fill-color-primary`(浅 `#000000E4` / 深 `#FFFFFF`) | PL15 重定向(此前 legacy `--wui-application-foreground-theme`) |
+
+> PL15 复核结论:SplitView 窗格底 / 遮罩 / 描边三键在 `controls/dev` 仅引用、定义只在 legacy `generic.xaml`,故**权威即 legacy,保留原 token 不臆造**;唯一 Fluent 重定向是窗格文本前景。总览见 [_brushes.md](./_brushes.md)。
 
 其余无 token / 做 Web 等价替换的项:
 
@@ -99,4 +102,4 @@ const isPaneOpen = ref(true)
 
 ---
 
-演示页源码:[demo/pages/SplitViewPage.vue](../../demo/pages/SplitViewPage.vue) · 组件源码:[src/components/SplitView.vue](../../src/components/SplitView.vue)
+演示页源码:[demo/pages/SplitViewPage.vue](../../demo/pages/SplitViewPage.vue) · 组件源码:[src/components/SplitView.vue](../../src/components/SplitView.vue) · Fluent 画刷族:[_brushes.md](./_brushes.md)

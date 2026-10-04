@@ -114,7 +114,7 @@ async function onRefreshRequested(args) {
 
 ## 与 WinUI 的差异
 
-1. **模板与主题资源位置**:两控件的 Style/ControlTemplate 不在 generic.xaml(仅四支纯色画笔),模板与默认值取自 dev 源码 `RefreshContainer.xaml` / `RefreshVisualizer.xaml` / `*_themeresources.xaml`;颜色经 theme.css 既有专用 token 取源实值:
+1. **模板与主题资源位置**:两控件的 Style/ControlTemplate 不在 generic.xaml(仅四支纯色画笔),模板与默认值取自 dev 源码 `RefreshContainer.xaml` / `RefreshVisualizer.xaml` / `*_themeresources.xaml`;权威 = controls/dev,其值为**字面量** `White`(Default)/`Black`(Light)+ `Transparent`(非 Fluent 别名)。颜色经 theme.css 既有专用 token 取源实值(PL15 复核**逐条一致,无改动**):
    - `RefreshVisualizerForeground`(浅色 Black / 深色 White)→ `--wui-refresh-visualizer-foreground`(不透明,与源同值);
    - `RefreshContainerBackgroundBrush / RefreshVisualizerBackground`(Transparent)→ 组件内 `background: transparent`;
    - HighContrast 字典未实现(站点既有口径)。
@@ -132,3 +132,4 @@ async function onRefreshRequested(args) {
 - 基础用法:`<RefreshContainer RefreshRequested="…"><ListView Width="300" Height="300" /></RefreshContainer>`,取 Deferral、异步插入新项后 Complete(官方 Example1,本页场景 1 按 1s 异步复刻)
 - 自定义图标:`RefreshContainer.Visualizer` 挂 RefreshVisualizer,`Content` 换为 SymbolIcon(AddFriend)/ 图片(官方 Example2,本页场景 2 复刻)
 - 相关控件:ScrollViewer(内容滚动承载)、ProgressBar / ProgressRing(非手势型进度指示)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

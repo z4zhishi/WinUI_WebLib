@@ -6,7 +6,7 @@
 
 ScrollView 是 WinUI 3 新增的滚动控件:让用户**滚动、平移与缩放**比可视区域更大的内容。它是 WinUI 3 滚动体系(`ScrollView` + `ScrollPresenter`)的新一代门面 —— ItemsView 的控件模板内就内置了一个 ScrollView 提供自动滚动。与旧控件 ScrollViewer 最大的区别:ScrollView 用**单一 `ContentOrientation` 属性声明内容测量方向**(而不是组合两轴的滚动条开关来间接表达),并且把滚动/缩放从「可写属性」改成**显式编程 API**(`ScrollTo`/`ScrollBy`/`ZoomTo`/`ZoomBy`,可带动画选项与事件)。
 
-本组件是 WinUI ScrollView 的 Web 复刻:根元素即滚动视口(原生 `overflow` 承载滚动物理),内容元素的测量盒按 `contentOrientation` 四值映射(见下),缩放用 CSS `zoom` 参与布局(滚动范围随缩放自动变化,对应 WinUI ZoomFactor 语义);滚动条按 WinUI 观感用 `--wui-scroll-bar-*` token 修饰。编程 API(`scrollTo`/`scrollBy`/`zoomTo`/`zoomBy`,另有 `scrollToOffset` 别名)以 rAF 补间实现动画,并发出与 WinUI 同名的 `scrollAnimationStarting`/`scrollCompleted`/`zoomAnimationStarting`/`zoomCompleted` 事件。
+本组件是 WinUI ScrollView 的 Web 复刻:根元素即滚动视口(原生 `overflow` 承载滚动物理),内容元素的测量盒按 `contentOrientation` 四值映射(见下),缩放用 CSS `zoom` 参与布局(滚动范围随缩放自动变化,对应 WinUI ZoomFactor 语义);滚动条已由 PL15 按 WinUI 观感重定向到 PL2 Fluent token(thumb `--wui-control-strong-fill-color-default`、轨道 `--wui-acrylic-in-app-fill-color-default`;总览见 [_brushes.md](./_brushes.md))。编程 API(`scrollTo`/`scrollBy`/`zoomTo`/`zoomBy`,另有 `scrollToOffset` 别名)以 rAF 补间实现动画,并发出与 WinUI 同名的 `scrollAnimationStarting`/`scrollCompleted`/`zoomAnimationStarting`/`zoomCompleted` 事件。
 
 官方文档:
 
@@ -136,7 +136,7 @@ function onViewChanged(args: { horizontalOffset: number; verticalOffset: number;
 ## 与 WinUI 的差异(Web 复刻实现说明)
 
 1. **滚动物理由原生 overflow 承载**:滚动/惯性/触控手势交给浏览器原生滚动(根元素 `overflow: auto/scroll/hidden`),不重写物理。因此 WinUI 的 `AddScrollVelocity / AddZoomVelocity`(注入惯性速度)、snap points、`HorizontalAnchorRatio / VerticalAnchorRatio` 锚定、`IgnoredInputKinds`、Chain/Rail 模式均未复刻。
-2. **滚动条形态**:QA 查证并更正:WinUI 两代控件模板同构,滚动条都是**覆盖式**——ScrollView 模板的 `PART_ScrollPresenter` 以 `RowSpan/ColumnSpan=2` 铺满整个内容条带(`ScrollView.xaml` L154),两轴 ScrollBar 叠放在其上,并非占据专属布局空间(初版 wiki 此处描述有误)。本组件不复刻该模板结构,滚动条交给浏览器原生渲染:经典滚动条模式下会**挤占视口内部空间**(内容被压缩),启用 Fluent/overlay 滚动条的浏览器(如 Windows 11 上的 Chrome/Edge 默认)则**覆盖在内容上**——与 WinUI 的覆盖式在不同平台观感不一,以实际浏览器为准。观感上按 WinUI token 修饰:`--wui-scroll-bar-thumb-fill` 系 thumb(12px 行高内 4px 圆条)、透明轨道。`scrollBarVisibility=Hidden` 在 Chromium/WebKit 可分轴隐藏;Firefox 的 `scrollbar-width` 不分轴,仅双轴同隐时生效。
+2. **滚动条形态**:QA 查证并更正:WinUI 两代控件模板同构,滚动条都是**覆盖式**——ScrollView 模板的 `PART_ScrollPresenter` 以 `RowSpan/ColumnSpan=2` 铺满整个内容条带(`ScrollView.xaml` L154),两轴 ScrollBar 叠放在其上,并非占据专属布局空间(初版 wiki 此处描述有误)。本组件不复刻该模板结构,滚动条交给浏览器原生渲染:经典滚动条模式下会**挤占视口内部空间**(内容被压缩),启用 Fluent/overlay 滚动条的浏览器(如 Windows 11 上的 Chrome/Edge 默认)则**覆盖在内容上**——与 WinUI 的覆盖式在不同平台观感不一,以实际浏览器为准。PL15 已把颜色重定向到 Fluent:thumb 四态 → `--wui-control-strong-fill-color-default`(浅 `#00000072` / 深 `#FFFFFF8B`),轨道 → `--wui-acrylic-in-app-fill-color-default`(亚克力回退 `#F9F9F9` / `#2C2C2C`)。**注意**:本组件根声明了标准 `scrollbar-color`,Chromium 因此走标准滚动条路径并**忽略 `::-webkit-scrollbar-*` 状态规则**——悬停/按下色由浏览器自派,但**静置色仍精确等于 `ScrollBarPanningThumbBackground`** 值(像素实测浅 139 / 深 159)。`scrollBarVisibility=Hidden` 在 Chromium/WebKit 可分轴隐藏;Firefox 的 `scrollbar-width` 不分轴,仅双轴同隐时生效。
 3. **缩放用 CSS `zoom`**:参与布局,滚动范围随缩放自动变化,滚动条/偏移语义与 WinUI ZoomFactor 一致;与 `transform: scale()` 不同,文本在放大后保持清晰。`zoomFactor` 在 WinUI 是只读属性(经 ZoomTo 变更),本组件的 `zoomFactor` prop 是「初始值 + 外部驱动」入口(属性变化即时 `zoomTo`,动画按 Disabled 语义)。
 4. **偏移/Extent 的单位**:事件与 ref 暴露的 `extentWidth/extentHeight`、偏移均为**滚动容器像素空间**(含缩放布局),WinUI 的 ExtentWidth/ViewportWidth 语义与之等价;`ScrollableWidth = extent - viewport`。
 5. **State 的近似**:`Interaction`(用户输入)、`Animation`(编程补间)、`Idle`(静止,120ms 去抖)可对应;WinUI 的 `Inertia` 是松手后的惯性衰减,Web 惯性在浏览器合成器内部,无法观测,统一并入 Interaction。
@@ -158,3 +158,4 @@ function onViewChanged(args: { horizontalOffset: number; verticalOffset: number;
 - 演示页源码:[demo/pages/ScrollViewPage.vue](../../demo/pages/ScrollViewPage.vue)
 - 组件源码:[src/components/ScrollView.vue](../../src/components/ScrollView.vue)
 - 同类控件:[ScrollViewer](./ScrollViewer.md)(旧滚动控件,与本控件并存)、[Viewbox](./Viewbox.md)(等比缩放而非滚动)、[Expander](./Expander.md)(展开收起容器)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

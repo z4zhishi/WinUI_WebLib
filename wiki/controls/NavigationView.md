@@ -127,15 +127,17 @@ function onItemInvoked(args: { tag: string | number; label: string }): void {
 
 | 源资源 | 本组件 token | 差异说明 |
 | --- | --- | --- |
-| `NavigationViewSelectionIndicatorForeground` ← `AccentFillColorDefaultBrush` | `--wui-system-accent-color` | 同键映射(系统色钩子,theme-hooks.css 提供) |
-| `NavigationViewItemBackgroundPointerOver` ← `SubtleFillColorSecondaryBrush` | `--wui-system-control-background-list-low`(#00000019) | Subtle 系画刷仅存在于 controls 层,theme.css 未收录,取最近似系统 token(#0E000000 → #19000000) |
-| `NavigationViewItemBackgroundPressed` / `…SelectedPointerOver` ← `SubtleFillColorTertiaryBrush` | `--wui-system-control-background-list-medium`(#00000033) | 同上,近似替代 |
-| `NavigationViewItemForeground` ← `TextFillColorPrimaryBrush`(#000000DE) | `--wui-application-foreground-theme`(#000000DE) | 同值直接映射 |
-| `NavigationViewItemForegroundPressed` ← `TextFillColorSecondaryBrush` | `--wui-application-secondary-foreground-theme`(#00000099) | 近似(源 #0000009E) |
-| `NavigationViewItemHeaderForeground` ← `TextFillColorSecondaryBrush` | `--wui-application-secondary-foreground-theme` | 同上 |
-| `NavigationViewDefaultPaneBackground` ← `AcrylicInAppFillColorDefaultBrush` | `--wui-system-control-page-background-chrome-low`(SplitView 承载的默认) | 无 Acrylic token,取 ChromeLow 实色;可用 `paneBackground` 覆盖 |
-| `NavigationViewContentGridBorderBrush` ← `CardStrokeColorDefaultBrush`(#0000000F) | `--wui-system-control-background-base-low`(#00000033) | 无 CardStroke token,描边偏重 |
-| `NavigationViewItemSeparatorForeground` ← `DividerStrokeColorDefaultBrush` | `--wui-system-control-background-base-low` | 同上 |
+| `NavigationViewSelectionIndicatorForeground` ← `AccentFillColorDefaultBrush` | `--wui-accent-fill-color-default` | PL11 重定向(此前未分主题的 `--wui-system-accent-color` 基色) |
+| `NavigationViewItemBackgroundPointerOver` ← `SubtleFillColorSecondaryBrush` | `--wui-subtle-fill-color-secondary`(浅 `#00000009` / 深 `#FFFFFF0F`) | PL11 重定向(此前 ListLow `#00000019`,偏差消除) |
+| `NavigationViewItemBackgroundPressed` / `…SelectedPointerOver` ← `SubtleFillColorTertiaryBrush` | `--wui-subtle-fill-color-tertiary`(浅 `#00000006` / 深 `#FFFFFF0A`) | PL11 重定向(此前 ListMedium `#00000033`,偏差消除) |
+| 菜单项 Normal/Selected 底 ← `SubtleFillColorTransparent/Secondary` | `--wui-subtle-fill-color-transparent` / `--wui-subtle-fill-color-secondary` | PL11 重定向(Selected 原为 `transparent`,已订正) |
+| `NavigationViewItemForeground` / `…ForegroundPressed` / 组头 ← `TextFillColorPrimary/Secondary` | `--wui-text-fill-color-primary` / `--wui-text-fill-color-secondary` | PL11 重定向(此前 legacy `--wui-application-*-theme`) |
+| 菜单项 Disabled 底·前景 | `--wui-subtle-fill-color-transparent` / `--wui-text-fill-color-disabled` | PL11 重定向(去掉 `opacity:.55` 近似) |
+| `NavigationViewItemSeparatorForeground` / 顶栏分隔线 ← `DividerStrokeColorDefaultBrush` | `--wui-divider-stroke-color-default`(`#0000000F` / `#FFFFFF15`) | PL11 重定向(此前 `--wui-system-control-background-base-low` `#00000033`) |
+| `NavigationViewContentBackground` ← `LayerFillColorDefaultBrush` | `--wui-layer-fill-color-default`(浅 `#FFFFFF80` / 深 `#3A3A3A4C`) | PL11 重定向(此前无背景/透明近似) |
+| `NavigationViewContentGridBorderBrush` ← `CardStrokeColorDefaultBrush` | `--wui-card-stroke-color-default`(`#0000000F` / `#00000019`) | PL11 重定向 |
+| 汉堡钮 Disabled 底·前景 ← `ControlFillColorDisabledBrush` / `TextFillColorDisabledBrush` | `--wui-control-fill-color-disabled` / `--wui-text-fill-color-disabled` | PL11 新增 `:disabled` 规则 |
+| 窗格底:Inline ← `SolidBackgroundFillColorTransparentBrush`;Overlay(Minimal)← `AcrylicInAppFillColorDefaultBrush` | `--wui-solid-background-fill-color-transparent` / 组件局部 `--wui-navview-pane-bg-overlay`(亚克力回退 `#F9F9F9`/`#2C2C2C`) | PL11 按 Inline/Overlay 分派;Overlay 为材质回退近似 |
 | 圆角 `ControlCornerRadius` / `OverlayCornerRadius`(4px)、内容卡 `8,0,0,0` | `--wui-hyperlink-focus-rect-corner-radius`(4px)+ 8px 直写 | 项目无 4px/8px 圆角 token,4px 取既有 token,8px 硬编码 |
 | `NavigationViewTitleHeaderContentControlTextStyle` FontSize 28 | `--wui-text-style-extra-large-font-size`(25.5px) | 最近似字号 token,页头略小 |
 
@@ -158,4 +160,4 @@ function onItemInvoked(args: { tag: string | number; label: string }): void {
 
 ---
 
-演示页源码:[demo/pages/NavigationViewPage.vue](../../demo/pages/NavigationViewPage.vue) · 组件源码:[src/components/NavigationView.vue](../../src/components/NavigationView.vue)
+演示页源码:[demo/pages/NavigationViewPage.vue](../../demo/pages/NavigationViewPage.vue) · 组件源码:[src/components/NavigationView.vue](../../src/components/NavigationView.vue) · Fluent 画刷族:[_brushes.md](./_brushes.md)

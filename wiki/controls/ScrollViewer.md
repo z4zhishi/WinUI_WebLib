@@ -6,7 +6,7 @@
 
 ScrollViewer 是 WinUI 中让用户**滚动、平移与缩放超出可视区域的内容**的容器控件:内容按视区尺寸参与布局,溢出部分由滚动条与滚轮/触摸平移承接,`ZoomMode` 启用后还支持缩放。ListView、GridView 等列表控件的模板都内置了 ScrollViewer 来提供自动滚动,因此它是阶段 2 的高价值基建控件。
 
-本组件是 WinUI ScrollViewer 的 Web 复刻:结构对照 `generic.xaml` 的 `TargetType="ScrollViewer"` 模板(Root Border → Grid(Background)→ ScrollContentPresenter(Margin = Padding)+ 横/竖 ScrollBar),滚动用原生 `overflow` 承载并把滚动条样式化为 WinUI 细拇指观感(`--wui-scroll-bar-*` token);缩放遵循 WinUI 语义——内容按未缩放尺寸布局后整体 `transform: scale()`,滚动范围随缩放自动增长;`Ctrl+滚轮`(触控板捏合同理)缩放、视口中心锚定;编程 API 对照 `ChangeView` / `ScrollTo*Offset` 家族经 `defineExpose` 暴露。
+本组件是 WinUI ScrollViewer 的 Web 复刻:结构对照 `generic.xaml` 的 `TargetType="ScrollViewer"` 模板(Root Border → Grid(Background)→ ScrollContentPresenter(Margin = Padding)+ 横/竖 ScrollBar),滚动用原生 `overflow` 承载并把滚动条样式化为 WinUI 细拇指观感;PL15 已把滚动条颜色重定向到 PL2 Fluent token(thumb 四态 `--wui-control-strong-fill-color-default`、轨道 `--wui-acrylic-in-app-fill-color-default`;总览见 [_brushes.md](./_brushes.md));缩放遵循 WinUI 语义——内容按未缩放尺寸布局后整体 `transform: scale()`,滚动范围随缩放自动增长;`Ctrl+滚轮`(触控板捏合同理)缩放、视口中心锚定;编程 API 对照 `ChangeView` / `ScrollTo*Offset` 家族经 `defineExpose` 暴露。
 
 官方文档:
 
@@ -124,13 +124,14 @@ const ok = viewer?.changeView(null, null, 2) // 只改缩放,返回是否接受
 
 ## 与 WinUI 的差异
 
-1. **滚动条为原生滚动条样式化,非 overlay**:WinUI 的 ScrollBar 是 overlay 控件,不占布局空间,内容可从滚动条下方滑过;Web 原生滚动条(经 `::-webkit-scrollbar` 样式化为 12px 栏、4px 细拇指)在显示时会预留栏位,视区略窄于控件宽度。滚动条颜色全部取 `--wui-scroll-bar-*` token;Firefox 走标准 `scrollbar-width/scrollbar-color` 细滚动条降级(无法逐轴隐藏)。颜色/圆角口径(VR-B6 FIX11 定案,与 ScrollView 组件统一):静置 thumb 取 `--wui-scroll-bar-thumb-fill`(SystemChromeDisabledLow #7A7A7A/#858585,即源 Visible 滚动条收起态 ScrollBarPanningThumbBackground),thumb 圆角源为**无圆角 Rectangle**(半径无源依据、无 token)→ 取 `999px` 满圆 pill(4px 厚下呈半圆端),观感与同库 ScrollView 一致。**悬停自动展开/离开自动收起**(MR2/A11,对照源 `ScrollBarExpand/ContractDuration`=0.1s、BeginTime 0.4s/2s):指针悬停滚动条区 0.4s 后展开(3px + `--wui-scroll-bar-thumb-background` 展开态色 + 轨道显形),离开 2s 后收起;0.1s 补间因 Chromium 不支持 `::-webkit-scrollbar-*` 伪元素过渡而不生效(平台限制,样式瞬变),0.4s/2s 延迟由 JS 定时器驱动。
+1. **滚动条为原生滚动条样式化,非 overlay**:WinUI 的 ScrollBar 是 overlay 控件,不占布局空间,内容可从滚动条下方滑过;Web 原生滚动条(经 `::-webkit-scrollbar` 样式化为 12px 栏、4px 细拇指)在显示时会预留栏位,视区略窄于控件宽度。滚动条颜色已由 PL15 重定向到 PL2 Fluent token(权威 = controls/dev `CommonStyles/ScrollBar_themeresources.xaml`,全 Fluent):thumb 四态(静置 `ScrollBarPanningThumbBackground`、展开 `ScrollBarThumbBackground`、悬停 `…FillPointerOver`、按下 `…FillPressed`)均指向 `ControlStrongFillColorDefaultBrush` → `--wui-control-strong-fill-color-default`(浅 `#00000072` / 深 `#FFFFFF8B`);展开轨道 `ScrollBarTrackFill` = `AcrylicInAppFillColorDefaultBrush` → `--wui-acrylic-in-app-fill-color-default`(亚克力回退 `#F9F9F9` / `#2C2C2C`);按钮/底/描边透明 → `--wui-subtle-fill-color-transparent` / `--wui-control-fill-color-transparent`。Firefox 走标准 `scrollbar-width/scrollbar-color` 细滚动条降级(同样改指上述 Fluent token,无法逐轴隐藏)。thumb 圆角源为**无圆角 Rectangle**(半径无源依据、无 token)→ 取 `999px` 满圆 pill(4px 厚下呈半圆端),观感与同库 ScrollView 一致。**悬停自动展开/离开自动收起**(MR2/A11,对照源 ScrollBar 族):指针悬停滚动条区 0.4s 后展开(3px + 展开态色 + 轨道显形),离开 2s 后收起;补间声明为 **167ms(展开/收缩)/ 83ms(透明度/颜色)**(权威 `ScrollBarExpandDuration`/`ContractDuration` L173/L176 = 167ms、`OpacityChangeDuration`/`ColorChangeDuration` L174/L175 = 83ms;0.1s 属 ScrollViewer 的 Separator 族,MR14 已订正),但 Chromium 不支持 `::-webkit-scrollbar-*` 伪元素过渡(平台限制,样式瞬变),0.4s/2s 延迟由 JS 定时器驱动。
 2. **ScrollMode 的触摸语义未逐项复刻**:WinUI 的 ScrollMode 还关联触摸平移、惯性、滚动链(chaining)等 DirectManipulation 配置(如 `IsVerticalScrollChainingEnabled`、`IsScrollInertiaEnabled`);Web 侧 `ScrollMode=Disabled` 的用户输入拦截覆盖滚轮/touch-action/键盘/滚动条栏位四个通道,但滚动链与惯性由浏览器接管、相关属性未暴露。`ScrollMode=Enabled/Auto` 在 CSS overflow 上无区别(能否滚只由可见性决定),仅在内容未溢出时二者的编程滚动都无处可滚,行为等效。另外:栏位覆盖层仅在该轴滚动条实际显示时渲染;横竖滚动条同时显示且其一被锁定时,锁定轴覆盖层会盖住另一轴滚动条的角落 12px(角落重叠观感)。
 3. **缩放锚点取视口中心**:Ctrl+滚轮缩放保持视口中心的内容点不动;WinUI 缩放由 DirectManipulation 接管,锚点行为未在托管源码中逐行对照,`changeView(…, zoom)` / 外部 v-model 写入则为左上角锚定(与 ChangeView 的 offset 语义一致)。
 4. **缩放实现为布局不缩放 + 整体 transform**:与 WinUI 内容变换语义一致(文本按未缩放宽度排版后视觉放大,放大后由浏览器重栅格化);滚动范围经 transform 溢出计入滚动区自动增长,但 `scrollWidth` 等读取的是含缩放的视区像素(与 WinUI offsets 同坐标系)。
 5. **每档缩放步长取 ±10% 近似**:WinUI 由 DirectManipulation 决定滚轮缩放步长,本实现按 `×1.1 / ÷1.1` 逐档缩放并钳制到 min/max。
 6. **ChangeView 的缩放请求不因 ZoomMode=Disabled 拒绝**:官方示例在 ZoomMode 切到 Disabled 后仍调用 `ZoomToFactor(2.0)` 复位,故编程缩放始终可用;`changeView` 仅在**目标轴 ScrollBarVisibility=Disabled** 时返回 `false`(对照 `UpdateCanScroll` 的门控——CanScroll 只由可见性决定,ScrollMode 不参与;滚轮缩放与 ScrollMode 亦相互独立)。
 7. **CornerRadius / BorderThickness 未作为 props 暴露**:WinUI 默认模板两者为 0/Transparent;需要圆角/描边时经 `$attrs` 的 class/style 自行包装(示例页用外层 border 呈现卡片观感)。
+8. **跨控件滚动条观感暂不一致(PL15 登记)**:本组件与 ScrollView 的滚动条已是 Fluent,而 ListBox / ListView / ItemsRepeater 仍消费 legacy `--wui-scroll-bar-*`(共享 token,受「theme.css 只增不改」约束未统一);建议后续小批次把这 3 处引用改指同一 Fluent token(每文件 4 行,零新增 token)。画刷族总览见 [_brushes.md](./_brushes.md)。
 8. **ScrollBarVisibility 切到 Disabled 的偏移瞬态**:WinUI 在切换瞬间把该轴偏移复位为 0(`SetHorizontalOffset(0)`,见 `ScrollViewer_Partial.cpp` L5387/L5394);Web 侧 `overflow: hidden` 不重置滚动偏移——原值保留、脚本写入仍生效,仅该轴此后无法再滚,与 WinUI 的切换瞬态不同。
 
 ## 官方示例对照
@@ -149,3 +150,4 @@ const ok = viewer?.changeView(null, null, 2) // 只改缩放,返回是否接受
 - 演示页源码:[demo/pages/ScrollViewerPage.vue](../../demo/pages/ScrollViewerPage.vue)
 - 组件源码:[src/components/ScrollViewer.vue](../../src/components/ScrollViewer.vue)
 - 同类控件:Viewbox(整体缩放而非滚动)、StackPanel(纵向/横向排布,常作为其内容)、Expander(展开收起容器)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

@@ -6,7 +6,7 @@
 
 使用 ContentDialog 显示相关信息,或提供可承载任意内容的**模态**对话框体验。对话框由全屏烟幕遮罩 + 居中面板构成:面板内是标题(最多两行)、正文(超高滚动)与命令区(主按钮 / 次按钮 / 关闭按钮,文本为空即隐藏);模态语义与 WinUI 一致——**遮罩点击不关闭**,只能通过命令按钮或 Esc 关闭。
 
-本组件按 WinUI 3 现行模板复刻视觉:面板三色取 `theme.css` 的 `--wui-content-dialog-*` token(浅 `#ffffff` / `#000000` / `#00000033`,深 `#000000` / `#ffffff` / `#ffffff33`),烟幕取锚定模板 LayoutRoot 的 `SystemControlPageBackgroundMediumAltMedium`(浅白雾 `#ffffff99` / 深黑雾 `#00000099`),圆角 `--wui-popup-corner-radius`(OverlayCornerRadius 8px)、内容区分隔线、命令区五列网格(按钮间距 8px、按钮 130–202px × 32px)与 `wui-dialog-scale-in` + 层级 `wui-fade-in` 双时间线入场动画(权威 controls/dev:scale 1.05→1 @250ms + 线性淡入 83ms;关闭 scale 1→1.05 @167ms + 83ms 线性淡出),随 `html[data-theme]` 明暗切换。
+本组件按 WinUI 3 现行模板复刻视觉(PL10 重定向):面板底 `--wui-solid-background-fill-color-base`(浅 `#F3F3F3` / 深 `#202020`)、面板前景 `--wui-text-fill-color-primary`(`#000000E4` / `#FFFFFF`)、面板描边 `--wui-surface-stroke-color-default`(`#75757566` 双主题),烟幕取 `--wui-smoke-fill-color-default`(双主题 `#0000004D`),内容区 TopOverlay 取 `--wui-layer-fill-color-alt`(浅 `#FFFFFF` / 深 `#FFFFFF0D`),分隔线取 `--wui-card-stroke-color-default`(`#0000000F` / `#00000019`);圆角 `--wui-popup-corner-radius`(OverlayCornerRadius 8px)、命令区五列网格(按钮间距 8px、按钮 130–202px × 32px)与 `wui-dialog-scale-in` + 层级 `wui-fade-in` 双时间线入场动画(权威 controls/dev:scale 1.05→1 @250ms + 线性淡入 83ms;关闭 scale 1→1.05 @167ms + 83ms 线性淡出),随 `html[data-theme]` 明暗切换(总览见 [_brushes.md](./_brushes.md))。
 
 弹层基建复用:焦点陷阱(`trapFocus` / `releaseFocus`,Tab 循环 + 关闭归还焦点)、弹层注册表(`registerPopupLayer`,嵌套时 Esc 只关栈顶)、z-index 固定档 `--wui-z-popup-dialog` 全部来自 [弹层公共基建](./_popup-infra.md)。对话框为视口居中模态,不锚定宿主,不走 `usePopupLayer` 定位。
 
@@ -92,23 +92,23 @@ function onPrimary(args: { cancel: boolean }) {
 
 ## 与 WinUI 的差异说明
 
-对照 `generic.xaml` L8370-8665(`TargetType="ContentDialog"` 模板段)、WinUI 3 现行模板(`controls/dev/CommonStyles/ContentDialog_themeresources.xaml` 与 `dxaml/test/.../ContentDialog/ContentDialogTemplate.xaml`)及 `theme.css` token 的取值映射:
+对照 WinUI 3 生效层 `controls/dev/CommonStyles/ContentDialog_themeresources.xaml`(逐行复核)与 theme.css Fluent token 的取值映射:
 
 | WinUI 取值 | Web 实现 | 说明 |
 | --- | --- | --- |
-| 面板 `ContentDialogBackground` = `SystemControlPageBackgroundAltHighBrush`(浅 #FFFFFF / 深 #000000) | `--wui-content-dialog-background` | 无差异(dxaml 侧值;WinUI 3 为 `SolidBackgroundFillColorBase`,深色 #1C1C1C,取 theme.css 既有 token 视觉近似) |
-| 面板 `ContentDialogForeground` = `SystemControlPageTextBaseHighBrush` / WinUI 3 `TextFillColorPrimaryBrush` | `--wui-content-dialog-foreground`(浅 #000000 / 深 #ffffff) | 无差异 |
-| 面板 `ContentDialogBorderBrush` = `SystemControlBackgroundBaseLowBrush` / WinUI 3 `SurfaceStrokeColorDefaultBrush` | `--wui-content-dialog-border`(浅 #00000033 / 深 #ffffff33),1px | 无 token 级差异,色值即 dxaml 侧提取物 |
-| 烟幕 LayoutRoot `SystemControlPageBackgroundMediumAltMediumBrush` | `--wui-system-control-page-background-medium-alt-medium`(浅 #ffffff99 / 深 #00000099) | 与锚定模板逐字对应(浅白雾 / 深黑雾);WinUI 3 换用 `SmokeFillColorDefaultBrush`(双主题黑雾),未提取 token,以既有 token 为准 |
-| 内容区 `ContentDialogTopOverlay` = `LayerFillColorAltBrush` 半透明叠色 | 未实现(面板背景平铺) | 该画刷无 `--wui-*` token,半透明叠色取最近似 token 会扰动调色板,故压平为单色;分隔线保留 |
-| 分隔线 `ContentDialogSeparatorBorderBrush` = `CardStrokeColorDefaultBrush`,厚度 `0,0,0,1` | `border-bottom: 1px solid var(--wui-content-dialog-border)` | 画刷无 token,取对话框自身边框 token 作最近似;位置贴命令区上沿,长内容时恒在可视区(WinUI 中分隔线随内容滚动,取短内容一致观感) |
+| 面板 `ContentDialogBackground` = `SolidBackgroundFillColorBaseBrush` | `--wui-solid-background-fill-color-base`(浅 `#F3F3F3` / 深 `#202020`) | PL10 重定向(此前 legacy `--wui-content-dialog-background` `#ffffff`/`#000000`) |
+| 面板 `ContentDialogForeground` = `TextFillColorPrimaryBrush` | `--wui-text-fill-color-primary`(浅 `#000000E4` / 深 `#FFFFFF`) | PL10 重定向(补 alpha) |
+| 面板 `ContentDialogBorderBrush` = `SurfaceStrokeColorDefaultBrush` | `--wui-surface-stroke-color-default`(`#75757566` 双主题),1px | PL10 重定向(此前 `#00000033`/`#ffffff33`) |
+| 烟幕 LayoutRoot = `SmokeFillColorDefaultBrush` | `--wui-smoke-fill-color-default`(双主题 `#0000004D`) | PL10 重定向(此前 legacy 页面底近似 `#ffffff99`/`#00000099`) |
+| 内容区 `ContentDialogTopOverlay` = `LayerFillColorAltBrush` | `--wui-layer-fill-color-alt`(浅 `#FFFFFF` / 深 `#FFFFFF0D`) | PL10 新增落色(此前未实现背景) |
+| 分隔线 `ContentDialogSeparatorBorderBrush` = `CardStrokeColorDefaultBrush`,厚度 `0,0,0,1` | `border-bottom: 1px solid var(--wui-card-stroke-color-default)` | PL10 重定向(此前复用面板 border);位置贴命令区上沿,长内容时恒在可视区(WinUI 中分隔线随内容滚动,取短内容一致观感) |
 | 标题 FontSize 20 / Margin 0,0,0,12 / MaxLines 2 | `font-size: 20px` / `margin-bottom: 12px` / `-webkit-line-clamp: 2` | 无差异;字重取 WinUI 3 现行模板 `SemiBold`(dxaml 旧模板为 Normal) |
 | 正文 `ControlContentThemeFontSize` = 14 | `--wui-control-content-theme-font-size` | 无差异 |
 | `ContentDialogPadding` = 24(WinUI 3 均分) | 内容区与命令区 `padding: 24px` | dxaml 旧模板为 24,18,24,24 + 命令区 0,24,0,0,取现行值 |
 | 命令区五列网格 / `ContentDialogButtonSpacing` = 8 / 按钮列宽 `*` | `grid-template-columns` 五列 + 8px 间隔,单键占右半格 | 对照 `ButtonsVisibilityStates` 八态逐条映射(三键三等分 / 两键两半 / 单键右半) |
 | `ContentDialogButtonMinWidth` 130 / `MaxWidth` 202 / `ButtonHeight` 32 | 按钮内联约束 | 尺寸资源 theme.css 未提取,按源值写死 |
 | `ContentDialogMinWidth` 320 / `MaxWidth` 548 / `MinHeight` 184 / `MaxHeight` 756 | 面板 min/max 约束 | 同上;另加 `calc(100vw/vh - 48px)` 视口钳制(WinUI 由窗口约束,Web 需显式) |
-| defaultButton = `AccentButtonStyle` | 复用 `--wui-accent-button-*` token 的强调色状态(与 Button.vue 同源) | 无差异(AccentFillDefault 即 `--wui-system-accent-color`) |
+| defaultButton = `AccentButtonStyle` | 复用 PL3 已迁移的 `WuiButton` 与 `--wui-accent-button-*` 强调色状态 | PL10 记录按钮族已迁移,本批不动(属按钮族工单) |
 | 打开动画 `DialogShowing`(权威 controls/dev `ContentDialog_themeresources.xaml` L96-113):scale 1.05→1 @250ms + 层根透明度线性 83ms 双时间线 | 面板 `wui-dialog-scale-in` 250ms `cubic-bezier(0,0,0,1)` + 层 `wui-fade-in` 83ms 线性 | 双时间线拆到层/面板两元素逐键复刻;关闭 `DialogHidden`(scale 1→1.05 @167ms 同 spline + 83ms 线性淡出,L74-95)同构双时间线。注:dxaml `generic.xaml` L8393-8423 为 UWP 遗留 500ms / spline 0.1,0.9,0.2,1 版,已弃用 |
 | `ShowAsync()` 返回 `ContentDialogResult` | `v-model:is-open` + 三个 `*ButtonClick` 事件 | 声明式等价:关闭方式可由事件推断(primary/secondary/close → Primary/Secondary/None);无 result 枚举 |
 | `ContentDialogButtonClickEventArgs.GetDeferral()`(异步暂停关闭直至 Deferral 完成) | 简化为同步 `args.cancel` | 处理器同步置 `cancel = true` 阻止关闭;异步决定请先 cancel,待异步完成后再把 `isOpen` 置 `false`(见上方基础用法注释) |
@@ -123,3 +123,4 @@ function onPrimary(args: { cancel: boolean }) {
 - 组件源码:`src/components/ContentDialog.vue`
 - 弹层公共基建:[`_popup-infra.md`](./_popup-infra.md)(z-index 档位、焦点陷阱与自动关闭约定)
 - 相关控件:Flyout、MenuFlyout、TeachingTip、ToolTip
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

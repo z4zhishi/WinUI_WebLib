@@ -84,11 +84,11 @@ const page = ref(0)
 
 | WinUI 取值 | Web 实现 | 说明 |
 | --- | --- | --- |
-| `PipsPagerSelectionIndicatorForeground` / `PipsPagerNavigationButtonForeground`(Normal,`ControlStrongFillColorDefaultBrush`,Light #72000000 = 45% 黑 / Dark #8BFFFFFF = 55% 白) | 组件局部 token `--wui-pips-indicator` 携带源实值,`html[data-theme='dark']` 分套(InfoBar 先例) | theme.css 未收录同名 token,按源值精确实现(XAML `#AARRGGBB` → CSS `#RRGGBBAA`);pip 与导航按钮共色(源两组资源取值相同) |
-| `…ForegroundPointerOver` / `…ForegroundPressed`(`TextFillColorSecondaryBrush`,Light #9E000000 = 62% 黑 / Dark #C5FFFFFF = 77% 白) | `--wui-pips-indicator-hover` 同法携带源实值 | 悬停/按下比常态更实(与源方向一致) |
-| `…ForegroundDisabled`(`ControlStrongFillColorDisabledBrush`,Light #51000000 = 32% 黑 / Dark #3FFFFFFF = 25% 白) | `--wui-pips-indicator-disabled` 同法携带源实值 | 与源一致 |
-| pip/导航按钮 `Background`、`BorderBrush`(各状态均为 `ControlFillColorTransparentBrush`) | `background: transparent`、`border: 1px solid transparent` | 与源一致(透明),非硬编码色值 |
-| `ControlCornerRadius` = 4(pip 与导航按钮 CornerRadius) | `--wui-hyperlink-focus-rect-corner-radius`(4px) | 无同名圆角 token,取最近似圆角 token(项目既有约定) |
+| `PipsPagerSelectionIndicatorForeground` / `PipsPagerNavigationButtonForeground`(Normal,`ControlStrongFillColorDefaultBrush`) | PL13 直引全局 `--wui-control-strong-fill-color-default`(局部别名 `--wui-pips-indicator` 保留、值改指向全局 token;删除 `html[data-theme='dark']` 覆盖) | 浅 `#00000072` / 深 `#FFFFFF8B`,明暗随 token 自带;pip 与导航按钮共色 |
+| `…ForegroundPointerOver` / `…ForegroundPressed`(`TextFillColorSecondaryBrush`) | 全局 `--wui-text-fill-color-secondary`(局部别名 `--wui-pips-indicator-hover`) | 浅 `#0000009E` / 深 `#FFFFFFC5`;悬停/按下比常态更实 |
+| `…ForegroundDisabled`(`ControlStrongFillColorDisabledBrush`) | 全局 `--wui-control-strong-fill-color-disabled`(局部别名 `--wui-pips-indicator-disabled`) | 浅 `#00000051` / 深 `#FFFFFF3F` |
+| pip/导航按钮 `Background`、`BorderBrush`(各状态均为 `ControlFillColorTransparentBrush`) | `--wui-control-fill-color-transparent` | 与源一致(透明) |
+| `ControlCornerRadius` = 4(pip 与导航按钮 CornerRadius) | `--wui-hyperlink-focus-rect-corner-radius`(4px) | 无同名圆角 token,以同值 4px 变量承载(项目既有约定) |
 | pip 字形 `\uEA3B`,字号 Normal 4px / Selected(hover)6px(`PipsPagerNormalGlyphFontSize` / `PipsPagerSelectedGlyphFontSize`) | 同字形 + `--wui-symbol-theme-font-family` 本机字体栈 | 与源一致;依赖本机 Segoe Fluent Icons / MDL2 字体(项目 R1 裁决不做网络字体加载) |
 | 导航按钮字形 `\uEDDB` / `\uEDDC`,字号 8px(`PipsPagerNavigationButtonFontSize`),横向整体旋转 -90° | 同字形 + 同字体栈,`transform: rotate(-90deg)` | 与源一致;RTL 的 `MirroredWhenRightToLeft` 未实现(项目暂无 RTL 场景) |
 | 导航按钮按下缩放 `PipsPagerNavigationButtonScalePressed` = 0.875(源为 0.016s~30s 的 Discrete 双帧循环动画) | `:active` 时对字形 `transform: scale(0.875)`,松开还原 | 源动画效果为「按住保持 0.875」,CSS 静态缩放等价 |
@@ -106,3 +106,4 @@ const page = ref(0)
 - 在线示例:`/#/pipspager`
 - 演示页源码:`demo/pages/PipsPagerPage.vue`
 - 相关控件:FlipView(待实现,联动目标)、ScrollViewer、ItemsRepeater
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

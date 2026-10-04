@@ -124,7 +124,7 @@ for await (const entry of dir.values()) {
 - **安全模型前置**:WinUI「选择即授权 + 可见路径」,Web「沙箱 + 逐会话授权 + 路径不可见」(见上文安全模型一节)—— 这是演示交互里所有提示文案的来源。
 - **降级通路**:`<input type="file">` 只能读且拿不到句柄语义(无持久授权、无多次 `getFile()`);`<a download>` 只能落到浏览器下载目录,不能指定位置与覆盖文件。降级是「功能子集」,不是等价替代,页面内以徽标标注当前生效通路。
 - **类型收录**:TS 的 DOM lib 未收录 `show*Picker`(Chromium 主导的 API),示例代码需自行声明最小接口(本页 `demo/pages/StoragePickersPage.vue` 内有完整定义,可直接复用)。
-- **视觉值**:本页不移植 `generic.xaml` 控件模板(无对应控件);按钮 / 状态提示 / 文本输入复用 [Button](./Button.md) / [InfoBar](./InfoBar.md) 组件与原生 textarea,颜色全部取自 `--wui-*` token(官方缩略图 Border 的 `SubtleFillColorTertiaryBrush` 无对应 token,取最近似的 `--wui-system-control-background-chrome-medium-low` 并在源码注释记录)。
+- **视觉值**:本页不移植 `generic.xaml` 控件模板(无对应控件);按钮 / 状态提示 / 文本输入复用 [Button](./Button.md) / [InfoBar](./InfoBar.md) 组件与原生 textarea,颜色全部取自 `--wui-*` token(官方缩略图 Border 的 `SubtleFillColorTertiaryBrush` 现已有对应 PL2 Fluent token `--wui-subtle-fill-color-tertiary`(见 [_brushes.md](./_brushes.md)),消费侧可直引;演示页源码注释记录)。
 - **文本框组件**:官方保存示例用多行 `TextBox`(AcceptsReturn);站内 [TextBox](./TextBox.md) 组件为单行 input,故示例页用带 token 的原生 textarea 承载多行内容。
 
 ---

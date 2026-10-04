@@ -10,7 +10,7 @@ RatingControl(评分控件)让用户用 1 到 N 颗星为内容评分("Rate some
 2. **悬浮预览态**:指针滑过时星星实时预览填充到所在星(ceil 取整),支持按住拖出左边缘清空;
 3. **紧凑值态**:评分后收窄为紧凑的实心星条(强调色),文字随业务更新(如「312 条评分」→「你的评分」)。
 
-组件按 WinUI `RatingControl.xaml` 的 ControlTemplate 与 `RatingControl_themeresources.xaml` 复刻:双层星条(背景层恒为轮廓星 U+E734 未选色,前景层实心星 U+E735 逐星裁切,半星用 `clip-path` 裁切且不移动星位),颜色全部取 theme.css 的 `--wui-rating-control-*` token,浅/深主题自动跟随。
+组件按 WinUI `RatingControl.xaml` 的 ControlTemplate 与 `RatingControl_themeresources.xaml` 复刻:双层星条(背景层恒为轮廓星 U+E734 未选色,前景层实心星 U+E735 逐星裁切,半星用 `clip-path` 裁切且不移动星位);状态色已由 PL13 重定向到 Fluent 画刷族——未选 `RatingControlUnselectedForeground = TextFillColorSecondaryBrush` → `--wui-text-fill-color-secondary`、已选 `…SelectedForeground = AccentFillColorDefaultBrush` → `--wui-accent-fill-color-default`、占位 `…PlaceholderForeground = TextFillColorPrimaryBrush` → `--wui-text-fill-color-primary`、悬停预览 `…PointerOverPlaceholder/UnselectedForeground = ControlAltFillColorTertiaryBrush` → `--wui-control-alt-fill-color-tertiary`、禁用 `…DisabledSelectedForeground = TextFillColorDisabledBrush` → `--wui-text-fill-color-disabled`、说明文字 `…CaptionForeground = TextFillColorSecondaryBrush` → `--wui-text-fill-color-secondary`,浅/深随 token 自带(总览见 [_brushes.md](./_brushes.md))。
 
 官方文档:
 
@@ -79,7 +79,7 @@ const rating = ref<number | null>(null)
 
 1. **`value` 类型**:WinUI `Value` 为 double(哨兵 -1 = 未评分),Web 侧建模为 `number | null`,更贴合 JS 习惯;源允许程序化设分数值(如 2.5,显示为半星),交互路径(点击/键盘)只产生整数。
 2. **无 token 项**(按源值直用):星 16px、星距 8px(`RatingControlItemSpacing`)、文字与星条间距 12px(源代码注释标注,红色线稿的 8px 实为 12px)、控件 `MinHeight` 32、caption 字号 12px(`CaptionTextBlockStyle`)。
-3. **禁用星色**:源 `RatingControlDisabledSelectedForeground` = `TextFillColorDisabledBrush`,rating token 族无对应项,取最近似既有 token `--wui-button-foreground-disabled`(`#00000066` / `#ffffff66`,与各控件禁用文字同值)。
+3. **禁用星色**:源 `RatingControlDisabledSelectedForeground` = `TextFillColorDisabledBrush`,PL13 已重定向为 `--wui-text-fill-color-disabled`(`#0000005C` / `#FFFFFF5D`;此前取 `--wui-button-foreground-disabled` `#00000066`/`#ffffff66`,偏差消除)。
 4. **悬浮星星缩放动画**:源用 Composition 表达式让靠近指针的星放大(0.5–0.8 标度),但本快照中 `starsScaleFocalPoint` 从未随指针更新(仅重置为 -100),表达式恒取下限 0.5——即星恒为 16px 实际尺寸、无缩放。Web 按该实际观感呈现(静态 16px),未复刻缩放。
 5. **双倍渲染技巧**:源以 `FontSize 32` 渲染再整体缩放 0.5(文本缩放兼容),Web 直接以 16px 呈现,视觉效果一致。
 6. **自定义字形/图片**(`ItemInfo` → `RatingItemFontInfo` / `RatingItemImageInfo`)未迁移,固定使用 Segoe Fluent Icons 的 U+E734(轮廓)/ U+E735(实心);字体依赖本机字体栈(与 FontIcon 一致),无网络字体加载。
@@ -94,3 +94,4 @@ const rating = ref<number | null>(null)
 - 文字说明:`Caption="312 ratings"`,评分后切换为「Your rating」(官方示例在 `ValueChanged` 中改 Caption)
 - 占位值:`PlaceholderValue` 绑定滑杆(步长 0.5),展示半星占位
 - 只读展示:历史评分展示用 `IsReadOnly="True"`
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

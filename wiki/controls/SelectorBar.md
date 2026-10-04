@@ -105,10 +105,9 @@ function onSelectionChanged(e: { item: unknown; index: number }) {
 
 | 项 | WinUI 源行为 | 本组件实现 |
 | --- | --- | --- |
-| 前景色 token | `SelectorBarItemForeground*` = TextFillColorPrimary / Secondary / Tertiary / Disabled(定义于 CommonStyles/Common_themeresources_any.xaml,旧版 generic.xaml 无此画刷族) | theme.css 无对应 token,按最近似 token 映射:Primary→`--wui-application-foreground-theme`、Secondary→`--wui-application-secondary-foreground-theme`、Tertiary→`--wui-application-pressed-foreground-theme`、Disabled→`--wui-system-control-disabled-base-medium-low`(值差 ≤ 3% 透明度) |
-| 指示条填充 | `SelectorBarItemPillFill` = AccentFillColorDefaultBrush(浅色 = SystemAccentColorDark1 / 深色 = SystemAccentColorLight2) | 用 theme-hooks 系统强调色钩子 `--wui-system-accent-color-dark-1` / `--wui-system-accent-color-light-2`(按 `html[data-theme='dark']` 换档);禁用指示条 `AccentFillColorDisabled`(浅 #37000000 / 深 #28FFFFFF)无 token,取源值 |
-| 选中态前景(SelectedPressed) | 源模板 `SelectedPressed` 取 `SelectorBarItemForegroundPointerOver`(Secondary,非 Pressed 色) | 一致:选中项 hover/按压均为 Secondary |
-| 项背景 | `SelectorBarItemBackground*` 全态透明,交互只有前景色变化 | 一致:背景透明,无 hover/按压底色 |
+| 前景色 token | `SelectorBarItemForeground*` = TextFillColorPrimary / Secondary / Tertiary / Disabled(定义于 CommonStyles/Common_themeresources_any.xaml) | PL11 已重定向到 Fluent:`--wui-text-fill-color-primary/secondary/tertiary/disabled`(精确同键);SelectedPointerOver/Pressed 均取 Secondary(同源口径) |
+| 指示条填充 | `SelectorBarItemPillFill` = AccentFillColorDefaultBrush(浅色 = SystemAccentColorDark1 / 深色 = SystemAccentColorLight2) | PL11 直引 `--wui-accent-fill-color-default`(明暗随 token 自带);禁用指示条 `AccentFillColorDisabled` → `--wui-accent-fill-color-disabled`(浅 #37000000 / 深 #28FFFFFF) |
+| 栏与项背景 | `SelectorBarBackground` / `SelectorBarItemBackground*` 全态 = SystemControlTransparentBrush / 透明 | PL11 改为 `--wui-control-fill-color-transparent`,交互只有前景色变化 |
 | 指示条动画 | `SelectedNormal` 进入:Opacity 0→1 + ScaleX 1→4,167ms,KeySpline(0,0,0,1),CompositeTransform 以元素左上为原点(自中点向右展开至 16px) | 一致:CSS transition 同参数;差异:取消选中时指示条淡出为同参数动画,源为瞬切(单向 storyboard) |
 | 焦点视觉 | `UseSystemFocusVisuals` + `FocusVisualMargin=-2`(焦点环比项大 2px) | 简化为 `:focus-visible` 贴边 2px outline(`--wui-system-control-focus-visual-primary`),不做 -2px 外扩 |
 | ARIA 语义 | `SelectorBarItemAutomationPeer`:`AutomationControlType.ListItem`(ISelectionItemProvider + IInvokeProvider) | 按任务规格采用 WAI-ARIA tabs 模式:`role="tablist"` / `role="tab"` + `aria-selected` + roving tabindex |
@@ -126,3 +125,4 @@ function onSelectionChanged(e: { item: unknown; index: number }) {
 - 演示页:`demo/pages/SelectorBarPage.vue`(路由 `/#/selectorbar`)
 - 组件源码:`src/components/SelectorBar.vue`、`src/components/SelectorBarItem.vue`
 - 姊妹控件:[Pivot](./Pivot.md)(被替代的旧控件)、[MenuBar](./MenuBar.md)(命令菜单栏)、[NavigationView](./NavigationView.md)(完整导航壳)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

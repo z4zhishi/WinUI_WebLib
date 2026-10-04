@@ -81,22 +81,25 @@ function onExpanded() { console.log('Expanded') }
 
 ## 与 WinUI 的差异(视觉与行为对照)
 
-视觉按 `controls/dev/Expander/Expander.xaml`(ControlTemplate)与 `Expander_themeresources.xaml`(头部按钮四交互态 Normal/PointerOver/Pressed/Disabled 及 Checked 组合态)复刻。Expander 是 WinUI 3 的 Fluent 2 控件,其主题资源引用 **Card\*/Subtle\*/TextFill\* 系列画刷**,这些画刷未被 theme.css 收录(theme.css 提取自经典 generic.xaml 主题字典),按「最近似 token」规则映射如下:
+视觉按 `controls/dev/Expander/Expander.xaml`(ControlTemplate)与 `Expander_themeresources.xaml`(头部按钮四交互态 Normal/PointerOver/Pressed/Disabled 及 Checked 组合态)复刻。Expander 是 WinUI 3 的 Fluent 2 控件,其主题资源引用 **Card\*/Subtle\*/TextFill\* 系列画刷**;PL2 已把该系列落进 theme.css,PL9 已把 Expander 头部 / chevron / 内容的画刷**全部替换为精确 Fluent token**(原「最近似 token」映射表整表作废):
 
-| 源资源(WinUI 3) | 本组件 token | 差异说明 |
+| 源资源(WinUI 3) | Fluent 画刷键 | 本组件 token(浅 / 深) |
 | --- | --- | --- |
-| `ExpanderHeaderBackground` ← `CardBackgroundFillColorDefault` | `--wui-flyout-presenter-background`(#F2F2F2 / #2B2B2B) | 源为 70% 半透明白卡面叠在 Mica 层上;Web 取最近似的不透明中性表面 token,浅 / 深主题观感接近 |
-| `ExpanderContentBackground` ← `CardBackgroundFillColorSecondary` | `--wui-combo-box-drop-down-background`(#F2F2F2 / #2B2B2B) | 源卡面次级填充与主填充在页面上几乎同色,差异可忽略 |
-| `ExpanderHeaderBorderBrush` / `ExpanderContentBorderBrush` ← `CardStrokeColorDefault` | `--wui-system-control-background-base-low`(#00000033 / #FFFFFF33) | 与 demo 画布描边同款发丝线,深色主题下比源的暗色卡描边更亮 |
-| `ExpanderHeaderForeground` 等 ← `TextFillColorPrimary` | `--wui-default-text-foreground-theme` | 源主文本色约 90% 不透明度,token 为不透明,肉眼差异极小 |
-| `ExpanderHeaderDisabledForeground` ← `TextFillColorDisabled` | `--wui-toggle-switch-content-foreground-disabled`(#00000066 / #FFFFFF66) | 源约 36% 不透明度,token 为 40% |
-| `ExpanderChevronPointerOverBackground` ← `SubtleFillColorSecondary` | `--wui-grid-view-item-background-pointer-over`(#00000019 / #FFFFFF19) | 源约 3.5% 叠加,token 为 10%,悬停反馈略强 |
-| `ExpanderChevronPressedBackground` ← `SubtleFillColorTertiary` | `--wui-grid-view-item-background-pressed`(#00000033 / #FFFFFF33) | 同上,按压反馈略强 |
+| `ExpanderHeaderBackground` | `CardBackgroundFillColorDefault` | `--wui-card-background-fill-color-default`(`#FFFFFFB3` / `#FFFFFF0D`) |
+| `ExpanderContentBackground` | `CardBackgroundFillColorSecondary` | `--wui-card-background-fill-color-secondary`(`#F6F6F680` / `#FFFFFF08`) |
+| `ExpanderHeaderBorderBrush` / `ExpanderContentBorderBrush` | `CardStrokeColorDefault` | `--wui-card-stroke-color-default`(`#0000000F` / `#00000019`) |
+| `ExpanderHeaderForeground` 等 | `TextFillColorPrimary` | `--wui-text-fill-color-primary`(`#000000E4` / `#FFFFFF`) |
+| `ExpanderHeaderDisabledForeground` | `TextFillColorDisabled` | `--wui-text-fill-color-disabled`(`#0000005C` / `#FFFFFF5D`) |
+| `ExpanderChevronBackground` | `SubtleFillColorTransparent` | `--wui-subtle-fill-color-transparent` |
+| `ExpanderChevronPointerOverBackground` | `SubtleFillColorSecondary` | `--wui-subtle-fill-color-secondary`(`#00000009` / `#FFFFFF0F`) |
+| `ExpanderChevronPressedBackground` | `SubtleFillColorTertiary` | `--wui-subtle-fill-color-tertiary`(`#00000006` / `#FFFFFF0A`) |
+
+原「最近似 token」列(`--wui-flyout-presenter-background` / `--wui-combo-box-drop-down-background` / `--wui-system-control-background-base-low` / `--wui-default-text-foreground-theme` / `--wui-toggle-switch-content-foreground-disabled` / `--wui-grid-view-item-background-*`)及相应「悬停反馈略强 / 按压反馈略强」偏差均已消除。Up/Right/Left 方向的 `border-top/bottom` 同色替换;画刷族总览见 [_brushes.md](./_brushes.md)。
 
 其余无 token / 做 Web 等价替换的项:
 
 1. **Left/Right 展开方向为 Web 扩展**:参照源枚举仅 `Down = 0 / Up = 1`(`Expander.idl` L46-L49),`UpdateExpandDirection` 也只处理 Down/Up 两态。任务规格要求四方向,Left/Right 的边框(`0,1,1,1` / `1,1,0,1`)、圆角裁切与箭头旋向按 Down/Up 的同构语义推演,WinUI 无官方对应视觉。
-2. **圆角 token 未提取**:`ControlCornerRadius = 4` 未在 theme.css 生成同名 token,取最近似 `--wui-hyperlink-focus-rect-corner-radius`(同为 4px),并按源 `Top/BottomCornerRadiusFilterConverter` 语义只给面向外部的一侧圆角(Down:头部上侧 / 内容下侧,依此类推)。
+2. **圆角 token 未提取**:`ControlCornerRadius = 4` 未在 theme.css 生成同名 token,以同值 4px 的 `--wui-hyperlink-focus-rect-corner-radius` 承载,并按源 `Top/BottomCornerRadiusFilterConverter` 语义只给面向外部的一侧圆角(Down:头部上侧 / 内容下侧,依此类推)。
 3. **尺寸资源未提取**:`ExpanderMinHeight = 48`、`ExpanderHeaderPadding = 16,0,0,0`、`ExpanderContentPadding = 16`、`ExpanderChevronButtonSize = 32`、`ExpanderChevronMargin = 20,0,8,0`、`ExpanderChevronGlyphSize = 12`、边框厚度 `1,0,1,1 / 1,1,1,0` 均为 XAML 资源,按值写死为对应 CSS(XAML Thickness 顺序:左,上,右,下)。`MinWidth = FlyoutThemeMinWidth` 因 token 缺失未设置,宽度由内容决定(演示页以 min-width 补足观感)。
 4. **箭头动画**:源 `ExpandCollapseChevron` 是 `controls:AnimatedIcon` + `AnimatedChevronUpDownSmallVisualSource`(状态集 `NormalOff` / `PointerOverOff` / `PressedOff` / `NormalOn` / `PointerOverOn` / `PressedOn`,收起 `NormalOff` / 展开 `NormalOn`;见 `Expander_themeresources.xaml` L141/L160/L191 等 Setter),并以字体字形 E70D/E70E 兜底。**源为 LottieGen 编译资产,原始 `.json` 不在 CK 快照内**,Web 以静态字形 E70D + `rotate()` 过渡复刻翻面,旋向随方向与状态联动。时长取源 `c_durationTicks`(`AnimatedChevronUpDownSmallVisualSource.cpp` L104 `43333333` tick,1 tick=100ns = **433.33ms**);缓动取 `linear`——`Expander.xaml` / themeresources 仅对内容位移动画定义 KeySpline,chevron 自身无 XAML KeySpline 可提取(曲线烘焙在 Lottie 内)。源 PointerOver / Pressed 态在 Setter 中仅改写 chevron 前景 / 底色(已由本组件 `:hover` / `:active` 规则覆盖)。
 5. **展开 / 收起动画**:源以 RenderTransform 平移 + composition clip 实现(展开 333ms / KeySpline 0,0,0,1,收起 167ms / KeySpline 1,1,0,1);本组件以 `grid-template-rows` 的 0fr↔1fr 过渡等价实现高度动画(Left/Right 为 `grid-template-columns` 宽度过渡),时长与缓动取 animations.css 的 `--wui-duration-slow`(350ms ≈ 333ms)+ `--wui-easing-standard`、`--wui-duration-fast`(167ms)+ `--wui-easing-accelerate` 最近似组合。收起完成后内容区 `visibility: hidden`(源为 `Visibility = Collapsed`)。
@@ -106,4 +109,4 @@ function onExpanded() { console.log('Expanded') }
 
 ---
 
-演示页源码:[demo/pages/ExpanderPage.vue](../../demo/pages/ExpanderPage.vue) · 组件源码:[src/components/Expander.vue](../../src/components/Expander.vue)
+演示页源码:[demo/pages/ExpanderPage.vue](../../demo/pages/ExpanderPage.vue) · 组件源码:[src/components/Expander.vue](../../src/components/Expander.vue) · Fluent 画刷族:[_brushes.md](./_brushes.md)

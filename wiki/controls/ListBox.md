@@ -106,9 +106,8 @@ function onSelectionChanged(selected: unknown[]): void {
 
 ## 与 WinUI 的差异说明
 
-- **颜色 / 字号**:全部取自 `theme.css` 的 `--wui-system-control-*` token(容器底色 `background-chrome-medium-low`、容器前景/边框刷 `foreground-base-high`、悬停 `highlight-list-low`、按压 `highlight-list-medium`、选中 `highlight-list-accent-low/medium/high`、交互态前景 `highlight-alt-base-high`、禁用前景 `disabled-base-medium-low`、焦点框 `focus-visual-primary/secondary`),浅 / 深主题随 `data-theme` 切换;选中三档强调色透明度与源一致(浅色主题 40% / 60% / 70%,深色主题 60% / 80% / 90%)。
-- **无 token 的结构值**(源 generic.xaml 键,按源值直接使用):`ListBoxItemPadding` = 12,9,12,12(项内容边距)、`ListBoxBorderThemeThickness` = 0(浅/深主题;HighContrast 主题的 2px 未实现)、`ListBoxItem` 无 MinHeight/MinWidth 键(项高由内容 + Padding 决定,区别于 `ListViewItemMinHeight` = 40)。
-- **BorderBrush 可见性**:浅/深主题边框厚度为 0,`SystemControlForegroundBaseHighBrush` 边框刷已按源接线但默认不可见;需边框时消费侧自行覆盖 `border-width`。
+- **颜色 / 字号(PL14 重定向)**:`controls/dev/CommonStyles/ListBox_themeresources.xaml` 为**混合**权威——`ListBoxForeground` / `ListBoxBorder` / `ListBoxItemForeground(Disabled)` / `ListBoxItemBackgroundPointerOver` / `Pressed` 指向 Fluent(已重定向到 `--wui-text-fill-color-primary/disabled`、`--wui-subtle-fill-color-secondary/tertiary`);`ListBoxBackground` 与 `ListBoxItemBackgroundSelected*` 仍指向 legacy `SystemControl*`(权威即 legacy,保留原 token 不臆造):容器底 `--wui-system-control-background-chrome-medium-low`、选中三档 `--wui-system-control-highlight-list-accent-low/medium/high`(浅 40%/60%/70%、深 60%/80%/90%)。焦点框 `--wui-system-control-focus-visual-primary/secondary`;浅 / 深主题随 `data-theme` 切换。总览见 [_brushes.md](./_brushes.md)。
+- **无 token 的结构值**(源权威键,按源值直接使用):`ListBoxItemPadding` = 12,9,12,12(项内容边距)、`ListBoxBorderThemeThickness` = 0(浅/深主题;HighContrast 主题的 2px 未实现)、`ListBoxItem` 无 MinHeight/MinWidth 键(项高由内容 + Padding 决定,区别于 `ListViewItemMinHeight` = 40)。容器边框厚度 0,`ListBoxBorder = TextFillColorPrimaryBrush` 已按源接线但默认不可见;需边框时消费侧自行覆盖 `border-width`。
 - **Reveal 揭示光照(借用映射)**:源 `ListBoxItem` 样式无 reveal 光效(平台无 `ListBoxItemRevealStyle` 可挂);本实现按工单把同族 ListView 项的 reveal 视觉外推到 ListBox 项(公共层光照:`revealBorder` 默认 true,底板光 + 1px 边框光环,禁用项不点亮),登记为无源条款的借用映射;机制、常量与降级语义见 [_reveal.md](./_reveal.md)。
 - **系统焦点框**:WinUI 由合成层按 `IsTemplateFocusTarget`(项满幅 Rectangle)绘制双线焦点框;Web 侧以 `box-shadow` 内 2px 主环 + `outline` 内缩 1px 副环近似(与 ListView 项同口径)。`ListBoxItem` 未覆写 `FocusBorderBrush` 族,故选中项焦点框不反色(与 ListViewItem 的反色行为不同,与源一致)。
 - **选中项前景**:交互/选中态内容前景统一 `SystemControlHighlightAltBaseHighBrush`,默认主题下与 Normal 同色(视觉不变),token 仍按源接线,主题覆盖画刷时正确联动。
@@ -121,4 +120,4 @@ function onSelectionChanged(selected: unknown[]): void {
 
 ---
 
-演示页源码:[demo/pages/ListBoxPage.vue](../../demo/pages/ListBoxPage.vue) · Reveal 材料:[_reveal.md](./_reveal.md)
+演示页源码:[demo/pages/ListBoxPage.vue](../../demo/pages/ListBoxPage.vue) · Reveal 材料:[_reveal.md](./_reveal.md) · Fluent 画刷族:[_brushes.md](./_brushes.md)

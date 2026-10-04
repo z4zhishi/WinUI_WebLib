@@ -6,7 +6,7 @@
 
 ListView 让你以可垂直滚动的列表形式展示一组数据项,并支持 None / Single / Multiple / Extended 四种选择模式与键盘导航,是最常用的集合类控件。
 
-对应 WinUI `Microsoft.UI.Xaml.Controls.ListView`,视觉与交互状态(容器 Normal / PointerOver / Pressed / Selected 及其正交叠加态、Disabled 内容衰减、系统双线焦点框、多重选择勾选框)对照 `generic.xaml` 中 `TargetType="ListView"`(L9284 起,模板为 Border → ScrollViewer → ItemsPresenter)与 `ListViewItemRevealStyle`(L17732 起,默认项样式即基于它)复刻;颜色全部取自 `theme.css` 预置的 `--wui-list-view-item-*` 与 `--wui-scroll-bar-*` token。选择状态机复用阶段 5 集合公共底座 [src/composables/useSelection.ts](../../src/composables/useSelection.ts)(SelectionMode 四态、锚点区间、Ctrl/Shift 指针语义),后续 [GridView](./GridView.md) 等选择容器同底座。
+对应 WinUI `Microsoft.UI.Xaml.Controls.ListView`,视觉与交互状态(容器 Normal / PointerOver / Pressed / Selected 及其正交叠加态、Disabled 内容衰减、系统双线焦点框、多重选择勾选框)按 WinUI 3 生效层 `controls/dev/CommonStyles/ListViewItem_themeresources.xaml` 复刻;项状态色已由 PL4 重定向到 Fluent 画刷族(`--wui-subtle-fill-color-*` / `--wui-text-fill-color-*` / `--wui-accent-*`,总览见 [_brushes.md](./_brushes.md))。控件容器底/描边在 controls/dev 无 Style(权威为 legacy `generic.xaml` 无 Setter → 透明/无描边),滚动条拇指由 PL15 统一改指 Fluent(`--wui-control-strong-fill-color-default` / `--wui-acrylic-in-app-fill-color-default`)。选择状态机复用阶段 5 集合公共底座 [src/composables/useSelection.ts](../../src/composables/useSelection.ts)(SelectionMode 四态、锚点区间、Ctrl/Shift 指针语义),后续 [GridView](./GridView.md) 等选择容器同底座。
 
 官方文档:
 
@@ -27,7 +27,7 @@ ListView 让你以可垂直滚动的列表形式展示一组数据项,并支持 
 | `#item` slot | `{ item: unknown; index: number }` | — | 自定义项模板(WinUI `ItemTemplate` 的等价物);缺省渲染显示文本 |
 | `#header` / `#footer` slot | — | — | 列表顶部 / 底部内容(WinUI `Header` / `Footer`),随内容滚动 |
 
-其余 `class` / `style` 等属性经 `v-bind="$attrs"` 透传到根元素;控件本体无边框无背景(源模板 Border 默认空),需要边框/固定高度时在消费侧叠加(官方示例即 1px 边框 + 固定高度)。官方示例边框取 `ControlStrongStrokeColorDefaultBrush`,本仓 `theme.css` 无对应生成 token,演示页以最近似的 `--wui-system-control-background-base-low`(浅色主题 #00000033 与源同值)替代,特此记录。
+其余 `class` / `style` 等属性经 `v-bind="$attrs"` 透传到根元素;控件本体无边框无背景(源模板 Border 默认空),需要边框/固定高度时在消费侧叠加(官方示例即 1px 边框 + 固定高度)。官方示例边框取 `ControlStrongStrokeColorDefaultBrush`,PL2 已落地同名 token `--wui-control-strong-stroke-color-default`(浅 `#00000072` / 深 `#FFFFFF8B`),消费侧可直接引用。
 
 ## 事件
 
@@ -101,9 +101,9 @@ function onSelectionChanged(selected: unknown[]): void {
 
 ## 与 WinUI 的差异说明
 
-- **颜色 / 字号**:全部取自 `theme.css` 的 `--wui-list-view-item-*` token(背景 Normal 透明 / `background-pointer-over` = ListLow / `background-pressed` = ListMedium / `background-selected` = 强调色 40%、选中×hover 60%、选中×pressed 70%,前景 `foreground` / `foreground-pointer-over` / `foreground-selected`,勾选框 `check-box` / 焦点框 `focus-visual-primary` / `focus-visual-secondary` / `focus-border` / `focus-secondary-border`),浅 / 深主题随 `data-theme` 切换;滚动条拇指用 `--wui-scroll-bar-*`(与 ScrollViewer 公共样式同语言)。
+- **颜色 / 字号(PL4 Fluent 重定向)**:项状态色已重定向到 Fluent 画刷族——常态底透明(`--wui-subtle-fill-color-transparent`)、悬停/选中 `--wui-subtle-fill-color-secondary`、按下/选中悬停 `--wui-subtle-fill-color-tertiary`、禁用 `--wui-subtle-fill-color-transparent`;前景 `--wui-text-fill-color-primary/secondary/disabled`;选中强调底色取 `--wui-accent-fill-color-default` 族;勾选框 `--wui-control-strong-stroke-color-default` / `--wui-text-on-accent-fill-color-primary`;滚动条拇指由 PL15 改指 `--wui-control-strong-fill-color-default`、轨道 `--wui-acrylic-in-app-fill-color-default`(与 ScrollViewer 同语言)。浅 / 深主题随 `data-theme` 切换;画刷族总览见 [_brushes.md](./_brushes.md)。
 - **无 token 的结构值**(源 generic.xaml 键,按源值直接使用):`ListViewItemMinHeight` = 40、`ListViewItemMinWidth` = 88、项 `Padding` = 12,0,12,0、`ListViewItemDisabledThemeOpacity` = 0.55(只衰减内容,底色不衰减)、对勾字形 `U+E73E` 字号 12px(Segoe Fluent Icons)。
-- **Reveal 光效(状态色为回退层;指针光照 MR8 起由公共层提供)**:`ListViewItemRevealStyle` 的各态静态色取 `*RevealBrush` 退役后的平色回退层(与 Win11 关闭 reveal 时的静态呈现一致);平色层里 Pressed 与 PressedSelected 同为 ListMedium,源经 reveal 层区分的 `PointerOverPressed` / `PressedSelected` 桥接态因此合并。选中底色取 `ListViewItemBackgroundSelected` 族(强调色 40/60/70%),而非 reveal 顶层画刷解析出的 `accent-light-3` 实色——后者是光晕叠加层,静态底色以 VSM 底色为准。指针光照本体(WinUI 2 材料)已由公共层复刻并默认启用(`revealBorder` 开关可关):底板光 + 1px 揭示边框光环(源 `RevealBorderBrush` 在 Win11 静态即透明,静态结构与 token 均透明、与源一致),机制与常量见 [_reveal.md](./_reveal.md)。
+- **Reveal 光效(状态色为回退层;指针光照 MR8 起由公共层提供)**:`ListViewItemRevealStyle` 的各态静态色已由 PL4 重定向到 Fluent 状态色(与 Win11 关闭 reveal 时的静态呈现一致);选中底色取 `--wui-accent-fill-color-default` 族,而非 reveal 顶层画刷解析出的 `accent-light-3` 实色——后者是光晕叠加层,静态底色以 VSM 底色为准。指针光照本体(WinUI 2 材料)已由公共层复刻并默认启用(`revealBorder` 开关可关):底板光 + 1px 揭示边框光环(源 `RevealBorderBrush` 在 Win11 静态即透明,静态结构与 token 均透明、与源一致),机制与常量见 [_reveal.md](./_reveal.md)。
 - **系统焦点框**:WinUI 用合成层绘制双线焦点框(外 2px primary + 内 1px secondary,选中项取反色 `FocusBorderBrush` / `FocusSecondaryBorderBrush`);Web 侧以 `outline`(2px,offset 1px)+ `box-shadow` 内圈 1px 近似,线宽 / 间距与系统绘制存在像素级差异。
 - **多重选择勾选框**:源由 `ListViewItemPresenter` 以 `CheckMode=Inline` + `CheckBrush` / `CheckBoxBrush` 绘制;Web 侧为 20×20、4px 圆角、右侧 12px 间距的近似框(WinUI 无独立尺寸 token),选中态用系统强调色铺底 + 白色对勾(对勾颜色借 `--wui-check-box-check-glyph-foreground-checked`,ListView 族无对应 token)。仅 Multiple 模式显示常驻勾选框;Extended 选中以强调色底色表达(与源一致)。
 - **选择模型**:`selectedIndex` 在多选模式下取**首个**选中项(WinUI 返回最后交互项索引,语义差异见事件参数);选择按「条目比较键」跟踪(默认对象引用,`useSelection` 的刻意设计)而非 WinUI 的按索引跟踪——重复的原始值条目(如两个相同字符串)会一起选中/取消,需要区分时请使用对象项。切换 `selectionMode` 不自动清空选择;`None` 模式下对 `selectedIndex` / `selectedItems` 的程序化写入被忽略(模型归一为 -1 / `[]`)。
@@ -115,4 +115,4 @@ function onSelectionChanged(selected: unknown[]): void {
 
 ---
 
-演示页源码:[demo/pages/ListViewPage.vue](../../demo/pages/ListViewPage.vue) · Reveal 材料:[_reveal.md](./_reveal.md)
+演示页源码:[demo/pages/ListViewPage.vue](../../demo/pages/ListViewPage.vue) · Reveal 材料:[_reveal.md](./_reveal.md) · Fluent 画刷族:[_brushes.md](./_brushes.md)

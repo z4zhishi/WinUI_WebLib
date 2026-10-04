@@ -6,7 +6,7 @@
 
 使用 TextBox 让用户在应用中输入简单文本。可以添加标头(Header)与占位文本(PlaceholderText)让用户知道这个输入框的用途,还可以通过只读、最大长度、行内清除按钮等方式自定义。
 
-对应 WinUI `Microsoft.UI.Xaml.Controls.TextBox`,视觉与交互状态(Normal / PointerOver / Focused / Disabled、清除按钮显隐)对照 `generic.xaml` 中 `TargetType="TextBox"` 的默认样式与模板复刻。
+对应 WinUI `Microsoft.UI.Xaml.Controls.TextBox`,视觉与交互状态(Normal / PointerOver / Focused / Disabled、清除按钮显隐)按 WinUI 3 生效层 `controls/dev/CommonStyles/TextBox_themeresources.xaml` 复刻;状态色已由 PL6/PL8 重定向到 Fluent 画刷族(`ControlFillColor*` / `TextFillColor*` / `SubtleFillColor*`),边框为 `--wui-text-control-elevation-border` 渐变(总览见 [_brushes.md](./_brushes.md))。
 
 官方文档:
 
@@ -67,7 +67,7 @@ function onTextChanged(value: string): void {
 
 ## 与 WinUI 的差异说明
 
-- **颜色 / 字号**:四态颜色已按 PL6/PL8 重定向到 Fluent 画刷族——Background 取 `--wui-control-fill-color-*`(Default / Secondary / InputActive / Disabled),前景取 `--wui-text-fill-color-*`,Normal/PointerOver 边框取 `--wui-text-control-elevation-border` 渐变;清除按钮取 `--wui-text-fill-color-secondary` + `--wui-subtle-fill-color-secondary|tertiary`。聚焦边框、选区高亮最终落到系统钩子 `--wui-system-accent-color`;该钩子由应用层定义,未定义时回退 `--wui-hyperlink-foreground-theme`。
+- **颜色 / 字号**:四态颜色已按 PL6/PL8 重定向到 Fluent 画刷族——Background 取 `--wui-control-fill-color-*`(Default / Secondary / InputActive / Disabled),前景取 `--wui-text-fill-color-*`,禁用前景取 PL6 新增的 `--wui-temporary-text-fill-color-disabled`(权威 `TemporaryTextFillColorDisabled` = `#0101015C` / `#FEFEFE5D`),Normal/PointerOver 边框取 `--wui-text-control-elevation-border` 渐变,Focused 边框为 accent 实色;清除按钮取 `--wui-text-fill-color-secondary` + `--wui-subtle-fill-color-secondary|tertiary`。聚焦边框、选区高亮最终落到系统钩子 `--wui-system-accent-color`;该钩子由应用层定义,未定义时回退 `--wui-hyperlink-foreground-theme`。
 - **无 token 的结构值**(WinUI 3 权威 `controls/dev`,PL7/PL8 更新):`TextControlBorderThemeThickness` = 1(四周,`Common_themeresources.xaml` L10/L24)、`TextControlBorderThemeThicknessFocused` = 1,1,1,2(L11/L25)、`TextControlThemePadding` = 10,5,6,6(L12/L26/L40;legacy `generic.xaml` L175 的 10,3,6,6 已替换)、`TextControlThemeMinHeight` / `MinWidth` = 32 / 64、`TextBoxTopHeaderMargin` = 0,0,0,4、清除按钮 `MinWidth` = 34、glyph 字号 12px(取同值 token `--wui-tool-tip-content-theme-font-size`)。
 - **圆角**:按 WinUI 3 默认 `ControlCornerRadius`(4px)取 4px 圆角(引用 theme-hooks.css 的 `--wui-control-corner-radius`,V3 视觉 QA 打回后修正);应用可在同名变量上按层叠覆盖(如改 0 恢复直角)。
 - **聚焦视觉**:`UseSystemFocusVisuals` 默认取 `IsApplicationFocusVisualKindReveal`(默认关闭),焦点指示即模板 Focused 态的强调色边框 + 实底背景,本实现不再叠加系统焦点框(outline)。
@@ -80,4 +80,4 @@ function onTextChanged(value: string): void {
 
 ---
 
-演示页源码:[demo/pages/TextBoxPage.vue](../../demo/pages/TextBoxPage.vue)
+演示页源码:[demo/pages/TextBoxPage.vue](../../demo/pages/TextBoxPage.vue) · Fluent 画刷族:[_brushes.md](./_brushes.md)

@@ -6,7 +6,7 @@
 
 使用 PasswordBox 让用户在应用中输入单行不换行的密码等敏感文本。输入内容以掩码显示,可以通过揭示模式(PasswordRevealMode)控制临时或持久明文,并可通过最大长度(MaxLength)限制可输入的字符数。
 
-对应 WinUI `Microsoft.UI.Xaml.Controls.PasswordBox`,视觉与交互状态(Normal / PointerOver / Focused / Disabled、揭示按钮显隐)对照 `generic.xaml` 中 `TargetType="PasswordBox"` 的默认样式与模板复刻,与同族的 [TextBox](./TextBox.md) 共用同一套 `--wui-text-control-*` 视觉 token。
+对应 WinUI `Microsoft.UI.Xaml.Controls.PasswordBox`,视觉与交互状态(Normal / PointerOver / Focused / Disabled、揭示按钮显隐)按 WinUI 3 生效层 `controls/dev/CommonStyles/PasswordBox_themeresources.xaml` 复刻,与同族的 [TextBox](./TextBox.md) 共用同一套 Fluent 画刷族(`ControlFillColor*` / `TextFillColor*` / `--wui-text-control-elevation-border`;总览见 [_brushes.md](./_brushes.md))。
 
 官方文档:
 
@@ -74,7 +74,7 @@ function onPasswordChanged(value: string): void {
 
 ## 与 WinUI 的差异说明
 
-- **颜色 / 字号**:四态颜色已按 PL6/PL8 重定向到 Fluent 画刷族(Background `--wui-control-fill-color-*`,前景 `--wui-text-fill-color-*`,Normal/PointerOver 边框 `--wui-text-control-elevation-border` 渐变;揭示按钮与 TextBox 清除按钮同族)。聚焦边框、选区高亮最终落到系统钩子 `--wui-system-accent-color`;该钩子由应用层定义,未定义时回退 `--wui-hyperlink-foreground-theme`。
+- **颜色 / 字号**:四态颜色已按 PL6/PL8 重定向到 Fluent 画刷族(Background `--wui-control-fill-color-*`,前景 `--wui-text-fill-color-*`,禁用前景 PL6 新增 `--wui-temporary-text-fill-color-disabled`,Normal/PointerOver 边框 `--wui-text-control-elevation-border` 渐变;揭示按钮与 TextBox 清除按钮同族)。聚焦边框、选区高亮最终落到系统钩子 `--wui-system-accent-color`;该钩子由应用层定义,未定义时回退 `--wui-hyperlink-foreground-theme`。
 - **无 token 的结构值**(WinUI 3 权威 `controls/dev`,PL7/PL8 更新):`TextControlBorderThemeThickness` = 1(四周,`Common_themeresources.xaml` L10/L24)、`TextControlBorderThemeThicknessFocused` = 1,1,1,2(L11/L25)、`TextControlThemePadding` = 10,5,6,6(L12/L26/L40;legacy `generic.xaml` L175 的 10,3,6,6 已替换)、`TextControlThemeMinHeight` / `MinWidth` = 32 / 64、`PasswordBoxTopHeaderMargin` = 0,0,0,4、揭示按钮 `MinWidth` = 34、glyph 字号 12px(取同值 token `--wui-tool-tip-content-theme-font-size`)。
 - **圆角**:按 WinUI 3 默认 `ControlCornerRadius`(4px)取 4px 圆角(引用 theme-hooks.css 的 `--wui-control-corner-radius`,与 TextBox 同款,V3 视觉 QA 打回后修正);应用可在同名变量上按层叠覆盖(如改 0 恢复直角)。
 - **聚焦视觉**:`UseSystemFocusVisuals` 默认关闭,焦点指示即模板 Focused 态的强调色边框 + 实底背景,本实现不再叠加系统焦点框(outline)。
@@ -89,4 +89,4 @@ function onPasswordChanged(value: string): void {
 
 ---
 
-演示页源码:[demo/pages/PasswordBoxPage.vue](../../demo/pages/PasswordBoxPage.vue)
+演示页源码:[demo/pages/PasswordBoxPage.vue](../../demo/pages/PasswordBoxPage.vue) · Fluent 画刷族:[_brushes.md](./_brushes.md)

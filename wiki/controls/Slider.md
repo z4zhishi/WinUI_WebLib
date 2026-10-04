@@ -6,7 +6,7 @@
 
 Slider(滑块)让用户通过沿轨道移动拇指(Thumb)从一段取值范围中选择数值。当你希望用户设置**有定义的连续值**(如音量、亮度)或**一段离散档位值**(如屏幕分辨率设置)时使用。
 
-组件按 WinUI `TargetType="Slider"` 的 ControlTemplate 复刻:轨道(4px,`SliderTrackFill`)+ 已选段(强调色,`SliderTrackValueFill`)+ 拇指(8×24、圆角 4、`SliderThumbBackground`)+ 可选刻度(`SliderTickBarFill`);PointerOver / Pressed / Disabled / Focus 视觉状态与颜色全部来自 `--wui-slider-*` token,浅/深主题自动跟随。
+组件按 WinUI 3 生效层 `controls/dev/CommonStyles/Slider_themeresources.xaml` 的 ControlTemplate 复刻:轨道(`--wui-control-strong-fill-color-default`,三态同键)+ 已选段(强调色,`--wui-accent-fill-color-default/secondary/tertiary/disabled`)+ 拇指(18×18,`--wui-accent-fill-color-*` 内圆 + `--wui-control-solid-fill-color-default` 外圈底 + `--wui-control-elevation-border` 渐变环)+ 可选刻度(`--wui-control-strong-fill-color-default` / `--wui-control-fill-color-input-active`);PointerOver / Pressed / Disabled / Focus 状态色已由 PL9 重定向到 Fluent 画刷族(本地 `--wui-slider-*` 现均为 Fluent token 别名,明暗自动跟随,总览见 [_brushes.md](./_brushes.md))。
 
 官方文档:
 
@@ -74,7 +74,8 @@ function onValueChanged(e: { oldValue: number; newValue: number }): void {
 5. **方向键步长**:WinUI 方向键按 `SmallChange`、翻页键按 `LargeChange` 步进;本实现方向键固定按 `stepFrequency`/`tickFrequency` 步进,未暴露 `SmallChange`/`LargeChange`。
 6. **仅水平方向**:WinUI 支持 `Orientation="Vertical"`,本实现暂未提供垂直模式。
 7. **状态切换动效**:与源一致——视觉状态颜色为瞬时切换(`DiscreteObjectKeyFrame KeyTime=0`,无过渡);唯一的动画是内圆缩放(见差异 2:进入 PointerOver/Pressed 250ms、回 Normal 167ms,曲线一律 `cubic-bezier(0,0,0,1)`)。
-8. **无 token 的源尺寸常量**(在组件内按源值实现):`SliderHorizontalHeight=32`(容器高)、拇指 8×24 / `CornerRadius=4`、`SliderOutsideTickBarThemeHeight=4` + 刻度与轨道间距 4、`SliderTopHeaderMargin=0,0,0,4`、刻度线宽 1px。
+8. **无 token 的源尺寸常量**(在组件内按源值实现):`SliderHorizontalHeight=32`(容器高)、拇指 **18×18** / 内圆 12px、`SliderOutsideTickBarThemeHeight=4` + 刻度与轨道间距 4、`SliderTopHeaderMargin=0,0,0,4`、刻度线宽 1px。拇指外圈描边由原实色近似 `ControlStrokeColorDefault` 改为权威 `ControlElevationBorderBrush` 渐变环(PL9),本地 `--wui-slider-*` 已全部改为 Fluent token 别名。
+9. **色来源**:PL9 已把 Slider 各态重定向到 Fluent 画刷族(轨道 `--wui-control-strong-fill-color-default/disabled`、已选段/内圆/拇指 `--wui-accent-fill-color-*`、外圈底 `--wui-control-solid-fill-color-default`、标题前景 `--wui-text-fill-color-primary/disabled`),删除组件内 `html[data-theme='dark']` 硬编码块;总览见 [_brushes.md](./_brushes.md)。
 
 ## 在 WinUI 中的典型场景(对照官方示例)
 
@@ -82,3 +83,4 @@ function onValueChanged(e: { oldValue: number; newValue: number }): void {
 - 范围与步长:`Minimum` / `Maximum` / `StepFrequency`
 - 刻度:`TickPlacement="Outside"` + `TickFrequency` + `SnapsTo="Ticks"`
 - 垂直方向:Web 版暂不支持(见差异 6)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

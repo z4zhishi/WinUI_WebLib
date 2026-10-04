@@ -109,20 +109,24 @@ function onItemInvoked(node: TreeViewNode, key: string) {
 
 ## 与 WinUI 的差异(视觉与行为对照)
 
-视觉按 `controls/dev/TreeView/TreeViewItem.xaml`(MUX_TreeViewItemStyle 模板)+ `TreeView_themeresources.xaml`(Default/Light 字典)复刻,尺寸资源:`TreeViewItemMinHeight = 28`、`TreeViewItemPresenterMargin = 4,2`、`TreeViewItemPresenterPadding = 0,3,0,5`、`TreeViewItemContentHeight = 20`、缩进步长 16(UpdateIndentation,TreeViewItem.cpp L515-L524)、选择指示条 3x16/圆角 2、字形区 Padding 14,0、字形盒 12x12/Padding 2/GlyphSize 8、多选复选框槽位 32/Margin 10,0,0,0。主题资源引用 **Subtle\*/TextFill\*/AccentFill\* 系画刷**,未被 theme.css 收录(theme.css 提取自经典 generic.xaml 主题字典),按「最近似 token」规则映射:
+视觉按 `controls/dev/TreeView/TreeViewItem.xaml`(MUX_TreeViewItemStyle 模板)+ `TreeView_themeresources.xaml`(Default/Light 字典)复刻,尺寸资源:`TreeViewItemMinHeight = 28`、`TreeViewItemPresenterMargin = 4,2`、`TreeViewItemPresenterPadding = 0,3,0,5`、`TreeViewItemContentHeight = 20`、缩进步长 16(UpdateIndentation,TreeViewItem.cpp L515-L524)、选择指示条 3x16/圆角 2、字形区 Padding 14,0、字形盒 12x12/Padding 2/GlyphSize 8、多选复选框槽位 32/Margin 10,0,0,0。主题资源引用 **Subtle\*/TextFill\*/AccentFill\* 系画刷**;PL2 已把该系列落进 theme.css,PL13 已把 TreeViewItem 状态色**全部替换为精确 Fluent token**(原「最近似 token」映射表整表作废):
 
-| 源资源(WinUI 3) | 本组件 token | 差异说明 |
+| 源资源(WinUI 3) | Fluent 画刷键 | 本组件 token(浅 / 深) |
 | --- | --- | --- |
-| `TreeViewItemBackground` ← `SubtleFillColorTransparent` | `transparent` | 源即为透明填充,无 token 可用 |
-| `TreeViewItemBackgroundPointerOver` ← `SubtleFillColorSecondary` | `--wui-grid-view-item-background-pointer-over`(#00000019 / #FFFFFF19) | 源约 3.5% 叠加,token 为 10%,悬停反馈略强 |
-| `TreeViewItemBackgroundPressed` ← `SubtleFillColorTertiary` | `--wui-grid-view-item-background-pressed`(#00000033 / #FFFFFF33) | 同上,按压反馈略强 |
-| `TreeViewItemBackgroundSelected` ← `SubtleFillColorSecondary` | `--wui-grid-view-item-background-pointer-over`(同悬停键) | 源中选中底色与悬停底色同为 Subtle 次级,故与悬停同 token |
-| `TreeViewItemForeground` 等 ← `TextFillColorPrimary` | `--wui-default-text-foreground-theme`(#000000 / #FFFFFF) | 浅 / 深主题均为不透明纯色,与源主文本色观感一致 |
-| `TreeViewItemForegroundPressed` ← `TextFillColorSecondary` | `--wui-application-secondary-foreground-theme`(#00000099) | 源约 60% 不透明度,token 同为 60% |
-| `TreeViewItemForegroundDisabled` ← `TextFillColorDisabled` | `--wui-toggle-switch-content-foreground-disabled`(#00000066) | 源约 36% 不透明度,token 为 40%,禁用观感略深 |
-| `TreeViewItemSelectionIndicatorForeground` ← `AccentFillColorDefault` | `var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme))` | 系统强调色钩子(应用层定义后自动生效) |
-| `TreeViewItemCheckBoxBorderSelected` / `CheckGlyphSelected` ← `TextFillColorSecondary` | `--wui-application-secondary-foreground-theme` | 同上 60% 不透明度 |
-| `ControlCornerRadius`(行圆角 4) | `--wui-hyperlink-focus-rect-corner-radius`(4px) | 圆角 token 未提取,取同为 4px 的最近似 |
+| `TreeViewItemBackground` ← `SubtleFillColorTransparent` | `SubtleFillColorTransparentBrush` | `--wui-subtle-fill-color-transparent` |
+| `TreeViewItemBackgroundPointerOver` ← `SubtleFillColorSecondary` | `SubtleFillColorSecondaryBrush` | `--wui-subtle-fill-color-secondary`(`#00000009` / `#FFFFFF0F`) |
+| `TreeViewItemBackgroundPressed` ← `SubtleFillColorTertiary` | `SubtleFillColorTertiaryBrush` | `--wui-subtle-fill-color-tertiary`(`#00000006` / `#FFFFFF0A`) |
+| `TreeViewItemBackgroundSelected` ← `SubtleFillColorSecondary` | `SubtleFillColorSecondaryBrush` | `--wui-subtle-fill-color-secondary`(与悬停同键,源即如此) |
+| `TreeViewItemBackgroundSelectedPointerOver/Pressed` ← Tertiary/Secondary | 同上 | `--wui-subtle-fill-color-tertiary` / `secondary` |
+| `TreeViewItemForeground` 等 ← `TextFillColorPrimary` | `TextFillColorPrimaryBrush` | `--wui-text-fill-color-primary`(`#000000E4` / `#FFFFFF`) |
+| `TreeViewItemForegroundPressed` ← `TextFillColorSecondary` | `TextFillColorSecondaryBrush` | `--wui-text-fill-color-secondary`(`#0000009E` / `#FFFFFFC5`) |
+| `TreeViewItemForegroundDisabled` ← `TextFillColorDisabled` | `TextFillColorDisabledBrush` | `--wui-text-fill-color-disabled`(`#0000005C` / `#FFFFFF5D`) |
+| `TreeViewItemSelectionIndicatorForeground` ← `AccentFillColorDefault` | `AccentFillColorDefaultBrush` | `--wui-accent-fill-color-default`(`#0067C0` / `#4CC2FF`) |
+| `TreeViewItemCheckBoxBorderSelected` / `CheckGlyphSelected` ← `TextFillColorSecondary` | `TextFillColorSecondaryBrush` | `--wui-text-fill-color-secondary` |
+| 复选框选中底 ← `SubtleFillColorTransparent` | `SubtleFillColorTransparentBrush` | `--wui-subtle-fill-color-transparent` |
+| `ControlCornerRadius`(行圆角 4) | — | `--wui-hyperlink-focus-rect-corner-radius`(4px,圆角 token 未提取) |
+
+原「悬停/按压反馈略强、禁用观感略深」等偏差已随重定向消除;总览见 [_brushes.md](./_brushes.md)。
 
 其余无 token / 做 Web 等价替换的项:
 
@@ -131,7 +135,7 @@ function onItemInvoked(node: TreeViewNode, key: string) {
 3. **展开字形动画**:源为两个静态字形 E76C(收起)/ E70D(展开)按 `CollapsedGlyphVisibility` / `ExpandedGlyphVisibility` 切换;本组件取单个 E70D 字形 + `rotate()` 过渡(收起 -90deg 朝右),旋转时长 `--wui-duration-normal` + `--wui-easing-standard`。字形默认继承 `GlyphSize = 8`(12x12 盒 Padding 2),字体栈 `--wui-symbol-theme-font-family`(Segoe Fluent Icons / Segoe MDL2 Assets,按 R1 不做网络字体加载)。
 4. **字形点击展开为 Web 适配**:源模板字形 `IsHitTestVisible="False"`(展开靠双击 / 键盘);Web 上字形区可点击(仅切换展开,不触发 `itemInvoked`),另补双击行切换展开。
 5. **状态键**:WinUI 以 TreeViewNode 对象为身份;本组件用字符串键 = `node.id ?? 路径索引`,兄弟节点增删会改变路径索引型键,层级结构动态变化时建议为节点提供显式 `id`。
-6. **多选复选框视觉(三态)**:源选中态为「透明底 + TextFillColorSecondary 边框与勾选字形」(非强调色填充),已按源复刻;未选态边框取 `--wui-check-box-check-background-stroke-unchecked`。**父节点有半选(indeterminate)态**:选中 / 取消一个节点会级联其整棵子树,父节点状态由子级自底向上聚合 —— 子级全选则父为已选、部分选中则父为半选(WinUI `TreeViewItem.cpp` L480-491 `UpdateMultipleSelection`:`PartialSelected → m_selectionBox.IsChecked(nullptr)`;`ViewModel.cpp` L836-866 `SelectionStateBasedOnChildren`)。本组件半选与已选共用 TreeView 自身声明的画刷口径,仅以字形区分(已选 `E73E` 勾 / 半选 `E73C` 实心方块,后者同 Fluent 字典 `CheckBoxIndeterminateGlyph` 的 `E9AE`)。`selectedIds` 只存完全选中的键(等价 WinUI `SelectedNodes`),半选父节点不入集合。
+6. **多选复选框视觉(三态)**:源选中态为「透明底 + TextFillColorSecondary 边框与勾选字形」(非强调色填充),已按源复刻为 `--wui-subtle-fill-color-transparent` 底 + `--wui-text-fill-color-secondary` 边框/字形;未选态边框出自 **CheckBox 默认样式**(`CheckBoxBorderBrushUnchecked = ControlStrongStrokeColorDefaultBrush`,非 TreeView 权威键),本组件沿用既有 `--wui-check-box-check-background-stroke-unchecked`(legacy,登记待 CheckBox 批次统一)。**父节点有半选(indeterminate)态**:选中 / 取消一个节点会级联其整棵子树,父节点状态由子级自底向上聚合(WinUI `TreeViewItem.cpp` L480-491 `UpdateMultipleSelection`;`ViewModel.cpp` L836-866 `SelectionStateBasedOnChildren`)。本组件半选与已选共用 TreeView 自身声明的画刷口径,仅以字形区分(已选 `E73E` 勾 / 半选 `E73C` 实心方块)。`selectedIds` 只存完全选中的键(等价 WinUI `SelectedNodes`),半选父节点不入集合。
 7. **属性命名**:`ItemsSource` → `itemsSource`;`SelectionMode` → `selectionMode`;`IsExpanded` → `expandedIds` / `node.expanded`(集中式管理,非逐节点组件);`ItemInvoked` → `@item-invoked`。
 8. **拖拽重排 / 虚拟化**:源 DefaultTreeViewStyle 启用 CanDragItems/CanReorderItems 且基于 ListView 虚拟化;Web 版未实现拖拽重排与虚拟化(WinUI-Gallery 两例亦未涉及),大数据量场景由使用方自行分页。
 9. **紧凑密度**:Compact.xaml 下 `TreeViewItemMinHeight = 24`、PresenterMargin/Padding = 0,本组件按标准密度(MinHeight 28)实现。
@@ -139,4 +143,4 @@ function onItemInvoked(node: TreeViewNode, key: string) {
 
 ---
 
-演示页源码:[demo/pages/TreeViewPage.vue](../../demo/pages/TreeViewPage.vue) · 组件源码:[src/components/TreeView.vue](../../src/components/TreeView.vue) · [src/components/TreeViewItem.vue](../../src/components/TreeViewItem.vue)
+演示页源码:[demo/pages/TreeViewPage.vue](../../demo/pages/TreeViewPage.vue) · 组件源码:[src/components/TreeView.vue](../../src/components/TreeView.vue) · [src/components/TreeViewItem.vue](../../src/components/TreeViewItem.vue) · Fluent 画刷族:[_brushes.md](./_brushes.md)

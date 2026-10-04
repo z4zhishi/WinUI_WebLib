@@ -86,7 +86,7 @@ function onValueChanged(e: { oldValue: number; newValue: number }): void {
 
 ## 与 WinUI 的差异
 
-1. **模板与主题资源位置**:ProgressRing 的 Style/ControlTemplate 不在 generic.xaml,而在 `controls/dev/ProgressRing/ProgressRing.xaml`;主题资源在同目录 `ProgressRing_themeresources.xaml`(Foreground = `AccentFillColorDefaultBrush`、Background = `ControlFillColorTransparentBrush`)。theme.css 未生成对应 token,组件以局部 `--wui-progressring-*` 变量承载:Foreground 浅色取 `SystemAccentColorDark1`、深色取 `SystemAccentColorLight2`(经 theme-hooks.css 系统色钩子,未定义时回退站点约定色);深色覆盖用 scoped 裸祖先写法(`html[data-theme='dark'] .wui-progressring`,同 ProgressBar/InfoBar 约定)。HighContrast 字典未实现。
+1. **颜色(PL10 Fluent 重定向)**:ProgressRing 主题资源在 `controls/dev/ProgressRing/ProgressRing_themeresources.xaml`(Foreground = `AccentFillColorDefaultBrush`、Background = `ControlFillColorTransparentBrush`)。PL10 已把组件内硬编码改为直引 PL2 Fluent token:Foreground → `--wui-accent-fill-color-default`(浅 `SystemAccentColorDark1` `#0067C0` / 深 `SystemAccentColorLight2` `#4CC2FF`,删除浅/深两套覆盖);轨道圆 Background → `--wui-control-fill-color-transparent`。HighContrast 字典未实现。总览见 [_brushes.md](./_brushes.md)。
 2. **Lottie → SVG/CSS**:源动画是 LottieGen 生成的 Composition 动画,Web 以 SVG 描边圆 + CSS 关键帧等价转写(参数 1:1,见上文);`DeterminateSource` / `IndeterminateSource` 预览属性(自定义动画源)未实现。
 3. **确定态几何归一**:源确定态 Lottie 画布为 32 基(半径 8 × 缩放 1.77 ≈ 14.2px、描边 ≈ 2.65px @32px),不确定态为 80 基(半径 35/80 = 14px、描边 7.5/80 = 3px @32px)。组件统一采用不确定态几何,两态切换时环径/环厚不跳动;与源确定态相比半径差约 1%、环厚约 0.35px(@32px)。
 4. **`ProgressRingStrokeThickness`(=4)未使用**:该资源为 WUXC 兼容遗留,源新模板并未引用它(描边烘焙在 Lottie 内),组件同样不使用。
@@ -100,3 +100,4 @@ function onValueChanged(e: { oldValue: number; newValue: number }): void {
 - 不确定态:`<ProgressRing Width="60" Height="60" IsActive="{...}" />`,配 ToggleSwitch 实时切换激活(官方示例 OnContent=Working / OffContent=Do work)
 - 确定态:`<ProgressRing Width="60" Height="60" IsIndeterminate="False" Value="{...}" />` 配 0-100 调值控件(官方示例为 NumberBox)
 - 相关控件:ProgressBar(非阻塞式进度,已知工作量时优先选用)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

@@ -6,7 +6,7 @@
 
 AutoSuggestBox 是一个在用户键入时提供候选建议的文本控件:应用会收到「文本已被用户修改」的通知,并负责筛选出相关建议交给它展示。典型的用法是搜索框(键入关键词 → 过滤候选 → Enter 或点击查询按钮提交查询)。它常与 [TextBox](./TextBox.md)(纯输入)和 [ComboBox](./ComboBox.md)(下拉单选)对照使用。
 
-对应 WinUI `Microsoft.UI.Xaml.Controls.AutoSuggestBox`,视觉与交互状态对照 `generic.xaml` 中 `TargetType="AutoSuggestBox"`(L22040 起)与其 `TextBoxStyle`(`AutoSuggestBoxTextBoxStyle`,L21672 起,内含清除按钮 DeleteButton 与查询按钮 QueryButton 两组按钮模板)复刻;颜色全部取自 `theme.css` 预置的 `--wui-text-control-*`(文本框族)、`--wui-text-control-button-*`(按钮族)、`--wui-auto-suggest-box-*`(建议面板)与 `--wui-list-view-item-*`(列表项)token。建议面板基于[弹层公共基建](./_popup-infra.md)(`usePopupLayer` 等宽 `matchAnchorWidth` + light dismiss,嵌套弹层豁免内置),与 [ComboBox](./ComboBox.md)、[MenuFlyout](./MenuFlyout.md) 同底座。
+对应 WinUI `Microsoft.UI.Xaml.Controls.AutoSuggestBox`,视觉与交互状态按 WinUI 3 生效层 `controls/dev/AutoSuggestBox/AutoSuggestBox_themeresources.xaml` 复刻(文本框族同 `TextControl*`,清除/查询按钮两组模板);颜色已由 PL6/PL8 重定向到 Fluent 画刷族(`--wui-control-fill-color-*` / `--wui-text-fill-color-*` / `--wui-subtle-fill-color-*` / `--wui-text-control-elevation-border`;建议面板边 `--wui-surface-stroke-color-flyout`;列表项由 PL4 重定向)。建议面板基于[弹层公共基建](./_popup-infra.md)(`usePopupLayer` 等宽 `matchAnchorWidth` + light dismiss,嵌套弹层豁免内置),与 [ComboBox](./ComboBox.md)、[MenuFlyout](./MenuFlyout.md) 同底座;总览见 [_brushes.md](./_brushes.md)。
 
 官方文档:
 
@@ -104,12 +104,12 @@ function onQuerySubmitted(args: { queryText: string; results: unknown[] }): void
 
 ## 与 WinUI 的差异说明
 
-- **颜色 / 字号**:文本框族已按 PL6/PL8 重定向到 Fluent 画刷(`--wui-control-fill-color-*` / `--wui-text-fill-color-*` / `--wui-text-control-elevation-border`)、按钮取 `--wui-text-fill-color-*` / `--wui-subtle-fill-color-*`、建议面板取 `--wui-auto-suggest-box-suggestions-list-background / -border`、列表项取 `--wui-list-view-item-*`(默认 `ListViewItem` 样式即 reveal 族),浅 / 深主题随 `data-theme` 切换;聚焦态为实底背景 + 强调色边框(与 [TextBox](./TextBox.md) 同源),不叠加系统焦点框。
+- **颜色 / 字号**:文本框族已按 PL6/PL8 重定向到 Fluent 画刷(`--wui-control-fill-color-*` / `--wui-text-fill-color-*` / `--wui-text-control-elevation-border`)、按钮取 `--wui-text-fill-color-*` / `--wui-subtle-fill-color-*`、建议面板边取 `--wui-surface-stroke-color-flyout`、列表项由 PL4 重定向到 `--wui-subtle-fill-color-*` / `--wui-text-fill-color-*`,浅 / 深主题随 `data-theme` 切换;聚焦态为实底背景 + 强调色边框(与 [TextBox](./TextBox.md) 同源),不叠加系统焦点框。
 - **无 token 的结构值**(WinUI 3 权威 `controls/dev`,PL7/PL8 更新):边框 `TextControlBorderThemeThickness` = 1(四周,`Common_themeresources.xaml` L10/L24;Focused 1,1,1,2 L11/L25)、`MinHeight` 32 / `MinWidth` 64、内容 `Padding` = 10,5,6,6(L12/L26/L40,施加点 `AutoSuggestBox_themeresources.xaml` L44;legacy 的 10,3,6,6 已替换)、标头 `AutoSuggestBoxTopHeaderMargin` = 0,0,0,4、按钮 `MinWidth` 34、按钮图标字号 `AutoSuggestBoxIconFontSize` = 12(token `--wui-auto-suggest-box-icon-font-size`)、清除按钮 glyph `U+E10A`、面板 `AutoSuggestListMaxHeight` = 374、面板列表外边距 `AutoSuggestListMargin` = 0,2,0,2、列表项 `Padding` = 12,0,12,0 与 `MinHeight` 40(`ListViewItemMinHeight`)。
 - **查询按钮字形无动画(源核实)**:任务勘察表曾将 `AutoSuggestBox` 列为 `AnimatedFindVisualSource`(133.33ms)的消费方,但**权威源(`controls/dev/AutoSuggestBox/AutoSuggestBox_themeresources.xaml`)中查询按钮是静态 `TextBlock` 字形 `U+E894`**(`GlyphElement`,L91;`QueryButtonStyle` 的 `ContentPresenter` 仅在 `PointerOver` / `Pressed` 态改写背景 / 边框 / 前景),`AnimatedFindVisualSource` 在全部生产模板中**未被引用**(仅 TestUI / Intellisense 元数据出现)。故本组件查询按钮保持静态字形,不添加动画;`ContentPresenter` 上残留的 `AnimatedIcon.State` Setter(源 L118/L134)是源模板的**空转附加属性**(作用对象非 AnimatedIcon),一并登记。
 - **清除按钮可见性**:源模板的 `ButtonVisible` 状态在 WinUI 里还叠加「聚焦中」门控(1.4+ TextBox 行为);本实现按任务约定做成**有内容即显示**(`clearButtonEnabled && !disabled && text 非空`),点击清除后当帧消失。查询按钮在 disabled 时按源 Disabled 态 `Opacity=0` 语义直接不渲染;无图标时按 `Width={TemplateBinding Height}`(未设高度时为 Auto)折叠为 0 宽,等价为不渲染该按钮。
 - **NoResults 行**:WinUI 无内建「无结果」呈现(官方示例是向 `ItemsSource` 里塞一条 "No results found" 占位项);本实现按任务要求内建:面板打开且候选为空时显示不可选中的「无结果」行(`noResultsText` / `#noResultsFound` 槽),属 Web 增强。
-- **建议面板圆角与阴影**:WinUI 弹层圆角取 `OverlayCornerRadius`(8px)、阴影由合成器 ThemeShadow 实现、XAML 无画刷 token;本实现使用弹层基建的 `--wui-popup-corner-radius` / `--wui-popup-shadow`(双层 box-shadow 视觉近似),见 [_popup-infra](./_popup-infra.md) 差异节。源主题字典中面板背景存在 Acrylic(`AcrylicBackgroundFillColorDefaultBrush`)与纯色(`SystemControlTransientBackgroundBrush`)两档,`theme.css` 依默认字典取纯色档(`#f2f2f2` / `#2b2b2b`)。源 `AutoSuggestListPadding` = -1,0,-1,0 的负内边距(候选项背景压过面板边框 1px)未复刻,项背景止于边框内沿。
+- **建议面板圆角与阴影**:WinUI 弹层圆角取 `OverlayCornerRadius`(8px)、阴影由合成器 ThemeShadow 实现、XAML 无画刷 token;本实现使用弹层基建的 `--wui-popup-corner-radius` / `--wui-popup-shadow`(双层 box-shadow 视觉近似),见 [_popup-infra](./_popup-infra.md) 差异节。源面板背景权威为 `AutoSuggestBoxSuggestionsListBackground = AcrylicBackgroundFillColorDefaultBrush`(亚克力);PL6 取亚克力回退不透明近似(浅 `#F9F9F9` / 深 `#2C2C2C`),噪声/模糊不可复现,登记为材质近似。源 `AutoSuggestListPadding` = -1,0,-1,0 的负内边距(候选项背景压过面板边框 1px)未复刻,项背景止于边框内沿。
 - **过滤职责**:与 WinUI 一致——组件自身不过滤,`itemsSource` 就是「当前应展示的候选」;消费侧在 `textChanged(userInput)` 里过滤后写回。组件内置行为:用户输入非空时打开面板(候选为空则显示 NoResults 行),文本清空时收起面板。
 - **键盘预览与恢复**:↑↓ 移动高亮时高亮建议文本临时回显输入框(`textChanged` 以 `suggestionChosen` 原因触发),任务要求预览无条件生效——WinUI 实现级源码(`AutoSuggestBox_Partial.cpp` L2364-2382)中该回显同样受 `UpdateTextOnSelect` 门控(为真才回显),此处与源码存在差异。恢复路径(↑ 过顶 / Esc / Tab / 外点关闭)把文本恢复为已键入内容,以 `programmaticChange` 原因触发 `textChanged`——对齐 WinUI 源码(L1101 / L1109 / L1137 统一 `ProgrammaticChange`)。`updateTextOnSelect=false` 只约束**点击**建议的文本回写,键盘预览与键盘提交不受它影响。
 - **键盘导航不循环**:本实现到末 / 首项停住(任务约定);WinUI 源码实为「经 -1 的循环」——↓ 在末项回到 -1 并恢复键入文本、↑ 在无高亮时跳到末项(`AutoSuggestBox_Partial.cpp` L1085-1096)。
@@ -122,4 +122,4 @@ function onQuerySubmitted(args: { queryText: string; results: unknown[] }): void
 
 ---
 
-演示页源码:[demo/pages/AutoSuggestBoxPage.vue](../../demo/pages/AutoSuggestBoxPage.vue)
+演示页源码:[demo/pages/AutoSuggestBoxPage.vue](../../demo/pages/AutoSuggestBoxPage.vue) · Fluent 画刷族:[_brushes.md](./_brushes.md)

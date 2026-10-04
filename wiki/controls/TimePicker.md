@@ -4,9 +4,9 @@
 
 ## 概述
 
-使用 TimePicker 让用户在应用中设置一个时间,例如设置提醒时间。TimePicker 显示时、分、AM/PM 三列选择器,便于触摸或鼠标操作,并且可以通过多种方式进行样式设置和配置。与 DatePicker 的区别:DatePicker 选完整日期(月/日/年),TimePicker 只选一天中的时刻(时/分,24 小时制下无 AM/PM 列)。收起态是**单行字段**(「时 | 分 | AM/PM」三段文本 + 2px 描边,MinHeight 32px),点击字段后**自下方弹出三列 LoopingSelector 飞出层**,选中即收起。
+使用 TimePicker 让用户在应用中设置一个时间,例如设置提醒时间。TimePicker 显示时、分、AM/PM 三列选择器,便于触摸或鼠标操作,并且可以通过多种方式进行样式设置和配置。与 DatePicker 的区别:DatePicker 选完整日期(月/日/年),TimePicker 只选一天中的时刻(时/分,24 小时制下无 AM/PM 列)。收起态是**单行字段**(「时 | 分 | AM/PM」三段文本 + 1px 描边,MinHeight 32px),点击字段后**自下方弹出三列 LoopingSelector 飞出层**,选中即收起。
 
-对应 WinUI `Microsoft.UI.Xaml.Controls.TimePicker`,视觉对照 `generic.xaml` 中 `TargetType="TimePicker"`(L10660 起:收起字段 `FlyoutButton` 的三段文本 / 2px 描边 / 各态画刷 / 标头 / 空值态 / 禁用各色)与 `TargetType="TimePickerFlyoutPresenter"`(L13010 起:三列宿主宽 242、三列等宽、2px 分割线、40px 高亮带与项高、41px Accept/Dismiss 行)复刻;飞出层内三列的滚轮形态取自 LoopingSelector 资源(L13102 起:项前景/选中前景/展开钮底色)。颜色全部取自 `theme.css` 预置的 `--wui-time-picker-*` / `--wui-time-picker-button-*` / `--wui-date-time-picker-flyout-button-*` / `--wui-looping-selector-*` / `--wui-text-control-placeholder-foreground` token。
+对应 WinUI `Microsoft.UI.Xaml.Controls.TimePicker`,视觉按 WinUI 3 生效层 `controls/dev/CommonStyles/TimePicker_themeresources.xaml`(收起字段 `FlyoutButton` 三段文本 / `TimePickerBorderThemeThickness = 1` / 各态画刷 / 标头 / 空值态 / 禁用各色;PL7 已把边框几何 2px→1px、字段网格 28→30)与 `TimePickerFlyoutPresenter` 复刻;飞出层内三列的滚轮形态取自 LoopingSelector 资源。收起字段颜色目前仍取 `theme.css` 预置的 legacy `--wui-time-picker-*` / `--wui-time-picker-button-*` / `--wui-date-time-picker-flyout-button-*` / `--wui-looping-selector-*` / `--wui-text-control-placeholder-foreground` token;其字段状态色重定向到 Fluent 画刷族属**未决项**(见差异节),画刷族总览见 [_brushes.md](./_brushes.md)。
 
 官方文档:
 
@@ -89,10 +89,10 @@ function onTimeChanged(newTime: string | null, oldTime: string | null): void {
 
 ## 与 WinUI 的差异说明
 
-- **形态**:与源一致 —— 收起态为单行字段(2px 描边 + 「时 | 分 | AM/PM」三段文本,MinHeight 32px、MinWidth 242、MaxWidth 456、圆角 4px),点击后经公共弹层基建 `usePopupLayer` 弹出 `TimePickerFlyoutPresenter` 形态的三列飞出层(固定宽 242、1px 描边、8px 圆角、41px Accept/Dismiss 行),点选/确定/取消/Escape/点击外部即收起。`--wui-time-picker-button-*`(收起字段各态)与 `--wui-date-time-picker-flyout-button-*`(Accept/Dismiss 各态)token 现已启用。
+- **形态**:与源一致 —— 收起态为单行字段(1px 描边 + 「时 | 分 | AM/PM」三段文本,MinHeight 32px、MinWidth 242、MaxWidth 456、圆角 4px;PL7 边框 2px→1px),点击后经公共弹层基建 `usePopupLayer` 弹出 `TimePickerFlyoutPresenter` 形态的三列飞出层(固定宽 242、1px 描边、8px 圆角、41px Accept/Dismiss 行),点选/确定/取消/Escape/点击外部即收起。`--wui-time-picker-button-*`(收起字段各态)与 `--wui-date-time-picker-flyout-button-*`(Accept/Dismiss 各态)token 现已启用(颜色重定向未决,见「颜色 / 字号」条)。
 - **time 值类型**:WinUI `SelectedTime` 为 `IReference<TimeSpan>`;web 版收窄为 `"HH:mm"` 字符串(见属性节选型说明),`null` 语义与 WinUI 一致(未选择,触发 HasNoTime 空值态)。
-- **颜色 / 字号**:全部取自 `theme.css` 的 `--wui-time-picker-*`(标头/分割线/禁用/飞出层底色/描边/高亮带)、`--wui-time-picker-button-*`(收起字段 Normal/PointerOver/Pressed/Focused/Disabled 的背景/描边/前景)、`--wui-date-time-picker-flyout-button-*`(Accept/Dismiss 各态)、`--wui-looping-selector-*`(项前景/选中/悬停/按压/展开钮底色)与 `--wui-text-control-placeholder-foreground`(源 HasNoTime 态)token,浅 / 深主题随 `data-theme` 切换。
-- **无 token 的结构值**(源 generic.xaml 键,按源值直接使用):收起字段 MinHeight 32(源 XAML MinHeight 含边框,故 `box-sizing: border-box`)、圆角 4px(`ControlCornerRadius`);收起字段宽 242 / 最大 456(`TimePickerThemeMinWidth`/`TimePickerThemeMaxWidth`)、飞出层固定宽 242(`TimePickerFlyoutPresenter` 的 `Width`/`MinWidth`)、三列等宽(源模板 First/Second/ThirdPickerHostColumn 均为 1 等分,与 DatePicker 的 78/132/78 不等宽不同)、分割线 2px、项高与高亮带高 40px(`TimePickerFlyoutPresenterItemHeight`/`HighlightHeight`;条目 `box-sizing: border-box`,内边距计入 40px 行高盒)、项内边距 0,3,0,6、可见行数 3、飞出层圆角 8px(源 `OverlayCornerRadius`,取弹层基建的 `--wui-popup-corner-radius`)。
+- **颜色 / 字号(未决)**:收起字段各态现仍取 `theme.css` 的 legacy `--wui-time-picker-button-*` 等 token,权威为 Fluent `ControlFillColorDefault/Secondary/Tertiary/Disabled` + `TextFillColorPrimary/Secondary/Disabled` + `ControlElevationBorderBrush`(渐变),`current-impl-gap.md` §2.10 仍标 DIFF/GRADIENT——**字段状态色重定向未落地**(PL5 §7.6 登记;本批仅 PL7 改了几何)。飞出层底色/描边/分割线/高亮带与 LoopingSelector 项色同样待重定向。空值态三段文字取 `--wui-text-control-placeholder-foreground`(源 HasNoTime 态)。
+- **无 token 的结构值**(WinUI 3 权威 `controls/dev/CommonStyles/TimePicker_themeresources.xaml`;PL7 更新):收起字段 MinHeight 32(源 XAML MinHeight 含边框,故 `box-sizing: border-box`)、边框 `TimePickerBorderThemeThickness` = 1(L34/L71/L106;PL7 由 2px 改为 1px)、字段网格高 30(32 − 2×1;PL7 由 28 更新)、圆角 4px(`ControlCornerRadius`);收起字段宽 242 / 最大 456(`TimePickerThemeMinWidth`/`TimePickerThemeMaxWidth`)、飞出层固定宽 242(`TimePickerFlyoutPresenter` 的 `Width`/`MinWidth`)、三列等宽(源模板 First/Second/ThirdPickerHostColumn 均为 1 等分,与 DatePicker 的 78/132/78 不等宽不同)、字段左右分割线 2px、项高与高亮带高 40px(`TimePickerFlyoutPresenterItemHeight`/`HighlightHeight`;条目 `box-sizing: border-box`,内边距计入 40px 行高盒)、项内边距 0,3,0,6、可见行数 3、飞出层圆角 8px(源 `OverlayCornerRadius`,取弹层基建的 `--wui-popup-corner-radius`)。
 - **展开钮**:源 LoopingSelector 模板的 UpButton/DownButton 为 `Height 22`、`FontSize 8`、码点 `E70E`(上)/`E70D`(下)、底色 `LoopingSelectorButtonBackground`,默认 `Collapsed`、`PointerOver` 才显示;本实现逐键对齐。滚轮 / 拖拽为 web 增强(源 LoopingSelector 无鼠标滚轮)。
 - **列不循环**:源 LoopingSelector `ShouldLoop=True` 到首/末项后无限回绕;本实现为有界列表,到边界停住(23 后不再 +1、AM/PM 不跨列翻转)。
 - **小时/分钟显示宽度**:小时列不补零(0-23 或 1-12,对应源 `{hour.integer}`),分钟列恒两位(`05`,对应源 `{minute.integer}`CultureData 补零行为);AM/PM 文案固定 `AM`/`PM` 英文(WinUI 跟随系统语言本地化,如中文环境显示"上午/下午")。
@@ -105,4 +105,4 @@ function onTimeChanged(newTime: string | null, oldTime: string | null): void {
 
 ---
 
-演示页源码:[demo/pages/TimePickerPage.vue](../../demo/pages/TimePickerPage.vue)
+演示页源码:[demo/pages/TimePickerPage.vue](../../demo/pages/TimePickerPage.vue) · Fluent 画刷族:[_brushes.md](./_brushes.md)

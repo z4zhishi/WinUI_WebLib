@@ -6,7 +6,7 @@
 
 ToolTip 显示某个 UI 元素的更多信息:可以说明该元素是做什么的,或提示用户应该做什么。鼠标悬停、键盘聚焦或触屏长按该元素时弹出,移出 / 超时 / Esc 关闭。工具提示应保持简短,并且是**非交互**的(不能放按钮、链接等需要操作的控件——那是 [Flyout](./_popup-infra.md) 的职责)。
 
-本组件按 WinUI 默认模板复刻视觉:背景 / 边框 / 文字三色取 `theme.css` 的 `--wui-tool-tip-*` token(浅色 `#f2f2f2` / `#00000024` / `#000000`,深色 `#2b2b2b` / `#0000005c` / `#ffffff`),字号 12px、内边距 9,6,9,8、圆角 ControlCornerRadius(4px)、MaxWidth 320、纯淡入淡出动画,随 `html[data-theme]` 明暗切换。
+本组件按 WinUI 3 生效层 `controls/dev/CommonStyles/ToolTip_themeresources.xaml` 复刻视觉(PL10 重定向):前景取 Fluent `--wui-text-fill-color-primary`(浅 `#000000E4` / 深 `#FFFFFF`)、描边取 `--wui-surface-stroke-color-flyout`(浅 `#0000000F` / 深 `#00000033`)、背景为亚克力回退不透明近似(权威 `AcrylicInAppFillColorDefaultBrush`,浅 `#F9F9F9` / 深 `#2C2C2C`),字号 12px、内边距 9,6,9,8、圆角 ControlCornerRadius(4px)、MaxWidth 320、纯淡入淡出动画,随 `html[data-theme]` 明暗切换(总览见 [_brushes.md](./_brushes.md))。
 
 弹层定位、层级(z-index 自动分配)、视口翻转 / 推回全部基于弹层公共基建 `usePopupAnchor` + `usePopupLayer`(见 [弹层公共基建](./_popup-infra.md))。
 
@@ -127,13 +127,13 @@ const open = ref(false)
 
 ## 与 WinUI 的差异说明
 
-对照 `generic.xaml` L11537-11586(Default style for ToolTip)、`controls/dev/CommonStyles/ToolTip_themeresources.xaml`(MUX `DefaultToolTipStyle`)与 `theme.css` token 的取值映射:
+对照 WinUI 3 生效层 `controls/dev/CommonStyles/ToolTip_themeresources.xaml`(MUX `DefaultToolTipStyle`,逐行复核)与 theme.css Fluent token 的取值映射:
 
 | WinUI 取值 | Web 实现 | 说明 |
 | --- | --- | --- |
-| `ToolTipBackground` = `SystemControlBackgroundChromeMediumLowBrush`(浅 #f2f2f2 / 深 #2b2b2b) | `--wui-tool-tip-background`(皮肤类 `.wui-popup-skin-tooltip`) | 无差异;MUX 的 `ToolTipBackgroundBrush` 为 `AcrylicInAppFillColorDefaultBrush`(亚克力材质),Web 无合成器亚克力,以不透明 ChromeMediumLow 近似(theme.css 既有 token 即该取值) |
-| `ToolTipBorderBrush` = `SystemControlTransientBorderBrush` / MUX `SurfaceStrokeColorFlyoutBrush` | `--wui-tool-tip-border`(浅 #00000024 / 深 #0000005c) | 两侧源码取值画刷不同,theme.css 提取的是 dxaml 侧值;MUX 侧 SurfaceStrokeColorFlyout 浅色同为低对比黑,视觉近似 |
-| `ToolTipForeground` = `SystemControlForegroundBaseHighBrush` / MUX `TextFillColorPrimaryBrush` | `--wui-tool-tip-foreground`(浅 #000000 / 深 #ffffff) | 浅色两源一致(黑);深色 MUX 用 `TextFillColorPrimary`(#ffffff),一致 |
+| `ToolTipBackgroundBrush` = `AcrylicInAppFillColorDefaultBrush`(亚克力材质) | 组件局部 `--wui-tool-tip-surface-fallback`(浅 `#F9F9F9` / 深 `#2C2C2C`) | web 无原生亚克力,取 `brush-authority.md` §4.2 记录的不透明回退色近似(噪声/模糊不可复现);皮肤类旧 `--wui-tool-tip-background` 不再生效 |
+| `ToolTipBorderBrush` = `SurfaceStrokeColorFlyoutBrush` | `--wui-surface-stroke-color-flyout`(浅 `#0000000F` / 深 `#00000033`) | PL10 重定向(此前 legacy `--wui-tool-tip-border` `#00000024`/`#0000005c` 已弃用) |
+| `ToolTipForeground` = `TextFillColorPrimaryBrush` | `--wui-text-fill-color-primary`(浅 `#000000E4` / 深 `#FFFFFF`) | PL10 重定向(此前 `--wui-tool-tip-foreground` 缺 alpha,已订正) |
 | `ToolTipContentThemeFontSize` = 12 | `--wui-tool-tip-content-theme-font-size` | 无差异 |
 | `ToolTipBorderThemeThickness` = 1 | `border: 1px solid` | 无差异 |
 | `ToolTipBorderPadding` = 9,6,9,8 | `padding: 6px 9px 8px` | 无差异(dxaml 旧值为 8,5,8,7,取 MUX 新值) |
@@ -171,3 +171,4 @@ const open = ref(false)
 - 组件源码:`src/components/ToolTip.vue`、`src/components/ToolTipService.vue`
 - 弹层公共基建:[`_popup-infra.md`](./_popup-infra.md)(usePopupLayer 选项表、z-index 与焦点约定)
 - 相关控件:Flyout、MenuFlyout、ContentDialog、TeachingTip
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

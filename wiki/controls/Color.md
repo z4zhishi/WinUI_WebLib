@@ -77,11 +77,11 @@
 
 ## 与 WinUI 的差异说明
 
-- **Fluent 画刷集未收录**:官方 Color 页展示的 106 个语义画刷(`TextFillColorPrimaryBrush`、`AccentFillColorDefaultBrush` 等)定义于发行版的 `Common_themeresources_any.xaml`,不在本库提取源 `generic.xaml` 的 ThemeDictionaries 内。本库以 `SystemControl*` 语义层 + 各控件家族画刷呈现同等语义;若需官方同名画刷,可按上表钩子机制在应用层自定义。
+- **Fluent 画刷集已收录(PL2 起)**:官方 Color 页展示的语义画刷(`TextFillColorPrimaryBrush`、`AccentFillColorDefaultBrush` 等)定义于 `Common_themeresources_any.xaml`。PL2 已在 `theme.css` 两个主题块新增该 Fluent 画刷族 token(88 条/主题:`--wui-text-fill-color-*` / `--wui-accent-fill-color-*` / `--wui-control-fill-color-*` / `--wui-subtle-fill-color-*` / `--wui-card-*` / `--wui-layer-*` / `--wui-solid-background-*` / `--wui-system-fill-color-*` 等),控件状态色已陆续改消费该族;旧的 `SystemControl*` 语义层与各控件家族 legacy 画刷仍保留在字典中(只增不删),未迁移的消费方继续使用。命名族对照、权威层级与「画刷→token」映射表见 [_brushes.md](./_brushes.md)。
 - **HighContrast 字典未提取**:提取器跳过高对比字典(参见 `docs/temp/token-inventory.md`);高对比场景需应用层另行处理。
 - **`'XamlAutoFontFamily'` 占位**:字体值原样保留 XAML 占位,浏览器回退默认字体(详见 [Typography](./Typography.md))。
 - **画刷别名**:StaticResource 引用沿别名链解析至终点画刷取值(QA F1),故部分 token 名与值来源键名不同属预期。
 
 ---
 
-演示页源码:[demo/pages/ColorPage.vue](../../demo/pages/ColorPage.vue)
+演示页源码:[demo/pages/ColorPage.vue](../../demo/pages/ColorPage.vue) · Fluent 画刷族总览:[_brushes.md](./_brushes.md)

@@ -102,7 +102,7 @@ Button 资源键 ↔ token 对照(演示页示例 4 实测):
 
 ## 与 WinUI 的差异说明
 
-- **官方示例的画刷不在 theme.css**:官方两卡用的 `SolidBackgroundFillColorBaseBrush` / `TextFillColorPrimaryBrush` 属控件主题资源文件(generic.xaml 的 ThemeDictionaries 之外),不在生成器抽取范围;演示页取最近似的主题层 token `ApplicationPageBackgroundThemeBrush` / `ApplicationForegroundThemeBrush`(`--wui-application-page-background-theme` / `--wui-application-foreground-theme`),明暗差异表现一致。
+- **官方示例的画刷已可在 theme.css 直取**:官方两卡用的 `SolidBackgroundFillColorBaseBrush` / `TextFillColorPrimaryBrush` 属控件主题资源文件(generic.xaml 的 ThemeDictionaries 之外);PL2 已把它们落进 theme.css(分别为 `--wui-solid-background-fill-color-base` 与 `--wui-text-fill-color-primary`,见 [_brushes.md](./_brushes.md))。演示页原取主题层近似 token `--wui-application-page-background-theme` / `--wui-application-foreground-theme`,可改用同值 Fluent token;明暗差异表现一致。
 - **官方示例的资源值按原文硬编码**:`#0078D4` / `#A94DC1` / White / `#E2241A` / `#EEE` / `#333` 是演示内容本身(教的就是"定义自己的资源"),声明在演示页作用域,非 `--wui-*` token。
 - **StaticResource 的模拟边界**:WinUI 主题切换后 StaticResource 保持旧画刷实例;快照方案保持旧字符串,表现等价。差异在于 WinUI 可经 `x:Bind`/代码手段局部刷新,快照只能重新捕获(全量)。
 - **x:String / ImageSource**:CSS 变量可承载字符串(经 `content: var()` 引用,演示页 control 级描述即此实现),但常规文本节点没有 `var()` 文本等价物,`ThemeString` 用响应式常量 + `MutationObserver`(与 SystemBackdropElementPage 同款)承载;`ImageSource` 无图片资产,以色板代替。

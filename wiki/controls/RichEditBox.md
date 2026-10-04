@@ -6,7 +6,7 @@
 
 使用 RichEditBox 控件让用户输入和编辑包含格式化文本、超链接等富内容的文档。WinUI 默认提供拼写检查,并把 `IsReadOnly` 设为 `true` 可切换为只读。Web 复刻以 `contentEditable` 承载编辑区,文档模型为 HTML 字符串,并提供**工具栏插槽**承载格式化命令(粗体 / 斜体 / 下划线 / 列表 / 对齐 / 字体颜色等);示例页包含与 RichTextBlock 的实时预览联动。
 
-对应 WinUI `Microsoft.UI.Xaml.Controls.RichEditBox`,视觉与交互状态(Normal / PointerOver / Focused / Disabled)对照 `generic.xaml` 中 `TargetType="RichEditBox"` 的默认样式与模板复刻 —— 它与 TextBox 共用 `TextControl*` 画刷族,焦点态/清除语义与 [TextBox](./TextBox.md) 家族保持一致。
+对应 WinUI `Microsoft.UI.Xaml.Controls.RichEditBox`,视觉与交互状态(Normal / PointerOver / Focused / Disabled)按 WinUI 3 生效层 `controls/dev/CommonStyles/RichEditBox_themeresources.xaml` 复刻 —— 它与 TextBox 共用同一套 Fluent 画刷族(`ControlFillColor*` / `TextFillColor*` / `--wui-text-control-elevation-border`),焦点态/清除语义与 [TextBox](./TextBox.md) 家族保持一致;总览见 [_brushes.md](./_brushes.md)。
 
 官方文档:
 
@@ -149,4 +149,4 @@ function onTextChanged(value: string): void {
 
 ---
 
-演示页源码:[demo/pages/RichEditBoxPage.vue](../../demo/pages/RichEditBoxPage.vue)
+演示页源码:[demo/pages/RichEditBoxPage.vue](../../demo/pages/RichEditBoxPage.vue) · Fluent 画刷族:[_brushes.md](./_brushes.md)

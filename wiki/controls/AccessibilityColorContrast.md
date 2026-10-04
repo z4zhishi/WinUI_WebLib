@@ -55,7 +55,7 @@ function contrastRatio(a: Rgb, b: Rgb): number {
 | --- | --- | --- |
 | `InlineColorPicker`(Gallery 自定义控件) | 原生 `<input type="color">` + HEX 文本框 | 原生取色器自带键盘可达与平台取色面板 |
 | `x:Bind …ColorBrush` 预览网格 | 内联 `style` 绑定用户输入色 | 预览色是**内容数据**而非主题样式,不受「禁止硬编码色值」约束 |
-| `SystemFillColorSuccess / Critical` 判定色 | 浅 `#0F7B0F / #C42B1C`、深 `#6DCC5F / #FF99A4` | **theme.css 尚无同名 token**,沿用 [InfoBar](./InfoBar.md) 的最近似映射约定(待办:补 system-fill-success/critical token) |
+| `SystemFillColorSuccess / Critical` 判定色 | 浅 `#0F7B0F / #C42B1C`、深 `#6CCB5F / #FF99A4` | PL2 已落地同名 token `--wui-system-fill-color-success` / `--wui-system-fill-color-critical`(及 `-caution` / `-solid-neutral`),InfoBar / InfoBadge / ProgressBar 等已直引 |
 | `SampleThemeListener`(示例内换主题) | 页头「主题预览」写 `html[data-theme]` | 抽样表以 `MutationObserver` 监听,切档即重算 |
 
 ## 本库主题对比度抽样(当前实测)
@@ -79,11 +79,13 @@ function contrastRatio(a: Rgb, b: Rgb): number {
 
 ### 待办
 
-- theme.css 补 `--wui-system-fill-success / caution / critical` 语义 token(现由 InfoBar 与本页按 WinUI 官方值最近似映射);
+- `--wui-system-fill-color-success / caution / critical / solid-neutral` 语义 token 已由 PL2 落地(InfoBar / InfoBadge 等已直引,不再需要组件级近似);本页抽样表可进一步补充这些档位组合的复算;
 - 强调色(`--wui-system-accent-color`)可被用户/系统改写,极端取值下的组合比值未做静态兜底——示例页抽样表按当前档实测,建议发布前用 [Accessibility Insights for Web](https://accessibilityinsights.io/) 全站复扫。
+- PL9 已把 CheckBox / RadioButton / ToggleSwitch / Slider / Expander 的状态色重定向到 Fluent;本页涉及「复选框文本」等组合的对比度已按新值成立(禁用强调底/禁用前景档位变化见 [_brushes.md](./_brushes.md))。
 
 ## 相关链接
 
 - 在线示例:`/#/accessibilitycolorcontrast`
 - 演示页源码:`demo/pages/AccessibilityColorContrastPage.vue`
 - 姊妹篇:[AccessibilityKeyboard](./AccessibilityKeyboard.md)、[AccessibilityScreenReader](./AccessibilityScreenReader.md)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

@@ -6,7 +6,7 @@
 
 使用 ToggleSwitch 向用户呈现恰好两个互斥的选项(如开 / 关),用户做出选择后立即生效。开关应只配一个标签(Header)。
 
-组件按 WinUI 3 的 generic.xaml 默认模板复刻:44x20 胶囊轨道、20x20 滑块、On 态滑块位移 24px、轨道与槽内容之间 12px 间距、控件最小宽度 154px;颜色全部取自 `src/styles/theme.css` 的 `--wui-toggle-switch-*` token,滑块位移动画取自 `src/styles/animations.css` 的时长 / 缓动 token。
+组件按 WinUI 3 生效层 `controls/dev/CommonStyles/ToggleSwitch_themeresources.xaml` 复刻:44x20 胶囊轨道、20x20 滑块、On 态滑块位移 24px、轨道与槽内容之间 12px 间距、控件最小宽度 154px;颜色已由 PL9 重定向到 Fluent 画刷族(轨道 Off `--wui-control-alt-fill-color-secondary/tertiary/quarternary/disabled`、On `--wui-accent-fill-color-default/secondary/tertiary/disabled`、描边 `--wui-control-strong-stroke-color-default/disabled`、旋钮 `--wui-text-fill-color-secondary/disabled` + `--wui-text-on-accent-fill-color-primary/disabled`,旋钮 On 渐变环 `--wui-circle-elevation-border`;总览见 [_brushes.md](./_brushes.md)),滑块位移动画取自 `src/styles/animations.css` 的时长 / 缓动 token。
 
 官方文档:
 
@@ -74,11 +74,13 @@ function onToggled(): void {
 | 状态配色切换 | `DiscreteObjectKeyFrame KeyTime=0` 即时切换 | CSS 即时切换(无过渡) | 保持源行为:只有滑块位移有动画,颜色无淡入淡出。 |
 | 轨道描边 | `Rectangle StrokeThickness=2` 居中描边 | CSS `border: 2px solid` + `border-box` | 数值一致;绘制模型差异约 1px 内,视觉不可辨。 |
 | On 态描边厚度 | `ToggleSwitchOnStrokeThickness = 0` | `border-color: transparent`(保留 2px 盒模型) | 视觉等价:On 态为纯强调色填充胶囊。 |
-| 强调色 | `SystemControlHighlightAccentBrush` 等 | `--wui-toggle-switch-fill-on` 等token | token 链至 `--wui-system-accent-color`;该系统色钩子尚未在应用层定义,组件根局部回退到 `--wui-hyperlink-foreground-theme`(浅 #4f1acb / 深 #9c72ff),钩子定义后自动接管。 |
+| 强调色 | `AccentFillColorDefaultBrush` 等(controls/dev) | `--wui-accent-fill-color-default` 等 Fluent token | PL9 已直引 accent 族;token 链至系统强调色钩子 `--wui-system-accent-color-*`(theme-hooks),钩子未定义时回退超链色,定义后自动接管。 |
+| OffPointerOver 轨道填充 | `ControlAltFillColorTertiaryBrush` | `--wui-control-alt-fill-color-tertiary` | PL9 补上原实现缺失的 OffPointerOver 填充切换。 |
+| OffPressed 轨道描边 | `ToggleSwitchStrokeOffPressed = ControlStrongStrokeColorDefaultBrush` | `--wui-control-strong-stroke-color-default` | PL9 修正原实现误置 `transparent` 的预存偏差(实测 `.447`/`.545`)。 |
 | 焦点视觉 | 系统焦点框(2px 黑外 + 1px 白内,`FocusVisualMargin=-7,-3`) | 2px 强调色 outline(项目统一惯例) | 与库内其他控件一致,差异记录于此。 |
 | 字体 | `ContentControlThemeFontFamily`(`XamlAutoFontFamily` 占位) | `font-family: inherit` | 浏览器将未知字体名回退为默认字体,`inherit` 直接继承页面字体,观感一致。 |
 | `Toggled` 触发 | `IsOn` 任何来源的变化都触发 | 仅用户交互触发 | 程序化改 `v-model` 不触发,避免父组件更新造成的事件回环。 |
 
 ---
 
-演示页源码:[demo/pages/ToggleSwitchPage.vue](../../demo/pages/ToggleSwitchPage.vue)
+演示页源码:[demo/pages/ToggleSwitchPage.vue](../../demo/pages/ToggleSwitchPage.vue) · Fluent 画刷族:[_brushes.md](./_brushes.md)

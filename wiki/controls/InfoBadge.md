@@ -73,18 +73,19 @@ const count = ref(5)
 
 ## 与 WinUI 的差异(视觉与行为对照)
 
-视觉按 `CK/WinUI-Reference/controls/dev/InfoBadge/InfoBadge_themeresources.xaml` 的 `DefaultInfoBadgeStyle` ControlTemplate 与 `InfoBadge.cpp` 的 `OnDisplayKindPropertiesChanged` 复刻(该控件模板不在 `dxaml/generic.xaml` 内,故 theme.css 没有任何 `InfoBadge*` token)。以下项无对应 token 或做了 Web 等价替换:
+视觉按 `CK/WinUI-Reference/controls/dev/InfoBadge/InfoBadge_themeresources.xaml` 的 `DefaultInfoBadgeStyle` ControlTemplate 与 `InfoBadge.cpp` 的 `OnDisplayKindPropertiesChanged` 复刻。PL16 已把配色从组件内字面量/本地层改为**直引 PL2 Fluent token**(浅深由 token 自带,删除两段 `html[data-theme='dark']` 着色覆写,仅保留图标盒高几何键 9→8):
 
-1. **四档配色 token 未生成**:源的 `SystemFillColorSuccessBrush` 等定义于 `CommonStyles/Common_themeresources_any.xaml`,theme.css 生成器只覆盖 `dxaml/generic.xaml`,故无对应 token。组件内置**本地默认值层** `--wui-info-badge-color-*`(浅/深两套,值逐项取自源文件),调用方可用同名变量覆盖:
-   | severity | 源画刷 | Light | Default(深色) |
-   | --- | --- | --- | --- |
-   | `informational` | `SystemFillColorSolidNeutralBrush` | `#8A8A8A` | `#9D9D9D` |
-   | `success` | `SystemFillColorSuccessBrush` | `#0F7B0F` | `#6CCB5F` |
-   | `warning` | `SystemFillColorCautionBrush`(源 Caution 档,即 InfoBar warning) | `#9D5D00` | `#FCE100` |
-   | `critical` | `SystemFillColorCriticalBrush` | `#C42B1C` | `#FF99A4` |
-   源另有 `Attention*InfoBadgeStyle` 族(`SystemFillColorAttentionBrush`,强调色 Light2/强调色),观感归入本组件的 `default` 档,不单列。
-2. **前景 / 默认底色 token 缺失**:`InfoBadgeForeground = TextOnAccentFillColorPrimaryBrush`、`InfoBadgeBackground = AccentFillColorDefaultBrush` 定义在 `Common_themeresources_any.xaml`,theme.css 无同名 token。组件内以局部 token 按源值承载:底色经 theme-hooks.css 系统色钩子取 `AccentFillColorDefault` 对应值(浅 = SystemAccentColorDark1 `#0067C0` → `--wui-system-accent-color-dark-1`,深 = SystemAccentColorLight2 `#4CC2FF` → `--wui-system-accent-color-light-2`,未定义时回退源值字面量);前景 `TextOnAccentFillColorPrimary`(浅 `#FFFFFF` / 深 `#000000`)以 `--wui-info-badge-foreground` 局部变量按主题切换。
-3. **小尺寸三形态 token 对照**(源值 → Web 实现,均为局部固定值而非 theme.css token):
+| severity | 源画刷 | 直引的 Fluent token | 浅 / 深 |
+| --- | --- | --- | --- |
+| `default` | `InfoBadgeBackground` ← `AccentFillColorDefaultBrush`;`InfoBadgeForeground` ← `TextOnAccentFillColorPrimaryBrush` | `--wui-accent-fill-color-default` / `--wui-text-on-accent-fill-color-primary` | `#0067C0`·`#FFFFFF` / `#4CC2FF`·`#000000` |
+| `informational` | `SystemFillColorSolidNeutralBrush` | `--wui-system-fill-color-solid-neutral` | `#8A8A8A` / `#9D9D9D` |
+| `success` | `SystemFillColorSuccessBrush` | `--wui-system-fill-color-success` | `#0F7B0F` / `#6CCB5F` |
+| `warning` | `SystemFillColorCautionBrush`(源 Caution 档,即 InfoBar warning) | `--wui-system-fill-color-caution` | `#9D5D00` / `#FCE100` |
+| `critical` | `SystemFillColorCriticalBrush` | `--wui-system-fill-color-critical` | `#C42B1C` / `#FF99A4` |
+| 四档前景 | `TextOnAccentFillColorPrimaryBrush` | `--wui-text-on-accent-fill-color-primary` | `#FFFFFF` / `#000000` |
+
+源另有 `Attention*InfoBadgeStyle` 族(`SystemFillColorAttentionBrush`,强调色 Light2/强调色),观感归入本组件的 `default` 档,不单列。画刷族总览见 [_brushes.md](./_brushes.md)。以下项为无 token 的结构值或 Web 等价替换:
+1. **小尺寸三形态 token 对照**(源值 → Web 实现,均为局部固定值而非 theme.css token):
    | 源资源 | Light / Default 值 | Web 实现 |
    | --- | --- | --- |
    | `InfoBadgeMinHeight` / `InfoBadgeMinWidth` | 4 / 4 | `min-width/min-height: 4px`(点状即 4x4 圆点) |
@@ -95,12 +96,12 @@ const count = ref(5)
    | `IconInfoBadgeFontIconMargin`(4,0,4,2) | — | FontIcon 态 `margin: 0 4px 2px 4px` |
    | `IconInfoBadgeIconMargin`(4,4,4,4) | — | Icon 态 `margin: 4px` |
    | `ValueInfoBadgeTextMargin`(4,0,4,2) | — | 数字 `margin: 0 4px 2px 4px`(XAML 左,上,右,下 → CSS 上 右 下 左) |
-4. **字形盒缩放未复刻**:源把 `FontIconSource`(默认 20px)经 `Viewbox` 缩放进 `IconHeight`(8/9px)盒;Web 不做 Viewbox 缩放,FontIcon 态直接以 12px 字形盒渲染,Icon 态槽位内容不缩放(仅限高),尺寸由调用方内容自定。
-5. **胶囊圆角**:源在 `OnSizeChanged` 里动态取 `ActualHeight/2` 写入 `TemplateSettings.InfoBadgeCornerRadius`;Web 用 `border-radius: 9999px`(自动 cap 到半边长)取得相同胶囊/圆形效果,`cornerRadius` prop 可覆盖。
-6. **方形化 Measure 未复刻**:源 `MeasureOverride` 在宽小于高时返回方形;Web 各形态内容盒(`min-width` 4px、图标盒 12px)已保证接近的几何,极端内容(如超高槽位图标)可能略有出入。
-7. **`value < -1` 不抛异常**:源抛 `hresult_out_of_bounds`;Web 侧从宽 —— 按点状渲染,并在开发期输出 `console.warn`。
-8. **无交互态**:源模板仅含 `DisplayKindStates`(Dot/Icon/FontIcon/Value),无 PointerOver/Pressed/Disabled/Focus 状态,组件相应不提供交互态与禁用态。
+2. **字形盒缩放未复刻**:源把 `FontIconSource`(默认 20px)经 `Viewbox` 缩放进 `IconHeight`(8/9px)盒;Web 不做 Viewbox 缩放,FontIcon 态直接以 12px 字形盒渲染,Icon 态槽位内容不缩放(仅限高),尺寸由调用方内容自定。
+3. **胶囊圆角**:源在 `OnSizeChanged` 里动态取 `ActualHeight/2` 写入 `TemplateSettings.InfoBadgeCornerRadius`;Web 用 `border-radius: 9999px`(自动 cap 到半边长)取得相同胶囊/圆形效果,`cornerRadius` prop 可覆盖。
+4. **方形化 Measure 未复刻**:源 `MeasureOverride` 在宽小于高时返回方形;Web 各形态内容盒(`min-width` 4px、图标盒 12px)已保证接近的几何,极端内容(如超高槽位图标)可能略有出入。
+5. **`value < -1` 不抛异常**:源抛 `hresult_out_of_bounds`;Web 侧从宽 —— 按点状渲染,并在开发期输出 `console.warn`。
+6. **无交互态**:源模板仅含 `DisplayKindStates`(Dot/Icon/FontIcon/Value),无 PointerOver/Pressed/Disabled/Focus 状态,组件相应不提供交互态与禁用态。
 
 ---
 
-演示页源码:[demo/pages/InfoBadgePage.vue](../../demo/pages/InfoBadgePage.vue) · 组件源码:[src/components/InfoBadge.vue](../../src/components/InfoBadge.vue)
+演示页源码:[demo/pages/InfoBadgePage.vue](../../demo/pages/InfoBadgePage.vue) · 组件源码:[src/components/InfoBadge.vue](../../src/components/InfoBadge.vue) · Fluent 画刷族:[_brushes.md](./_brushes.md)

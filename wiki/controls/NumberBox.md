@@ -101,10 +101,10 @@ function onValueChanged({ oldValue, newValue }: { oldValue: number | null; newVa
 - **AcceptsExpression(表达式求值)未实现**:官方示例的 `1 + 2^2` 代数式求值(NumberBoxParser)不在本波次范围,输入按普通数字解析。
 - **IsWrapEnabled 未实现**:到达边界后步进被钳制(Overbound)或越界保留(Overwritten),不循环到另一端;步进按钮禁用逻辑按源 Overbound 分支实现。
 - **`Text` 属性未公开**:WinUI 的 `NumberBox.Text` 可双向绑定;本实现编辑文本为组件内部状态,经 `v-model:value` + 格式化器表达,提交后自动规范化。
-- **颜色 / 字号**:文本框本体已按 PL6/PL8 重定向到 Fluent 画刷族(`--wui-control-fill-color-*` / `--wui-text-fill-color-*` / `--wui-text-control-elevation-border`,与 TextBox 同族);步进按钮按源模板 ThemeDictionaries 把 `RepeatButton*` 画刷映射到 `--wui-text-fill-color-*` / `--wui-subtle-fill-color-*`;弹层底/边/圆角/阴影近似取 `--wui-flyout-presenter-background`、`--wui-flyout-border-theme`、`--wui-popup-corner-radius`、`--wui-popup-shadow`(源为 `AcrylicBackgroundFillColorDefaultBrush` / `SurfaceStrokeColorFlyoutBrush` / `OverlayCornerRadius` / ThemeShadow,无同名 token);错误色取 `--wui-system-control-error-text-foreground`;说明文本取 `--wui-system-control-description-text-foreground`。
+- **颜色 / 字号**:文本框本体已按 PL6/PL8 重定向到 Fluent 画刷族(`--wui-control-fill-color-*` / `--wui-text-fill-color-*` / `--wui-text-control-elevation-border`,与 TextBox 同族);步进按钮按源模板 ThemeDictionaries 把 `RepeatButton*` 画刷映射到 `--wui-text-fill-color-*` / `--wui-subtle-fill-color-*`;弹层边 PL6 改为 `--wui-surface-stroke-color-flyout`(`SurfaceStrokeColorFlyoutBrush`),底为亚克力回退不透明近似(权威 `AcrylicBackgroundFillColorDefaultBrush`,浅 `#F9F9F9` / 深 `#2C2C2C`,登记为材质近似),圆角/阴影取 `--wui-popup-corner-radius`、`--wui-popup-shadow`;错误色取 `--wui-system-control-error-text-foreground`;说明文本取 `--wui-system-control-description-text-foreground`。总览见 [_brushes.md](./_brushes.md)。
 - **无 token 的结构值**(WinUI 3 权威 `controls/dev`,PL7/PL8 更新):Border 1(`Common_themeresources.xaml` L10/L24;Focused 1,1,1,2 L11/L25)、`Padding` = 10,5,6,6(L12/L26/L40,`NumberBox.xaml` L12;legacy 的 10,3,6,6 已替换)、MinHeight / MinWidth 32 / 64、`NumberBoxSpinButtonBorderThickness` = 0,1,1,1(`NumberBox_themeresources.xaml` L29,施加点 `NumberBox.xaml` L188 → CSS `border-width: 1px 1px 1px 0`)、步进按钮 MinWidth 32 / FontSize 12、弹层按钮 36×36 / FontSize 16、弹层 Padding 6 与按钮间距 4、`NumberBoxMinWidth` = 120(Inline 态输入区最小宽)、Compact 指示符 Margin 0,0,8,0、glyph 12px(取同值 token `--wui-tool-tip-content-theme-font-size`)。
-- **圆角**:源模板 `CornerRadius = ControlCornerRadius`(WinUI 3 默认 4px),`theme.css` 未生成该 token,按源默认值写死;弹层为 `OverlayCornerRadius`(8px),取弹层基建 token。
-- **禁用步进按钮的前景色**:源映射到 `TextControlButtonForegroundDisabled`,`theme.css` 无该 token,取最近似 token `--wui-repeat-button-foreground-disabled`。
+- **圆角**:源模板 `CornerRadius = ControlCornerRadius`(WinUI 3 默认 4px),按源默认值写死;弹层为 `OverlayCornerRadius`(8px),取弹层基建 token。
+- **禁用步进按钮的前景色**:源映射到 `TextControlButtonForegroundDisabled`;PL6 起按钮族统一取 Fluent `--wui-text-fill-color-disabled`(权威 `TextFillColorDisabledBrush`)。
 - **Compact 指示符 glyph**:源 `PopupIndicator` 用 U+EC8F,该码位在 Segoe Fluent Icons/MDL2 中非通用字形,近似改用 U+E70E(ChevronUp,与步进按钮同源),语义一致(提示聚焦可弹出步进层)。
 - **Compact 弹层定位**:源 Popup 以 `NumberBoxPopupHorizonalOffset = -21` / `VerticalOffset = -27` 锚定;Web 实现为输入区右上方 4px 处右对齐(视觉近似,非逐像素)。
 - **步进按钮连发为模拟**:RepeatButton 的按住连发以 Pointer Events + `setPointerCapture` 模拟(按下立即步进一次,400ms 后每 90ms 一步);源按钮 `IsTabStop=False`,实现 `tabindex="-1"`,步进无键盘路径(与源一致,键盘用 ↑↓ / PageUp / PageDown)。
@@ -114,4 +114,4 @@ function onValueChanged({ oldValue, newValue }: { oldValue: number | null; newVa
 
 ---
 
-演示页源码:[demo/pages/NumberBoxPage.vue](../../demo/pages/NumberBoxPage.vue)
+演示页源码:[demo/pages/NumberBoxPage.vue](../../demo/pages/NumberBoxPage.vue) · Fluent 画刷族:[_brushes.md](./_brushes.md)

@@ -116,7 +116,8 @@ function addPage() {
 | 项 | WinUI 源行为 | 本组件实现 |
 | --- | --- | --- |
 | 内容切换动画 | 默认**即时切换**:`PivotSlideInManager` 仅对显式设置 `Pivot.SlideInAnimationGroup`(GroupOne/Two/Three)附加属性的元素播放 40px×组×方向、700ms 的滑入效果,默认组(Default=0)不注册任何元素 | 与源默认一致:即时 `display` 切换、无动画;`SlideInAnimationGroup` 扩展未实现 |
-| 选中标题字重 | 源模板选中态只改前景色与 SelectedPipe 下划线,`PivotHeaderItemThemeFontWeight`(SemiLight)全态不变 | 一致:选中**不加粗**(字重 350,项目 SemiLight 映射);下划线 2px 主题色、距底 2px |
+| 选中标题字重 | 源模板选中态只改前景色与 SelectedPipe 下划线,`PivotHeaderItemThemeFontWeight`(SemiLight)全态不变 | 一致:选中**不加粗**(字重 350,项目 SemiLight 映射);下划线 2px 主题色、距底 2px。PL11 已把选中下划线(SelectedPipe)由基色 `--wui-system-accent-color` 改为 `--wui-accent-fill-color-default`(权威 `PivotHeaderItemSelectedPipeFill = AccentFillColorDefaultBrush`) |
+| 颜色权威层级(PL11 复核) | `controls/dev` 的 `Pivot_themeresources.xaml` **未迁移到 Fluent**:页头项与导航钮的键全部指向 legacy `SystemControl*` 画刷,唯 SelectedPipe = `AccentFillColorDefaultBrush` | theme.css 的 `--wui-pivot-*` 族逐键与 legacy 权威一致(0 偏差),**保留原 token 不臆造 Fluent 映射**;仅下划线重定向 accent token。总览见 [_brushes.md](./_brushes.md) |
 | 导航箭头显示条件 | 指针悬停标题行 且 `PivotHeaderPanel.IsContentClipped`(标题溢出裁剪)且项数 > 1;越界方向隐藏(`showPrevious = SelectedIndex > 0`) | 一致:hover + `scrollWidth > clientWidth` 溢出检测 + 端点隐藏;标题未溢出时悬停也不显示(与源一致) |
 | `CharacterSpacing` | `PivotHeaderItemCharacterSpacing = -25`(1/1000 em × 24px) | `letter-spacing: -0.6px`(换算值,无对应 token) |
 | 字体族 | `XamlAutoFontFamily` / `PivotHeaderItemFontFamily` | 回退浏览器默认字体(`inherit`),不加载 Segoe 字体(项目 R1 约定) |
@@ -131,3 +132,4 @@ function addPage() {
 - 演示页:`demo/pages/PivotPage.vue`(路由 `/#/pivot`)
 - 组件源码:`src/components/Pivot.vue`、`src/components/PivotItem.vue`
 - 姊妹控件:[FlipView](https://learn.microsoft.com/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.controls.flipview)(逐页翻阅)、[SelectorBar](https://learn.microsoft.com/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.controls.selectorbar)(WinUI 11 推荐替代)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

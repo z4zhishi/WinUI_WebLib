@@ -92,20 +92,21 @@ Checked 全族(源 `controls/dev/SplitButton/SplitButton.xaml` L131-L207;状态�
 
 SplitButton 的全部差异项(边框渐变简化、圆角 / 内边距资源写死、焦点框单环近似、chevron SVG 等价、弹层载体、命令层简化、属性命名等)**原样继承**,见 [SplitButton 差异节](./SplitButton.md#与-winui-的差异视觉与行为对照)。Checked 分支特有:
 
-| 组件 token(`.is-checked` 覆写) | 源资源(解析链) | Light | Dark |
-| --- | --- | --- | --- |
-| `--wui-splitbutton-fill` | `SplitButtonBackgroundChecked` ← `AccentFillColorDefault` | 系统强调色 | 系统强调色 |
-| `--wui-splitbutton-fill-pointer-over` | `SplitButtonBackgroundCheckedPointerOver` ← `AccentFillColorSecondary` | ≈ Dark1 | ≈ Dark1 |
-| `--wui-splitbutton-fill-pressed` | `SplitButtonBackgroundCheckedPressed` ← `AccentFillColorTertiary` | ≈ Dark2 | ≈ Dark2 |
-| `--wui-splitbutton-foreground` / `--wui-splitbutton-foreground-pointer-over` / `--wui-splitbutton-foreground-secondary` | `SplitButtonForegroundChecked(PointerOver)` ← `TextOnAccentFillColorPrimary` | `#FFFFFF` | `#000000` |
-| `--wui-splitbutton-foreground-pressed` / `--wui-splitbutton-foreground-secondary-pressed` | `SplitButtonForegroundCheckedPressed` ← `TextOnAccentFillColorSecondary` | `#FFFFFFB3` | `#00000080` |
-| `--wui-splitbutton-stroke` | `SplitButtonBorderBrushChecked` ← `AccentControlElevationBorderBrush` | ≈`#00000066` | ≈`#00000023` |
-| `--wui-splitbutton-stroke-pressed` | `SplitButtonBorderBrushCheckedPressed` ← `ControlFillColorTransparent`(仅 FlyoutOpen / TouchPressed) | 透明 | 透明 |
-| `--wui-splitbutton-divider` | `SplitButtonBorderBrushCheckedDivider` ← `ControlStrokeColorOnAccentTertiary` | `#00000037` | `#00000037` |
+| 组件中间变量(`.is-checked` 覆写) | 源资源(解析链) | 直引的 Fluent token |
+| --- | --- | --- |
+| `--wui-splitbutton-fill` | `SplitButtonBackgroundChecked` ← `AccentFillColorDefault` | `--wui-accent-fill-color-default`(浅 `SystemAccentColorDark1` `#0067C0` / 深 `SystemAccentColorLight2` `#4CC2FF`) |
+| `--wui-splitbutton-fill-pointer-over` | `SplitButtonBackgroundCheckedPointerOver` ← `AccentFillColorSecondary` | `--wui-accent-fill-color-secondary`(×0.9) |
+| `--wui-splitbutton-fill-pressed` | `SplitButtonBackgroundCheckedPressed` ← `AccentFillColorTertiary` | `--wui-accent-fill-color-tertiary`(×0.8) |
+| `--wui-splitbutton-foreground` / `--wui-splitbutton-foreground-pointer-over` / `--wui-splitbutton-foreground-secondary` | `SplitButtonForegroundChecked(PointerOver)` ← `TextOnAccentFillColorPrimary` | `--wui-text-on-accent-fill-color-primary`(浅 `#FFFFFF` / 深 `#000000`) |
+| `--wui-splitbutton-foreground-pressed` / `--wui-splitbutton-foreground-secondary-pressed` | `SplitButtonForegroundCheckedPressed` ← `TextOnAccentFillColorSecondary` | `--wui-text-on-accent-fill-color-secondary`(`#FFFFFFB3` / `#00000080`) |
+| `--wui-splitbutton-stroke` | `SplitButtonBorderBrushChecked` ← `AccentControlElevationBorderBrush`(渐变) | `--wui-control-stroke-color-on-accent-secondary`(1px 顶停色平色近似) |
+| `--wui-splitbutton-stroke-pressed` | `SplitButtonBorderBrushCheckedPressed` ← `ControlFillColorTransparent`(仅 FlyoutOpen / TouchPressed) | 透明 |
+| `--wui-splitbutton-divider` | `SplitButtonBorderBrushCheckedDivider` ← `ControlStrokeColorOnAccentTertiary` | `--wui-control-stroke-color-on-accent-tertiary`(`#00000037` 两主题) |
 
 其他差异项:
 
-1. **accent 为应用层系统色钩子**:`AccentFillColorDefault/Secondary/Tertiary` 随系统强调色变化,theme.css 未定义(见文件头注释);Web 写 `var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme))`(悬停 / 按压用 `--wui-system-accent-color-dark-1/dark-2` 近似 `AccentFillColorSecondary/Tertiary`),钩子未定义时回退超链色(与 demo/components/README.md 约定一致),应用层定义钩子后自动生效。边框源为 3px 垂直渐变(`AccentControlElevationBorderBrush`,含 `ControlStrokeColorOnAccentSecondary` 色阶),取 1px 平色近似(同 SplitButton 的 elevation 简化)。
+1. **accent 直引 Fluent token**:PL16 已把 Checked 族底色由「裸 accent 钩子 / Dark1·Dark2 近似档」改为 `--wui-accent-fill-color-default/secondary/tertiary`(权威 `AccentFillColorDefault/Secondary/Tertiary`),修正了原实现与权威的档位差;边框源为 3px 垂直渐变(`AccentControlElevationBorderBrush`),取 1px 顶停色平色近似(同 SplitButton 的 elevation 简化)。
+1.1 **scoped 覆写缺陷已修复(PL16)**:原 Checked 全族覆写因 scoped 作用域 id 无法落到 SplitButton 片段根,在真实客户端从不生效(DOM 只含 SplitButton 的 `data-v-*`);已改为非 scoped 样式块(类名 `.wui-togglesplitbutton` 唯一),修复后 Checked 呈 accent 底 + on-accent 前景。
 2. **无 `CheckedDisabled` 态**:源模板的 Disabled 分支不含勾选变体(themeresources 里的 `SplitButton*CheckedDisabled` 资源未被模板引用),禁用 + 勾选渲染同「仅禁用」;Web 同样不覆写。
 3. **触摸路径的按压边框**:源触摸按压进 `CheckedTouchPressed`(透明边框),鼠标按压进 `CheckedPrimary/SecondaryPressed`(保留 accent 边框);Web 的 CSS `:active` 无法区分鼠标与触摸,统一取 accent 边框(仅按压瞬间的 1px 边框色差异)。
 4. **弹层开着时点主区**:源优先 `CheckedFlyoutOpen`(边框透明),Web 的 accent 边框恢复规则已按此排除 `.is-flyout-open`。
@@ -119,6 +120,7 @@ SplitButton 的全部差异项(边框渐变简化、圆角 / 内边距资源写�
 - 开关按钮:[ToggleButton](./ToggleButton.md)(三态语义与 `aria-pressed` 先例)
 - 弹层公共基建:[wiki/controls/_popup-infra.md](./_popup-infra.md)
 - 菜单族:[MenuFlyout](./MenuFlyout.md)(`#flyout` slot 内可用的菜单项五件套)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)
 
 ---
 

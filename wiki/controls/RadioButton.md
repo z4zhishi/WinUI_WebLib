@@ -69,18 +69,18 @@ WinUI 的 RadioButton 组语义(互斥 + 键盘)与 CheckBox 不同,本组件用
 
 ## 与 WinUI 的差异(视觉与行为对照)
 
-视觉按权威 `controls/dev/CommonStyles/RadioButton_themeresources.xaml`(dxaml `generic.xaml` 的 `TargetType="RadioButton"` 旧模板为 UWP 遗留)的 CommonStates × CheckStates 复刻,以下项无对应 token 或做了 Web 等价替换:
+视觉按权威 `controls/dev/CommonStyles/RadioButton_themeresources.xaml` 的 CommonStates × CheckStates 复刻(状态色由 PL9 重定向到 Fluent:外圈描边 `--wui-control-strong-stroke-color-default/disabled`、强调 `--wui-accent-fill-color-default/secondary/tertiary/disabled`、填充 `--wui-control-alt-fill-color-secondary/tertiary/quarternary/disabled`、内点 `--wui-text-on-accent-fill-color-primary`;总览见 [_brushes.md](./_brushes.md)),以下项无对应 token 或做了 Web 等价替换:
 
 1. **描边厚度 token 未提取**:`RadioButtonBorderThemeThickness = 2` 是 `x:Double` 资源,theme.css 未生成对应 token。本组件固定外圈 `border: 2px`(20x20 外圈、内点基尺寸 `RadioButtonCheckGlyphSize=12`、行高 32、内容 `Padding=8,6,0,0`、字号 14px 均按模板)。
 2. **互斥/键盘承载方式**:WinUI 由控件内部实现组逻辑;Web 侧交由原生 `input[type=radio][name]`,键盘与 Tab 语义因此与 WinUI 等价。原生互斥只改 DOM 选中态,组件再经**模块级组注册表**([src/components/radioButtonGroups.ts](../../src/components/radioButtonGroups.ts),普通模块顶层作用域、所有实例共享)把它回写为同组各实例的 `v-model:checked`。选中视觉由隐藏 input 的 `:checked` 经相邻兄弟选择器驱动,视觉层不参与命中(整行 label 可点)。
 3. **事件触发面**:WinUI 的 `Checked`/`Unchecked` 在程序化赋值时同样触发;本组件仅用户交互触发,程序化变化请监听 `v-model`。同组互斥中前任选项的 `unchecked` 属用户交互路径,会正常派发。
 4. **焦点框**:WinUI 系统焦点框为双层(2px 主色 + 内衬次色,`FocusVisualMargin=-7,-3,-7,-3`)。Web 侧以单层 `outline: 2px solid var(--wui-system-control-focus-visual-primary)`(偏移 2px)近似;焦点位于隐藏 input 上,经 `:has(input:focus-visible)` 上浮到根元素 —— 不支持 `:has()` 的旧内核无焦点框(选中视觉不受影响)。
-5. **根网格背景/边框**:模板 `RootGrid` 的 Background/BorderBrush 各组合态 token 在两套主题下均为透明,按基础态静态绑定 `--wui-radio-button-background` / `--wui-radio-button-border`,视觉无损。
-6. **内点(CheckGlyph)**:源 L179 基尺寸 `RadioButtonCheckGlyphSize=12`(遗留 generic.xaml 为 10,MR15 已订正为 12),并补上权威 CommonStates 尺寸 morph(PointerOver→14 @250ms、Pressed→10 @250ms、Disabled→14 @167ms,均 `cubic-bezier(0,0,0,1)`)。`CheckGlyph` 的 Stroke token(两主题均为透明)按 `1px` border 保留映射,视觉不可见;选中态切换按模板 `Duration=0` 即时呈现(无过渡动画)。源另有 `PressedCheckGlyph`(4x4 圆角内点,按下时 4→10 @167ms),Web 未实现,登记为已知缺口。
+5. **根网格背景/边框**:模板 `RootGrid` 的 Background/BorderBrush 权威为 `ControlFillColorTransparentBrush`,PL9 已重定向为 `--wui-control-fill-color-transparent`(视觉仍全透明)。
+6. **内点(CheckGlyph)**:源 L179 基尺寸 `RadioButtonCheckGlyphSize=12`(遗留 generic.xaml 为 10,MR15 已订正为 12),并补上权威 CommonStates 尺寸 morph(PointerOver→14 @250ms、Pressed→10 @250ms、Disabled→14 @167ms,均 `cubic-bezier(0,0,0,1)`)。PL9 已把内点**描边由「透明不可见」改为渐变环**(权威 `Stroke` 本就是渐变):未选中 `CircleElevationBorderBrush`(`--wui-circle-elevation-border`,PL9 新增)、选中 `AccentControlElevationBorderBrush`(`--wui-accent-control-elevation-border`)、选中禁用 `ControlElevationBorderBrush`(`--wui-control-elevation-border`);未选中态内点 `opacity:0` 故该环不可观测(登记)。选中态切换按模板 `Duration=0` 即时呈现。源另有 `PressedCheckGlyph`(4x4 圆角内点,按下时 4→10 @167ms),Web 未实现,登记为已知缺口。
 7. **内容换行**:ContentPresenter `TextWrapping="Wrap"` 由默认流式换行承接。
 8. **属性命名**:`Content` → `content` + 默认 slot;`GroupName` → `groupName`;`IsEnabled` → `disabled`(沿用原生语义,原生 `disabled` 同时移除焦点与点击)。WinUI 的 `IsChecked` 为非空 `bool`,故 `v-model:checked` 为纯 `boolean`(与 CheckBox 的三态不同)。
 9. **示例页预览色块(演示数据色,非控件 token)**:演示页「双组联动」中预览色块的取色来自官方 WinUI Gallery 示例源码(`RadioButtonPage.xaml.cs` 与 `RadioButtonStrings.txt`):Background 的 Green `#008000` / Yellow `#FFFF00` / White `#FFFFFF`,Border 的 Green(DarkGreen)`#006400` / Yellow(Gold)`#FFD700` / White `#FFFFFF`,以及 Border 无选中时的默认底色 `#FFFFFF`、描边 `#FFD700`。这些是官方示例的演示数据取色,仅用于色块预览;RadioButton 控件本体的颜色仍全部消费 `--wui-radio-button-*` token。
 
 ---
 
-演示页源码:[demo/pages/RadioButtonPage.vue](../../demo/pages/RadioButtonPage.vue) · 组件源码:[src/components/RadioButton.vue](../../src/components/RadioButton.vue)
+演示页源码:[demo/pages/RadioButtonPage.vue](../../demo/pages/RadioButtonPage.vue) · 组件源码:[src/components/RadioButton.vue](../../src/components/RadioButton.vue) · Fluent 画刷族:[_brushes.md](./_brushes.md)

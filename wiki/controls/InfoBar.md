@@ -89,24 +89,24 @@ function onClosed(args: { reason: string }) {
 
 ## 与 WinUI 的差异(视觉与行为对照)
 
-视觉按 `controls/dev/InfoBar/InfoBar.xaml`(ControlTemplate)与 `InfoBar_themeresources.xaml`(四档配色 / 尺寸资源)复刻。四档配色引用 **SystemFillColor\* 系画刷**(定义于 `controls/dev/CommonStyles/Common_themeresources_any.xaml`),theme.css(提取自 OS generic.xaml)未收录该系画刷,且现有 token 仅中性灰 + 强调色,**无带色相的最近似 token 可用**(严重级别的绿 / 黄 / 红是控件的核心语义,映射到强调色会使档位不可分辨)。按 `theme-hooks.css`「WinUI 默认呈现值」先例,将源值注入组件级 token `--wui-infobar-*`(浅 / 深两套,经 `html[data-theme]` 切换),升级路径:主题生成器收录 `SystemFillColor*` 后改为直接引用。注意字节序:XAML 颜色为 **AARRGGBB**,CSS 需按通道重排为 **RRGGBBAA**(带 alpha 的 8 位值,如 `#08FFFFFF` → `#ffffff08`、`#E4000000` → `#000000e4`、`#80F6F6F6` → `#f6f6f680`);不透明的 6 位值原样使用。对照表(源值列为 XAML 原始字节序):
+视觉按 `controls/dev/InfoBar/InfoBar.xaml`(ControlTemplate)与 `InfoBar_themeresources.xaml`(四档配色 / 尺寸资源)复刻。四档配色引用 **SystemFillColor\* 系画刷**(定义于 `controls/dev/CommonStyles/Common_themeresources_any.xaml`),PL2 已把该系语义 token 落进 `theme.css`,PL3 已把组件内字面量与四段 `html[data-theme]` 覆盖全部改为直引 `--wui-system-fill-color-*`(明暗由 token 自身切换)。注意字节序:XAML 颜色为 **AARRGGBB**,CSS 需按通道重排为 **RRGGBBAA**(带 alpha 的 8 位值,如 `#80F6F6F6` → `#f6f6f680`、`#08FFFFFF` → `#ffffff08`);不透明的 6 位值原样使用。对照表(源值列为 XAML 原始字节序):
 
-| 源资源(WinUI 3) | 源值(light / dark) | 本组件取值 |
-| --- | --- | --- |
-| `InfoBarInformationalSeverityBackgroundBrush` ← `SystemFillColorAttentionBackground` | `#80F6F6F6` / `#08FFFFFF` | `--wui-infobar-severity-bg`(组件级源值) |
-| `InfoBarSuccessSeverityBackgroundBrush` ← `SystemFillColorSuccessBackground` | `#DFF6DD` / `#393D1B` | 同上(档位类覆写) |
-| `InfoBarWarningSeverityBackgroundBrush` ← `SystemFillColorCautionBackground` | `#FFF4CE` / `#433519` | 同上(档位类覆写) |
-| `InfoBarErrorSeverityBackgroundBrush` ← `SystemFillColorCriticalBackground` | `#FDE7E9` / `#442726` | 同上(档位类覆写) |
-| `InfoBarInformationalSeverityIconBackground` ← `SystemFillColorAttentionBrush` ← `SystemAccentColor`(dark:`SystemAccentColorLight2`) | 强调色 | `--wui-system-accent-color` / `--wui-system-accent-color-light-2`(theme-hooks token,精确映射) |
-| `InfoBarSuccessSeverityIconBackground` ← `SystemFillColorSuccess` | `#0F7B0F` / `#6CCB5F` | 组件级源值 |
-| `InfoBarWarningSeverityIconBackground` ← `SystemFillColorCaution` | `#9D5D00` / `#FCE100` | 组件级源值 |
-| `InfoBarErrorSeverityIconBackground` ← `SystemFillColorCritical` | `#C42B1C` / `#FF99A4` | 组件级源值 |
-| `InfoBar*SeverityIconForeground` ← `TextFillColorInverse` | `#FFFFFF` / `#E4000000` | `--wui-infobar-icon-inverse`(组件级源值) |
-| `InfoBarTitleForeground` / `InfoBarMessageForeground` ← `TextFillColorPrimary` | — | `--wui-default-text-foreground-theme`(token) |
-| `InfoBarBorderBrush` ← `CardStrokeColorDefault` | — | `--wui-system-control-background-base-low`(token,Expander 同款最近似映射) |
-| `CloseButton` 系 ← `AppBarButtonBackground/Foreground/…PointerOver/Pressed` | — | `--wui-app-bar-button-*`(token,同名资源) |
-| `CornerRadius` ← `ControlCornerRadius` | 4px | `--wui-hyperlink-focus-rect-corner-radius`(token,同为 4px) |
-| `InfoBarTitleFontSize` / `InfoBarMessageFontSize` = 14 | — | `--wui-control-content-theme-font-size`(token) |
+| 源资源(WinUI 3) | 权威键 | 源值(light / dark) | 本组件 token |
+| --- | --- | --- | --- |
+| `InfoBarInformationalSeverityBackgroundBrush` ← `SystemFillColorAttentionBackground` | `SystemFillColorAttentionBackgroundBrush` | `#80F6F6F6` / `#08FFFFFF` | `--wui-system-fill-color-attention-background` |
+| `InfoBarSuccessSeverityBackgroundBrush` ← `SystemFillColorSuccessBackground` | `SystemFillColorSuccessBackgroundBrush` | `#DFF6DD` / `#393D1B` | `--wui-system-fill-color-success-background` |
+| `InfoBarWarningSeverityBackgroundBrush` ← `SystemFillColorCautionBackground` | `SystemFillColorCautionBackgroundBrush` | `#FFF4CE` / `#433519` | `--wui-system-fill-color-caution-background` |
+| `InfoBarErrorSeverityBackgroundBrush` ← `SystemFillColorCriticalBackground` | `SystemFillColorCriticalBackgroundBrush` | `#FDE7E9` / `#442726` | `--wui-system-fill-color-critical-background` |
+| `InfoBarInformationalSeverityIconBackground` ← `SystemFillColorAttentionBrush`(→ 系统强调色,深色 Light2) | `SystemFillColorAttentionBrush` | 强调色 | `--wui-system-fill-color-attention` |
+| `InfoBarSuccessSeverityIconBackground` ← `SystemFillColorSuccess` | `SystemFillColorSuccessBrush` | `#0F7B0F` / `#6CCB5F` | `--wui-system-fill-color-success` |
+| `InfoBarWarningSeverityIconBackground` ← `SystemFillColorCaution` | `SystemFillColorCautionBrush` | `#9D5D00` / `#FCE100` | `--wui-system-fill-color-caution` |
+| `InfoBarErrorSeverityIconBackground` ← `SystemFillColorCritical` | `SystemFillColorCriticalBrush` | `#C42B1C` / `#FF99A4` | `--wui-system-fill-color-critical` |
+| `InfoBar*SeverityIconForeground` ← `TextFillColorInverse` | `TextFillColorInverseBrush` | `#FFFFFF` / `#E4000000` | `--wui-text-fill-color-inverse` |
+| `InfoBarTitleForeground` / `InfoBarMessageForeground` ← `TextFillColorPrimary` | `TextFillColorPrimaryBrush` | `#000000E4` / `#FFFFFF` | `--wui-text-fill-color-primary` |
+| `InfoBarBorderBrush` ← `CardStrokeColorDefault` | `CardStrokeColorDefaultBrush` | `#0000000F` / `#00000019` | `--wui-card-stroke-color-default` |
+| `CloseButton` 系 ← `AppBarButtonBackground/Foreground/…PointerOver/Pressed`(源 `InfoBarCloseButtonStyle` 实为 `BasedOn DefaultButtonStyle`,应取 Button 族) | — | — | `--wui-app-bar-button-*`(legacy,PL16 §7.6 登记为跨控件耦合待决;建议后续切 Button 族 Fluent token) |
+| `CornerRadius` ← `ControlCornerRadius` | 4px | 4px | `--wui-hyperlink-focus-rect-corner-radius`(4px) |
+| `InfoBarTitleFontSize` / `InfoBarMessageFontSize` = 14 | — | — | `--wui-control-content-theme-font-size` |
 
 其余无 token / 做 Web 等价替换的项:
 
@@ -122,4 +122,4 @@ function onClosed(args: { reason: string }) {
 
 ---
 
-演示页源码:[demo/pages/InfoBarPage.vue](../../demo/pages/InfoBarPage.vue) · 组件源码:[src/components/InfoBar.vue](../../src/components/InfoBar.vue)
+演示页源码:[demo/pages/InfoBarPage.vue](../../demo/pages/InfoBarPage.vue) · 组件源码:[src/components/InfoBar.vue](../../src/components/InfoBar.vue) · Fluent 画刷族:[_brushes.md](./_brushes.md)

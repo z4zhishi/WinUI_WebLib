@@ -6,7 +6,7 @@
 
 GridView 把集合中的项排成「按行换行、可滚动」的行列网格,是图片墙、磁贴、对象浏览等场景的标准控件;与 [ListView](./ListView.md) 共享同一套选择模型(SelectionMode / SelectedItems / SelectionChanged),差别只在布局——ListView 单列纵向排布,GridView 按行换行。
 
-对应 WinUI `Microsoft.UI.Xaml.Controls.GridView`,视觉与交互状态对照 `generic.xaml` 中 `TargetType="GridView"`(L9348 起)与默认项样式 `GridViewItemRevealStyle`(L17835 起,L22885 将其设为默认)复刻:项的 Normal / PointerOver / Pressed / Selected(+PointerOver / Pressed 组合)/ Disabled / 聚焦各态、左上角 Overlay 勾选标记(CheckMode=Overlay)、1px 揭示边框结构,颜色全部取自 `theme.css` 预置的 `--wui-grid-view-item-*` token(亮 / 暗两套主题齐备)。
+对应 WinUI `Microsoft.UI.Xaml.Controls.GridView`,视觉与交互状态按 WinUI 3 生效层(`controls/dev/CommonStyles/GridViewItem_themeresources.xaml` + `GridViewItemRevealStyle`)复刻:项的 Normal / PointerOver / Pressed / Selected(+PointerOver / Pressed 组合)/ Disabled / 聚焦各态、左上角 Overlay 勾选标记(CheckMode=Overlay)、1px 揭示边框结构;状态色已由 PL4 重定向到 Fluent 画刷族(`--wui-subtle-fill-color-*` / `--wui-text-fill-color-*` / `--wui-accent-*` / `--wui-control-strong-stroke-color-default`,总览见 [_brushes.md](./_brushes.md))。容器底/描边在 controls/dev 无 Style(权威为 legacy `generic.xaml` 无 Setter → 透明/无描边)。
 
 官方文档:
 
@@ -128,6 +128,7 @@ function onItemClick(event: { item: unknown; index: number }): void {
 
 ## 与 WinUI 的差异说明
 
+- **状态色(PL4 Fluent 重定向)**:GridViewItem 常态 / 悬停 / 按下 / 选中 / 选中悬停 / 选中按下 / 禁用及 Reveal 变体底色已重定向到 Fluent 画刷族:常态底透明(`--wui-subtle-fill-color-transparent`)、悬停 `--wui-subtle-fill-color-secondary`、按下 `--wui-subtle-fill-color-tertiary`、选中 `--wui-accent-fill-color-default` 族、前景 `--wui-text-fill-color-primary/secondary/disabled`、勾选框描边 `--wui-control-strong-stroke-color-default`、勾选字形 `--wui-text-on-accent-fill-color-primary`。浅 / 深随 `data-theme` 切换;总览见 [_brushes.md](./_brushes.md)。
 - **布局引擎**:WinUI 默认 `ItemsWrapGrid`(按内容宽换行)/ `UniformGridLayout`(定格尺寸)。Web 版以 CSS Grid 等价实现:给了 `itemWidth`/`itemHeight` 即定格单元格;`maximumRowsOrColumns` 映射为列数上限;两者都不给时按 `minmax(160px, 1fr)` 均分换行(源里无此基准值,是 Web 侧补的缺省,因为 `repeat(auto-fill, …)` 需要确定的轨道基准)。`orientation="Vertical"` 以 `grid-auto-flow: column` 模拟,需要容器有界高度。
 - **Reveal 揭示光照(MR4 起迁移公共层)**:源 `GridViewItemRevealBorderBrush`(SystemControlTransparentRevealBorderBrush)在 WinUI 3 中解析为透明(reveal 光照已退役为静态回退色),因此静态默认不可见,组件保留 1px 揭示边框结构;`revealBorder` / `enableReveal` 打开后经公共层([_reveal.md](./_reveal.md))复刻 WinUI 2 材料本体——底板光半径按源公式 `Clamp(Max(W,H)+12,16,512)`、边框光半径 77px(wide 配置)、0.2 白光、悬停 1ms 亮灭。早期版本以「`--wui-grid-view-item-focus-border` 半透明色渐变 + 167ms 过渡」近似,已被公共层实现取代。
 - **焦点视觉**:WinUI 为双层系统焦点框(FocusVisualMargin=-2),这里以 `outline`(2px,`--wui-grid-view-item-focus-visual-primary`)+ 内圈 `box-shadow`(1px,`--wui-grid-view-item-focus-visual-secondary`)近似。
@@ -156,3 +157,4 @@ function onItemClick(event: { item: unknown; index: number }): void {
 - 同族控件:[ListView](./ListView.md)(选择模型同约定)、[FlipView](./FlipView.md)
 - 集合公共层:[_collection-infra.md](./_collection-infra.md)(阶段 5 公共层,由 T5.0 维护)
 - Reveal 材料:[_reveal.md](./_reveal.md)(`revealBorder` / `enableReveal` 的机制、默认值登记与降级语义)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

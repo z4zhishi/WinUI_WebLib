@@ -133,8 +133,9 @@ function onBackRequested() {
 | 项 | WinUI 源行为 | 本组件实现 |
 | --- | --- | --- |
 | 锚点文件 | 控件模板/主题资源在 `controls/dev/TitleBar/TitleBar.xaml` + `TitleBar_themeresources.xaml`,**不在 `dxaml/themes/generic.xaml` 内**(已检索确认 0 处) | 同源 dev 文件逐值对照;报告与注释均以 dev 文件为锚点 |
-| 前景色 token | `TitleBarForegroundBrush` = TextFillColorPrimary(浅 #E4000000 / 深 #FFFFFF)、Deactivated = TextFillColorTertiary(#72000000)、Subtitle = TextFillColorSecondary(#9E000000) —— 定义于 CommonStyles/Common_themeresources_any.xaml,theme.css(仅提取 generic.xaml)无对应 token | 最近似映射:标题→`--wui-application-foreground-theme`、副标题→`--wui-application-secondary-foreground-theme`、失活文字→`--wui-system-control-foreground-base-medium-low`(值差 ≤ 5% 透明度) |
-| 按钮悬停/按压底色 | `TitleBarBackButtonBackground*` / `TitleBarPaneToggleButtonBackground*` = SubtleFill* 族(浅悬停 #09000000 / 按压 #06000000),theme.css 无 token | 按 MenuBarItem 既有约定取 `--wui-grid-view-item-background-pointer-over`(#00000019)/ `-pressed`(#00000033),略强于源值;禁用底色 ControlFillColorDisabled 取 `--wui-text-control-background-disabled` |
+| 前景色 token | `TitleBarForegroundBrush` = TextFillColorPrimary(浅 #E4000000 / 深 #FFFFFF)、Deactivated = TextFillColorTertiary(#72000000)、Subtitle = TextFillColorSecondary(#9E000000) —— 定义于 CommonStyles/Common_themeresources_any.xaml | PL11 已重定向到 Fluent:标题→`--wui-text-fill-color-primary`、副标题→`--wui-text-fill-color-secondary`、失活→`--wui-text-fill-color-tertiary`(偏差消除) |
+| 按钮悬停/按压底色 | `TitleBarBackButtonBackground*` / `TitleBarPaneToggleButtonBackground*` = SubtleFill* 族(浅悬停 #09000000 / 按压 #06000000) | PL11 重定向:悬停→`--wui-subtle-fill-color-secondary`、按压→`--wui-subtle-fill-color-tertiary`;禁用底 `ControlFillColorDisabled` → `--wui-control-fill-color-disabled`(此前取 grid-view-item token,已订正) |
+| 按钮禁用前景 | `TitleBarBackButtonForegroundDisabled` = TextFillColorDisabled | `--wui-text-fill-color-disabled`(PL11 重定向) |
 | 返回 / 窗格按钮字形动画 | 源 `PART_BackButton` 的 `Content` 与 `PART_PaneToggleButton` 的 `Content` 为 `controls:AnimatedIcon` + `AnimatedBackVisualSource` / `AnimatedGlobalNavigationButtonVisualSource`(状态集 `Normal` / `PointerOver` / `Pressed`,见 `TitleBar_themeresources.xaml` L161 / L231) | **源为 LottieGen 编译资产,原始 `.json` 不在 CK 快照内**,Web 以字形 `transform` 过渡近似(PointerOver `scale(1.08)` / Pressed `scale(0.9)`);时长取源 `c_durationTicks`(`AnimatedBackVisualSource.cpp` / `AnimatedGlobalNavigationButtonVisualSource.cpp` L104 = **133.33ms**),缓动 `linear`。caption 按钮(最小化/最大化/关闭)源为静态字形,不受此规则影响 |
 | ControlCornerRadius | 按钮/卡片圆角 4px(theme.css 无同名 token) | 最近似 `--wui-hyperlink-focus-rect-corner-radius`(4px),项目既有约定 |
 | TitleBarDeactivatedOpacity | 0.5(theme.css 仅颜色/字号/圆角 token,无透明度 token) | 取源值 0.5 |
@@ -153,3 +154,4 @@ function onBackRequested() {
 - 演示页:`demo/pages/TitleBarPage.vue`(路由 `/#/titlebar`)
 - 组件源码:`src/components/TitleBar.vue`
 - 姊妹控件:[NavigationView](./NavigationView.md)(与 TitleBar 组成导航壳)、[MenuBar](./MenuBar.md)(标题栏下方命令菜单)、[PersonPicture](./PersonPicture.md)(RightHeader 常客)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

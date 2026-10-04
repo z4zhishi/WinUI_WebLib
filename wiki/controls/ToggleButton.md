@@ -69,11 +69,11 @@ WinUI 的 `ToggleButton.IsChecked` 是 `Nullable<bool>`:`true` / `false` / `null
 
 ## 与 WinUI 的差异(视觉与行为对照)
 
-视觉按 `generic.xaml` 中 `TargetType="ToggleButton"` 的 ControlTemplate 复刻:CommonStates 是「Unchecked / Checked / Indeterminate × Normal / PointerOver / Pressed / Disabled」的**组合态**(源模板显式列出了 `Checked`、`CheckedPointerOver`、`CheckedPressed`、`CheckedDisabled`、`Indeterminate` 及其三个交互变体),全部用 `DiscreteObjectKeyFrame` 即时切换,颜色对应 theme.css 的 `--wui-toggle-button-*` token。以下项无对应 token 或做了 Web 等价替换:
+视觉按 WinUI 3 生效层(`controls/dev/CommonStyles/ToggleButton_themeresources.xaml`)复刻:CommonStates 是「Unchecked / Checked / Indeterminate × Normal / PointerOver / Pressed / Disabled」的**组合态**,全部用 `DiscreteObjectKeyFrame` 即时切换;状态色已重定向 Fluent 画刷族(PL3):Unchecked/Indeterminate 底色 `ControlFillColorDefault/Secondary/Tertiary/Disabled`、前景 `TextFillColorPrimary/Secondary/Disabled`;Checked 系底色 `AccentFillColorDefault/Secondary/Tertiary/Disabled`、前景 `TextOnAccentFillColorPrimary/Secondary/Disabled`;描边 Normal/PointerOver/Indeterminate 为 `--wui-control-elevation-border` 渐变,Checked/CheckedPointerOver 为 `--wui-accent-control-elevation-border` 渐变(PL5),Pressed/Disabled 为 `--wui-control-stroke-color-default` 纯色,CheckedPressed/CheckedDisabled 透明。画刷族总览见 [_brushes.md](./_brushes.md)。以下项无对应 token 或做了 Web 等价替换:
 
-1. **圆角 token 未提取**:WinUI 3 默认 `ControlCornerRadius = 4` 未在 theme.css 生成同名 token,取最近似的 `--wui-hyperlink-focus-rect-corner-radius`(同为 4px),视觉无损。
+1. **圆角 token 未提取**:WinUI 3 默认 `ControlCornerRadius = 4` 未在 theme.css 生成同名 token,以同值 4px 的 `--wui-hyperlink-focus-rect-corner-radius` 承载,视觉无损。
 2. **内边距 token 未提取**:`ButtonPadding = 8,4,8,5`(XAML Thickness 顺序:左,上,右,下)是 `Thickness` 资源,theme.css 未生成 token,按值硬编码为 CSS `padding: 4px 8px 5px`,与 Button 组件同款处理。
-3. **边框厚度 token 未提取**:`ToggleButtonBorderThemeThickness = 2` 为 `Thickness` 资源,按值固定 `border: 2px solid`;默认与选中态描边 token 为透明,悬停态为半透明灰(`#00000066`),与源一致。
+3. **边框厚度 token 未提取**:`ToggleButtonBorderThemeThickness = 2` 为 `Thickness` 资源,按值固定 `border: 2px solid`;描边色见上(PL3/PL5 重定向),Checked 系为强调渐变环。
 4. **焦点框**:WinUI 系统焦点框为双层(2px 主色内环 + 1px 次色外环,`FocusVisualMargin=-3`)。Web 侧以单层 `outline: 2px solid var(--wui-system-control-focus-visual-primary)`(偏移 1px)近似。
 5. **属性命名**:`IsEnabled` → `disabled`(沿用原生语义);`IsThreeState` → `isThreeState`;`Content` → `content` + 默认 slot。
 6. **事件触发面**:WinUI 的 `Checked`/`Unchecked` 在程序化赋值时同样触发;本组件仅用户交互触发,程序化变化请监听 `v-model:checked`。
@@ -81,4 +81,4 @@ WinUI 的 `ToggleButton.IsChecked` 是 `Nullable<bool>`:`true` / `false` / `null
 
 ---
 
-演示页源码:[demo/pages/ToggleButtonPage.vue](../../demo/pages/ToggleButtonPage.vue) · 组件源码:[src/components/ToggleButton.vue](../../src/components/ToggleButton.vue) · Reveal 材料:[_reveal.md](./_reveal.md)
+演示页源码:[demo/pages/ToggleButtonPage.vue](../../demo/pages/ToggleButtonPage.vue) · 组件源码:[src/components/ToggleButton.vue](../../src/components/ToggleButton.vue) · Reveal 材料:[_reveal.md](./_reveal.md) · Fluent 画刷族:[_brushes.md](./_brushes.md)

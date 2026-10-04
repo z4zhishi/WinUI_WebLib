@@ -6,7 +6,7 @@
 
 Button 控件提供 `click` 事件,用于响应来自触摸、鼠标、键盘、触笔等输入设备的用户操作;按钮内容可以是文本或图像等各种类型,也可以重新设置样式获得全新外观。
 
-本组件按 WinUI 默认模板(generic.xaml 中 `TargetType="Button"` 的 Style/ControlTemplate)复刻视觉:Normal / PointerOver / Pressed / Disabled 四态即时切换,焦点态显示系统焦点视觉,颜色、字号、圆角、内边距均取自 `--wui-*` 主题 token,随 `html[data-theme]` 明暗切换。
+本组件按 WinUI 3 生效层(`controls/dev/CommonStyles/Button_themeresources.xaml`)复刻视觉:Normal / PointerOver / Pressed / Disabled 四态即时切换,焦点态显示系统焦点视觉;状态色已重定向到 Fluent 画刷族(PL3):底色 `ControlFillColorDefault/Secondary/Tertiary/Disabled`,前景 `TextFillColorPrimary/Secondary/Disabled`,描边 Normal/PointerOver 为渐变 `ControlElevationBorderBrush`(PL5 token `--wui-control-elevation-border`,Pressed/Disabled 为纯色 `ControlStrokeColorDefault`);字号、圆角、内边距取自 `--wui-*` 主题 token,随 `html[data-theme]` 明暗切换。画刷族总览见 [_brushes.md](./_brushes.md)。
 
 官方文档:
 
@@ -68,16 +68,18 @@ function onButtonClick(): void {
 
 ## 与 WinUI 的差异说明
 
-对照 generic.xaml(浅色/深色 ThemeDictionaries)与 theme.css token 的取值映射:
+对照 WinUI 3 生效层(`controls/dev/CommonStyles/Button_themeresources.xaml`,逐行复核)与 theme.css Fluent token 的取值映射:
 
 | WinUI 取值 | Web 实现 | 说明 |
 | --- | --- | --- |
-| `ButtonBackground` / `ButtonForeground` / `ButtonBorderBrush`(各状态) | `--wui-button-*` token 一一对应 | 无差异 |
+| `ButtonBackground`(Normal/PointerOver/Pressed/Disabled)= `ControlFillColorDefault/Secondary/Tertiary/DisabledBrush`(源 L32-35) | `--wui-control-fill-color-default/secondary/tertiary/disabled` | PL3 重定向(此前 legacy `--wui-button-background*` `#00000033` 且 hover 与静息同值,已消除) |
+| `ButtonForeground`(Normal/PointerOver/Pressed/Disabled)= `TextFillColorPrimary/Primary/Secondary/DisabledBrush` | `--wui-text-fill-color-primary/secondary/disabled` | PL3 重定向 |
+| `ButtonBorderBrush`(Normal/PointerOver)= `ControlElevationBorderBrush`(渐变) | `--wui-control-elevation-border`(PL5 mask 环) | PL5 落地;Pressed/Disabled = `ControlStrokeColorDefaultBrush` 纯色 `--wui-control-stroke-color-default` |
 | `ButtonBorderThemeThickness` = 2 | `border: 2px solid` | 无差异 |
 | `ButtonPadding` = 8,4,8,5 | `padding: 4px 8px 5px` | 无差异 |
 | `ContentControlThemeFontFamily` | `--wui-content-control-theme-font-family`(XamlAutoFontFamily 占位) | 浏览器回退到默认字体,应用层可按需映射 |
 | `ControlContentThemeFontSize` = 14px | `--wui-control-content-theme-font-size` | 无差异 |
-| 默认圆角 | `--wui-hyperlink-focus-rect-corner-radius`(4px) | generic.xaml 的 Button 样式无 CornerRadius(默认 0);WinUI 3 运行时 `ControlCornerRadius` = 4 无同名 token,取最近似圆角 token |
+| 默认圆角 | `--wui-hyperlink-focus-rect-corner-radius`(4px) | 源 Button 样式无 CornerRadius(默认 0);WinUI 3 运行时 `ControlCornerRadius` = 4,以同值 4px 变量承载 |
 | `IsEnabled` | `disabled` 属性 | Web 原生禁用语义(同时获得 `aria-disabled` 与不可聚焦行为) |
 | FontWeight 枚举 | CSS `font-weight` 数值 | `Normal`→400、`SemiBold`→600、`Bold`→700 等,组件内建映射表 |
 | 视觉状态切换(DiscreteObjectKeyFrame + PointerUp/DownThemeAnimation) | 无过渡动画,即时切换 | 与源一致(源状态切换本身无 Duration);按压主题动画为平台内部实现,未复刻 |
@@ -90,4 +92,5 @@ function onButtonClick(): void {
 - 在线示例:`/#/button`
 - 演示页源码:`demo/pages/ButtonPage.vue`
 - Reveal 材料:[_reveal.md](./_reveal.md)(`reveal` prop 的机制、降级与常量口径)
-- 相关控件:ToggleButton、RepeatButton、HyperlinkButton(后续阶段)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)
+- 相关控件:ToggleButton、RepeatButton、HyperlinkButton

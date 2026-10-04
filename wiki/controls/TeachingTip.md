@@ -118,16 +118,16 @@ non-targeted 模式以 0×0 fixed 视口锚点复用同一基建:贴边放置位
 
 ## 与 WinUI 的差异说明
 
-对照 `TeachingTip_themeresources.xaml` / `TeachingTip.xaml` 与 `theme.css` token 的取值映射(源值均为 AARRGGBB,已按字节序换算 RRGGBBAA 核对):
+对照 WinUI 3 生效层 `TeachingTip_themeresources.xaml` / `TeachingTip.xaml` 与 theme.css Fluent token 的取值映射(源值均为 AARRGGBB,已按字节序换算 RRGGBBAA 核对;PL10 重定向):
 
 | WinUI 源值 | 本组件 token | 差异 |
 | ---------- | ------------ | ---- |
-| `TeachingTipBackgroundBrush` = `SolidBackgroundFillColorTertiaryBrush`(浅 #F9F9F9 / 深 #282828) | `--wui-flyout-presenter-background`(浅 #f2f2f2 / 深 #2b2b2b) | theme.css 无 Tertiary 背景 token,取弹层表面既有 token(与 ToolTip 的亚克力近似同一策略) |
-| `TeachingTipBorderBrush` = `SurfaceStrokeColorDefaultBrush`(#75757566 双主题) | `--wui-flyout-border-theme`(浅 #00000024 / 深 #0000005c) | 无 SurfaceStroke token,取弹层边框既有 token |
-| `TeachingTipForegroundBrush` = `TextFillColorPrimaryBrush`(浅 #000000E4 / 深 #FFFFFF) | `--wui-default-text-foreground-theme`(浅 #000000 / 深 #ffffff) | 无 89% 透明度文字 token,沿用 InfoBar 对 TextFillColorPrimary 的既有映射 |
-| `TeachingTipTransientBackgroundBrush` = `AcrylicInAppFillColorDefaultBrush`(亚克力) | `--wui-tool-tip-background`(浅 #f2f2f2 / 深 #2b2b2b) | Web 无合成器亚克力,以不透明近似(ToolTip 同源差异) |
+| `TeachingTipBackgroundBrush` = `SolidBackgroundFillColorTertiaryBrush`(浅 #F9F9F9 / 深 #282828) | `--wui-solid-background-fill-color-tertiary` | PL10 直引(此前 legacy `--wui-flyout-presenter-background` #f2f2f2/#2b2b2b) |
+| `TeachingTipBorderBrush` = `SurfaceStrokeColorDefaultBrush`(#75757566 双主题) | `--wui-surface-stroke-color-default` | PL10 直引(此前 legacy `--wui-flyout-border-theme`) |
+| `TeachingTipForegroundBrush` = `TextFillColorPrimaryBrush`(浅 #000000E4 / 深 #FFFFFF) | `--wui-text-fill-color-primary` | PL10 直引(此前 legacy `--wui-default-text-foreground-theme`) |
+| `TeachingTipTransientBackgroundBrush` = `AcrylicInAppFillColorDefaultBrush`(亚克力) | 局部 `--wui-teaching-tip-transient-surface`(浅 #F9F9F9 / 深 #2C2C2C) | web 无合成器亚克力,取亚克力回退不透明近似(登记材质近似) |
 | `TeachingTipTopHighlightBrush`(顶缘 1px 高光,浅 #FFFFFF99 / 深 #FFFFFF0D) | 未实现 | 纯装饰 1px 细节,theme.css 无对应 token,省略 |
-| `AlternateCloseButton` 三态底色 = `SubtleFillColorTransparent/Secondary/Tertiary` | `--wui-app-bar-button-background(-pointer-over/-pressed)` | 无 SubtleFill token,沿用 InfoBar 关闭钮的 AppBarButton 系既有映射 |
+| `AlternateCloseButton` 三态底色 = `SubtleFillColorTransparent/Secondary/Tertiary` | `--wui-subtle-fill-color-transparent/secondary/tertiary`;Pressed 前景 `--wui-text-fill-color-secondary` | PL10 直引(此前沿用 AppBarButton 系 legacy token);Disabled 态无渲染路径(备用关闭钮模板恒启用,无状态可对) |
 | 尾巴压边:水平尾 3px / 垂直尾 1px | 统一 3px | 视觉近似 |
 | non-targeted `Auto` 放置 = 视口**底部居中**(`DetermineEffectivePlacementUntargeted`) | 视口**居中** | 按任务口径;需要底部居中时用 `preferred-placement="Bottom"` |
 | WinUI 放不下时整体不开(`tipDoesNotFit` → `IsOpen(false)`) | flip/shift 推回 + 尾巴折叠,不关闭 | Web 侧保留可用性优先 |
@@ -144,3 +144,4 @@ non-targeted 模式以 0×0 fixed 视口锚点复用同一基建:贴边放置位
 - 组件源码:[src/components/TeachingTip.vue](../../src/components/TeachingTip.vue)
 - 弹层公共基建:[_popup-infra.md](./_popup-infra.md)(定位/z-index/焦点/自动关闭约定)
 - 已接入弹层控件:[ToolTip](./ToolTip.md)、[MenuFlyout](./MenuFlyout.md)、[Flyout](./Flyout.md)、[Popup](./Popup.md)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

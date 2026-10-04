@@ -96,15 +96,16 @@ function onSelectionChanged(e: { index: number; item: unknown }) {
 
 ## 与 WinUI 的差异(视觉与行为对照)
 
-视觉按 `generic.xaml` 的 FlipView Style/ControlTemplate(L11586-11846)与 `controls/dev/CommonStyles/FlipView_themeresources.xaml` 复刻。颜色全部命中 theme.css 的 `--wui-flip-view-*` 专用 token,映射如下:
+视觉按 WinUI 3 生效层 `controls/dev/CommonStyles/FlipView_themeresources.xaml`(Default L5-16 / Light L51-62)复刻;PL14 已把颜色全部重定向到 PL2 Fluent token(原 `--wui-flip-view-*` legacy 专用 token 及偏差注记作废;总览见 [_brushes.md](./_brushes.md)):
 
-| 源资源 | 本组件 token | 差异说明 |
+| 源资源 | Fluent 画刷键 | 本组件 token(浅 / 深) |
 | --- | --- | --- |
-| `FlipViewBackground` | `--wui-flip-view-background`(#00000019) | theme.css 提取自经典 generic.xaml 字典;WinUI 3 该键指向 `SolidBackgroundFillColorBaseBrush`(不透明页面底色),观感略有差异 |
-| `FlipViewButtonBackgroundThemeBrush` 系列(Normal/PointerOver/Pressed) | `--wui-flip-view-next-previous-button-background(-pointer-over / -pressed)`(#00000066 → #00000099 → #000000cc) | 逐值命中;WinUI 3 同键为 `AcrylicInAppFillColorDefaultBrush`(应用内亚克力),Web 以同梯度半透明黑近似 |
-| `FlipViewButtonForegroundThemeBrush` 系列 | `--wui-flip-view-next-previous-arrow-foreground`(#ffffffcc) | 三态同值,逐值命中;WinUI 3 为 `ControlStrongFillColorDefaultBrush` 系 |
-| `FlipViewButtonBorderThemeBrush` 系列 | `--wui-flip-view-next-previous-button-border(-pointer-over / -pressed)`(transparent) | WinUI 3 `FlipViewButtonBorderThemeThickness = 0`,边框不可见,token 为透明 |
-| `FlipViewItemBackground` | `--wui-flip-view-item-background`(transparent) | 逐值命中 |
+| `FlipViewBackground` | `SolidBackgroundFillColorBaseBrush` | `--wui-solid-background-fill-color-base`(`#F3F3F3` / `#202020`) |
+| `FlipViewItemBackground` | `SubtleFillColorTransparentBrush` | `--wui-subtle-fill-color-transparent` |
+| `FlipViewNextPreviousButtonBackground(PointerOver/Pressed)` | `AcrylicInAppFillColorDefaultBrush`(三态同值) | `--wui-acrylic-in-app-fill-color-default`(亚克力回退 `#F9F9F9` / `#2C2C2C`) |
+| `FlipViewNextPreviousArrowForeground` | `ControlStrongFillColorDefaultBrush` | `--wui-control-strong-fill-color-default`(`#00000072` / `#FFFFFF8B`) |
+| `…ArrowForegroundPointerOver/Pressed` | `TextFillColorSecondaryBrush` | `--wui-text-fill-color-secondary`(`#0000009E` / `#FFFFFFC5`) |
+| `FlipViewNextPreviousButtonBorderBrush(PointerOver/Pressed)` | `ControlStrokeColorDefaultBrush` | `--wui-control-stroke-color-default`(`#0000000F` / `#FFFFFF12`;`BorderThemeThickness=0`,宽度 0) |
 
 其余无 token / 做 Web 等价替换的项:
 
@@ -119,4 +120,4 @@ function onSelectionChanged(e: { index: number; item: unknown }) {
 
 ---
 
-演示页源码:[demo/pages/FlipViewPage.vue](../../demo/pages/FlipViewPage.vue) · 组件源码:[src/components/FlipView.vue](../../src/components/FlipView.vue)
+演示页源码:[demo/pages/FlipViewPage.vue](../../demo/pages/FlipViewPage.vue) · 组件源码:[src/components/FlipView.vue](../../src/components/FlipView.vue) · Fluent 画刷族:[_brushes.md](./_brushes.md)

@@ -70,17 +70,18 @@ import WuiPersonPicture from '@/components/PersonPicture.vue'
 
 ## 与 WinUI 的差异(视觉与行为对照)
 
-视觉按 `CK/WinUI-Reference/controls/dev/PersonPicture/PersonPicture_themeresources.xaml`(主题资源)+ `PersonPicture.xaml`(DefaultPersonPictureStyle ControlTemplate)+ `PersonPicture.cpp` / `InitialsGenerator.cpp` 复刻。**注意:PersonPicture 的 ControlTemplate 不在 `dxaml/xcp/dxaml/themes/generic.xaml` 内**;该文件虽含 27 处 PersonPicture 资源定义,但均为 UWP 旧版取值(如填充 `SystemBaseMediumColor`、`StrokeThickness=0`、badge 透明度 0.8),与 WinUI 3 现行呈现不符——WinUI 3 的权威锚点是 `controls/dev/PersonPicture/` 下的资源与模板(含 dxaml 版没有的 `PersonPictureBadgeGridMargin`),本组件按 WinUI 3 取值。theme.css 未生成任何 `PersonPicture*` token。以下项无对应 token 或做了 Web 等价替换:
+视觉按 `CK/WinUI-Reference/controls/dev/PersonPicture/PersonPicture_themeresources.xaml`(主题资源)+ `PersonPicture.xaml`(DefaultPersonPictureStyle ControlTemplate)+ `PersonPicture.cpp` / `InitialsGenerator.cpp` 复刻。**注意:PersonPicture 的 ControlTemplate 不在 `dxaml/xcp/dxaml/themes/generic.xaml` 内**;该文件虽含 27 处 PersonPicture 资源定义,但均为 UWP 旧版取值(如填充 `SystemBaseMediumColor`、`StrokeThickness=0`、badge 透明度 0.8),与 WinUI 3 现行呈现不符——WinUI 3 的权威锚点是 `controls/dev/PersonPicture/` 下的资源与模板(含 dxaml 版没有的 `PersonPictureBadgeGridMargin`)。PL2 已把 Fluent 画刷族落进 theme.css,PL13 已把组件内局部默认值层**替换为全局 Fluent token**(原「最近似/组件级局部 token」表述作废;总览见 [_brushes.md](./_brushes.md)):
 
-1. **主题画刷 token 缺失**,组件内置局部默认值层(浅/深两套,值逐项取自源 `PersonPicture_themeresources.xaml` → `CommonStyles/Common_themeresources_any.xaml`,调用方可用同名变量覆盖)。色值换算:源 XAML `Color` 为 **AARRGGBB** 字节序,CSS 8 位 hex 为 **RRGGBBAA**,下表 Light / Default 列为「源值(AARRGGBB)→ 换算后 CSS 值」——直接照搬会出现 alpha 与红通道错位(如 `#18000000` → 全透明、`#12FFFFFF` → 不透明青色):
-   | 源资源 | 源引用 | Light(AARRGGBB → CSS) | Default(深色,AARRGGBB → CSS) | Web 实现 |
-   | --- | --- | --- | --- | --- |
-   | `PersonPictureForegroundThemeBrush` | `TextFillColorPrimaryBrush` | 源 `#E4000000`(89% 黑)→ CSS `#000000E4`;token 取 `#000000`(**近似**,较源略深) | `#FFFFFF` → `#ffffff`;token `#ffffff`(**恒等**) | `--wui-system-control-foreground-base-high`(theme.css 未生成 TextFillColorPrimary token;深色与源恒等、浅色为近似——源带 89% alpha,token 为不透明,取值仅在此一项有偏差) |
-   | `PersonPictureEllipseFillThemeBrush` | `ControlAltFillColorQuarternary` | `#18000000` → `#00000018` | `#12FFFFFF` → `#FFFFFF12` | `--wui-person-picture-ellipse-fill`(组件级) |
-   | `PersonPictureEllipseFillStrokeBrush` | `CardStrokeColorDefaultBrush` | `#0F000000` → `#0000000F` | `#19000000` → `#00000019` | `--wui-person-picture-ellipse-stroke`(组件级) |
-   | `PersonPictureEllipseBadgeFillThemeBrush` | `AccentFillColorDefaultBrush` | — | — | `--wui-system-accent-color`(最近似 token,与 InfoBadge 一致) |
-   | `PersonPictureEllipseBadgeForegroundThemeBrush` | `TextOnAccentFillColorPrimaryBrush` | `#FFFFFF` → `#ffffff` | `#000000` → `#000000` | `--wui-person-picture-badge-foreground`(组件级局部 token,浅/深与源恒等;theme.css 无 TextOnAccent 同名 token,取值锚点为 Fluent 调色板字典 `SystemColorOverrideResourceDictionary.xaml` 的 Light/Default 两值,InfoBadge 同款做法) |
-   | `PersonPictureEllipseBadgeStrokeThemeBrush` | `ControlFillColorTransparentBrush` | — | — | `transparent`(2px 描边保留,不可见) |
+| 源资源 | 源引用 | Light(AARRGGBB → CSS) | Default(深色) | 本组件 token |
+| --- | --- | --- | --- | --- |
+| `PersonPictureForegroundThemeBrush` | `TextFillColorPrimaryBrush` | `#E4000000` → `#000000E4` | `#FFFFFF` | `--wui-text-fill-color-primary`(偏差消除) |
+| `PersonPictureEllipseFillThemeBrush` | `ControlAltFillColorQuarternary` | `#18000000` → `#00000018` | `#12FFFFFF` → `#FFFFFF12` | `--wui-control-alt-fill-color-quarternary` |
+| `PersonPictureEllipseFillStrokeBrush` | `CardStrokeColorDefaultBrush` | `#0F000000` → `#0000000F` | `#19000000` → `#00000019` | `--wui-card-stroke-color-default` |
+| `PersonPictureEllipseBadgeFillThemeBrush` | `AccentFillColorDefaultBrush` | `#0067C0` | `#4CC2FF` | `--wui-accent-fill-color-default` |
+| `PersonPictureEllipseBadgeForegroundThemeBrush` | `TextOnAccentFillColorPrimaryBrush` | `#FFFFFF` | `#000000` | `--wui-text-on-accent-fill-color-primary` |
+| `PersonPictureEllipseBadgeStrokeThemeBrush` | `ControlFillColorTransparentBrush` | 透明 | 透明 | `transparent`(2px 描边保留,不可见) |
+
+其余差异项:
 2. **缩写字号 / 徽标尺寸为公式而非资源**:源 `OnSizeChanged` 动态计算 —— 缩写字号 = `max(1, 边长 × 0.42)`、徽标盘 = 边长 × 0.5、徽标字号 = `max(1, 徽标盘 × 0.6)`;Web 按同公式以 inline style 注入,`width` / `height` prop 为准(经 CSS class 调整尺寸不会重算字号)。
 3. **中文取首字(有意偏离源行为)**:源 `InitialsGenerator` 把 CJK 归为 Symbolic 并返回**空串** → 实机 WinUI 对中文显示联系人占位字形;本组件按任务需求改为**取首字**(「王建国」→ 王)。阿拉伯文等 Glyph 类脚本仍保持源行为(空串 → 占位字形)。
 4. **照片态切换时机**:源 `ProfilePicture` 属性赋值即进入 Photo 态(图片未加载完前为空白椭圆);Web 侧在 `load` 成功后才切换,加载中 / `onerror` 失败回落缩写(任务要求的降级行为)。另源对加载失败仅静默取消(`E_INVALIDARG` 忽略),无自动回落语义。
@@ -93,4 +94,4 @@ import WuiPersonPicture from '@/components/PersonPicture.vue'
 
 ---
 
-演示页源码:[demo/pages/PersonPicturePage.vue](../../demo/pages/PersonPicturePage.vue) · 组件源码:[src/components/PersonPicture.vue](../../src/components/PersonPicture.vue)
+演示页源码:[demo/pages/PersonPicturePage.vue](../../demo/pages/PersonPicturePage.vue) · 组件源码:[src/components/PersonPicture.vue](../../src/components/PersonPicture.vue) · Fluent 画刷族:[_brushes.md](./_brushes.md)

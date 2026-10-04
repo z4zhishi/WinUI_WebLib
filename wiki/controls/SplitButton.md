@@ -95,27 +95,29 @@ function onCopy() { console.log('Copy') }
 
 ## 与 WinUI 的差异(视觉与行为对照)
 
-视觉按 SplitButton.xaml + SplitButton_themeresources.xaml 复刻;状态色全部即时切换(源各态均为 VisualState.Setters,无过渡动画)。WinUI 3 调色板(`ControlFillColor*` / `TextFillColor*` / `ControlStrokeColor*`)未被 theme.css 提取(dxaml 源只有 UWP 时代 `SystemControl*` 系),按 InfoBar 波次先例以**源值注入组件级 token `--wui-splitbutton-*`**(XAML `#AARRGGBB` → CSS `#RRGGBBAA` 字节序),主题切换用 `html[data-theme='dark']` 档位:
+视觉按 SplitButton.xaml + SplitButton_themeresources.xaml 复刻;状态色全部即时切换(源各态均为 VisualState.Setters,无过渡动画)。PL16 已把组件内字面量 token `--wui-splitbutton-*` **改为直引 PL2 Fluent token**(解析值不变,XAML `#AARRGGBB` → CSS `#RRGGBBAA` 字节序),主题切换由 Fluent token 自带的明暗值完成:
 
-| 组件 token | 源资源(解析链) | Light | Dark |
-| --- | --- | --- | --- |
-| `--wui-splitbutton-fill` | `SplitButtonBackground` ← `ControlFillColorDefault` | `#FFFFFFB3` | `#FFFFFF0F` |
-| `--wui-splitbutton-fill-pointer-over` | `SplitButtonBackgroundPointerOver` ← `ControlFillColorSecondary` | `#F9F9F980` | `#FFFFFF15` |
-| `--wui-splitbutton-fill-pressed` | `SplitButtonBackgroundPressed` ← `ControlFillColorTertiary` | `#F9F9F94D` | `#FFFFFF08` |
-| `--wui-splitbutton-fill-disabled` | `SplitButtonBackgroundDisabled` ← `ControlFillColorDisabled` | `#F9F9F94D` | `#FFFFFF0B` |
-| `--wui-splitbutton-foreground` / `--wui-splitbutton-foreground-pointer-over` | `SplitButtonForeground(PointerOver)` ← `TextFillColorPrimary` | `#000000E4` | `#FFFFFF` |
-| `--wui-splitbutton-foreground-pressed` | `SplitButtonForegroundPressed` ← `TextFillColorSecondary` | `#0000009E` | `#FFFFFFC5` |
-| `--wui-splitbutton-foreground-disabled` | `SplitButtonForegroundDisabled` ← `TextFillColorDisabled` | `#0000005C` | `#FFFFFF5D` |
-| `--wui-splitbutton-foreground-secondary` | `SplitButtonForegroundSecondary` ← `TextFillColorSecondary` | `#0000009E` | `#FFFFFFC5` |
-| `--wui-splitbutton-foreground-secondary-pressed` | `SplitButtonForegroundSecondaryPressed` ← `TextFillColorTertiary` | `#00000072` | `#FFFFFF87` |
-| `--wui-splitbutton-stroke` | `SplitButtonBorderBrush` ← `ControlElevationBorderBrush` | ≈`#00000029` | ≈`#FFFFFF18` |
-| `--wui-splitbutton-stroke-pressed` | `SplitButtonBorderBrushPressed/Disabled` ← `ControlStrokeColorDefault` | `#0000000F` | `#FFFFFF12` |
-| `--wui-splitbutton-divider` | `SplitButtonBorderBrushDivider` ← `ControlStrokeColorDefault` | `#0000000F` | `#FFFFFF12` |
+| 组件中间变量 | 源资源(解析链) | 直引的 Fluent token |
+| --- | --- | --- |
+| `--wui-splitbutton-fill` | `SplitButtonBackground` ← `ControlFillColorDefault` | `--wui-control-fill-color-default` |
+| `--wui-splitbutton-fill-pointer-over` | `SplitButtonBackgroundPointerOver` ← `ControlFillColorSecondary` | `--wui-control-fill-color-secondary` |
+| `--wui-splitbutton-fill-pressed` | `SplitButtonBackgroundPressed` ← `ControlFillColorTertiary` | `--wui-control-fill-color-tertiary` |
+| `--wui-splitbutton-fill-disabled` | `SplitButtonBackgroundDisabled` ← `ControlFillColorDisabled` | `--wui-control-fill-color-disabled` |
+| `--wui-splitbutton-foreground` / `--wui-splitbutton-foreground-pointer-over` | `SplitButtonForeground(PointerOver)` ← `TextFillColorPrimary` | `--wui-text-fill-color-primary` |
+| `--wui-splitbutton-foreground-pressed` | `SplitButtonForegroundPressed` ← `TextFillColorSecondary` | `--wui-text-fill-color-secondary` |
+| `--wui-splitbutton-foreground-disabled` | `SplitButtonForegroundDisabled` ← `TextFillColorDisabled` | `--wui-text-fill-color-disabled` |
+| `--wui-splitbutton-foreground-secondary` | `SplitButtonForegroundSecondary` ← `TextFillColorSecondary` | `--wui-text-fill-color-secondary` |
+| `--wui-splitbutton-foreground-secondary-pressed` | `SplitButtonForegroundSecondaryPressed` ← `TextFillColorTertiary` | `--wui-text-fill-color-tertiary` |
+| `--wui-splitbutton-stroke` | `SplitButtonBorderBrush` ← `ControlElevationBorderBrush`(渐变) | `--wui-control-stroke-color-secondary`(1px 顶停色平色近似;见差异 1) |
+| `--wui-splitbutton-stroke-pressed` | `SplitButtonBorderBrushPressed/Disabled` ← `ControlStrokeColorDefault` | `--wui-control-stroke-color-default` |
+| `--wui-splitbutton-divider` | `SplitButtonBorderBrushDivider` ← `ControlStrokeColorDefault` | `--wui-control-stroke-color-default` |
+
+弹层(菜单层)底/边同 PL16 统一:`--wui-acrylic-in-app-fill-color-default`(浅 `#F9F9F9` / 深 `#2C2C2C`)+ `--wui-surface-stroke-color-flyout`。画刷族总览见 [_brushes.md](./_brushes.md)。
 
 其他差异项:
 
-1. **边框渐变简化**:`ControlElevationBorderBrush` 是 3px 垂直渐变(顶部 `ControlStrokeColorSecondary` → 底部 `ControlStrokeColorDefault`),且源把边框拆在 `PrimaryButtonBorder`(1,1,0,1 / 圆角 4,0,0,4)与 `SecondaryButtonBorder`(0,1,1,1 / 0,4,4,0)两个 Grid 上、可独立换色。Web 取「1px 边框呈现 ≈ 渐变顶部 1/3 处色值」的平色近似,整框统一换色(主区按压时源只换左半边框,视觉差异远小于 1px 色差)。
-2. **圆角 token 未提取**:`ControlCornerRadius = 4` 未生成 token,取最近似 `--wui-hyperlink-focus-rect-corner-radius`(同 4px);圆角由根元素 `border-radius + overflow: hidden` 裁切内层方角,等效源的双区拼角。
+1. **边框渐变简化**:`ControlElevationBorderBrush` 是 3px 垂直渐变(顶部 `ControlStrokeColorSecondary` → 底部 `ControlStrokeColorDefault`),且源把边框拆在 `PrimaryButtonBorder`(1,1,0,1 / 圆角 4,0,0,4)与 `SecondaryButtonBorder`(0,1,1,1 / 0,4,4,0)两个 Grid 上、可独立换色。PL16 取「1px 边框呈现 ≈ 渐变**顶部停色**」的平色近似(`--wui-control-stroke-color-secondary`),未引入 mask 渐变环(根元素 `overflow: hidden` 会裁剪绝对定位环、造成几何位移);整框统一换色(主区按压时源只换左半边框,视觉差异远小于 1px 色差)。
+2. **圆角 token 未提取**:`ControlCornerRadius = 4` 未生成 token,以同值 4px 的 `--wui-hyperlink-focus-rect-corner-radius` 承载;圆角由根元素 `border-radius + overflow: hidden` 裁切内层方角,等效源的双区拼角。
 3. **尺寸/内边距资源**:主区列 `MinWidth 35`(`SplitButtonPrimaryButtonSize`)、次区列宽 `35`(`SplitButtonSecondaryButtonSize`)、`SplitButtonPadding 11,6,11,7`、次区内边距 `0,0,12,0` 均为 `Thickness/Double` 资源,theme.css 未提取,按值写死。
 4. **焦点框**:WinUI 系统焦点框为双层(`UseSystemFocusVisuals=True`,`FocusVisualMargin=-1`);Web 以单层 `outline: 2px solid var(--wui-system-control-focus-visual-primary)`(偏移 1px)近似,与 Button 组件同款。
 5. **chevron**:源为 `AnimatedChevronDownSmallVisualSource`(AnimatedIcon,回退 `FontIconSource` 字形 E96E,8px / 12×12 盒);Web 用 12×12 SVG **静态**等价,不加开合旋转动画——源弹层开合无 chevron 旋转行为(仅按压微动),Web 对齐源(fix round 1 F4 移除了初版的 180° 旋转)。
@@ -136,6 +138,7 @@ ToggleSplitButton(带 checked 态)与 SplitButton 共用模板(源 `<Style Targe
 - 弹层公共基建:[wiki/controls/_popup-infra.md](./_popup-infra.md)(层上下文、light dismiss 与 Escape 逐级约定)
 - 菜单族:[MenuFlyout](./MenuFlyout.md)(`#flyout` slot 内可用的菜单项五件套)
 - 相关控件:[Button](./Button.md) · [ToggleButton](./ToggleButton.md) · [Flyout](./Flyout.md)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)
 
 ---
 

@@ -144,8 +144,8 @@ releaseFocus()                                // 焦点归还到打开前的元�
 | -- | ---- |
 | `.wui-popup-layer` | 层根外壳:定位回退、`z-index: var(--wui-z-popup-base)` 回退、公共圆角 `--wui-popup-corner-radius` 与阴影 `--wui-popup-shadow` |
 | `.wui-popup-overlay` | light-dismiss 全屏遮罩(颜色 token `--wui-popup-light-dismiss-overlay-background`,浅 #ffffff99 / 深 #00000099) |
-| `.wui-popup-skin-flyout` | FlyoutPresenter 皮肤(`--wui-flyout-presenter-background` + `--wui-flyout-border-theme`) |
-| `.wui-popup-skin-tooltip` | ToolTip 皮肤(`--wui-tool-tip-*` 三 token) |
+| `.wui-popup-skin-flyout` | FlyoutPresenter 皮肤(`--wui-flyout-presenter-background` + `--wui-flyout-border-theme`);该两键仍为 legacy 值,后续批次统一到 `--wui-menu-flyout-presenter-surface` / `--wui-surface-stroke-color-flyout` |
+| `.wui-popup-skin-tooltip` | ToolTip 皮肤(`--wui-tool-tip-*` 三 token)。**注**:PL10 起 ToolTip 组件在 `.wui-tooltip`(`[data-v-*]` 特异性更高)内显式声明 Fluent 三色(前景 `--wui-text-fill-color-primary` / 描边 `--wui-surface-stroke-color-flyout` / 底为亚克力回退色),故本皮肤类的 `--wui-tool-tip-*` 对 ToolTip **不再生效**(该组 token 现已无消费者,保留待清理) |
 | `.wui-popup-anim-fade` / `-flyout` | 入场动画,分别引用 animations.css 的 `wui-fade-in` / `wui-popup-slide-in-*` 关键帧(`-scale` / `-dialog` 已随 audit A8 删除:ContentDialog / TeachingTip 各用组件内精确规格) |
 | `.wui-popup-anim-leave` | 出场(淡出);配 Vue `<Transition name>` 或手动移除节点时使用 |
 
@@ -164,8 +164,9 @@ releaseFocus()                                // 焦点归还到打开前的元�
 ## 互链
 
 - 基建源码:`src/composables/usePopup.ts`、`src/utils/popup.ts`、`src/styles/popup.css`
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)
 - 后续控件文档将在此列出:ContentDialog、MenuFlyout、TeachingTip…
-- 已接入控件:[ToolTip](./ToolTip.md)(皮肤 `.wui-popup-skin-tooltip`,滚动跟随不关闭,演示页 `demo/pages/ToolTipPage.vue`)
+- 已接入控件:[ToolTip](./ToolTip.md)(皮肤 `.wui-popup-skin-tooltip` 已由组件内 Fluent 三色覆盖,滚动跟随不关闭,演示页 `demo/pages/ToolTipPage.vue`)
 - 已接入控件:[MenuFlyout](./MenuFlyout.md)(五件套菜单族:根层 + Item/Toggle/Separator/SubItem 级联子菜单,子菜单经 `registerOpenSubmenu` 登记实现 Escape 逐级与兄弟互斥,演示页 `demo/pages/MenuFlyoutPage.vue`)
 - 已接入控件:[ContentDialog](./ContentDialog.md)(视口居中模态:不走 usePopupLayer 定位,z-index 固定档 `--wui-z-popup-dialog`,`trapFocus`/`releaseFocus` 焦点陷阱 + `registerPopupLayer` 栈顶登记实现嵌套 Esc 逐级,演示页 `demo/pages/ContentDialogPage.vue`)
 - 已接入控件:[TeachingTip](./TeachingTip.md)(targeted 尾巴指向:四边 + 八角 + Center 全枚举经 placement + 交叉轴 offset 组合扩展,non-targeted 以 0×0 视口锚点复用同一基建,小屏尾巴够不到锚自动折叠,演示页 `demo/pages/TeachingTipPage.vue`)

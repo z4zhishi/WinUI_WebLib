@@ -99,7 +99,7 @@ function onNew() { /* ... */ }
 
 视觉按 `controls/dev/MenuBar/MenuBar.xaml`、`MenuBarItem.xaml` 与 `MenuBar_themeresources.xaml` 复刻(generic.xaml 本体无 `TargetType="MenuBar"` / `"MenuBarItem"` 段),以下项做了 Web 等价替换或简化:
 
-1. **SubtleFill* 颜色 token**:`MenuBarItemBackgroundPointerOver/Pressed/Selected` = `SubtleFillColorSecondary/Tertiary`,theme.css 未提取该系列,组件内以局部 token 按源值精确承载(`Common_themeresources_any.xaml` L25-L27/L229-L230:light `#09000000`/`#06000000`,dark `#0FFFFFFF`/`#0AFFFFFF`;VR-B17 曾登记借用 grid-view-item token 的近似,已订正)。前景 `MenuBarItemForeground` = `TextFillColorPrimaryBrush` 取同值的 `--wui-system-control-foreground-base-high`。边框:`Light/Default` 字典 `MenuBarItemBorderThickness=0`,未实现 HighContrast 的 2px 描边变体。
+1. **颜色(PL12 重定向)**:`MenuBarItemBackgroundPointerOver/Pressed/Selected` = `SubtleFillColorSecondary/Tertiary`(controls/dev `MenuBarItem.xaml` L7-L10),已直引 `--wui-subtle-fill-color-transparent/secondary/tertiary`;前景 `MenuBarItemForeground` = `TextFillColorPrimaryBrush` → `--wui-text-fill-color-primary`;栏底 `MenuBarBackground` = `SubtleFillColorTransparentBrush` → `--wui-subtle-fill-color-transparent`。此前「借用 grid-view-item token 的近似」与「theme.css 未提取」表述已作废(VR-B17 登记已订正)。边框:`Light/Default` 字典 `MenuBarItemBorderThickness=0`(dev L11),不渲染;Border 画刷键值为 `ControlAltFillColorTertiary`(常态)/ `ControlStrokeColorDefault`(悬停/按下/选中),仅 HighContrast 字典为 2px,本库未实现 HC。总览见 [_brushes.md](./_brushes.md)。
 2. **尺寸/间距**:`MenuBarHeight` 40、`MenuBarItemMargin` 4、`MenuBarItemButtonPadding` 10,4,10,4、`ControlCornerRadius` 4(复用 `--wui-hyperlink-focus-rect-corner-radius` token,同 DropDownButton 约定)均为 generic.xaml 资源字面值(x:Double/Thickness 不入 token 集)。
 3. **打开时焦点**:WinUI `OnFlyoutOpening` 把焦点留在 MenuBarItem 上;本组件在键盘/点击路径按 WAI-ARIA menubar 惯例把焦点移入层首项(hover 切换路径仍聚焦项自身,与 WinUI 一致,←/→ 换项即刻可用)。纯键盘用户因此可直达菜单项。
 4. **TabNavigation=Once → roving tabindex**:WinUI 栏 `TabNavigation=Once` + 项 `IsTabStop=True`;Web 以「当前项 tabindex=0、其余 -1」等价(Tab 一次进栏、再按即离栏,←/→ 在栏内移动)。
@@ -112,4 +112,4 @@ function onNew() { /* ... */ }
 
 ---
 
-演示页源码:[demo/pages/MenuBarPage.vue](../../demo/pages/MenuBarPage.vue) · 组件源码:[src/components/MenuBar.vue](../../src/components/MenuBar.vue) · [MenuBarItem.vue](../../src/components/MenuBarItem.vue) · 菜单族文档:[MenuFlyout](./MenuFlyout.md) · 弹层基建:[wiki/controls/_popup-infra.md](./_popup-infra.md)
+演示页源码:[demo/pages/MenuBarPage.vue](../../demo/pages/MenuBarPage.vue) · 组件源码:[src/components/MenuBar.vue](../../src/components/MenuBar.vue) · [MenuBarItem.vue](../../src/components/MenuBarItem.vue) · 菜单族文档:[MenuFlyout](./MenuFlyout.md) · 弹层基建:[wiki/controls/_popup-infra.md](./_popup-infra.md) · Fluent 画刷族:[_brushes.md](./_brushes.md)

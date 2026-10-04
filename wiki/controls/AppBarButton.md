@@ -72,10 +72,11 @@ function onSave(): void {
 
 ## 与 WinUI 的差异说明
 
+- **状态色(PL16 Fluent 重定向)**:底色四态由 legacy ListLow/ListMedium 改为 Fluent `SubtleFillColorTransparent/Secondary/Tertiary/Disabled`(`--wui-subtle-fill-color-*`);前景四态 `TextFillColorPrimary/Primary/Secondary/Disabled`(`--wui-text-fill-color-*`);加速键角标前景 `TextFillColorSecondary/Secondary/Tertiary/Disabled`;描边按权威保持全透明(`ControlFillColorTransparentBrush`)。悬停由 `#00000019` → `#00000009`,与源逐态一致;总览见 [_brushes.md](./_brushes.md)。
 - **EllipsisFocusVisual(下划线聚焦视觉)为近似实现**:旧版 UWP 命令栏省略号按钮使用一条虚线下划线式焦点矩形(`EllipsisFocusVisual`),WinUI 3 参照源(generic.xaml)中已无该资源,默认改走 `UseSystemFocusVisuals` 系统双环。本组件按任务规格以 `:focus-visible` 的 2px 虚线下划线近似旧观感,颜色取系统焦点色 token `--wui-system-control-focus-visual-primary`。
 - **加速键角标只在溢出菜单呈现(主命令区不呈现)**:WinUI 的默认样式设 `KeyboardAcceleratorPlacementMode="Hidden"`(`AppBarButton_themeresources.xaml` L138;`generic.xaml` L19137 同),运行期只有 `UseOverflowStyle`(按钮位于溢出区)且键盘存在时才切到 `KeyboardAcceleratorTextVisible`(`dxaml/xcp/dxaml/lib/AppBarButtonHelpers.h` L201-206),主命令区恒 `Collapsed`,仅以 Tooltip「Label (Ctrl+S)」提示。因此本组件默认不渲染内联角标(不占列宽、不压标签);`CommandBar` 溢出层把 CSS 变量 `--wui-app-bar-accelerator-display` 置为 `block` 后角标在溢出菜单行尾右对齐呈现。真实组合键监听未实现:`KeyboardAccelerators` 的全局激活属宿主应用行为,可用 `window.addEventListener('keydown')` 自行绑定后触发 `click`。
 - **CornerRadius**:本参照源的 AppBarButton 默认 Style 并无 `CornerRadius` setter(模板仅 `TemplateBinding CornerRadius`,取属性默认),无官方圆角可对照;此处与 Button.vue 家族惯例一致,取 4px 近似 token `--wui-hyperlink-focus-rect-corner-radius`,保持控件族观感统一。
-- **加速键角标颜色按态独立**:角标前景不随按钮前景继承,对照 `AppBarButtonKeyboardAcceleratorTextForeground*` 资源系列(generic.xaml L1894-L1897)逐态取 token —— Normal = BaseMedium、PointerOver/Pressed = HighlightAltBaseMedium、**Disabled = DisabledBaseMediumLow(与整体前景同一禁用色)**;fix round 1 前曾漏掉 Disabled 态(角标保持 base-medium,可见偏差),已补规则并修正注释。
+- **加速键角标颜色按态独立**:角标前景不随按钮前景继承,对照 `AppBarButtonKeyboardAcceleratorTextForeground*` 资源系列(PL16 已重定向为 Fluent `--wui-text-fill-color-secondary/tertiary/disabled`)逐态取 token —— Normal/PointerOver = `--wui-text-fill-color-secondary`(浅 `#0000009E` / 深 `#FFFFFFC5`)、Pressed = `--wui-text-fill-color-tertiary`(`#00000072`/`#FFFFFF87`)、**Disabled = `--wui-text-fill-color-disabled`(与整体前景同一禁用色)**;fix round 1 前曾漏掉 Disabled 态(角标保持 base-medium,可见偏差),已补规则并修正注释。
 - **未实现 WinUI 侧的溢出/CommandBar 专属状态**:`Overflow` / `OverflowWithToggleButtons` / `LabelOnRight` 等视觉态与 `Flyout` 属性属于 CommandBar / 弹层族范畴,由后续 CommandBar 任务承载。`AppBarButtonRevealStyle` 揭示光照已实现(MR8):经 `reveal` prop(opt-in)/ CommandBar 内 provide 上下文(默认启用)接入公共层,见 [_reveal.md](./_reveal.md);溢出形态的 reveal 视觉由 CommandBar 溢出层统一适配。
 - **图标字体按 R1 裁决不做网络字体加载**:`Segoe Fluent Icons` 依赖本机字体栈;图标尺寸沿用图标列高度 16px(`AppBarButtonContentHeight`)。
 - **尺寸口径取 WinUI 3 值(非 UWP generic.xaml)**:`AppBarThemeMinHeight` WinUI 3 为 **64**(`CommandBar_themeresources.xaml` L71;UWP `generic.xaml` L19461 为 56),`AppBarButtonContentViewboxCollapsedMargin` WinUI 3 为 **0,16,0,2**(`AppBarButton_themeresources.xaml` L112;UWP 为 0,12,0,4)。按「视觉与 WinUI 3 完全一致」的口径统一取 WinUI 3 值(宽 68 / 标签 FontSize 12 / TextLabelMargin 2,0,2,8 三值两版一致)。
@@ -87,3 +88,4 @@ function onSave(): void {
 - 图标:[IconElement](./IconElement.md)
 - 弹层基建:[弹层公共基建](./_popup-infra.md)
 - Reveal 材料:[_reveal.md](./_reveal.md)(`reveal` prop / CommandBar 上下文的默认值口径与降级语义)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

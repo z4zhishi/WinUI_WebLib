@@ -83,7 +83,7 @@ function onValueChanged(e: { oldValue: number; newValue: number }): void {
 
 ## 与 WinUI 的差异
 
-1. **主题资源 token 缺失**:ProgressBar 的主题资源在 `controls/dev/ProgressBar/ProgressBar_themeresources.xaml`(不在 generic.xaml),theme.css 未生成对应 token。组件以局部 `--wui-progressbar-*` 变量按源快照取值:Foreground = `AccentFillColorDefaultBrush`(浅 = `SystemAccentColorDark1`、深 = `SystemAccentColorLight2`,经 theme-hooks.css 系统色钩子,未定义时回退站点约定色);轨道 = `ControlStrongStrokeColorDefault`(XAML 源值 #72000000 / #8BFFFFFF 为 AARRGGBB 字节序,CSS 等值 #00000072 / #ffffff8b);暂停 = `SystemFillColorCaution`(#9D5D00 / #FCE100);错误 = `SystemFillColorCritical`(#C42B1C / #FF99A4)。深色覆盖用 scoped 裸祖先写法(`html[data-theme='dark'] .wui-progressbar`,同 InfoBar 约定:特异性 (0,3,0) 压过浅色基线且保持 scoping)。HighContrast 字典(1px 边框等)未实现。
+1. **颜色(PL10 Fluent 重定向)**:ProgressBar 主题资源在 `controls/dev/ProgressBar/ProgressBar_themeresources.xaml`,PL10 已把组件内浅/深两套硬编码改为直引 PL2 Fluent token —— Foreground = `AccentFillColorDefaultBrush` → `--wui-accent-fill-color-default`(浅 `SystemAccentColorDark1` `#0067C0` / 深 `SystemAccentColorLight2` `#4CC2FF`);轨道 = `ControlStrongStrokeColorDefault` → `--wui-control-strong-stroke-color-default`(`#00000072` / `#FFFFFF8B`);暂停 = `SystemFillColorCaution` → `--wui-system-fill-color-caution`(`#9D5D00` / `#FCE100`);错误 = `SystemFillColorCritical` → `--wui-system-fill-color-critical`(`#C42B1C` / `#FF99A4`);明暗随 token 自带,删除组件内深色覆盖块。Indeterminate 指示条一/二分别取 Foreground / Error / Paused 同 token。**未落**:`BorderBrush = ControlStrokeColorDefaultBrush`(源根 Border `BorderThickness` 默认 0,不描边、无可见色)。HighContrast 字典未实现。总览见 [_brushes.md](./_brushes.md)。
 2. **值变化动效**:源在 `Updating → Determinate` 等转换里用 `RepositionThemeAnimation` 让指示条从旧位置滑到新位置;Web 以 240ms 宽度过渡(`--wui-duration-normal` + `--wui-easing-standard`)近似,且只挂在确定态族(determinate/error/paused)——进入/退出不确定态的几何与可见性变化为即时置值,与源状态 Setter 行为一致(轨道隐藏、指示条宽度归 0、往复指示条出现均不播过渡);源在 `Indeterminate → Determinate` 转换上的轨道 167ms `FadeInThemeAnimation` 未实现(即时恢复)。拖动实时更新时的宽度过渡观感与源相近。
 3. **状态脉冲**:源 `IndeterminateError/Paused` 的 0.75s Storyboard 含两个同 KeyTime 的样条帧(扫至右端后立即回落再归位),CSS 以近似关键帧(22.2%/22.3%)复刻;进入状态的重复触发用 `:key` 重建元素强制重播。
 4. **裁剪细节**:源的 `TemplateSettings.ClipRect` 会把裁剪区再内缩一个 `padding`(源实现细节);Web 直接在内容盒上 `overflow: hidden` 裁剪,默认 `padding=0` 下两者一致,非零 padding 时可见区略有差异。
@@ -97,3 +97,4 @@ function onValueChanged(e: { oldValue: number; newValue: number }): void {
 - 不确定态:`<ProgressBar IsIndeterminate="True" Width="130" />`,配 `ShowError` / `ShowPaused` 切换状态(官方示例的 Running/Paused/Error 单选组)
 - 确定态:`<ProgressBar Value="{...}" />` 配 0-100 调值控件(官方示例为 NumberBox)
 - 相关控件:ProgressRing(阻塞式加载指示)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)

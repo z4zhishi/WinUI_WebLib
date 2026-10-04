@@ -6,7 +6,7 @@
 
 RepeatButton 控件与标准 Button 类似,区别在于用户按住按钮期间 `click` 事件会连续触发。重复节奏:按下立即触发 1 次(源控件固定 `ClickMode = Press`),经过 `delay` 毫秒后触发第 2 次,之后每 `interval` 毫秒触发一次,直至松开、指针移出、失焦或禁用。
 
-本组件按 WinUI 默认模板(generic.xaml 中 `TargetType="RepeatButton"` 的 Style/ControlTemplate)复刻视觉:Normal / PointerOver / Pressed / Disabled 四态即时切换,焦点态显示系统焦点视觉,颜色、字号、圆角、内边距均取自 `--wui-*` 主题 token,随 `html[data-theme]` 明暗切换。重复计时逻辑对照 `RepeatButton_Partial.cpp` 的 `StartTimer` / `TickCallback` / `UpdateRepeatState` 实现。
+本组件按 WinUI 3 生效层(`controls/dev/CommonStyles/RepeatButton_themeresources.xaml`)复刻视觉:Normal / PointerOver / Pressed / Disabled 四态即时切换,焦点态显示系统焦点视觉;状态色已重定向 Fluent 画刷族(PL3):底色 `ControlFillColorDefault/Secondary/Tertiary/Disabled`,前景 `TextFillColorPrimary/Secondary/Disabled`,描边 Normal/PointerOver 为渐变 `ControlElevationBorderBrush`(PL5 token `--wui-control-elevation-border`)、Pressed/Disabled 为 `ControlStrokeColorDefault` 纯色;字号、圆角、内边距取自 `--wui-*` 主题 token,随 `html[data-theme]` 明暗切换(总览见 [_brushes.md](./_brushes.md))。重复计时逻辑对照 `RepeatButton_Partial.cpp` 的 `StartTimer` / `TickCallback` / `UpdateRepeatState` 实现。
 
 官方文档:
 
@@ -66,15 +66,17 @@ const clicks = ref(0)
 
 ## 与 WinUI 的差异说明
 
-对照 generic.xaml(浅色/深色 ThemeDictionaries)、`RepeatButton_Partial.cpp` 与 theme.css token 的取值映射:
+对照 WinUI 3 生效层(`RepeatButton_themeresources.xaml` L14-17/L62-65,逐行复核)、`RepeatButton_Partial.cpp` 与 theme.css Fluent token 的取值映射:
 
 | WinUI 取值 | Web 实现 | 说明 |
 | --- | --- | --- |
-| `RepeatButtonBackground` / `RepeatButtonForeground` / `RepeatButtonBorderBrush`(各状态) | `--wui-repeat-button-*` token 一一对应 | 无差异 |
+| `RepeatButtonBackground`(四态)= `ControlFillColorDefault/Secondary/Tertiary/DisabledBrush` | `--wui-control-fill-color-default/secondary/tertiary/disabled` | PL3 重定向(此前 legacy `--wui-repeat-button-*`,hover 与静息同值已消除) |
+| `RepeatButtonForeground`(四态)= `TextFillColorPrimary/Primary/Secondary/DisabledBrush` | `--wui-text-fill-color-primary/secondary/disabled` | PL3 重定向 |
+| `RepeatButtonBorderBrush`(Normal/PointerOver)= `ControlElevationBorderBrush`(渐变) | `--wui-control-elevation-border`(PL5 mask 环) | PL5 落地;Pressed/Disabled = `ControlStrokeColorDefaultBrush` 纯色 |
 | `RepeatButtonBorderThemeThickness` = 2 | `border: 2px solid` | 无差异 |
 | `ButtonPadding` = 8,4,8,5(样式复用 Button 的 StaticResource) | `padding: 4px 8px 5px` | 无差异 |
 | `ControlContentThemeFontSize` = 14px | `--wui-control-content-theme-font-size` | 无差异 |
-| 默认圆角 | `--wui-hyperlink-focus-rect-corner-radius`(4px) | generic.xaml 的 RepeatButton 样式无 CornerRadius(默认 0);WinUI 3 运行时 `ControlCornerRadius` = 4 无同名 token,取最近似圆角 token |
+| 默认圆角 | `--wui-hyperlink-focus-rect-corner-radius`(4px) | 源 RepeatButton 样式无 CornerRadius(默认 0);WinUI 3 运行时 `ControlCornerRadius` = 4,以同值 4px 变量承载 |
 | `Delay` 默认 500ms、`Interval` 默认 33ms(`DependencyProperty.cpp` 硬编码) | 组件默认值一致 | 部分社区文档称 Interval 默认 250ms,以本仓库源码为准(33ms) |
 | `Delay`/`Interval` 依赖属性变更回调对负值/非正值抛 `E_FAIL` | `delay < 0` 钳制为 0、`interval <= 0` 钳制为 1 | Web 侧不抛错,取合法最近值 |
 | `TimelineTimer`(先以 Delay 启动,滴答时把间隔改写为 Interval) | `setTimeout` 链:首个定时器延迟 delay,后续每次滴答重读 interval | 行为等价;按住期间修改 interval 下一次滴答生效 |
@@ -92,4 +94,5 @@ const clicks = ref(0)
 - 在线示例:`/#/repeatbutton`
 - 演示页源码:`demo/pages/RepeatButtonPage.vue`
 - Reveal 材料:[_reveal.md](./_reveal.md)(`reveal` prop 的机制、降级与常量口径)
+- Fluent 画刷族总览:[_brushes.md](./_brushes.md)(命名族对照 / 权威层级 / 画刷→token 映射)
 - 相关控件:Button、ToggleButton、HyperlinkButton
