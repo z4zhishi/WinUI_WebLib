@@ -440,8 +440,12 @@ const usageCode = computed(() => {
 }
 
 .switch-block--target {
+  /* PL23(a11y 深色对比度):curtain 底(浅 #4617B4 / 深 #5729C1)恒为深紫实底,
+     alt-high 字色随主题翻转(浅白/深黑),深色黑字仅 2.49:1 不达 AA。
+     改恒白 chrome-white 前景(#FFFFFF 双主题;同 TreeViewItem 多选角标权威用法),
+     浅 10.28:1 / 深 8.42:1 */
   background: var(--wui-toggle-switch-curtain-background-theme);
-  color: var(--wui-system-control-foreground-alt-high);
+  color: var(--wui-system-control-foreground-chrome-white);
 }
 
 /* 关系切换按钮组 */
@@ -471,8 +475,11 @@ const usageCode = computed(() => {
 }
 
 .relation-button[aria-pressed='true'] {
+  /* PL23(a11y 深色对比度):选中态底色同为 curtain 深紫实底,alt-high 在深色为黑
+     (2.49:1,axe 因按钮伪元素底判为 incomplete,未计入违规但实为低对比);
+     与 .switch-block--target 统一改恒白 chrome-white 前景 */
   --wui-button-local-background: var(--wui-toggle-switch-curtain-background-theme);
-  --wui-button-local-foreground: var(--wui-system-control-foreground-alt-high);
+  --wui-button-local-foreground: var(--wui-system-control-foreground-chrome-white);
   --wui-button-local-border: var(--wui-system-control-transparent);
 }
 

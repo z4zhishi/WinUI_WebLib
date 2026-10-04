@@ -969,7 +969,11 @@ const entranceUsageCode = computed(
 }
 
 .inline-link {
-  color: var(--wui-hyperlink-foreground-theme);
+  /* PL23(a11y 深色对比度):--wui-hyperlink-foreground-theme 深色 #9C72FF 压卡片底
+     #2B2B2B 仅 4.22:1,不满 AA 4.5:1。改用壳层链接达标色
+     --wui-shell-hyperlink-foreground(浅 #0067C0 = 5.07:1 / 深 #4CC2FF = 7.06:1),
+     与本页 .swap-chip 及 GeometryPage / ImplicitTransitionPage 同口径(MR10/W 系列) */
+  color: var(--wui-shell-hyperlink-foreground);
   text-decoration: underline;
 }
 

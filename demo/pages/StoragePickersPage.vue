@@ -1091,7 +1091,11 @@ onBeforeUnmount(() => {
   padding: 2px 10px;
   font-family: ui-monospace, Consolas, 'Courier New', monospace;
   font-size: var(--wui-tool-tip-content-theme-font-size);
-  color: var(--wui-system-control-foreground-alt-high);
+  /* PL23(a11y 深色对比度):curtain 底(浅 #4617B4 / 深 #5729C1)恒为深紫实底,
+     alt-high 字色随主题翻转(浅白/深黑),深色黑字仅 2.49:1 不达 AA。
+     改恒白 chrome-white 前景(#FFFFFF 双主题;同 TreeViewItem 多选角标权威用法),
+     浅 10.28:1 / 深 8.42:1 */
+  color: var(--wui-system-control-foreground-chrome-white);
   background: var(--wui-toggle-switch-curtain-background-theme);
   border: 1px solid var(--wui-system-control-transparent);
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius);

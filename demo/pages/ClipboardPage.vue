@@ -855,7 +855,10 @@ onBeforeUnmount(() => {
 }
 
 .toolbar-button.is-active {
-  color: var(--wui-system-control-foreground-alt-high);
+  /* PL23(a11y 深色对比度):与 .permission-badge.is-granted 同型 —— 命令激活态底色为
+     curtain 深紫实底(浅 #4617B4 / 深 #5729C1),alt-high 深色为黑字仅 2.49:1。
+     改恒白 chrome-white 前景(#FFFFFF 双主题),浅 10.28:1 / 深 8.42:1 */
+  color: var(--wui-system-control-foreground-chrome-white);
   background: var(--wui-toggle-switch-curtain-background-theme);
   border-color: var(--wui-system-control-transparent);
 }
@@ -920,7 +923,12 @@ onBeforeUnmount(() => {
 }
 
 .permission-badge.is-granted {
-  color: var(--wui-system-control-foreground-alt-high);
+  /* PL23(a11y 深色对比度):curtain 底(浅 #4617B4 / 深 #5729C1)在两主题均为深紫实底,
+     alt-high 字色随主题翻转(浅白/深黑),深色黑字压深紫底仅 2.49:1 不达 AA。
+     改用恒白前景 token(SystemControlForegroundChromeWhiteBrush,#FFFFFF 双主题),
+     同 TreeViewItem 多选角标 / SwipeItem 阈值前景的权威用法(彩色实底上的白字),
+     浅 10.28:1 / 深 8.42:1,均达 AA */
+  color: var(--wui-system-control-foreground-chrome-white);
   background: var(--wui-toggle-switch-curtain-background-theme);
   border-color: var(--wui-system-control-transparent);
 }
