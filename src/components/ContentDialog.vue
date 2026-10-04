@@ -329,18 +329,24 @@ function onPanelKeydown(event: KeyboardEvent): void {
 }
 
 /* 烟幕层(SmokeLayerBackground):伪元素承载;透明度跟随层根
-   (源 LayoutRoot 既画烟幕又承担 Opacity 时间线) */
+   (源 LayoutRoot 既画烟幕又承担 Opacity 时间线)。
+   PL10 重定向:Fill = SmokeFillColorDefaultBrush → --wui-smoke-fill-color-default
+   (浅/深均 #0000004D;旧版用 --wui-system-control-page-background-medium-alt-medium
+   #ffffff99/#00000099 为锚定模板近似,已弃)。 */
 .wui-content-dialog::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: var(--wui-system-control-page-background-medium-alt-medium);
+  background: var(--wui-smoke-fill-color-default);
 }
 
 /*
  * 对话框面板(BackgroundElement):MinWidth 320 / MaxWidth 548 / MinHeight 184 /
  * MaxHeight 756(尺寸资源 theme.css 未提取,按源值写死,见 wiki 差异节);
- * 颜色三 token:--wui-content-dialog-background / -foreground / -border;
+ * PL10 重定向到权威 Fluent 键(control-brush-matrix.md §1.35):
+ *   Background   = SolidBackgroundFillColorBaseBrush → --wui-solid-background-fill-color-base
+ *   Foreground   = TextFillColorPrimaryBrush         → --wui-text-fill-color-primary
+ *   BorderBrush  = SurfaceStrokeColorDefaultBrush    → --wui-surface-stroke-color-default
  * 圆角/阴影取基建 token(OverlayCornerRadius 8px / ThemeShadow 近似)。
  */
 .wui-content-dialog__panel {
@@ -354,20 +360,25 @@ function onPanelKeydown(event: KeyboardEvent): void {
   min-height: 184px;
   max-height: min(756px, calc(100vh - 48px));
   font-family: var(--wui-content-control-theme-font-family);
-  color: var(--wui-content-dialog-foreground);
-  background: var(--wui-content-dialog-background);
-  border: 1px solid var(--wui-content-dialog-border);
+  color: var(--wui-text-fill-color-primary);
+  background: var(--wui-solid-background-fill-color-base);
+  border: 1px solid var(--wui-surface-stroke-color-default);
   border-radius: var(--wui-popup-corner-radius);
   box-shadow: var(--wui-popup-shadow);
   outline: none; /* tabindex="-1" 兜底聚焦容器自身,不显示焦点环(WinUI IsTabStop=False) */
 }
 
-/* 内容滚动区:撑满剩余高度,超长滚动;底部分隔线贴命令区上沿 */
+/* 内容滚动区:撑满剩余高度,超长滚动。
+   Background = ContentDialogTopOverlay = LayerFillColorAltBrush → --wui-layer-fill-color-alt
+   (浅 #FFFFFF 不透明 / 深 #FFFFFF0D,源模板 L233 的 Grid 背景);
+   底部分隔线 = ContentDialogSeparatorBorderBrush = CardStrokeColorDefaultBrush
+   → --wui-card-stroke-color-default(源 L234 BorderBrush,Thickness 0,0,0,1)。 */
 .wui-content-dialog__scroll {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  border-bottom: 1px solid var(--wui-content-dialog-border);
+  background: var(--wui-layer-fill-color-alt);
+  border-bottom: 1px solid var(--wui-card-stroke-color-default);
 }
 
 /* 内容区(ContentDialogPadding = 24):标题 + 正文 */

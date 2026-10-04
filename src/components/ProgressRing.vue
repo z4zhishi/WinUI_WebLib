@@ -178,36 +178,23 @@ const arcStyle = computed<CSSProperties | undefined>(() => {
 
 <style scoped>
 /* ======================================================================
- * 颜色变量:ProgressRing 的主题资源位于 controls/dev/ProgressRing/ProgressRing_themeresources.xaml
- * (generic.xaml 无此控件的 Style/Template),theme.css 未生成 --wui-progressring-* token,
- * 故按源值在组件内承载(浅/深两套,差异说明见 wiki/controls/ProgressRing.md):
- *   Foreground = AccentFillColorDefaultBrush(浅 = SystemAccentColorDark1,深 = SystemAccentColorLight2,
- *               经 theme-hooks.css 的系统色钩子,未定义时回退站点约定色)
- *   Background = ControlFillColorTransparentBrush(透明)
- * 几何常量(源不确定态 Lottie 归一化):viewBox 80×80、半径 35、描边 7.5
+ * 颜色变量(PL10 重定向到 Fluent 画刷族):ProgressRing 的主题资源位于
+ * controls/dev/ProgressRing/ProgressRing_themeresources.xaml;权威键见
+ * control-brush-matrix.md §1.31 / brush-authority.md。
+ * 本批改指向 PL2 生效层 token(随 html[data-theme] 切换,组件不再各写两套):
+ *   Foreground = AccentFillColorDefaultBrush    → --wui-accent-fill-color-default
+ *   Background = ControlFillColorTransparentBrush → --wui-control-fill-color-transparent
+ * 几何常量(源不确定态 Lottie 归一化,本批不动):viewBox 80×80、半径 35、描边 7.5
  *   (默认直径 32px 下 ≈ 28px 环径、3px 环厚;SVG viewBox 缩放使环厚随直径等比随动,
  *   与源 AnimatedVisualPlayer Stretch=fill 的矢量缩放一致)。
  * ====================================================================== */
 .wui-progressring {
-  --wui-progressring-foreground: var(
-    --wui-system-accent-color-dark-1,
-    var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme))
-  );
-  --wui-progressring-background: transparent;
+  --wui-progressring-foreground: var(--wui-accent-fill-color-default);
+  --wui-progressring-background: var(--wui-control-fill-color-transparent);
   display: inline-block;
   box-sizing: border-box;
   /* 源 Style Setter:IsHitTestVisible=false、IsTabStop=false —— 非交互控件,无指针/焦点态 */
   pointer-events: none;
-}
-
-/* 深色主题(Default 字典)覆盖:scoped 内裸祖先写法(同 ProgressBar/InfoBar 约定)——
-   [data-v] 只落在末位组件选择器上,祖先 html[data-theme='dark'] 保持裸写;
-   特异性 (0,3,0) 高于浅色基线 (0,2,0),不依赖样式块顺序。 */
-html[data-theme='dark'] .wui-progressring {
-  --wui-progressring-foreground: var(
-    --wui-system-accent-color-light-2,
-    var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme))
-  );
 }
 
 .wui-progressring__svg {

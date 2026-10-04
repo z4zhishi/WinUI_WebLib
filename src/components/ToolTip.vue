@@ -16,10 +16,12 @@ let tooltipUidCounter = 0
 //   FadeIn/FadeOutThemeAnimation)+ controls/dev/CommonStyles/ToolTip_themeresources.xaml
 //   L42-77(MUX DefaultToolTipStyle:Padding 9,6,9,8、ToolTipMaxWidth 320、
 //   CornerRadius ControlCornerRadius、BackgroundSizing InnerBorderEdge)。
-//   背景三 token(--wui-tool-tip-background/border/foreground)由基建皮肤类
-//   .wui-popup-skin-tooltip(src/styles/popup.css)提供,随 html[data-theme] 切换;
-//   WinUI 3 默认背景为 AcrylicInAppFillColorDefaultBrush(亚克力),Web 以不透明
-//   ChromeMediumLow 近似(差异见 wiki/controls/ToolTip.md)。
+//   背景/描边/前景三色由基建皮肤类 .wui-popup-skin-tooltip(src/styles/popup.css)声明,
+//   但 PL10 起组件在 .wui-tooltip(带 [data-v],特异性更高)内显式重定向到权威 Fluent 键:
+//   前景 = TextFillColorPrimaryBrush、描边 = SurfaceStrokeColorFlyoutBrush、
+//   背景 = AcrylicInAppFillColorDefaultBrush(亚克力;WinUI 3 ToolTipBackgroundBrush)。
+//   web 无原生亚克力(PL1 未决),取权威表 §4.2 的不透明回退色 浅 #F9F9F9 / 深 #2C2C2C
+//   作近似(旧版 ChromeMediumLow #f2f2f2/#2b2b2b 为 legacy 近似,已弃)。
 //
 // 行为规格:ToolTipService_Partial.cpp / ToolTip_Partial.cpp ——
 //   - 默认 PlacementMode = Top(ToolTip_Partial.h L70-72);
@@ -429,21 +431,36 @@ const layerStyle = computed(() => ({ maxWidth: `${props.maxWidth}px` }))
  * 内联直写,组件不碰 position/left/top/z-index。
  */
 .wui-tooltip {
+  /* 亚克力回退色(见 color 声明):浅色为权威表 §4.2 的 Light Fallback #F9F9F9。 */
+  --wui-tool-tip-surface-fallback: #f9f9f9;
   box-sizing: border-box;
   padding: 6px 9px 8px; /* ToolTipBorderPadding = 9,6,9,8(上 6 右 9 下 8 左 9) */
   font-family: inherit; /* ContentControlThemeFontFamily(XamlAutoFontFamily 占位) */
   font-size: var(--wui-tool-tip-content-theme-font-size); /* ToolTipContentThemeFontSize = 12 */
   line-height: 1.4; /* 单行 12px 文案的行盒近似 XAML TextBlock 默认行高 */
-  color: var(--wui-tool-tip-foreground); /* 皮肤类已设,显式声明防宿主 color 渗透 */
-  background: var(--wui-tool-tip-background);
+  /* PL10 重定向:Foreground = TextFillColorPrimaryBrush(权威键)→ PL2 生效层 token。
+     显式声明以覆盖基建皮肤类 .wui-popup-skin-tooltip 的旧 --wui-tool-tip-* 值;
+     本规则带 [data-v] 属性选择器,特异性高于皮肤类,故顺序无关。 */
+  color: var(--wui-text-fill-color-primary);
+  /* Background = AcrylicInAppFillColorDefaultBrush(亚克力,WinUI 3 ToolTipBackgroundBrush)
+     —— web 无原生亚克力材质(PL1 记为未决),此处取权威表 §4.2 记录的**不透明回退色**
+     AcrylicInAppFillColorDefault 浅 #F9F9F9 / 深 #2C2C2C 作为近似,非臆造。 */
+  background: var(--wui-tool-tip-surface-fallback);
   /* MUX BackgroundSizing = InnerBorderEdge:背景绘于边框内缘(CSS 默认 border-box 即
      OuterBorderEdge,故需显式收窄)。必须声明在 background 简写之后——简写会把
      background-clip 重置回 border-box,声明顺序颠倒会导致该值运行时失效 */
   background-clip: padding-box;
-  border: 1px solid var(--wui-tool-tip-border); /* ToolTipBorderThemeThickness = 1 */
+  /* BorderBrush = SurfaceStrokeColorFlyoutBrush(权威键)→ PL2 token;Thickness = 1 */
+  border: 1px solid var(--wui-surface-stroke-color-flyout);
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius); /* CornerRadius ← ControlCornerRadius = 4 */
   overflow-wrap: break-word; /* TextWrapping = Wrap */
   pointer-events: none; /* 非交互瞬时提示:层不截获指针(WinUI ToolTip 同语义) */
+}
+
+/* 亚克力回退色(见上):浅色为权威表 §4.2 的 Light Fallback #F9F9F9。 */
+/* 深色主题覆盖:Default(深色)字典 Fallback #2C2C2C(scoped 内裸祖先写法同 ProgressBar 约定)。 */
+html[data-theme='dark'] .wui-tooltip {
+  --wui-tool-tip-surface-fallback: #2c2c2c;
 }
 
 /* 出入场:纯透明度。源 FadeIn/OutThemeAnimation 的时长/曲线在平台 PVL 表内,

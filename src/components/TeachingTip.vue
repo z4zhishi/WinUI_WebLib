@@ -688,10 +688,18 @@ const viewportAnchorClass = computed(() => {
  * 结构对照 TeachingTip.xaml(DefaultTeachingTipStyle):层根 = ContentRootGrid
  * (背景/边框/圆角),内容 StackPanel 边距 12;Min/Max 尺寸取 TeachingTip* 尺寸资源。
  * 定位属性(position/left/top/z-index)由 usePopupLayer 内联直写,组件不碰。
- * 颜色一律 --wui-* token(SolidBackgroundFillColorTertiary 等在 theme.css 无同值 token,
- * 最近似映射见 wiki/controls/TeachingTip.md 差异节)。
+ * PL10 重定向到权威 Fluent 键(control-brush-matrix.md §1.36):
+ *   Background  = TeachingTipBackgroundBrush = SolidBackgroundFillColorTertiaryBrush
+ *                 → --wui-solid-background-fill-color-tertiary
+ *   Foreground  = TextFillColorPrimaryBrush  → --wui-text-fill-color-primary
+ *   BorderBrush = TeachingTipBorderBrush = SurfaceStrokeColorDefaultBrush
+ *                 → --wui-surface-stroke-color-default
+ *   Transient   = TeachingTipTransientBackground = AcrylicInAppFillColorDefaultBrush(亚克力,
+ *                 未决)→ 权威表 §4.2 不透明回退色 浅 #F9F9F9 / 深 #2C2C2C(见下)。
  */
 .wui-teaching-tip {
+  /* 亚克力回退色(LightFallback;深色在下方 html[data-theme='dark'] 覆盖)。 */
+  --wui-teaching-tip-transient-surface: #f9f9f9;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -699,27 +707,32 @@ const viewportAnchorClass = computed(() => {
   max-width: 336px; /* TeachingTipMaxWidth = 336 */
   min-height: 40px; /* TeachingTipMinHeight = 40 */
   max-height: 520px; /* TeachingTipMaxHeight = 520 */
-  color: var(--wui-default-text-foreground-theme); /* TeachingTipForeground ← TextFillColorPrimary */
-  background: var(--wui-flyout-presenter-background); /* ← SolidBackgroundFillColorTertiary(近似,见 wiki) */
-  border: 1px solid var(--wui-flyout-border-theme); /* ← SurfaceStrokeColorDefault(近似,见 wiki) */
+  color: var(--wui-text-fill-color-primary); /* TeachingTipForeground ← TextFillColorPrimary */
+  background: var(--wui-solid-background-fill-color-tertiary); /* ← SolidBackgroundFillColorTertiary */
+  border: 1px solid var(--wui-surface-stroke-color-default); /* ← SurfaceStrokeColorDefault */
+}
+
+/* 深色主题覆盖:AcrylicInAppFillColorDefault 深色 Fallback #2C2C2C。 */
+html[data-theme='dark'] .wui-teaching-tip {
+  --wui-teaching-tip-transient-surface: #2c2c2c;
 }
 
 /* LightDismiss 态:表面换 Transient(亚克力近似)底色 —— TeachingTip_themeresources
    LightDismiss VisualState(Tail/ContentRoot/HeroContent 四处同换,Web 合并为层根一处) */
 .wui-teaching-tip--transient {
-  background: var(--wui-tool-tip-background); /* TeachingTipTransientBackground ← AcrylicInAppFillColorDefault 近似 */
+  background: var(--wui-teaching-tip-transient-surface);
 }
 
 .wui-teaching-tip--transient.wui-teaching-tip .wui-teaching-tip__tail {
-  fill: var(--wui-tool-tip-background);
+  fill: var(--wui-teaching-tip-transient-surface);
 }
 
 /* —— 尾巴:20×10 下指三角,主轴压边 3px / 伸出 7px;左右基位旋转后包围盒 10×20,
    偏移按旋转中心换算(right/left −12px = 伸出 7px + 压边 3px 的等效落点) —— */
 .wui-teaching-tip__tail {
   position: absolute;
-  fill: var(--wui-flyout-presenter-background);
-  stroke: var(--wui-flyout-border-theme);
+  fill: var(--wui-solid-background-fill-color-tertiary);
+  stroke: var(--wui-surface-stroke-color-default);
   stroke-width: 1;
 }
 
@@ -824,7 +837,7 @@ const viewportAnchorClass = computed(() => {
 .wui-teaching-tip__icon {
   display: inline-flex;
   flex: none;
-  color: var(--wui-default-text-foreground-theme);
+  color: var(--wui-text-fill-color-primary); /* TeachingTipForeground ← TextFillColorPrimary */
 }
 
 .wui-teaching-tip__titles {
@@ -866,7 +879,14 @@ const viewportAnchorClass = computed(() => {
   width: 100%; /* HorizontalAlignment = Stretch */
 }
 
-/* —— 右上角备用关闭钮(AlternateCloseButtonStyle:40×40 / 字形 16 / ControlCornerRadius) —— */
+/* —— 右上角备用关闭钮(AlternateCloseButtonStyle:40×40 / 字形 16 / ControlCornerRadius)。
+   PL10 重定向到权威 Fluent 键(control-brush-matrix.md §1.36 TeachingTipAlternateCloseButton):
+     Background = SubtleFillColorTransparentBrush → --wui-subtle-fill-color-transparent
+     BorderBrush = SubtleFillColorTransparentBrush → --wui-subtle-fill-color-transparent
+     Foreground = TextFillColorPrimaryBrush       → --wui-text-fill-color-primary
+   PointerOver: SubtleFillColorSecondaryBrush(#00000009/#FFFFFF0F);Pressed: SubtleFillColorTertiaryBrush
+   (#00000006/#FFFFFF0A)+ 前景 TextFillColorSecondaryBrush。Disabled 源有独立键,但本组件关闭钮
+   无禁用路径(模板恒启用),故未落 Disabled 状态。 —— */
 .wui-teaching-tip__alt-close {
   position: absolute;
   top: 0;
@@ -880,9 +900,9 @@ const viewportAnchorClass = computed(() => {
   padding: 4px;
   font-family: var(--wui-symbol-theme-font-family);
   font-size: 16px; /* TeachingTipAlternateCloseButtonGlyphSize = 16 */
-  color: var(--wui-app-bar-button-foreground); /* AlternateCloseButtonForeground ← TextFillColorPrimary */
-  background: var(--wui-app-bar-button-background); /* ← SubtleFillColorTransparent(近似,见 wiki) */
-  border: 1px solid transparent;
+  color: var(--wui-text-fill-color-primary); /* AlternateCloseButtonForeground ← TextFillColorPrimary */
+  background: var(--wui-subtle-fill-color-transparent); /* ← SubtleFillColorTransparent */
+  border: 1px solid var(--wui-subtle-fill-color-transparent); /* ← SubtleFillColorTransparent */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius); /* ControlCornerRadius */
   cursor: pointer;
 }
@@ -892,11 +912,15 @@ const viewportAnchorClass = computed(() => {
 }
 
 .wui-teaching-tip__alt-close:hover {
-  background: var(--wui-app-bar-button-background-pointer-over); /* ← SubtleFillColorSecondary(近似) */
+  color: var(--wui-text-fill-color-primary); /* PointerOver 前景同 Normal(TextFillColorPrimary) */
+  background: var(--wui-subtle-fill-color-secondary); /* ← SubtleFillColorSecondary */
+  border-color: var(--wui-subtle-fill-color-secondary); /* ← SubtleFillColorSecondary */
 }
 
 .wui-teaching-tip__alt-close:active {
-  background: var(--wui-app-bar-button-background-pressed); /* ← SubtleFillColorTertiary(近似) */
+  color: var(--wui-text-fill-color-secondary); /* Pressed 前景 ← TextFillColorSecondary */
+  background: var(--wui-subtle-fill-color-tertiary); /* ← SubtleFillColorTertiary */
+  border-color: var(--wui-subtle-fill-color-tertiary); /* ← SubtleFillColorTertiary */
 }
 
 .wui-teaching-tip__alt-close:focus {

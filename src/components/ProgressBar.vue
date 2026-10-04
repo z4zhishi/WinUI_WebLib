@@ -19,8 +19,10 @@ export type ProgressMode =
 <script setup lang="ts">
 // WinUI ProgressBar 复刻。视觉对照源模板 CK/WinUI-Reference/controls/dev/ProgressBar/ProgressBar.xaml
 // (注意:ProgressBar 的 Style/ControlTemplate 不在 generic.xaml,而在该控件目录的 ProgressBar.xaml;
-// 主题资源在 ProgressBar_themeresources.xaml,theme.css 未生成 --wui-progress-* token,故本组件以
-// 局部 --wui-progressbar-* 变量按源值承载,差异记录见 wiki/controls/ProgressBar.md):
+// 主题资源在 ProgressBar_themeresources.xaml)。
+// PL10:颜色已重定向到 PL2 Fluent 画刷族 token(--wui-accent-fill-color-default /
+//   --wui-control-strong-stroke-color-default / --wui-system-fill-color-caution /
+//   --wui-system-fill-color-critical;权威键见 control-brush-matrix.md §1.30)。
 //   总高 3(ProgressBarMinHeight),轨道 1px(ControlStrongStrokeColorDefault)、圆角 0.5,
 //   指示条填满 3px 高(Foreground=AccentFillColorDefaultBrush)、圆角 1.5;
 // 六个进度状态(ProgressBar.xaml CommonStates):Determinate / Error / Paused(确定态变色 167ms)/
@@ -176,47 +178,28 @@ watch(mode, (next) => {
 
 <style scoped>
 /* ======================================================================
- * 颜色变量:ProgressBar 的主题资源位于 controls/dev/ProgressBar/ProgressBar_themeresources.xaml,
- * theme.css(仅抽取 generic.xaml)没有对应 token,故按源值在组件内承载(浅/深两套,
- * 差异说明见 wiki/controls/ProgressBar.md):
- *   Foreground   = AccentFillColorDefaultBrush(浅 = SystemAccentColorDark1,深 = SystemAccentColorLight2,
- *                  经 theme-hooks.css 的系统色钩子,未定义时回退站点约定色)
- *   Track        = ControlStrongStrokeColorDefault(#72000000 / #8BFFFFFF)
- *   Paused       = SystemFillColorCaution(#9D5D00 / #FCE100)
- *   Error        = SystemFillColorCritical(#C42B1C / #FF99A4)
- *   (轨道 #00000072 / #ffffff8b:XAML 源值 #72000000 / #8BFFFFFF 为 AARRGGBB 字节序,
- *   CSS 8 位 hex 为 RRGGBBAA,搬运时需翻转 —— 见 fix round 1 Critical。)
- * 尺寸常量(无 token,按源值):ProgressBarMinHeight=3、ProgressBarTrackHeight=1、
+ * 颜色变量(PL10 重定向到 Fluent 画刷族):ProgressBar 的主题资源位于
+ * controls/dev/ProgressBar/ProgressBar_themeresources.xaml;权威键与值见
+ * docs/pages/color/brush-authority.md / control-brush-matrix.md §1.30。
+ * 本批把组件内承载的硬编码源值改指向 PL2 生效层 token(随 html[data-theme] 切换,
+ * 浅/深值由 theme.css 的 Fluent 画刷族统一给出,组件不再各写两套):
+ *   Foreground = AccentFillColorDefaultBrush → --wui-accent-fill-color-default
+ *   Track      = ControlStrongStrokeColorDefault → --wui-control-strong-stroke-color-default
+ *   Paused     = SystemFillColorCaution      → --wui-system-fill-color-caution
+ *   Error      = SystemFillColorCritical     → --wui-system-fill-color-critical
+ * 尺寸常量(无 token,按源值,本批不动):ProgressBarMinHeight=3、ProgressBarTrackHeight=1、
  *   CornerRadius=1.5、TrackCornerRadius=0.5。
  * ====================================================================== */
 .wui-progressbar {
-  --wui-progressbar-foreground: var(
-    --wui-system-accent-color-dark-1,
-    var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme))
-  );
-  /* XAML ControlStrongStrokeColorDefault(light)= #72000000(AARRGGBB)→ CSS #00000072 */
-  --wui-progressbar-track-fill: #00000072;
-  --wui-progressbar-paused-foreground: #9d5d00;
-  --wui-progressbar-error-foreground: #c42b1c;
+  --wui-progressbar-foreground: var(--wui-accent-fill-color-default);
+  --wui-progressbar-track-fill: var(--wui-control-strong-stroke-color-default);
+  --wui-progressbar-paused-foreground: var(--wui-system-fill-color-caution);
+  --wui-progressbar-error-foreground: var(--wui-system-fill-color-critical);
 }
 
 .wui-progressbar {
   display: block;
   width: 100%;
-}
-
-/* 深色主题(Default 字典)覆盖:scoped 内裸祖先写法(同 InfoBar 约定)—— [data-v] 只落在
-   末位组件选择器上,祖先 html[data-theme='dark'] 保持裸写;特异性 (0,3,0) 高于浅色基线
-   (0,2,0),不依赖样式块顺序。 */
-html[data-theme='dark'] .wui-progressbar {
-  --wui-progressbar-foreground: var(
-    --wui-system-accent-color-light-2,
-    var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme))
-  );
-  /* XAML ControlStrongStrokeColorDefault(dark)= #8BFFFFFF(AARRGGBB)→ CSS #ffffff8b */
-  --wui-progressbar-track-fill: #ffffff8b;
-  --wui-progressbar-paused-foreground: #fce100;
-  --wui-progressbar-error-foreground: #ff99a4;
 }
 
 /* 根 Border(Padding + CornerRadius;BorderThickness 源默认 0,不描边) */
