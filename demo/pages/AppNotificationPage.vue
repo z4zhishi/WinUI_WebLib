@@ -749,7 +749,9 @@ onBeforeUnmount(() => {
 }
 
 .permission-badge.is-granted {
-  color: var(--wui-system-control-foreground-alt-high);
+  /* 常量深紫底(两主题同值)上须用恒白前景:随主题翻转的 alt-high 在深色主题为黑,
+     对比度仅 2.49:1(PL23 同型修正;权威用法见 TreeViewItem.xaml:140 彩色角标白字)。 */
+  color: var(--wui-system-control-foreground-chrome-white);
   background: var(--wui-toggle-switch-curtain-background-theme);
   border-color: var(--wui-system-control-transparent);
 }
@@ -786,7 +788,8 @@ onBeforeUnmount(() => {
   padding: 1px 8px;
   font-size: var(--wui-tool-tip-content-theme-font-size);
   font-weight: 400;
-  color: var(--wui-system-control-foreground-alt-high);
+  /* 同 PL23:常量深紫底改用恒白前景。 */
+  color: var(--wui-system-control-foreground-chrome-white);
   background: var(--wui-toggle-switch-curtain-background-theme);
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
 }

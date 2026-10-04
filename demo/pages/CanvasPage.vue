@@ -335,7 +335,8 @@ const usageCode = computed(() => {
 }
 
 .drag-card--dragging {
-  color: var(--wui-system-control-foreground-alt-high);
+  /* 同 PL23:常量深紫底上改用恒白前景(alt-high 深色主题为黑,2.49:1)。 */
+  color: var(--wui-system-control-foreground-chrome-white);
   background: var(--wui-toggle-switch-curtain-background-theme);
   cursor: grabbing;
 }
