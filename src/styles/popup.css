@@ -8,7 +8,8 @@
  *
  * 引入方式:应用入口 import 一次即可(如 demo/main.ts 加
  * `import '../src/styles/popup.css'`),或由弹层控件各自 import(Vite 构建去重);
- * 本文件已 @import animations.css,关键帧随之加载,无需重复引入。
+ * 本文件已 @import animations.css 与 acrylic.css,关键帧与亚克力材质随之加载,
+ * 无需重复引入。
  *
  * 本文件为普通(非 scoped)样式表:data-theme 主题选择器直接书写,
  * 不经过 plugin-vue 的 scoped :global 编译(该路径存在组件选择器丢失缺陷,
@@ -18,6 +19,8 @@
 
 /* 弹层出入场动画引用的关键帧与时长/缓动 token(须位于文件顶部) */
 @import './animations.css';
+/* 亚克力材质共享层(浮层/下拉底;PL20 接入,详见文件头) */
+@import './acrylic.css';
 
 :root {
   /* ------------------------------------------------------------------

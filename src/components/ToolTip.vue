@@ -42,6 +42,8 @@ import { computed, isRef, nextTick, onBeforeUnmount, onMounted, ref, watch } fro
 import { toValue } from 'vue'
 import { usePopupAnchor, usePopupLayer } from '@/composables/usePopup'
 import type { PopupOffset, PopupPlacement } from '@/composables/usePopup'
+// 亚克力材质共享层(ToolTipBackgroundBrush = AcrylicInAppFillColorDefaultBrush;PL20)
+import '../styles/acrylic.css'
 
 const props = withDefaults(
   defineProps<{

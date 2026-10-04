@@ -67,6 +67,8 @@ const defaultFormatter: NumberBoxFormatter = {
 // 步进按钮与方向键 / 滚轮)才更新 Value 并触发 ValueChanged(非实时),输入过程文本自由编辑;
 // 颜色/字号走 --wui-* token(文本框族 --wui-text-control-*,弹层近似 --wui-flyout-* / popup 基建)。
 import { computed, onBeforeUnmount, ref, useId, watch } from 'vue'
+// 亚克力材质共享层(NumberBoxPopupBackground = AcrylicBackgroundFillColorDefaultBrush;PL20)
+import '../styles/acrylic.css'
 
 defineOptions({ name: 'WuiNumberBox', inheritAttrs: false })
 

@@ -236,6 +236,9 @@ export const WuiNavigationViewItem = defineComponent({
 // NavigationView 宿主:模式解析(Auto 断点)、汉堡按钮、窗格内容(标题/菜单/页脚)、选中模型、事件。
 // (CSS import 置于本块:普通 <script> 块中的 CSS import 经 SFC 编译提升后相对路径会解析失败)
 import '../styles/animations.css'
+// 亚克力材质共享层(NavigationViewDefaultPaneBackground = AcrylicInAppFillColorDefaultBrush,
+// Overlay 窗格;PL20)
+import '../styles/acrylic.css'
 defineOptions({ inheritAttrs: false })
 
 const props = withDefaults(

@@ -1,0 +1,187 @@
+/*
+ * WinUI_WebLib — 亚克力(Acrylic)材质共享层(acrylic.css)
+ *
+ * 复刻 WinUI 3 浮层/下拉底的 in-app acrylic:半透明底 + 背景模糊 + 亮度层 + 着色层。
+ * 权威源:CK/WinUI-Reference/controls/dev/Materials/Acrylic/
+ *   - AcrylicBrush_themeresources.xaml(逐键参数)
+ *   - AcrylicBrush.h(sc_blurRadius = 30 / sc_saturation = 1.25)
+ * 同库的组件级实现见 src/components/AcrylicBrush.vue(完整 mix-blend-mode 分层 + noise,
+ * 供「把画刷当面板背景」的可组合场景);本文件是**浮层消费方**的共享层,不新增 DOM:
+ *
+ *   WinUI 效果图(由下至上)                 → 本层 CSS 映射
+ *   1 Backdrop over FallbackColor            → 元素自身 backdrop-filter 的取样底(页面内容)
+ *     → SaturationEffect(1.25)               → backdrop-filter: saturate(125%)
+ *     → GaussianBlur(30)                     → backdrop-filter: blur(30px)
+ *   2 Luminosity blend(luminosityColor)      → background-color(rgba 亮度层,alpha = TintLuminosityOpacity)
+ *   3 Color blend(effectiveTintColor)        → background-image: linear-gradient(平铺 tint 色,
+ *                                              alpha = TintOpacity)
+ *   4 noise(2%)                              → 省略(浮层上不可辨;差异见报告)
+ *
+ * 近似说明:步骤 2/3 在源中是 blend effect,本层以「普通 alpha 合成」等价呈现。对本文件覆盖的
+ * 全部消费方(tint 为中性灰 #2C2C2C / #FCFCFC,saturation = 0),luminosity blend 的结果即该灰色
+ * 本身、color blend 对灰阶结果无彩度可改,故 alpha 合成与 blend 结果一致(色值逐位相同,见报告
+ * §3 换算表)。彩色(accent)亚克力不在本文件范围,应使用 AcrylicBrush.vue。
+ *
+ * tint/luminosity/fallback 取值(源 AcrylicBrush_themeresources.xaml):
+ *   Light  L95-96:AcrylicBackgroundFillColorDefaultBrush / AcrylicInAppFillColorDefaultBrush
+ *                 Tint #FCFCFC TintOpacity 0.0 Fallback #F9F9F9 TintLuminosityOpacity 0.85
+ *   Default L43-44(本库 :root[data-theme="dark"]):
+ *                 Tint #2C2C2C TintOpacity 0.15 Fallback #2C2C2C TintLuminosityOpacity 0.96
+ *   Light/Default 两档键值在源中**逐字相同** → 单层覆盖全部消费方。
+ *   (AcrylicBackgroundFillColorBaseBrush / …InverseBrush / AccentAcrylic… 在 controls/dev 中
+ *    无任何控件消费方引用,不引入;DesktopAcrylicTransparentBrush 为 #00000000 透明画刷,
+ *    可见材质来自 SystemBackdrop(MenuFlyout),其回退即本层的 FallbackColor。)
+ *
+ * 接入方式:popup.css 顶部 @import 本文件(浮层基建),或组件/应用入口直接 import。
+ * 应用可在元素上覆写 --wui-acrylic-* 变量自定义材质参数(层叠规则生效)。
+ */
+
+/* ======================================================================
+ * 一、材质参数 token(随 data-theme 切换;应用可覆写)
+ * ====================================================================== */
+
+:root,
+:root[data-theme="light"] {
+  /* AcrylicBrush.h:sc_blurRadius = 30.0f / sc_saturation = 1.25f(后者按官方材质文档用于
+     backdrop 饱和度;源 in-app 效果图未接线,见 AcrylicBrush.vue 常量注释) */
+  --wui-acrylic-blur-radius: 30px;
+  --wui-acrylic-saturation: 125%;
+  --wui-acrylic-blur: blur(var(--wui-acrylic-blur-radius)) saturate(var(--wui-acrylic-saturation));
+
+  /* Tint #FCFCFC / TintOpacity 0.0 → rgba(252,252,252,0) */
+  --wui-acrylic-default-tint: rgba(252, 252, 252, 0);
+  /* TintLuminosityOpacity 0.85 */
+  --wui-acrylic-default-luminosity: rgba(252, 252, 252, 0.85);
+  /* FallbackColor #F9F9F9 */
+  --wui-acrylic-default-fallback: #f9f9f9;
+}
+
+:root[data-theme="dark"] {
+  /* Tint #2C2C2C / TintOpacity 0.15 → rgba(44,44,44,0.15) */
+  --wui-acrylic-default-tint: rgba(44, 44, 44, 0.15);
+  /* TintLuminosityOpacity 0.96 */
+  --wui-acrylic-default-luminosity: rgba(44, 44, 44, 0.96);
+  /* FallbackColor #2C2C2C */
+  --wui-acrylic-default-fallback: #2c2c2c;
+}
+
+/* ======================================================================
+ * 二、亚克力面(逐消费方接入 · 源键 → 选择器)
+ * ----------------------------------------------------------------------
+ * 全部以 !important 落地:消费方各自的 scoped 规则(带 [data-v] 属性选择器,特异性 0,2,0)
+ * 仍保留其不透明 background 作为「无本层时的自然底色」,此处覆盖为亚克力;几何/描边/内边距/
+ * 动效一律不涉及(仅 background-color / background-image / backdrop-filter 三个绘制属性)。
+ * background-clip 等其它背景长属性不受影响(故不写 background 简写,避免重置 InnerBorderEdge)。
+ *
+ * 源键 → 消费方:
+ *   FlyoutPresenterBackground = AcrylicInAppFillColorDefaultBrush(FlyoutPresenter_themeresources L5/L15)
+ *     → .wui-popup-skin-flyout(Flyout.vue / SplitButton 飞出层)
+ *   MenuFlyoutPresenterBackground = DesktopAcrylicTransparentBrush + SystemBackdrop 材质(L40/L202、
+ *     L53/L105;材质回退 = AcrylicBackgroundFillColorDefaultBrush)
+ *     → .wui-menu-flyout-layer(MenuFlyout / MenuFlyoutSubItem / MenuBarItem / CommandBar 溢出层)
+ *   ComboBoxDropDownBackground = AcrylicInAppFillColorDefaultBrush(L63/L273)→ .wui-combo-box-dropdown
+ *   DatePickerFlyoutPresenterBackground = AcrylicBackgroundFillColorDefaultBrush(L30/L102)
+ *     → .wui-date-picker-layer
+ *   TimePickerFlyoutPresenterBackground = AcrylicBackgroundFillColorDefaultBrush(L24/L96)
+ *     → .wui-time-picker-layer
+ *   ToolTipBackgroundBrush = AcrylicInAppFillColorDefaultBrush(L14/L38)→ .wui-popup-skin-tooltip / .wui-tooltip
+ *   CommandBarOverflowPresenterBackground = AcrylicInAppFillColorDefaultBrush(L16/L60)
+ *     → .wui-commandbar__overflow(同带 .wui-menu-flyout-layer)
+ *   TeachingTipTransientBackground = AcrylicInAppFillColorDefaultBrush(L7/L29/L51)
+ *     → .wui-teaching-tip--transient(LightDismiss 态)
+ *   NavigationViewDefaultPaneBackground = AcrylicInAppFillColorDefaultBrush(L5/L71)
+ *     → .wui-navview 的 Overlay 窗格
+ *   NumberBoxPopupBackground = AcrylicBackgroundFillColorDefaultBrush(NumberBox_themeresources L6/L14)
+ *     → .wui-number-box-popup
+ *   AutoSuggestBoxSuggestionsListBackground = AcrylicBackgroundFillColorDefaultBrush(L5/L17)
+ *     → .wui-auto-suggest-box-dropdown
+ *   BreadcrumbBarEllipsisFlyoutPresenterBackground = AcrylicBackgroundFillColorDefaultBrush(L29/L60)
+ *     → .wui-breadcrumb-dropdown
+ * ====================================================================== */
+
+.wui-popup-skin-flyout,
+.wui-popup-skin-tooltip,
+.wui-menu-flyout-layer,
+.wui-combo-box-dropdown,
+.wui-date-picker-layer,
+.wui-time-picker-layer,
+.wui-tooltip,
+.wui-commandbar__overflow,
+.wui-number-box-popup,
+.wui-auto-suggest-box-dropdown,
+.wui-breadcrumb-dropdown,
+.wui-teaching-tip--transient,
+.wui-navview .wui-splitview--is-overlay .wui-splitview__pane-inner {
+  /* 亮度层(Luminosity blend → alpha 合成) */
+  background-color: var(--wui-acrylic-default-luminosity) !important;
+  /* 着色层(Color blend → alpha 合成);tint 为平铺纯色,用 linear-gradient 表达为背景图 */
+  background-image: linear-gradient(
+    var(--wui-acrylic-default-tint),
+    var(--wui-acrylic-default-tint)
+  ) !important;
+  /* 背景模糊 + 饱和度(取样元素背后的页面内容) */
+  -webkit-backdrop-filter: var(--wui-acrylic-blur) !important;
+  backdrop-filter: var(--wui-acrylic-blur) !important;
+}
+
+/* ======================================================================
+ * 三、回退(与透明降级同口径)
+ * ----------------------------------------------------------------------
+ * 回退值 = 源 FallbackColor(浅 #F9F9F9 / 深 #2C2C2C),即 WinUI 材质不可用时的整面纯色。
+ * 触发条件两类,均**不写入 prefers-reduced-motion 块**(与动效降级独立):
+ *   1. 环境不支持 backdrop-filter(@supports not)
+ *   2. 用户开启「减弱透明度」prefers-reduced-transparency(渐进增强;Chromium 目前未实现
+ *      该媒体特性,故在 Chromium 上恒不触发,Firefox/Safari 支持)
+ * 应用亦可对元素加 .wui-acrylic-fallback 手动强制(映射 WinUI AlwaysUseFallback / 省电模式)。
+ * ====================================================================== */
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .wui-popup-skin-flyout,
+  .wui-popup-skin-tooltip,
+  .wui-menu-flyout-layer,
+  .wui-combo-box-dropdown,
+  .wui-date-picker-layer,
+  .wui-time-picker-layer,
+  .wui-tooltip,
+  .wui-commandbar__overflow,
+  .wui-number-box-popup,
+  .wui-auto-suggest-box-dropdown,
+  .wui-breadcrumb-dropdown,
+  .wui-teaching-tip--transient,
+  .wui-navview .wui-splitview--is-overlay .wui-splitview__pane-inner {
+    background-color: var(--wui-acrylic-default-fallback) !important;
+    background-image: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .wui-popup-skin-flyout,
+  .wui-popup-skin-tooltip,
+  .wui-menu-flyout-layer,
+  .wui-combo-box-dropdown,
+  .wui-date-picker-layer,
+  .wui-time-picker-layer,
+  .wui-tooltip,
+  .wui-commandbar__overflow,
+  .wui-number-box-popup,
+  .wui-auto-suggest-box-dropdown,
+  .wui-breadcrumb-dropdown,
+  .wui-teaching-tip--transient,
+  .wui-navview .wui-splitview--is-overlay .wui-splitview__pane-inner {
+    background-color: var(--wui-acrylic-default-fallback) !important;
+    background-image: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+/* 手动强制回退(置于最后,胜过上方同特异性的面规则!important):
+   应用把它加到浮层元素上即可关掉该面的亚克力(WinUI AlwaysUseFallback 等价)。 */
+.wui-acrylic-fallback {
+  background-color: var(--wui-acrylic-default-fallback) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}

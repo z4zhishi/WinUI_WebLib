@@ -39,6 +39,8 @@ import { computed, nextTick, onUnmounted, ref, useAttrs, useId, watch } from 'vu
 import { usePopupAnchor, usePopupLayer } from '@/composables/usePopup'
 import { useReveal } from '../composables/useReveal'
 import '../styles/reveal.css'
+// 亚克力材质共享层(ComboBoxDropDownBackground = AcrylicInAppFillColorDefaultBrush;PL20)
+import '../styles/acrylic.css'
 
 defineOptions({ name: 'WuiComboBox', inheritAttrs: false })
 
