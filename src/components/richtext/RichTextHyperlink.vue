@@ -1,9 +1,11 @@
 <script setup lang="ts">
 // RichTextHyperlink —— XAML 文档模型的行内超链接(Inline 元素,区别于控件 HyperlinkButton)。
-// 视觉对照 generic.xaml:默认前景 SystemControlHyperlinkTextBrush(= 主题强调色,
-// token --wui-hyperlink-button-foreground),内联 Hyperlink 默认带下划线;
-// 悬停/按下变色沿用同族笔刷(PageTextBaseMedium / HighlightBaseMediumLow,即
-// --wui-hyperlink-button-foreground-pointer-over / -pressed,与 HyperlinkButton 一致的调色板);
+// 视觉对照 WinUI 3 生效层 controls/dev/CommonStyles/Hyperlink_themeresources.xaml:
+// HyperlinkForeground = AccentTextFillColorPrimaryBrush(Default/Light 两字典同键,L5/L15),
+// 即主题派生的强调文本画刷 token --wui-accent-text-fill-color-primary(浅 SystemAccentColorDark2、
+// 深 SystemAccentColorLight3);内联 Hyperlink 默认带下划线;
+// 悬停/按下沿用同族权威笔刷 AccentTextFillColorSecondary / Tertiary
+// (token --wui-accent-text-fill-color-secondary / -tertiary,与 HyperlinkButton 一致的调色板);
 // 焦点:HyperlinkFocusRectCornerRadius=4,近似为 :focus-visible outline。
 // 语义:navigateUri 有值渲染 <a>(浏览器默认导航,处理器内 event.preventDefault() 可拦截);
 // 为空渲染 role="link" 的行内 span(仅触发 click;Enter/Space 激活,对应 WinUI 只处理 Click 的用法)。
@@ -17,7 +19,7 @@ const props = withDefaults(
     target?: string
     /** 是否显示下划线(WinUI 内联 Hyperlink 默认带下划线)。 */
     underline?: boolean
-    /** 前景色;默认主题强调色 token,可显式覆盖(对应 Hyperlink.Foreground)。 */
+    /** 前景色;默认 AccentTextFillColorPrimary 语义 token,可显式覆盖(对应 Hyperlink.Foreground)。 */
     foreground?: string
   }>(),
   { underline: true },
@@ -94,8 +96,11 @@ function onKeydown(event: KeyboardEvent): void {
 
 <style scoped>
 .wui-richtext-hyperlink {
-  /* Normal = SystemControlHyperlinkTextBrush(主题强调色),可被 foreground prop 覆盖 */
-  color: var(--wui-hyperlink-button-foreground);
+  /* Normal = HyperlinkForeground = AccentTextFillColorPrimaryBrush(PL22 订正):此前用 legacy
+     --wui-hyperlink-button-foreground(原始强调色,浅深同为 #0078D4),在重定向后的 Fluent
+     卡片底(#FBFBFB / #2B2B2B)上仅 4.39 / 3.12,不达 WCAG AA;权威生效层两主题均取
+     主题派生的 AccentTextFillColorPrimary。可被 foreground prop 覆盖 */
+  color: var(--wui-accent-text-fill-color-primary);
   /* 内联 Hyperlink 默认带下划线(HyperlinkUnderlineVisible 家族行为) */
   text-decoration-line: underline;
   cursor: pointer;
@@ -107,14 +112,14 @@ function onKeydown(event: KeyboardEvent): void {
   text-decoration-line: none;
 }
 
-/* PointerOver = SystemControlPageTextBaseMedium(变灰),与 HyperlinkButton 同族 */
+/* PointerOver = 权威 HyperlinkForegroundPointerOver = AccentTextFillColorSecondary,与 HyperlinkButton 同族 */
 .wui-richtext-hyperlink:hover {
-  color: var(--wui-hyperlink-button-foreground-pointer-over);
+  color: var(--wui-accent-text-fill-color-secondary);
 }
 
-/* Pressed = SystemControlHighlightBaseMediumLow */
+/* Pressed = 权威 HyperlinkForegroundPressed = AccentTextFillColorTertiary */
 .wui-richtext-hyperlink:active {
-  color: var(--wui-hyperlink-button-foreground-pressed);
+  color: var(--wui-accent-text-fill-color-tertiary);
 }
 
 /* 焦点矩形:HyperlinkFocusRectCornerRadius=4 → 近似为 primary 色单环 outline */

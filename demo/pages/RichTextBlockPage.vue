@@ -28,6 +28,18 @@ const HIGHLIGHT_COLORS: Record<string, string | undefined> = {
   Blue: '#0000FF',
 }
 
+// 高亮片段的文字色:官方 TextHighlighter 只设 Background(见 CK/WinUI-Gallery/.../
+// RichtextblockCustomTexthighlighting.txt),Foreground 未设 → 文字沿用主题默认前景;
+// 深色主题下主题前景为白,压在纯黄高亮底上仅 1.05:1,不可读。此为 demo 内容级可读性补足:
+// 按高亮底亮度取黑/白字(官方高亮色不修改、不涉及任何控件皮肤)。
+// Yellow/Red 取黑字(19.6:1 / 5.25:1),Blue 取白字(8.59:1)。
+const HIGHLIGHT_FOREGROUNDS: Record<string, string | undefined> = {
+  None: undefined,
+  Yellow: '#000000',
+  Red: '#000000',
+  Blue: '#FFFFFF',
+}
+
 const OFFICIAL_DOCS_URI =
   'https://learn.microsoft.com/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.controls.richtextblock'
 
@@ -58,6 +70,7 @@ const lineHeightValue = computed(() => asNumber(lineHeight.value, 0))
 const maxHeightValue = computed(() => asNumber(maxHeight.value, 0))
 const selectableValue = computed(() => selectable.value === true)
 const highlightCss = computed(() => HIGHLIGHT_COLORS[asString(highlightColor.value)])
+const highlightFg = computed(() => HIGHLIGHT_FOREGROUNDS[asString(highlightColor.value)])
 
 const alignmentValue = computed<'Left' | 'Center' | 'Right' | 'Justify'>(() => {
   const value = asString(textAlignment.value)
@@ -200,7 +213,7 @@ const usageCode = computed(() => {
               >比 TextBlock 更丰富的格式化能力</WuiRichTextRun
             >:可以给任意文字片段应用<WuiRichTextUnderline>下划线</WuiRichTextUnderline>、字色、字距,也可以内嵌
             <WuiRichTextHyperlink :navigate-uri="OFFICIAL_DOCS_URI" target="_blank">官方文档链接</WuiRichTextHyperlink
-            >,高亮一关键词:<WuiRichTextRun :highlight="highlightCss">富文本</WuiRichTextRun>。
+            >,高亮一关键词:<WuiRichTextRun :highlight="highlightCss" :foreground="highlightFg">富文本</WuiRichTextRun>。
           </WuiRichTextParagraph>
           <WuiRichTextParagraph :text-indent="fontSizeValue * 2" :margin="12">
             段落级排版由 <WuiRichTextSpan font-weight="Bold">Paragraph</WuiRichTextSpan> 承担:首行缩进
@@ -241,7 +254,7 @@ const usageCode = computed(() => {
             <WuiRichTextBlock font-weight="Normal">
               <WuiRichTextParagraph>
                 Lorem ipsum dolor sit amet,
-                <WuiRichTextRun :highlight="highlightCss">consectetur adipiscing</WuiRichTextRun>
+                <WuiRichTextRun :highlight="highlightCss" :foreground="highlightFg">consectetur adipiscing</WuiRichTextRun>
                 elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua
               </WuiRichTextParagraph>
             </WuiRichTextBlock>

@@ -31,8 +31,8 @@ const PAGE_DESCRIPTION: BilingualText = {
 }
 const SEC_HOOKS: BilingualText = { zh: '系统色钩子与强调色', en: 'System color hooks & accent' }
 const HOOKS_GUIDE: BilingualText = {
-  zh: '强调色(SystemAccentColor)与 Win32 高亮色等系统色由 Windows 提供,theme.css 不定义、以 var() 钩子引用(共 8 个,被 210+ 处画刷引用);theme-hooks.css 给出 WinUI 3 在 Windows 11 上的默认呈现值。应用按常规层叠规则在 :root 或任意子树重新声明同名变量即可覆盖——下方演示区即子树覆盖:切换后强调按钮、滑轨填充、超链接、开关覆层、复选勾、聚焦框全部跟随,因为它们都最终引用同一钩子。',
-  en: 'System colors like SystemAccentColor are provided by Windows, so theme.css leaves them as var() hooks (8 total, referenced by 210+ brushes) with WinUI 3 defaults in theme-hooks.css. Apps override them by re-declaring the variable at :root or any subtree. The demo below overrides the hook on a subtree: the accent button, slider fill, hyperlink, toggle curtain, check mark and focus ring all follow, since they resolve to the same hook.',
+  zh: '强调色(SystemAccentColor)与 Win32 高亮色等系统色由 Windows 提供,theme.css 不定义、以 var() 钩子引用(共 8 个,被 210+ 处画刷引用);theme-hooks.css 给出 WinUI 3 在 Windows 11 上的默认呈现值。应用按常规层叠规则在 :root 或任意子树重新声明同名变量即可覆盖——下方演示区即子树覆盖:切换后强调按钮、滑轨填充、开关覆层、复选勾、聚焦框全部跟随,因为它们都最终引用同一钩子(行内超链接改用主题派生的 AccentTextFillColorPrimary 强调文本画刷,为达 WCAG AA 取固定主题派生值,不随单一钩子覆盖变化)。',
+  en: 'System colors like SystemAccentColor are provided by Windows, so theme.css leaves them as var() hooks (8 total, referenced by 210+ brushes) with WinUI 3 defaults in theme-hooks.css. Apps override them by re-declaring the variable at :root or any subtree. The demo below overrides the hook on a subtree: the accent button, slider fill, toggle curtain, check mark and focus ring all follow, since they resolve to the same hook (the inline hyperlink uses the theme-derived AccentTextFillColorPrimary text brush, a fixed per-theme value that does not track a single hook override, for WCAG AA).',
 }
 const HOOKS_DEMO_CAPTION: BilingualText = {
   zh: '子树覆盖演示:容器上重声明 --wui-system-accent-color 后,一切引用强调色的 token 同步变化',
@@ -575,9 +575,14 @@ const usageCode = `/* 颜色一律经 token 引用,随 html[data-theme] 明暗�
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
 }
 
+/* 超链接样例:WinUI 3 行内 Hyperlink 权威前景 = AccentTextFillColorPrimaryBrush
+   (controls/dev/Hyperlink_themeresources.xaml L5/L15),即主题派生的强调文本画刷;
+   此前用 legacy --wui-hyperlink-button-foreground(原始强调色 #0078D4),在重定向后的
+   Fluent 卡片底 #FBFBFB / #2B2B2B 上仅 4.39 / 3.12,不达 WCAG AA。该画刷为固定的主题
+   派生值(浅 Dark2 / 深 Light3),不随容器对 --wui-system-accent-color 的子树覆盖变化。 */
 .demo-hyperlink {
   font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-hyperlink-button-foreground);
+  color: var(--wui-accent-text-fill-color-primary);
   text-decoration: underline;
 }
 

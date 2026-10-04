@@ -454,8 +454,12 @@ const usageCode = `<WuiItemsRepeater
   color: var(--wui-application-secondary-foreground-theme);
 }
 
+/* 统计高亮数字:强调文本用主题派生的 AccentTextFillColorPrimary 文本画刷
+   (WinUI 3 强调文本权威键 AccentTextFillColorPrimaryBrush;此前用 legacy
+   --wui-system-control-foreground-accent = 原始强调色 #0078D4,在 Fluent 卡片底
+   #FBFBFB / #2B2B2B 上仅 4.39 / 3.12,不达 WCAG AA)。 */
 .stats-accent {
-  color: var(--wui-system-control-foreground-accent);
+  color: var(--wui-accent-text-fill-color-primary);
   font-weight: 600;
 }
 
