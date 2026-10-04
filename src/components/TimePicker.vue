@@ -4,7 +4,7 @@
 //   - TargetType="TimePicker"(L10660 起)收起态:
 //     · FlyoutButton = 单行字段按钮,内嵌 3 段文本(时/分/AM-PM)+ 2 条 2px 分割线;
 //       按钮 MinWidth 242(TimePickerThemeMinWidth)、MaxWidth 456(TimePickerThemeMaxWidth)、
-//       ContentPresenter BorderThickness 2、圆角 ControlCornerRadius(4px);
+//       ContentPresenter BorderThickness 1(PL7 起)、圆角 ControlCornerRadius(4px);
 //       文本内边距 TimePickerFlyoutPresenterItemPadding 0,3,0,6,三段均居中对齐;
 //       HasNoTime 态三段前景转 TextControlPlaceholderForeground;
 //       按钮各态画刷 TimePickerButtonBackground/BorderBrush/Foreground ×
@@ -563,7 +563,7 @@ function optionId(key: ColumnKey, index: number): string {
     <!-- HeaderContentPresenter:TimePickerTopHeaderMargin = 0,0,0,4 -->
     <div v-if="header" class="wui-time-picker-header">{{ header }}</div>
 
-    <!-- 收起态字段(FlyoutButton):2px 描边 + 三段文本 + 2px 分割线,MinHeight 32 -->
+    <!-- 收起态字段(FlyoutButton):1px 描边 + 三段文本 + 2px 分割线,MinHeight 32 -->
     <button
       ref="anchorRef"
       type="button"
@@ -684,7 +684,7 @@ function optionId(key: ColumnKey, index: number): string {
 <style scoped>
 /*
  * 结构对照 generic.xaml:
- * - 收起字段 = TimePickerFlyoutButtonStyle 的 ContentPresenter(BorderThickness 2、三段文本);
+ * - 收起字段 = TimePickerFlyoutButtonStyle 的 ContentPresenter(BorderThickness 1、三段文本);
  * - 飞出层 = TimePickerFlyoutPresenter 的 Border(1px 描边 + 8px 圆角)+ PickerHostGrid
  *   (三列等宽 + 2px 分割线 + 中央 40px 高亮带)+ AcceptDismissHostGrid(41px);
  * - 每列 = 3 行 40px 视口 + PointerOver 才显示的 22px 展开钮(LoopingSelector 模板)。
@@ -702,7 +702,8 @@ function optionId(key: ColumnKey, index: number): string {
 /* —— 标头(TimePickerTopHeaderMargin 0,0,0,4)—— */
 .wui-time-picker-header {
   margin: 0 0 4px;
-  color: var(--wui-time-picker-header-foreground);
+  /* TimePickerHeaderForeground = TextFillColorPrimaryBrush(#000000E4 / #FFFFFF) */
+  color: var(--wui-text-fill-color-primary);
 }
 
 /* ======================================================================
@@ -713,6 +714,7 @@ function optionId(key: ColumnKey, index: number): string {
  *  FocusStates.Focused 为空态 → 聚焦不改厚度,焦点由系统焦点视觉承担)。
  * ====================================================================== */
 .wui-time-picker-field {
+  position: relative; /* PL18:描边渐变环(::before)的定位基准 */
   box-sizing: border-box; /* 源 MinHeight 32 含 1px 边框 */
   display: block;
   min-width: 242px; /* TimePickerThemeMinWidth */
@@ -720,30 +722,65 @@ function optionId(key: ColumnKey, index: number): string {
   min-height: 32px; /* 源 FlyoutButton 高度 */
   padding: 0;
   font: inherit;
-  color: var(--wui-time-picker-button-foreground);
+  /* TimePickerButtonForeground = TextFillColorPrimaryBrush(#000000E4 / #FFFFFF) */
+  color: var(--wui-text-fill-color-primary);
   text-align: inherit;
-  background: var(--wui-time-picker-button-background);
-  border: 1px solid var(--wui-time-picker-button-border); /* TimePickerBorderThemeThickness = 1 */
-  border-radius: 4px; /* CornerRadius = ControlCornerRadius(theme.css 无同名 token) */
+  /* TimePickerButtonBackground = ControlFillColorDefaultBrush(#FFFFFFB3 / #FFFFFF0F) */
+  background: var(--wui-control-fill-color-default);
+  /* 描边由下方 ::before 渐变环呈现(border 保持透明占位,不参与布局) */
+  border: 1px solid var(--wui-control-fill-color-transparent);
+  border-radius: 4px; /* CornerRadius = ControlCornerRadius */
   cursor: pointer;
   outline: none;
+  /* Normal / PointerOver 边框 = TimePickerButtonBorderBrush(PointerOver)
+     = ControlElevationBorderBrush(渐变,PL5 --wui-control-elevation-border) */
+  --tp-elevation-border: var(--wui-control-elevation-border);
+}
+
+/* ======================================================================
+ * PL18 字段立体描边环(TimePickerButtonBorderBrush = ControlElevationBorderBrush):
+ * 与 DatePicker 同款「内嵌 mask 环」(PL5/PL6 方案):绝对定位伪元素铺满,
+ * background 取渐变,mask 差集挖空中心只留 1px 一圈;inset:-1px 把环外缘推回
+ * border-box 边缘;绝对定位不参与布局 → 几何/圆角/边框宽/内边距不变。
+ * 纯色状态(Pressed/Disabled)把 --tp-elevation-border 置 none,由 border-color 呈现。
+ * ====================================================================== */
+.wui-time-picker-field::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--tp-elevation-border, none);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 /* —— 状态优先级(对照 VSM):Disabled > Focused > Pressed/Open > PointerOver > Normal —— */
 .wui-time-picker:not(.wui-time-picker--disabled) .wui-time-picker-field:hover {
-  color: var(--wui-time-picker-button-foreground-pointer-over);
-  background: var(--wui-time-picker-button-background-pointer-over);
-  border-color: var(--wui-time-picker-button-border-brush-pointer-over);
+  /* TimePickerButtonForegroundPointerOver = TextFillColorPrimaryBrush */
+  color: var(--wui-text-fill-color-primary);
+  /* TimePickerButtonBackgroundPointerOver = ControlFillColorSecondaryBrush(#F9F9F980 / #FFFFFF15) */
+  background: var(--wui-control-fill-color-secondary);
+  /* TimePickerButtonBorderBrushPointerOver = ControlElevationBorderBrush(渐变)→ 环保持 */
 }
 
 .wui-time-picker:not(.wui-time-picker--disabled) .wui-time-picker-field:active,
 .wui-time-picker:not(.wui-time-picker--disabled).wui-time-picker--open .wui-time-picker-field {
-  color: var(--wui-time-picker-button-foreground-pressed);
-  background: var(--wui-time-picker-button-background-pressed);
-  border-color: var(--wui-time-picker-button-border-brush-pressed);
+  /* TimePickerButtonForegroundPressed = TextFillColorSecondaryBrush(#0000009E / #FFFFFFC5) */
+  color: var(--wui-text-fill-color-secondary);
+  /* TimePickerButtonBackgroundPressed = ControlFillColorTertiaryBrush(#F9F9F94D / #FFFFFF08) */
+  background: var(--wui-control-fill-color-tertiary);
+  /* TimePickerButtonBorderBrushPressed = ControlStrokeColorDefaultBrush(纯色)→ 环 none */
+  border-color: var(--wui-control-stroke-color-default);
+  --tp-elevation-border: none;
 }
 
-/* 聚焦态(FocusStates.Focused 只动 Background / Foreground,边框保持) */
+/* 聚焦态:源 FocusStates.Focused 为空态 → 权威不覆写底色/前景/边框,聚焦由系统焦点视觉承担。
+   本库既有实现以强调色浅底作为焦点视觉(PL7 §8-8 已登记待裁),PL18 未改;
+   边框沿 Normal/PointerOver 的渐变环不变。 */
 .wui-time-picker:not(.wui-time-picker--disabled) .wui-time-picker-field:focus-visible {
   color: var(--wui-time-picker-button-foreground-focused);
   background: var(--wui-time-picker-button-background-focused);
@@ -775,20 +812,26 @@ function optionId(key: ColumnKey, index: number): string {
   background: var(--wui-time-picker-spacer-fill);
 }
 
-/* 空值态(HasNoTime):三段前景转占位前景 */
+/* 空值态(HasNoTime):三段前景转 TimePickerButtonForegroundDefault
+   = TextFillColorSecondaryBrush(#0000009E / #FFFFFFC5) */
 .wui-time-picker--empty .wui-time-picker-seg {
-  color: var(--wui-text-control-placeholder-foreground);
+  color: var(--wui-text-fill-color-secondary);
 }
 
 /* 禁用态(Disabled:字段背景/边框/前景 + 标头 + 分割线) */
 .wui-time-picker--disabled .wui-time-picker-header {
-  color: var(--wui-time-picker-header-foreground-disabled);
+  /* TimePickerHeaderForegroundDisabled = TextFillColorDisabledBrush(#0000005C / #FFFFFF5D) */
+  color: var(--wui-text-fill-color-disabled);
 }
 
 .wui-time-picker--disabled .wui-time-picker-field {
-  color: var(--wui-time-picker-button-foreground-disabled);
-  background: var(--wui-time-picker-button-background-disabled);
-  border-color: var(--wui-time-picker-button-border-brush-disabled);
+  /* TimePickerButtonForegroundDisabled = TextFillColorDisabledBrush(#0000005C / #FFFFFF5D) */
+  color: var(--wui-text-fill-color-disabled);
+  /* TimePickerButtonBackgroundDisabled = ControlFillColorDisabledBrush(#F9F9F94D / #FFFFFF0B) */
+  background: var(--wui-control-fill-color-disabled);
+  /* TimePickerButtonBorderBrushDisabled = ControlStrokeColorDefaultBrush(纯色)→ 环 none */
+  border-color: var(--wui-control-stroke-color-default);
+  --tp-elevation-border: none;
   cursor: default;
 }
 
@@ -798,7 +841,7 @@ function optionId(key: ColumnKey, index: number): string {
 
 /* 禁用 + 空值:禁用前景优先(与源 Disabled / HasNoTime 状态优先级一致) */
 .wui-time-picker--disabled .wui-time-picker-seg {
-  color: var(--wui-time-picker-button-foreground-disabled);
+  color: var(--wui-text-fill-color-disabled);
 }
 
 /* ======================================================================
@@ -811,7 +854,8 @@ function optionId(key: ColumnKey, index: number): string {
   font-size: var(--wui-control-content-theme-font-size); /* FlyoutPresenter FontSize = ControlContentThemeFontSize */
   color: var(--wui-looping-selector-item-foreground);
   background: var(--wui-time-picker-flyout-presenter-background);
-  border: 1px solid var(--wui-time-picker-flyout-presenter-border); /* DateTimeFlyoutBorderThickness */
+  /* TimePickerFlyoutPresenterBorderBrush = SurfaceStrokeColorFlyoutBrush(#0000000F / #00000033) */
+  border: 1px solid var(--wui-surface-stroke-color-flyout); /* DateTimeFlyoutBorderThickness = 1 */
   border-radius: var(--wui-popup-corner-radius, 8px); /* OverlayCornerRadius */
   user-select: none;
   -webkit-user-select: none;
