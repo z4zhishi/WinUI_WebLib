@@ -13,8 +13,8 @@
 //     (多选态 0,0,14,0,模板 L106/L115/L143);
 //   - 多选复选框:32px 槽位、Margin 10,0,0,0、MinHeight 28(模板 L138);选中态边框/勾选字形
 //     TextFillColorSecondary、背景透明(themeresources L30-L32);
-//   - 四交互态配色见 TreeView_themeresources.xaml L5-L43(Subtle*/TextFill* 系,theme.css 无同名
-//     token,取最近似 --wui-* 映射,对照表见 wiki/controls/TreeView.md 差异节)。
+//   - 四交互态配色见 TreeView_themeresources.xaml L5-L43(SubtleFill 与 TextFill 两系,
+//     已重定向到 theme.css 同名 Fluent token,对照表见 wiki/controls/TreeView.md 差异节)。
 // 展开/收起动画:WinUI 用 ListView 容器布局变化,Web 以 grid-template-rows 0fr/1fr 过渡等价
 //   (同 Expander 方案);字形旋转过渡为 AnimatedVisualPlayer 翻面的 Web 等价。
 // 多选复选框为三态(WinUI TreeView 多选沿用模板内的原生 CheckBox,CheckBox 本身即三态):
@@ -295,8 +295,8 @@ const ariaSelected = computed(() => (selectable.value ? selected.value : undefin
   margin: 4px 2px; /* TreeViewItemPresenterMargin = 4,2 */
   padding: 3px 0 5px; /* TreeViewItemPresenterPadding = 0,3,0,5 */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius); /* ControlCornerRadius=4 最近似 */
-  color: var(--wui-default-text-foreground-theme); /* TextFillColorPrimary 最近似 */
-  background: transparent; /* TreeViewItemBackground(SubtleFillColorTransparent) */
+  color: var(--wui-text-fill-color-primary); /* TreeViewItemForeground = TextFillColorPrimaryBrush */
+  background: var(--wui-subtle-fill-color-transparent); /* TreeViewItemBackground = SubtleFillColorTransparentBrush */
   outline: none;
   user-select: none;
   -webkit-user-select: none;
@@ -310,32 +310,35 @@ const ariaSelected = computed(() => (selectable.value ? selected.value : undefin
   padding-left: 16px; /* 每层 16 槽位:字形落点 16+16*depth,与源 UpdateIndentation 累计一致 */
 }
 
-/* —— 四交互态(Subtle 与 TextFill 系 → 最近似 token,对照表见 wiki 差异节)—— */
+/* —— 四交互态(TreeView_themeresources.xaml L5-L43:SubtleFill 与 TextFill 系 Fluent token)—— */
 .wui-treeview-item-row.wui-treeview-item--selectable,
 .wui-treeview-item--expanded > .wui-treeview-item-row {
   cursor: pointer;
 }
 
 .wui-treeview-item-row:not(.wui-treeview-item--disabled):hover {
-  background: var(--wui-grid-view-item-background-pointer-over); /* PointerOver ← SubtleFillColorSecondary */
-  color: var(--wui-default-text-foreground-theme); /* ForegroundPointerOver ← TextFillColorPrimary */
+  background: var(--wui-subtle-fill-color-secondary); /* PointerOver ← SubtleFillColorSecondaryBrush */
+  color: var(--wui-text-fill-color-primary); /* ForegroundPointerOver ← TextFillColorPrimaryBrush */
 }
 
 .wui-treeview-item-row:not(.wui-treeview-item--disabled):active {
-  background: var(--wui-grid-view-item-background-pressed); /* Pressed ← SubtleFillColorTertiary */
-  color: var(--wui-application-secondary-foreground-theme); /* ForegroundPressed ← TextFillColorSecondary */
+  background: var(--wui-subtle-fill-color-tertiary); /* Pressed ← SubtleFillColorTertiaryBrush */
+  color: var(--wui-text-fill-color-secondary); /* ForegroundPressed ← TextFillColorSecondaryBrush */
 }
 
 .wui-treeview-item-row.wui-treeview-item--selected {
-  background: var(--wui-grid-view-item-background-pointer-over); /* Selected ← SubtleFillColorSecondary(与悬停同键) */
+  background: var(--wui-subtle-fill-color-secondary); /* Selected ← SubtleFillColorSecondaryBrush(与悬停同键) */
+  color: var(--wui-text-fill-color-primary); /* ForegroundSelected ← TextFillColorPrimaryBrush */
 }
 
 .wui-treeview-item-row.wui-treeview-item--selected:not(.wui-treeview-item--disabled):hover {
-  background: var(--wui-grid-view-item-background-pressed); /* SelectedPointerOver ← SubtleFillColorTertiary */
+  background: var(--wui-subtle-fill-color-tertiary); /* SelectedPointerOver ← SubtleFillColorTertiaryBrush */
+  color: var(--wui-text-fill-color-primary); /* ForegroundSelectedPointerOver ← TextFillColorPrimaryBrush */
 }
 
 .wui-treeview-item-row.wui-treeview-item--selected:not(.wui-treeview-item--disabled):active {
-  background: var(--wui-grid-view-item-background-pointer-over); /* SelectedPressed ← SubtleFillColorSecondary */
+  background: var(--wui-subtle-fill-color-secondary); /* SelectedPressed ← SubtleFillColorSecondaryBrush */
+  color: var(--wui-text-fill-color-secondary); /* ForegroundSelectedPressed ← TextFillColorSecondaryBrush */
 }
 
 /* 多选态清零行内边距(源多选 VisualState 设 ContentPresenterGrid.Padding = 0,模板 L107/L116;
@@ -346,7 +349,7 @@ const ariaSelected = computed(() => (selectable.value ? selected.value : undefin
 
 .wui-treeview-item-row.wui-treeview-item--disabled {
   cursor: default;
-  color: var(--wui-toggle-switch-content-foreground-disabled); /* ForegroundDisabled ← TextFillColorDisabled */
+  color: var(--wui-text-fill-color-disabled); /* ForegroundDisabled ← TextFillColorDisabledBrush */
 }
 
 /* 系统焦点视觉:TreeViewItem FocusVisualMargin="0,-1,0,-1"(controls/dev/TreeView/
@@ -366,7 +369,7 @@ const ariaSelected = computed(() => (selectable.value ? selected.value : undefin
   width: 3px;
   height: 16px;
   border-radius: 2px; /* RadiusX/Y = 2 */
-  background: var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme)); /* SelectionIndicatorForeground ← AccentFillColorDefault */
+  background: var(--wui-accent-fill-color-default); /* TreeViewItemSelectionIndicatorForeground ← AccentFillColorDefaultBrush */
   opacity: 0;
   transform: translateY(-50%);
   pointer-events: none;
@@ -409,7 +412,7 @@ const ariaSelected = computed(() => (selectable.value ? selected.value : undefin
   width: 12px;
   height: 12px;
   padding: 2px; /* 字形盒 12x12、Padding 2、GlyphSize 8 */
-  color: var(--wui-default-text-foreground-theme); /* GlyphBrush ← GlyphForeground(TextFill 主色系) */
+  color: inherit; /* GlyphBrush = TreeViewItemForeground(随行前景:常态/悬停 primary、按下 secondary、禁用 disabled) */
   transform: rotate(-90deg); /* 收起 = CollapsedGlyph E76C(朝右)的旋转等价 */
   transition: transform var(--wui-duration-normal) var(--wui-easing-standard);
 }
@@ -438,17 +441,17 @@ const ariaSelected = computed(() => (selectable.value ? selected.value : undefin
   box-sizing: border-box;
   width: 20px;
   height: 20px;
-  border: 1px solid var(--wui-check-box-check-background-stroke-unchecked); /* 未选边框 ← CheckBackgroundStrokeUnchecked */
+  border: 1px solid var(--wui-check-box-check-background-stroke-unchecked); /* 未选边框:来自 CheckBox 默认样式(非 TreeView 权威键),保留原 token */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
-  color: var(--wui-application-secondary-foreground-theme); /* CheckGlyphSelected ← TextFillColorSecondary */
-  background: var(--wui-system-control-transparent); /* CheckBoxBackgroundSelected ← 透明 */
+  color: var(--wui-text-fill-color-secondary); /* TreeViewItemCheckGlyphSelected ← TextFillColorSecondaryBrush */
+  background: var(--wui-subtle-fill-color-transparent); /* TreeViewItemCheckBoxBackgroundSelected ← SubtleFillColorTransparentBrush */
 }
 
 /* 已选 / 半选共用边框与字形口径(TreeViewItemCheckBoxBorderSelected = CheckGlyphSelected
    = TextFillColorSecondary),两态仅以字形区分:E73E 勾(Selected)/ E73C 实心方块(Partial) */
 .wui-treeview-item-checkbox--checked .wui-treeview-item-checkbox-box,
 .wui-treeview-item-checkbox--partial .wui-treeview-item-checkbox-box {
-  border-color: var(--wui-application-secondary-foreground-theme); /* CheckBoxBorderSelected ← TextFillColorSecondary */
+  border-color: var(--wui-text-fill-color-secondary); /* TreeViewItemCheckBoxBorderSelected ← TextFillColorSecondaryBrush */
 }
 
 /* —— 内容列 —— */

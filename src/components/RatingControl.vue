@@ -10,7 +10,8 @@ export interface RatingControlValueChangedEventArgs {
 <script setup lang="ts">
 // WinUI RatingControl 复刻。视觉对照 controls/dev/RatingControl/RatingControl.xaml 的 ControlTemplate
 // 与 RatingControl_themeresources.xaml:双层星条(背景层 UnsetGlyph U+E734 恒为未选色,前景层
-// Glyph U+E735 按值逐星裁切,支持半星),颜色取 theme.css 的 --wui-rating-control-* token。
+// Glyph U+E735 按值逐星裁切,支持半星),颜色取 controls/dev/RatingControl/RatingControl_themeresources.xaml
+// 的 Fluent 画刷键(TextFillColorSecondary/Primary/Disabled、AccentFillColorDefault、ControlAltFillColorTertiary)。
 // 行为对照 RatingControl.cpp:
 //   - 值域 1..maxRating(默认 5),未评分哨兵 -1 → Web 侧用 null 表达;
 //   - 悬浮预览 ceil(指针百分比 × maxRating),拖出左边缘可清空(指针捕获);
@@ -416,32 +417,6 @@ const ariaValueText = computed(() => {
   user-select: none;
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);
   outline: none;
-
-  /* 视觉 fix(V7):theme.css 为自动生成层,平台画刷 TextFillColorSecondaryBrush /
-     ControlAltFillColorTertiaryBrush 不在 generic.xaml 内,提取器回退值偏差
-     (未选星 #00000033 = 20%、悬浮预览 #00000099 = 60%)。此处按源实值局部携带
-     (CommonStyles/Common_themeresources_any.xaml:TextFillColorSecondary
-     light #9E000000 / dark #C5FFFFFF;ControlAltFillColorTertiary
-     light #0F000000 / dark #0BFFFFFF;InfoBar 局部 token 先例)。
-     字节序 fix(V8):XAML Color 为 #AARRGGBB(alpha 在前),CSS 8 位 hex 为
-     #RRGGBBAA(alpha 在后)——上一轮把 XAML 字面值原样落进 CSS,浅色 alpha 落到
-     蓝通道且 alpha=00 全透明、深色 R 通道吃到 alpha 变 rgb(197,255,255) 青白。
-     以下均为「XAML 源值 → alpha 移到末位」的换算结果:
-       #9E000000 → #0000009e、#C5FFFFFF → #ffffffc5、
-       #0F000000 → #0000000f、#0BFFFFFF → #ffffff0b。
-     token 层补齐 --wui-text-fill-color-secondary 等后可改回 var() 引用并删除本段。 */
-  --wui-rating-control-unselected-foreground: #0000009e; /* XAML #9E000000(TextFillColorSecondary light) */
-  --wui-rating-control-caption-foreground: #0000009e; /* 同为 TextFillColorSecondaryBrush light */
-  --wui-rating-control-pointer-over-placeholder-foreground: #0000000f; /* XAML #0F000000(ControlAltFillColorTertiary light) */
-  --wui-rating-control-pointer-over-unselected-foreground: #0000000f;
-}
-
-/* 深色主题:带主题前缀以保证压过浅色基线(特异性约定,见 InfoBar 先例) */
-html[data-theme='dark'] .wui-rating {
-  --wui-rating-control-unselected-foreground: #ffffffc5; /* XAML #C5FFFFFF(TextFillColorSecondary dark) */
-  --wui-rating-control-caption-foreground: #ffffffc5;
-  --wui-rating-control-pointer-over-placeholder-foreground: #ffffff0b; /* XAML #0BFFFFFF(ControlAltFillColorTertiary dark) */
-  --wui-rating-control-pointer-over-unselected-foreground: #ffffff0b;
 }
 
 /* 星条:实际星 16px(FS 32 × 0.5)、间距 8(RatingControlItemSpacing) */
@@ -472,9 +447,10 @@ html[data-theme='dark'] .wui-rating {
   text-align: center;
 }
 
-/* 背景层:RatingControlUnselectedForeground 恒定(源 DataTemplate 静态前景,不随状态切换) */
+/* 背景层:RatingControlUnselectedForeground 恒定(源 DataTemplate 静态前景,不随状态切换),
+   = TextFillColorSecondaryBrush(RatingControl_themeresources.xaml L5/L16) */
 .wui-rating__star--background {
-  color: var(--wui-rating-control-unselected-foreground);
+  color: var(--wui-text-fill-color-secondary);
 }
 
 /* 前景层:叠于背景层之上,不参与命中测试(源 ForegroundContentPresenter IsHitTestVisible=false) */
@@ -490,34 +466,26 @@ html[data-theme='dark'] .wui-rating {
 /* —— 前景色状态(对照 CommonStates 六态 + Disabled)—— */
 .wui-rating__foreground--set,
 .wui-rating__foreground--pointerOverSet {
-  color: var(--wui-rating-control-selected-foreground);
-}
-
-.wui-rating__foreground--pointerOverSet {
-  color: var(--wui-rating-control-pointer-over-selected-foreground);
+  color: var(--wui-accent-fill-color-default); /* RatingControlSelectedForeground / ...PointerOverSelectedForeground = AccentFillColorDefaultBrush */
 }
 
 .wui-rating__foreground--placeholder {
-  /* FIX9:占位前景 = RatingControlPlaceholderForeground = TextFillColorPrimaryBrush
-     (RatingControl_themeresources.xaml L7/L14;浅 #E4000000 / 深 #FFFFFF)。theme.css 生成的
-     --wui-rating-control-placeholder-foreground 丢了 alpha(浅 #000000),V8 字节序修正段
-     也漏了本 token;改引同库已修正的全局 token(--wui-text-fill-color-primary:浅
-     #000000e4 / 深 #ffffff,theme.css L755/L2670),字节序换算 #E4000000 → #000000e4。 */
-  color: var(--wui-text-fill-color-primary, #000000e4);
+  /* RatingControlPlaceholderForeground = TextFillColorPrimaryBrush
+     (RatingControl_themeresources.xaml L7/L18;浅 #E4000000 / 深 #FFFFFF) */
+  color: var(--wui-text-fill-color-primary);
 }
 
 .wui-rating__foreground--pointerOverPlaceholder {
-  color: var(--wui-rating-control-pointer-over-placeholder-foreground);
+  color: var(--wui-control-alt-fill-color-tertiary); /* RatingControlPointerOverPlaceholderForeground = ControlAltFillColorTertiaryBrush(L8/L19) */
 }
 
 .wui-rating__foreground--pointerOverUnselected {
-  color: var(--wui-rating-control-pointer-over-unselected-foreground);
+  color: var(--wui-control-alt-fill-color-tertiary); /* RatingControlPointerOverUnselectedForeground = ControlAltFillColorTertiaryBrush(L9/L20) */
 }
 
-/* 源 RatingControlDisabledSelectedForeground = TextFillColorDisabledBrush;rating 族无此 token,
-   取最近似的既有禁用文字 token(值与各控件禁用前景一致),差异见 wiki。 */
+/* RatingControlDisabledSelectedForeground = TextFillColorDisabledBrush(L11/L22) */
 .wui-rating__foreground--disabled {
-  color: var(--wui-button-foreground-disabled, var(--wui-text-control-foreground-disabled));
+  color: var(--wui-text-fill-color-disabled);
 }
 
 /* 文字:12px(CaptionTextBlockStyle)、间距 12(c_captionSpacing)、RatingControlCaptionForeground */
@@ -525,7 +493,7 @@ html[data-theme='dark'] .wui-rating {
   margin-left: 12px;
   font-size: var(--wui-tool-tip-content-theme-font-size, 12px);
   line-height: 1.2;
-  color: var(--wui-rating-control-caption-foreground);
+  color: var(--wui-text-fill-color-secondary); /* RatingControlCaptionForeground = TextFillColorSecondaryBrush(L12/L23) */
 }
 
 /* —— Focus(源 RatingControl UseSystemFocusVisuals + FocusVisualMargin -8,-7,-8,0:系统双环

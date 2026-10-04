@@ -330,26 +330,20 @@ const NEXT_LABEL = 'Next page'
 </template>
 
 <style scoped>
-/* —— pip/导航指示色(源实值,controls/dev/CommonStyles/Common_themeresources_any.xaml;
-      theme.css 未提取同名 token,按 InfoBar 先例在组件局部携带源值,XAML #AARRGGBB → CSS #RRGGBBAA):
-      Normal = ControlStrongFillColorDefault(Light #72000000 45% 黑 / Dark #8BFFFFFF 55% 白)
-      PointerOver/Pressed = TextFillColorSecondary(Light #9E000000 62% 黑 / Dark #C5FFFFFF 77% 白)
-      Disabled = ControlStrongFillColorDisabled(Light #51000000 32% 黑 / Dark #3FFFFFFF 25% 白)
-      悬停/按下比常态更实(源方向),禁用最淡;pip 与导航按钮共用(源两组资源取值相同) */
+/* —— pip/导航指示色(PipsPager_themeresources.xaml L15-L31 pip 与 L28-L31 导航按钮同值):
+      Normal/Selected = ControlStrongFillColorDefaultBrush(L15/L18)
+      PointerOver/Pressed = TextFillColorSecondaryBrush(L16-L17)
+      Disabled = ControlStrongFillColorDisabledBrush(L19)
+      背景与边框:ControlFillColorTransparentBrush(L5-L14 / L20-L27,恒透明)
+      悬停/按下比常态更实(源方向),禁用最淡;pip 与导航按钮共用 */
 .wui-pips-pager {
   /* 源:Background="Transparent"、HorizontalAlignment="Left"、VerticalAlignment="Top" */
   display: inline-flex;
   align-items: center;
   background: transparent;
-  --wui-pips-indicator: #00000072;
-  --wui-pips-indicator-hover: #0000009e;
-  --wui-pips-indicator-disabled: #00000051;
-}
-
-html[data-theme='dark'] .wui-pips-pager {
-  --wui-pips-indicator: #ffffff8b; /* ControlStrongFillColorDefault Dark #8BFFFFFF → 54.5% 白 */
-  --wui-pips-indicator-hover: #ffffffc5; /* TextFillColorSecondary Dark #C5FFFFFF → 77% 白 */
-  --wui-pips-indicator-disabled: #ffffff3f; /* ControlStrongFillColorDisabled Dark #3FFFFFFF → 24.7% 白 */
+  --wui-pips-indicator: var(--wui-control-strong-fill-color-default);
+  --wui-pips-indicator-hover: var(--wui-text-fill-color-secondary);
+  --wui-pips-indicator-disabled: var(--wui-control-strong-fill-color-disabled);
 }
 
 .wui-pips-pager--vertical {
@@ -380,8 +374,8 @@ html[data-theme='dark'] .wui-pips-pager {
   width: 12px;
   height: 24px;
   padding: 0;
-  background: transparent;
-  border: 1px solid transparent;
+  background: var(--wui-control-fill-color-transparent); /* PipsPagerSelectionIndicatorBackground = ControlFillColorTransparentBrush */
+  border: 1px solid var(--wui-control-fill-color-transparent); /* ...BorderBrush 同键 */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);
   cursor: pointer;
 }
@@ -443,8 +437,8 @@ html[data-theme='dark'] .wui-pips-pager {
   width: 24px;
   height: 24px;
   padding: 0;
-  background: transparent;
-  border: 1px solid transparent;
+  background: var(--wui-control-fill-color-transparent); /* PipsPagerNavigationButtonBackground = ControlFillColorTransparentBrush */
+  border: 1px solid var(--wui-control-fill-color-transparent); /* ...BorderBrush 同键 */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);
   cursor: pointer;
 }

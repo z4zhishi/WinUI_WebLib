@@ -368,36 +368,24 @@ const automationName = computed(() => {
   box-sizing: border-box;
   /* 源 OnSizeChanged 以 min(Width, Height) 维持圆形;Web 侧由 rootStyle 保证方形 + 比例兜底 */
   aspect-ratio: 1 / 1;
-  /* PersonPictureForegroundThemeBrush = TextFillColorPrimaryBrush(源浅 #E4000000 = 89% 黑 / 深 #FFFFFF):
-     theme.css 并未生成该 token(仅头部命名注释提及),取最近似 token SystemControlForegroundBaseHigh
-     —— 深色(#ffffff)与源恒等;浅色(#000000 不透明)较源 #E4000000 略深(缺 89% alpha),
-     差异记录于 wiki/controls/PersonPicture.md 差异节 */
-  color: var(--wui-system-control-foreground-base-high);
+  /* PersonPictureForegroundThemeBrush = TextFillColorPrimaryBrush
+     (PersonPicture_themeresources.xaml L5/L18;浅 #E4000000 / 深 #FFFFFF) */
+  color: var(--wui-text-fill-color-primary);
   /* ContentControlThemeFontFamily / FontWeight=SemiBold(DefaultPersonPictureStyle Setter) */
   font-family: var(--wui-content-control-theme-font-family);
   font-weight: 600;
   user-select: none;
   -webkit-user-select: none;
-  /* theme.css 无 ControlAltFillColorQuarternary / CardStrokeColorDefault token:
-     按源 Common_themeresources_any.xaml 值注入组件级默认值层(调用方可用同名变量覆盖) */
-  /* 字节序换算:源 XAML Color 为 AARRGGBB,CSS 8 位 hex 为 RRGGBBAA,写入前已逐值转换
-     (QA 重点项:直接照搬会出现 alpha 与红通道错位,如 #18000000 → 全透明、#12FFFFFF → 不透明青)。
-     ControlAltFillColorQuarternary(Light)= AARRGGBB #18000000 → CSS #00000018
-     CardStrokeColorDefault(Light)= AARRGGBB #0F000000 → CSS #0000000F */
-  --wui-person-picture-ellipse-fill: #00000018; /* ControlAltFillColorQuarternary(Light) */
-  --wui-person-picture-ellipse-stroke: #0000000f; /* CardStrokeColorDefault(Light) */
-  /* 徽标数字 / 字形前景:PersonPictureEllipseBadgeForegroundThemeBrush =
-     TextOnAccentFillColorPrimaryBrush(theme.css 无 TextOnAccent 同名 token,按源值在组件内
-     承载,InfoBadge 同款做法;源 SystemColorOverrideResourceDictionary Light #FFFFFF / Default #000000) */
-  --wui-person-picture-badge-foreground: #ffffff; /* TextOnAccentFillColorPrimary(Light) */
 }
 
 .wui-person-picture__ellipse {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 1px solid var(--wui-person-picture-ellipse-stroke); /* PersonPictureEllipseFillStrokeBrush,StrokeThickness 1 */
-  background: var(--wui-person-picture-ellipse-fill); /* PersonPictureEllipseFillThemeBrush */
+  /* PersonPictureEllipseFillStrokeBrush = CardStrokeColorDefaultBrush(L10/L23);StrokeThickness 1 */
+  border: 1px solid var(--wui-card-stroke-color-default);
+  /* PersonPictureEllipseFillThemeBrush = ControlAltFillColorQuarternary(L9/L22) */
+  background: var(--wui-control-alt-fill-color-quarternary);
   box-sizing: border-box;
 }
 
@@ -449,32 +437,31 @@ const automationName = computed(() => {
   box-sizing: border-box;
 }
 
-/* BadgingBackgroundEllipse:Fill=AccentFillColorDefaultBrush(最近似 token 同 InfoBadge)、
-   Stroke=ControlFillColorTransparentBrush(不可见,保留厚度 2 以对照源资源) */
+/* BadgingBackgroundEllipse:Fill=PersonPictureEllipseBadgeFillThemeBrush = AccentFillColorDefaultBrush(L7/L20)、
+   Stroke=PersonPictureEllipseBadgeStrokeThemeBrush = ControlFillColorTransparentBrush(L8/L21,不可见,保留厚度 2) */
 .wui-person-picture__badge-plate {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: var(--wui-system-accent-color);
+  background: var(--wui-accent-fill-color-default);
   border: 2px solid transparent;
   box-sizing: border-box;
 }
 
-/* BadgeNumberTextBlock / BadgeGlyphIcon:Foreground=TextOnAccentFillColorPrimaryBrush
-   (组件级局部 token 按源值承载,InfoBadge 同款做法,见 .wui-person-picture 处注释);
-   字号由 60% 公式注入 */
+/* BadgeNumberTextBlock / BadgeGlyphIcon:Foreground=PersonPictureEllipseBadgeForegroundThemeBrush
+   = TextOnAccentFillColorPrimaryBrush(L6/L19;浅 #FFFFFF / 深 #000000);字号由 60% 公式注入 */
 .wui-person-picture__badge-text {
   position: relative;
   line-height: 1;
   font-weight: 600;
-  color: var(--wui-person-picture-badge-foreground);
+  color: var(--wui-text-on-accent-fill-color-primary);
 }
 
 .wui-person-picture__badge-glyph {
   position: relative;
   line-height: 1;
   font-family: var(--wui-symbol-theme-font-family);
-  color: var(--wui-person-picture-badge-foreground);
+  color: var(--wui-text-on-accent-fill-color-primary);
 }
 
 /* BadgingEllipse + BadgeImageBrush:徽标图片圆形裁剪 */
@@ -485,12 +472,5 @@ const automationName = computed(() => {
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-}
-
-/* —— 深色主题(Default 字典):AARRGGBB #12FFFFFF / #19000000 → RRGGBBAA #FFFFFF12 / #00000019 —— */
-html[data-theme='dark'] .wui-person-picture {
-  --wui-person-picture-ellipse-stroke: #00000019; /* CardStrokeColorDefault(Default) */
-  --wui-person-picture-ellipse-fill: #ffffff12; /* ControlAltFillColorQuarternary(Default) */
-  --wui-person-picture-badge-foreground: #000000; /* TextOnAccentFillColorPrimary(Default)= #000000 */
 }
 </style>
