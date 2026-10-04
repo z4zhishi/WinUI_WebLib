@@ -256,7 +256,7 @@ provide('wuiSelectorBarContext', {
 .wui-selector-bar {
   display: block;
   min-width: 0;
-  background: transparent; /* SelectorBarBackground = SystemControlTransparentBrush */
+  background: var(--wui-control-fill-color-transparent); /* SelectorBarBackground = SystemControlTransparentBrush(SelectorBar_themeresources L6/L30/L52,透明) */
 }
 
 /* ItemsView + 内部 ScrollView:水平排布、超宽横向滚动;SelectorBarPadding(0,4)= 上下 4px */

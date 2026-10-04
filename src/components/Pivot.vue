@@ -321,7 +321,15 @@ const NEXT_GLYPH = '\uE0E3'
 /*
  * 结构对照 generic.xaml Pivot ControlTemplate(L12213):
  * RootElement Grid > [TitleContentControl | Grid > HeaderClipper + Previous/NextButton + ItemsPresenter]。
- * 颜色一律 --wui-pivot-* token(theme.css 已备齐 Normal/PointerOver/Pressed/Disabled 全套)。
+ *
+ * PL11 权威核对(controls/dev/CommonStyles/Pivot_themeresources.xaml):
+ * **WinUI 3 生效层(Pivot_themeresources)本身未迁移到 Fluent**——页头项/导航钮的键
+ * (PivotHeaderItemForegroundUnselected L47、…Selected L50、…Disabled L53、Next/Previous
+ * ButtonBackground/Foreground L21-38 等)全部指向 legacy SystemControl* 画刷(定义于
+ * generic.xaml),故其权威值即 legacy 值,theme.css 的 --wui-pivot-*-*-foreground/background
+ * 族逐键与之一致(0 偏差,见报告 §Pivot)。**不得臆造 Fluent 映射**。
+ * 唯一 Fluent 键:PivotHeaderItemSelectedPipeFill = AccentFillColorDefaultBrush(L55)→ 已重定向到
+ * --wui-accent-fill-color-default(浅 dark-1 / 深 light-2,修正原基色 accent 未分主题方向的偏差)。
  */
 .wui-pivot {
   display: block;
@@ -406,7 +414,8 @@ const NEXT_GLYPH = '\uE0E3'
   outline-offset: -3px;
 }
 
-/* SelectedPipe:2px 主题色下划线,距底 2px(Margin 0,0,0,2);Disabled 收起(源 Disabled 态) */
+/* SelectedPipe:2px 主题色下划线,距底 2px(Margin 0,0,0,2);Disabled 收起(源 Disabled 态)
+   Fill 权威 = AccentFillColorDefaultBrush(Pivot_themeresources.xaml L55) */
 .wui-pivot-header-item-pipe {
   display: none;
   position: absolute;
@@ -414,7 +423,7 @@ const NEXT_GLYPH = '\uE0E3'
   bottom: 2px;
   left: 0;
   height: 2px;
-  background: var(--wui-pivot-header-item-selected-pipe-fill);
+  background: var(--wui-accent-fill-color-default);
 }
 
 .wui-pivot-header-item--selected:not(:disabled) .wui-pivot-header-item-pipe {

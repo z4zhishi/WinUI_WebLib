@@ -12,14 +12,19 @@
 //   - 紧凑栏 NavigationViewCompactPaneLength 48、展开窗格 OpenPaneLength 320、顶栏 NavigationViewTopPaneHeight 48;
 //   - 左窗格项(NavigationViewItemPresenterStyleWhenOnLeftPane):MinHeight 36、ButtonMargin 4,2、
 //     选中指示条(SelectionIndicator/"pill")3x16 圆角 2 高亮色(NavigationViewSelectionIndicatorForeground
-//     ← AccentFillColorDefaultBrush → --wui-system-accent-color)、图标盒 40x16;
+//     = AccentFillColorDefaultBrush → --wui-accent-fill-color-default)、图标盒 40x16;
 //   - 顶栏项:高 36、图标盒 16、pill 16x3 底部居中(margin 16,0,16,4)、选中态背景透明仅显 pill;
-//   - 项四态背景:Normal 透明 / PointerOver Selected 系 SubtleFillColorSecondary / Pressed 系 Tertiary,
-//     Web 以 SystemControlBackgroundListLow(#00000019)/ ListMedium(#00000033)近似(无 Subtle token,见 wiki);
+//   - 项四态背景(PL11 重定向到 Fluent):Normal/Disabled/Checked = SubtleFillColorTransparent、
+//     PointerOver/Selected = SubtleFillColorSecondary、Pressed/SelectedPointerOver = SubtleFillColorTertiary;
+//     前景 Primary/Secondary/Disabled = TextFillColorPrimary/Secondary/Disabled;
 //   - 页头 NavigationViewTitleHeaderContentControlTextStyle:28px SemiBold、NavigationViewHeaderMargin 56,44,0,0
 //     (字号取最近似 token --wui-text-style-extra-large-font-size = 25.5px);
-//   - 内容卡 ContentGrid:描边 1,1,0,0、圆角 8,0,0,0(左窗格系)/ 0,1,0,0、圆角 0(Top/Minimal),背景
-//     NavigationViewContentBackground ← LayerFillColorDefaultBrush(无 token,Web 以透明近似)。
+//   - 内容卡 ContentGrid(PL11 重定向):背景 LayerFillColorDefaultBrush = --wui-layer-fill-color-default、
+//     描边 CardStrokeColorDefaultBrush = --wui-card-stroke-color-default、分隔线 DividerStrokeColorDefaultBrush、
+//     圆角 8,0,0,0(左窗格系)/ 0,1,0,0、圆角 0(Top/Minimal);
+//   - 窗格底(PL11):Inline = NavigationViewExpandedPaneBackground = SolidBackgroundFillColorTransparent(透明)、
+//     Overlay(Minimal)= NavigationViewDefaultPaneBackground = AcrylicInAppFillColorDefaultBrush(web 取
+//     不透明回退 #F9F9F9/#2C2C2C)。
 // 布局语义对照 NavigationView.xaml 模板:左窗格系内部即一台 SplitView(DisplayMode=Inline)+
 //   PaneToggleButtonGrid(Z=100 顶层悬浮汉堡);Minimal 窗格浮层对应 SplitView Overlay(遮罩点击 / Esc / 轻扫关闭
 //   由 SplitView 承载);Top 模式为 48px 顶栏(菜单项水平 + 页脚项右靠)。PaneDisplayMode=Auto 按容器宽度
@@ -332,6 +337,22 @@ const splitDisplayMode = computed<'Inline' | 'CompactInline' | 'Overlay'>(() => 
 
 /** 紧凑栏收拢态:隐藏标签 / 窗格标题等,仅留图标栏(对照源 ClosedCompact 态 ListSizeCompact setter 组)。 */
 const isCompactClosed = computed(() => resolvedPaneMode.value === 'LeftCompact' && !isPaneOpen.value)
+
+/**
+ * PL11:窗格底(PaneBackground)。调用方未显式传入时按权威键取默认:
+ * - Overlay(Minimal):NavigationViewDefaultPaneBackground = AcrylicInAppFillColorDefaultBrush
+ *   (web 取亚克力不透明回退色 #F9F9F9 / #2C2C2C,见 brush-authority §4.2);
+ * - Inline / CompactInline:PaneNotOverlaying 态 NavigationViewExpandedPaneBackground =
+ *   SolidBackgroundFillColorTransparent(透明)。
+ * 变量在组件根 .wui-navview 上声明,经继承解析到内嵌 SplitView 的窗格元素。
+ */
+const effectivePaneBackground = computed(() =>
+  props.paneBackground
+    ? props.paneBackground
+    : splitDisplayMode.value === 'Overlay'
+      ? 'var(--wui-navview-pane-bg-overlay)'
+      : 'var(--wui-navview-pane-bg)',
+)
 
 // Minimal↔其他模式切换时的窗格开合记忆(对照 WinUI:进 Minimal 关窗格,退出恢复)
 let paneOpenBeforeMinimal = false
@@ -781,7 +802,7 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
         pane-placement="Left"
         :open-pane-length="openPaneLength"
         :compact-pane-length="compactPaneLength"
-        :pane-background="paneBackground"
+        :pane-background="effectivePaneBackground"
         :pane-label="paneLabel || paneTitle"
         @pane-opened="emit('paneOpened')"
         @pane-closing="emit('paneClosing')"
@@ -840,6 +861,15 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
  * TopNavArea(Top 模式 48px 顶栏)。颜色 / 圆角 / 时长一律 --wui-* token;无 token 项见 wiki 差异节。
  */
 .wui-navview {
+  /* PL11:窗格底重定向到 Fluent 权威。
+     - Inline(非 overlay)PaneNotOverlaying:NavigationViewExpandedPaneBackground =
+       SolidBackgroundFillColorTransparent(NavigationView_themeresources.xaml L6/L72,
+       NavigationView.xaml L129 在该视觉态覆写)→ --wui-solid-background-fill-color-transparent(透明)。
+     - Overlay(Minimal)保持模板初值 NavigationViewDefaultPaneBackground =
+       AcrylicInAppFillColorDefaultBrush(L5/L71);web 无原生亚克力,取不透明回退色
+       #F9F9F9(浅)/#2C2C2C(深)(brush-authority §4.2)。 */
+  --wui-navview-pane-bg: var(--wui-solid-background-fill-color-transparent);
+  --wui-navview-pane-bg-overlay: #f9f9f9;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -847,7 +877,11 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
   width: 100%;
   height: 100%;
   min-height: 0;
-  color: var(--wui-application-foreground-theme);
+  color: var(--wui-text-fill-color-primary); /* NavigationViewItemForeground=TextFillColorPrimary(L21/L87) */
+}
+
+html[data-theme='dark'] .wui-navview {
+  --wui-navview-pane-bg-overlay: #2c2c2c;
 }
 
 /* ============ 汉堡按钮(PaneToggleButtonStyle:LayoutRoot 40x36,\uE700 16px,Subtle 悬停)============
@@ -867,8 +901,8 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
   padding: 0;
   overflow: hidden;
   font: inherit;
-  color: var(--wui-application-foreground-theme);
-  background: transparent;
+  color: var(--wui-text-fill-color-primary); /* NavigationViewButtonForeground 常态=TextFillColorPrimary */
+  background: var(--wui-subtle-fill-color-transparent); /* NavigationViewItemBackground(透明) */
   border: 0;
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
   cursor: pointer;
@@ -918,13 +952,23 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
   transform: scale(0.82);
 }
 
+/* PointerOver:NavigationViewButtonBackgroundPointerOver = SubtleFillColorSecondaryBrush(L63/L125) */
 .wui-navview__toggle:hover {
-  background: var(--wui-system-control-background-list-low);
+  background: var(--wui-subtle-fill-color-secondary);
 }
 
+/* Pressed:背景 SubtleFillColorTertiary;前景 NavigationViewButtonForegroundPressed = TextFillColorSecondary */
 .wui-navview__toggle:active {
-  color: var(--wui-application-secondary-foreground-theme);
-  background: var(--wui-system-control-background-list-medium);
+  color: var(--wui-text-fill-color-secondary);
+  background: var(--wui-subtle-fill-color-tertiary);
+}
+
+/* Disabled(PaneToggleButtonStyle Disabled 态):NavigationViewButtonBackgroundDisabled =
+   ControlFillColorDisabledBrush(L65)、NavigationViewButtonForegroundDisabled = TextFillColorDisabledBrush(L68) */
+.wui-navview__toggle:disabled {
+  color: var(--wui-text-fill-color-disabled);
+  background: var(--wui-control-fill-color-disabled);
+  cursor: default;
 }
 
 /* 系统焦点视觉:TogglePaneButton FocusVisualMargin=0(NavigationView.xaml L197)
@@ -1025,7 +1069,7 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
   flex: none;
   height: 48px; /* NavigationViewTopPaneHeight */
   margin: 0 4px; /* TopNavigationViewTopNavGridMargin 4,0 */
-  border-bottom: 1px solid var(--wui-system-control-background-base-low);
+  border-bottom: 1px solid var(--wui-divider-stroke-color-default); /* NavigationViewItemSeparatorForeground=DividerStrokeColorDefault(L46) */
 }
 
 .wui-navview__topbar-title {
@@ -1062,8 +1106,11 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
   box-sizing: border-box; /* 描边计入弹性高度,避免 2px 外溢 */
   flex: 1 1 auto;
   min-height: 0;
-  border-top: 1px solid var(--wui-system-control-background-base-low);
-  border-left: 1px solid var(--wui-system-control-background-base-low);
+  /* NavigationViewContentBackground = LayerFillColorDefaultBrush(themeresources L8/L74) */
+  background: var(--wui-layer-fill-color-default);
+  /* NavigationViewContentGridBorderBrush = CardStrokeColorDefaultBrush(L49) */
+  border-top: 1px solid var(--wui-card-stroke-color-default);
+  border-left: 1px solid var(--wui-card-stroke-color-default);
   border-top-left-radius: 8px; /* NavigationViewContentGridCornerRadius 8,0,0,0 */
 }
 
@@ -1082,7 +1129,7 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
   margin: 44px 0 0 56px; /* NavigationViewHeaderMargin 56,44,0,0 */
   font-size: var(--wui-text-style-extra-large-font-size);
   font-weight: 600;
-  color: var(--wui-application-foreground-theme);
+  color: var(--wui-text-fill-color-primary); /* 页头 Foreground = TextFillColorPrimary */
 }
 
 .wui-navview--minimal .wui-navview__header {
@@ -1112,23 +1159,23 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
   padding: 0;
   font: inherit;
   font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-application-foreground-theme);
+  color: var(--wui-text-fill-color-primary); /* NavigationViewItemForeground=TextFillColorPrimary(L21) */
   text-align: left;
   white-space: nowrap;
-  background: transparent; /* NavigationViewItemBackground(透明) */
-  border: 1px solid transparent; /* NavigationViewItemBorderThickness 1(透明) */
+  background: var(--wui-subtle-fill-color-transparent); /* NavigationViewItemBackground=SubtleFillColorTransparent(L9) */
+  border: 1px solid var(--wui-subtle-fill-color-transparent); /* NavigationViewItemBorderBrush=SubtleFillColorTransparent(L33) */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius); /* ControlCornerRadius 4px */
   cursor: pointer;
 }
 
-/* PointerOver / Pressed / Selected 四态(Subtle 系 → ListLow/ListMedium 近似,见 wiki) */
+/* 四态背景 → Subtle 族(L10/L11/L17/L18/L19);前景 L22/L23/L30/L31 */
 .wui-navview :deep(.wui-nav-item:hover) {
-  background: var(--wui-system-control-background-list-low);
+  background: var(--wui-subtle-fill-color-secondary);
 }
 
 .wui-navview :deep(.wui-nav-item:active) {
-  color: var(--wui-application-secondary-foreground-theme); /* Pressed 前景 TextFillColorSecondary */
-  background: var(--wui-system-control-background-list-medium);
+  color: var(--wui-text-fill-color-secondary); /* Pressed 前景 TextFillColorSecondary */
+  background: var(--wui-subtle-fill-color-tertiary);
 }
 
 .wui-navview :deep(.wui-nav-item:focus-visible) {
@@ -1138,21 +1185,21 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
 }
 
 .wui-navview :deep(.wui-nav-item--selected) {
-  background: var(--wui-system-control-background-list-low); /* Selected:SubtleFillColorSecondary */
+  background: var(--wui-subtle-fill-color-secondary); /* Selected:SubtleFillColorSecondary(L17) */
 }
 
 .wui-navview :deep(.wui-nav-item--selected:hover) {
-  background: var(--wui-system-control-background-list-medium); /* SelectedPointerOver:Tertiary */
+  background: var(--wui-subtle-fill-color-tertiary); /* SelectedPointerOver:Tertiary(L18) */
 }
 
 .wui-navview :deep(.wui-nav-item--selected:active) {
-  color: var(--wui-application-secondary-foreground-theme);
-  background: var(--wui-system-control-background-list-low); /* SelectedPressed:Secondary(回落) */
+  color: var(--wui-text-fill-color-secondary); /* SelectedPressed 前景 TextFillColorSecondary(L31) */
+  background: var(--wui-subtle-fill-color-secondary); /* SelectedPressed:Secondary(回落,L19) */
 }
 
 .wui-navview :deep(.wui-nav-item:disabled) {
-  opacity: 0.55; /* ListViewItemDisabledThemeOpacity */
-  background: transparent;
+  color: var(--wui-text-fill-color-disabled); /* NavigationViewItemForegroundDisabled=TextFillColorDisabled(L24) */
+  background: var(--wui-subtle-fill-color-transparent); /* …BackgroundDisabled=SubtleFillColorTransparent(L12) */
   cursor: default;
 }
 
@@ -1168,7 +1215,7 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
   width: 3px; /* NavigationViewSelectionIndicatorWidth */
   height: 16px; /* NavigationViewSelectionIndicatorHeight */
   border-radius: 2px; /* NavigationViewSelectionIndicatorRadius */
-  background: var(--wui-system-accent-color); /* ← AccentFillColorDefaultBrush */
+  background: var(--wui-accent-fill-color-default); /* NavigationViewSelectionIndicatorForeground=AccentFillColorDefaultBrush(L48) */
   opacity: 0;
   pointer-events: none;
 }
@@ -1235,14 +1282,14 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
   margin: 0 16px;
   font-size: var(--wui-control-content-theme-font-size);
   font-weight: 600;
-  color: var(--wui-application-secondary-foreground-theme);
+  color: var(--wui-text-fill-color-secondary); /* NavigationViewItemHeaderForeground=TextFillColorSecondary(L47) */
 }
 
 /* 分隔线(NavigationViewItemSeparator:1px,margin 0,3,0,4) */
 .wui-navview :deep(.wui-nav-separator) {
   height: 1px;
   margin: 3px 4px 4px;
-  background: var(--wui-system-control-background-base-low);
+  background: var(--wui-divider-stroke-color-default); /* NavigationViewItemSeparatorForeground=DividerStrokeColorDefault(L46) */
 }
 
 /* —— Top 模式条目覆写(高度 36、图标盒 16、pill 16x3 底部居中、选中态透明背景)—— */
@@ -1266,16 +1313,16 @@ const toggleStyle = computed<Record<string, string> | undefined>(() =>
 }
 
 .wui-navview--top :deep(.wui-nav-item--selected) {
-  background: transparent; /* TopNavigationViewItemBackgroundSelected = 透明,仅 pill */
+  background: var(--wui-subtle-fill-color-transparent); /* TopNavigationViewItemBackgroundSelected = 透明(L56/L60),仅 pill */
 }
 
 .wui-navview--top :deep(.wui-nav-item--selected:hover) {
-  background: var(--wui-system-control-background-list-low);
+  background: var(--wui-subtle-fill-color-secondary); /* TopNavigationViewItemBackgroundPointerOver(L54) */
 }
 
 .wui-navview--top :deep(.wui-nav-item--selected:active) {
-  color: var(--wui-application-secondary-foreground-theme);
-  background: transparent;
+  color: var(--wui-text-fill-color-secondary); /* TopNavigationViewItemForegroundSelectedPressed(L59) */
+  background: var(--wui-subtle-fill-color-transparent); /* …BackgroundSelectedPressed=透明(L61) */
 }
 
 .wui-navview--top :deep(.wui-nav-header) {

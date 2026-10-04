@@ -20,13 +20,13 @@
 //     独立使用(无宿主)时 isSelected 自管(单选语义:置 true);
 //   - 键盘:本组件是可聚焦项(IsTabStop=True),宿主以 roving tabindex 编排(选中项 tab 停留);
 //   - Disabled 项不可聚焦、不参与方向键移动(宿主侧过滤)。
-// 颜色 token:TextFill*/AccentFill* 画刷族定义于 CommonStyles/Common_themeresources_any.xaml,
-//   theme.css(取自旧版 generic.xaml)无对应 token —— 按 T1 规格取最近似 token 并在 wiki 记录差异:
-//   Primary→--wui-application-foreground-theme、Secondary→--wui-application-secondary-foreground-theme、
-//   Tertiary→--wui-application-pressed-foreground-theme、Disabled→--wui-system-control-disabled-base-medium-low;
-//   指示条填充 AccentFillColorDefault 浅色=SystemAccentColorDark1 / 深色=SystemAccentColorLight2
-//   (theme-hooks 的系统强调色钩子,html[data-theme='dark'] 覆盖,InfoBar 同款约定);
-//   禁用指示条 AccentFillColorDisabled(浅 #37000000 / 深 #28FFFFFF,AARRGGBB→RRGGBBAA)无 token,取源值。
+// 颜色 token(PL11 重定向到 Fluent 权威,SelectorBar_themeresources.xaml):
+//   Primary→--wui-text-fill-color-primary、Secondary→--wui-text-fill-color-secondary、
+//   Tertiary→--wui-text-fill-color-tertiary、Disabled→--wui-text-fill-color-disabled;
+//   指示条填充 AccentFillColorDefaultBrush → --wui-accent-fill-color-default
+//   (浅 SystemAccentColorDark1 / 深 Light2,由 PL2 token 分主题方向);
+//   禁用指示条 AccentFillColorDisabledBrush → --wui-accent-fill-color-disabled
+//   (浅 #37000000 / 深 #28FFFFFF,AARRGGBB→RRGGBBAA)。
 import { computed, getCurrentInstance, inject, onMounted, onScopeDispose, ref, watch } from 'vue'
 import type { Ref, VNode } from 'vue'
 import WuiSymbolIcon from './SymbolIcon.vue'
@@ -156,14 +156,11 @@ watch(isSelectedModel, (value) => {
 /*
  * 结构对照 SelectorBar.xaml DefaultSelectorBarItemStyle ControlTemplate:
  * PART_ContainerRoot(Grid,CornerRadius 4) > [内容 StackPanel | PART_SelectionVisual 贴底 | PART_CommonVisual 描边]。
- * 颜色:theme.css 无 TextFill / AccentFill 族 token,取最近似 token(见文件头注释);指示条禁用填充取源值。
+ * PL11:前景/指示条全部重定向到 Fluent 权威(SelectorBar_themeresources.xaml):
+ * 前景 Normal/Selected=TextFillColorPrimary、PointerOver=Secondary、Pressed=Tertiary、Disabled=Disabled;
+ * 指示条 Fill=AccentFillColorDefaultBrush、禁用指示条=AccentFillColorDisabledBrush(背景/描边全态透明)。
  */
 .wui-selector-bar-item {
-  /* AccentFillColorDefaultBrush:浅色 = SystemAccentColorDark1,深色 = SystemAccentColorLight2 */
-  --wui-selector-bar-item-pill-fill: var(--wui-system-accent-color-dark-1);
-  /* AccentFillColorDisabledBrush:浅 #37000000 / 深 #28FFFFFF(AARRGGBB → RRGGBBAA),无 token 取源值 */
-  --wui-selector-bar-item-pill-fill-disabled: #00000037;
-
   position: relative;
   flex: 0 0 auto;
   box-sizing: border-box;
@@ -173,16 +170,11 @@ watch(isSelectedModel, (value) => {
   font-family: inherit; /* ContentControlThemeFontFamily(XamlAutoFontFamily 占位,回退浏览器默认) */
   font-size: var(--wui-control-content-theme-font-size); /* ControlContentThemeFontSize = 14 */
   font-weight: 400; /* FontWeight = Normal */
-  color: var(--wui-application-foreground-theme); /* Foreground ← TextFillColorPrimary(最近似 token) */
-  background: transparent; /* SelectorBarItemBackground = ControlFillColorTransparentBrush */
-  border: 1px solid transparent; /* BorderThickness 1 + BorderBrush 透明(视觉无边框,几何保真) */
+  color: var(--wui-text-fill-color-primary); /* SelectorBarItemForeground = TextFillColorPrimaryBrush */
+  background: var(--wui-control-fill-color-transparent); /* SelectorBarItemBackground = SystemControlTransparentBrush */
+  border: 1px solid var(--wui-control-fill-color-transparent); /* BorderThickness 1 + 透明描边(几何保真) */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px); /* CornerRadius = ControlCornerRadius */
   cursor: pointer;
-}
-
-html[data-theme='dark'] .wui-selector-bar-item {
-  --wui-selector-bar-item-pill-fill: var(--wui-system-accent-color-light-2);
-  --wui-selector-bar-item-pill-fill-disabled: #ffffff28;
 }
 
 /* —— 内容行(图标 + 文本,间距 SelectorBarItemSpacing = 8)—— */
@@ -211,26 +203,26 @@ html[data-theme='dark'] .wui-selector-bar-item {
 
 /* —— CombinedStates(源六态;背景全态透明,仅前景变化)—— */
 .wui-selector-bar-item:hover:not(:disabled):not(.is-selected) {
-  color: var(--wui-application-secondary-foreground-theme); /* UnselectedPointerOver ← TextFillColorSecondary */
+  color: var(--wui-text-fill-color-secondary); /* UnselectedPointerOver = TextFillColorSecondaryBrush */
 }
 
 .wui-selector-bar-item:active:not(:disabled):not(.is-selected) {
-  color: var(--wui-application-pressed-foreground-theme); /* UnselectedPressed ← TextFillColorTertiary */
+  color: var(--wui-text-fill-color-tertiary); /* UnselectedPressed = TextFillColorTertiaryBrush */
 }
 
 .wui-selector-bar-item.is-selected {
-  color: var(--wui-application-foreground-theme); /* SelectedNormal ← TextFillColorPrimary */
+  color: var(--wui-text-fill-color-primary); /* SelectedNormal = TextFillColorPrimaryBrush */
 }
 
 /* SelectedPointerOver / SelectedPressed:源均取 ForegroundPointerOver(Secondary,非 Pressed 色) */
 .wui-selector-bar-item.is-selected:hover:not(:disabled),
 .wui-selector-bar-item.is-selected:active:not(:disabled) {
-  color: var(--wui-application-secondary-foreground-theme);
+  color: var(--wui-text-fill-color-secondary);
 }
 
 .wui-selector-bar-item:disabled,
 .wui-selector-bar-item.is-disabled {
-  color: var(--wui-system-control-disabled-base-medium-low); /* Disabled ← TextFillColorDisabled(最近似 token) */
+  color: var(--wui-text-fill-color-disabled); /* Disabled = TextFillColorDisabledBrush */
   cursor: default;
 }
 
@@ -242,7 +234,7 @@ html[data-theme='dark'] .wui-selector-bar-item {
   box-sizing: border-box;
   width: 4px;
   height: 3px;
-  background: var(--wui-selector-bar-item-pill-fill); /* Fill ← SelectorBarItemPillFill */
+  background: var(--wui-accent-fill-color-default); /* Fill = SelectorBarItemPillFill = AccentFillColorDefaultBrush */
   border-radius: 0.5px / 1px; /* RadiusX 0.5 / RadiusY 1 */
   opacity: 0;
   /* PillTransform(CompositeTransform):默认以元素左上为原点 → ScaleX 4 时指示条自中点向右展开至 16px */
@@ -262,7 +254,7 @@ html[data-theme='dark'] .wui-selector-bar-item {
 /* DisabledStates:选中项指示条换 DisabledPillFill(保持可见,源 Disabled 态只改 Fill 不改 Opacity) */
 .wui-selector-bar-item.is-selected:disabled .wui-selector-bar-item-pill,
 .wui-selector-bar-item.is-selected.is-disabled .wui-selector-bar-item-pill {
-  background: var(--wui-selector-bar-item-pill-fill-disabled);
+  background: var(--wui-accent-fill-color-disabled); /* = AccentFillColorDisabledBrush(浅 #37000000 / 深 #28FFFFFF) */
 }
 
 /* —— 焦点(UseSystemFocusVisuals 系统焦点环;FocusVisualMargin -2 的扩展量简化为贴边环,wiki 记录)—— */

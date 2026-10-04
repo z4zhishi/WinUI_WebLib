@@ -284,9 +284,8 @@ onBeforeUnmount(() => {
   box-sizing: border-box;
   height: 32px; /* TitleBarCompactHeight(ThemeResource,TitleBar_themeresources.xaml L77) */
   font-family: var(--wui-content-control-theme-font-family);
-  /* TitleBarForegroundBrush = TextFillColorPrimaryBrush;theme.css 未提取该画刷族
-     (定义于 CommonStyles/Common_themeresources_any.xaml),按最近似 token 映射,见 wiki 差异节 */
-  color: var(--wui-application-foreground-theme);
+  /* TitleBarForegroundBrush = TextFillColorPrimaryBrush(TitleBar_themeresources.xaml L9/L41) */
+  color: var(--wui-text-fill-color-primary);
   background: transparent; /* 默认 Style:Background = Transparent */
   user-select: none;
 }
@@ -311,30 +310,29 @@ onBeforeUnmount(() => {
   padding: 0;
   font-family: var(--wui-symbol-theme-font-family); /* SymbolThemeFontFamily */
   font-size: 16px; /* 源 Style FontSize=16 */
-  color: inherit; /* TitleBarBackButtonForeground = TextFillColorPrimaryBrush */
-  background: transparent; /* TitleBarBackButtonBackground = SubtleFillColorTransparentBrush */
+  color: inherit; /* TitleBarBackButtonForeground = TextFillColorPrimaryBrush(L13/L45) */
+  background: var(--wui-subtle-fill-color-transparent); /* TitleBarBackButtonBackground = SubtleFillColorTransparentBrush(L10/L42) */
   border: none;
   /* ControlCornerRadius(4)无同名 token,按项目既有约定取最近似圆角 token(见 wiki 差异节) */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);
   cursor: default;
 }
 
-/* PointerOver:SubtleFillColorSecondaryBrush / 前景不变(源 ForegroundPointerOver = Primary)。
-   SubtleFill* 族 theme.css 未提取,按 MenuBarItem 既有约定取最近似 token */
+/* PointerOver:SubtleFillColorSecondaryBrush / 前景不变(源 ForegroundPointerOver = Primary,L14/L46) */
 .wui-title-bar__button:hover:not(:disabled) {
-  background: var(--wui-grid-view-item-background-pointer-over);
+  background: var(--wui-subtle-fill-color-secondary);
 }
 
-/* Pressed:SubtleFillColorTertiaryBrush / 前景 Secondary */
+/* Pressed:SubtleFillColorTertiaryBrush / 前景 Secondary(L15/L47) */
 .wui-title-bar__button:active:not(:disabled) {
-  color: var(--wui-application-secondary-foreground-theme);
-  background: var(--wui-grid-view-item-background-pressed);
+  color: var(--wui-text-fill-color-secondary);
+  background: var(--wui-subtle-fill-color-tertiary);
 }
 
-/* Disabled:ControlFillColorDisabledBrush / TextFillColorDisabledBrush(最近似 token) */
+/* Disabled:背景 ControlFillColorDisabledBrush(L16) / 前景 TextFillColorDisabledBrush(L20) */
 .wui-title-bar__button:disabled {
-  color: var(--wui-system-control-disabled-base-medium-low);
-  background: var(--wui-text-control-background-disabled);
+  color: var(--wui-text-fill-color-disabled);
+  background: var(--wui-control-fill-color-disabled);
   cursor: default;
 }
 
@@ -416,7 +414,7 @@ onBeforeUnmount(() => {
   line-height: normal;
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: var(--wui-application-secondary-foreground-theme); /* TitleBarSubtitleForegroundBrush = TextFillColorSecondaryBrush 近似 */
+  color: var(--wui-text-fill-color-secondary); /* TitleBarSubtitleForegroundBrush = TextFillColorSecondaryBrush(L11/L43) */
 }
 
 /* —— PART_ContentPresenterGrid(列 9):内容默认居中(TitleBarContentHorizontalAlignment = Center)—— */
@@ -482,15 +480,16 @@ onBeforeUnmount(() => {
   cursor: default;
 }
 
-/* 系统按钮悬停/按压同为 Subtle 高亮(源控件的 SubtleFill* 约定;真实窗口关闭钮悬停为
-   系统红 #C42B1C,该值属系统 chrome 且无 token —— 差异记录 wiki) */
+/* 系统按钮悬停/按压同为 Subtle 高亮(同返回/窗格钮的 SubtleFill* 约定)。
+   悬停=SubtleFillColorSecondary、按压=SubtleFillColorTertiary + TextFillColorSecondary;
+   真实窗口关闭钮悬停为系统红 #C42B1C,该值属系统 chrome 且无 token —— 差异记录 wiki */
 .wui-title-bar__caption-button:hover:not(:disabled) {
-  background: var(--wui-grid-view-item-background-pointer-over);
+  background: var(--wui-subtle-fill-color-secondary);
 }
 
 .wui-title-bar__caption-button:active:not(:disabled) {
-  color: var(--wui-application-secondary-foreground-theme);
-  background: var(--wui-grid-view-item-background-pressed);
+  color: var(--wui-text-fill-color-secondary);
+  background: var(--wui-subtle-fill-color-tertiary);
 }
 
 /* 系统焦点视觉:标题栏标题按钮贴边排布(FocusVisualMargin=0 族)→ 两环全在元素内
@@ -508,15 +507,15 @@ onBeforeUnmount(() => {
 /*
  * —— 失活(窗口未激活)Deactivated 态(Web 以 inactive prop 模拟;源经
  *    InputActivationListener 自动切换):文字/按钮转 TitleBarDeactivatedForegroundBrush
- *    (TextFillColorTertiaryBrush 近似),图标/标头/内容 Opacity = TitleBarDeactivatedOpacity 0.5。
+ *    = TextFillColorTertiaryBrush(L10/L42),图标/标头/内容 Opacity = TitleBarDeactivatedOpacity 0.5。
  *    按钮暂停交互(pointer-events:none)以呈现「失活不可点」语义。
  */
 .wui-title-bar--inactive {
-  color: var(--wui-system-control-foreground-base-medium-low); /* TextFillColorTertiaryBrush 近似(#72000000 vs #00000066) */
+  color: var(--wui-text-fill-color-tertiary); /* TitleBarDeactivatedForegroundBrush = TextFillColorTertiaryBrush */
 }
 
 .wui-title-bar--inactive .wui-title-bar__subtitle {
-  color: var(--wui-system-control-foreground-base-medium-low); /* TitleBarSubtitleDeactivatedForegroundBrush 同为 Tertiary */
+  color: var(--wui-text-fill-color-tertiary); /* TitleBarSubtitleDeactivatedForegroundBrush 同为 Tertiary(L12/L44) */
 }
 
 .wui-title-bar--inactive .wui-title-bar__icon,

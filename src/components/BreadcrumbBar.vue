@@ -15,21 +15,19 @@
 //     会被 Default 视觉态经 UpdateInlineItemTypeVisualState 置换为 BreadcrumbBarChevronLeftToRight,
 //     见 wiki 差异节)、FontSize 12、
 //     Padding "2,0"(BreadcrumbBarChevronPadding);省略号节点内容为字形 E712(More)、Padding 3;
-//   - 前景:Normal = BreadcrumbBarNormalForegroundBrush(TextFillColorPrimary ≈
-//     --wui-application-foreground-theme),Hover = …HoverForegroundBrush(TextFillColorSecondary
-//     ≈ --wui-application-secondary-foreground-theme),Pressed = …PressedForegroundBrush
-//     (TextFillColorTertiary ≈ --wui-application-pressed-foreground-theme,同 SelectorBar
-//     对该画刷的映射,见 wiki 差异节),
-//     Disabled = …DisabledForegroundBrush(≈ --wui-system-control-foreground-base-medium-low);
+//   - 前景(PL11 重定向到 Fluent):Normal = BreadcrumbBarNormalForegroundBrush = TextFillColorPrimary
+//     (--wui-text-fill-color-primary),Hover = …HoverForegroundBrush = TextFillColorSecondary
+//     (--wui-text-fill-color-secondary),Pressed = …PressedForegroundBrush = TextFillColorTertiary
+//     (--wui-text-fill-color-tertiary),
+//     Disabled = …DisabledForegroundBrush = TextFillColorDisabled(--wui-text-fill-color-disabled);
 //     chevron 恒用 Normal 前景(模板 Foreground 固定);
 //   - 最后一项走 LastItem 视觉态:按钮收起、改渲染 ContentPresenter,不可点击不可悬停,
 //     前景 BreadcrumbBarCurrentNormalForegroundBrush(= TextFillColorPrimary);
-//   - 省略号下拉:FlyoutPresenter 皮肤(Background = AcrylicBackgroundFillColorDefault ≈
-//     --wui-flyout-presenter-background、Border = SurfaceStrokeColorFlyout ≈
-//     --wui-flyout-border-theme、Padding="0,2"、MinHeight 40、OverlayCornerRadius 圆角);
-//     下拉项 Padding="11,7,11,9" + Margin="5,3",背景 SubtleFill 系列无 token,
-//     取同源画刷的 menu-flyout-item 系列 token(MenuFlyoutItemBackground* 与
-//     BreadcrumbBarEllipsisDropDownItem* 引用同一组 SubtleFill*/TextFill* 资源)。
+//   - 省略号下拉:FlyoutPresenter 皮肤(Background = AcrylicBackgroundFillColorDefault,web 取
+//     不透明回退 #F9F9F9/#2C2C2C、Border = SurfaceStrokeColorFlyout = --wui-surface-stroke-color-flyout、
+//     Padding="0,2"、MinHeight 40、OverlayCornerRadius 圆角);
+//     下拉项 Padding="11,7,11,9" + Margin="5,3",背景 SubtleFillColorTransparent/Secondary/Tertiary、
+//     前景 TextFillColorPrimary/Disabled(BreadcrumbBarEllipsisDropDownItem* 与 MenuFlyoutItem* 引用同组资源)。
 //
 // 行为规格(BreadcrumbBar.cpp / BreadcrumbLayout.cpp):
 //   - 溢出折叠:总宽超过可用宽度时在头部渲染省略号节点,并从根侧起隐藏放不下的节点;
@@ -546,7 +544,7 @@ function onLayerFocusout(event: FocusEvent): void {
   min-width: 0;
   overflow: hidden;
   background: transparent;
-  color: var(--wui-application-foreground-theme); /* BreadcrumbBarForegroundBrush ≈ TextFillColorPrimary */
+  color: var(--wui-text-fill-color-primary); /* BreadcrumbBarForegroundBrush = TextFillColorPrimaryBrush(themeresources L26/L57) */
 }
 
 /* 隐藏测量行:绝对定位 + visibility hidden,不占布局、不进无障碍树 */
@@ -580,7 +578,7 @@ function onLayerFocusout(event: FocusEvent): void {
   font-family: var(--wui-content-control-theme-font-family);
   font-size: var(--wui-control-content-theme-font-size); /* BreadcrumbBarItemThemeFontSize */
   font-weight: 400; /* BreadcrumbBarItemFontWeight = Normal */
-  color: var(--wui-application-foreground-theme); /* BreadcrumbBarNormalForegroundBrush */
+  color: var(--wui-text-fill-color-primary); /* BreadcrumbBarNormalForegroundBrush = TextFillColorPrimaryBrush(L9/L40) */
   background: transparent; /* BreadcrumbBarBackgroundBrush */
   border: none;
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px); /* ControlCornerRadius */
@@ -589,17 +587,15 @@ function onLayerFocusout(event: FocusEvent): void {
 }
 
 .wui-breadcrumb-item-button:hover:not(:disabled) {
-  color: var(--wui-application-secondary-foreground-theme); /* …HoverForegroundBrush = TextFillColorSecondary */
+  color: var(--wui-text-fill-color-secondary); /* …HoverForegroundBrush = TextFillColorSecondaryBrush(L10/L41) */
 }
 
 .wui-breadcrumb-item-button:active:not(:disabled) {
-  /* WinUI Pressed = TextFillColorTertiary ≈ --wui-application-pressed-foreground-theme
-     (同 SelectorBar 对该画刷的映射,见 wiki 差异节) */
-  color: var(--wui-application-pressed-foreground-theme);
+  color: var(--wui-text-fill-color-tertiary); /* …PressedForegroundBrush = TextFillColorTertiaryBrush(L11/L42) */
 }
 
 .wui-breadcrumb-item-button:disabled {
-  color: var(--wui-system-control-foreground-base-medium-low); /* …DisabledForegroundBrush ≈ TextFillColorDisabled */
+  color: var(--wui-text-fill-color-disabled); /* …DisabledForegroundBrush = TextFillColorDisabledBrush(L12/L43) */
   cursor: default;
 }
 
@@ -633,7 +629,7 @@ function onLayerFocusout(event: FocusEvent): void {
   font-family: var(--wui-content-control-theme-font-family);
   font-size: var(--wui-control-content-theme-font-size);
   font-weight: 400;
-  color: var(--wui-application-foreground-theme); /* BreadcrumbBarCurrentNormalForegroundBrush */
+  color: var(--wui-text-fill-color-primary); /* BreadcrumbBarCurrentNormalForegroundBrush = TextFillColorPrimaryBrush(L14/L45) */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);
   user-select: none;
 }
@@ -655,7 +651,7 @@ function onLayerFocusout(event: FocusEvent): void {
   font-family: var(--wui-symbol-theme-font-family);
   font-size: 12px; /* BreadcrumbBarChevronFontSize */
   line-height: 1;
-  color: var(--wui-application-foreground-theme); /* BreadcrumbBarNormalForegroundBrush(模板固定) */
+  color: var(--wui-text-fill-color-primary); /* BreadcrumbBarNormalForegroundBrush(模板 chevron 固定用 Normal,L9) */
 }
 
 /* 省略号字形(PART_EllipsisTextBlock):SymbolThemeFontFamily、项字号、Padding 3 */
@@ -669,9 +665,14 @@ function onLayerFocusout(event: FocusEvent): void {
 /* ======================================================================
  * 省略号下拉层(层根定位/圆角/阴影/z-index 由基建 .wui-popup-layer 提供):
  * FlyoutPresenter 皮肤 —— Padding="0,2"、MinHeight 40、Min/MaxWidth 96/456
- * (FlyoutThemeMaxWidth)、AcrylicBackgroundFillColorDefault + SurfaceStrokeColorFlyout。
+ * (FlyoutThemeMaxWidth)。
+ * Background = BreadcrumbBarEllipsisFlyoutPresenterBackground =
+ *   AcrylicBackgroundFillColorDefaultBrush(themeresources L29/L60);web 无原生亚克力,
+ *   取不透明回退色 #F9F9F9(浅)/#2C2C2C(深)(brush-authority §4.2)。
+ * BorderBrush = BreadcrumbBarEllipsisFlyoutPresenterBorderBrush = SurfaceStrokeColorFlyoutBrush(L30/L61)。
  * ====================================================================== */
 .wui-breadcrumb-dropdown {
+  --wui-breadcrumb-flyout-bg: #f9f9f9;
   box-sizing: border-box;
   overflow: auto;
   min-width: 96px;
@@ -680,12 +681,16 @@ function onLayerFocusout(event: FocusEvent): void {
   max-height: 758px;
   padding: 2px 0;
   outline: none;
-  background: var(--wui-flyout-presenter-background);
-  border: 1px solid var(--wui-flyout-border-theme);
+  background: var(--wui-breadcrumb-flyout-bg);
+  border: 1px solid var(--wui-surface-stroke-color-flyout);
+}
+
+html[data-theme='dark'] .wui-breadcrumb-dropdown {
+  --wui-breadcrumb-flyout-bg: #2c2c2c;
 }
 
 /* 下拉项(Inline → EllipsisDropDown 视觉态):Padding="11,7,11,9" + Margin="5,3";
-   背景 SubtleFill 系列取同源画刷的 menu-flyout-item token(差异见 wiki) */
+   背景 SubtleFill 族(L19-22)、前景 TextFillColorPrimary(L23/L24) */
 .wui-breadcrumb-dropdown-item {
   display: block;
   width: calc(100% - 10px);
@@ -694,21 +699,26 @@ function onLayerFocusout(event: FocusEvent): void {
   font-family: var(--wui-content-control-theme-font-family);
   font-size: var(--wui-control-content-theme-font-size);
   font-weight: 400;
-  color: var(--wui-application-foreground-theme); /* …DropDownItemForeground* = TextFillColorPrimary */
+  color: var(--wui-text-fill-color-primary); /* …DropDownItemForeground* = TextFillColorPrimary */
   text-align: left;
   white-space: nowrap;
   cursor: default;
-  background: var(--wui-menu-flyout-item-background); /* …DropDownItemBackground = SubtleFillColorTransparent */
+  background: var(--wui-subtle-fill-color-transparent); /* …DropDownItemBackground = SubtleFillColorTransparent */
   border: none;
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);
 }
 
 .wui-breadcrumb-dropdown-item:hover {
-  background: var(--wui-menu-flyout-item-background-pointer-over); /* SubtleFillColorSecondary */
+  background: var(--wui-subtle-fill-color-secondary); /* SubtleFillColorSecondary */
 }
 
 .wui-breadcrumb-dropdown-item:active {
-  background: var(--wui-menu-flyout-item-background-pressed); /* SubtleFillColorTertiary */
+  background: var(--wui-subtle-fill-color-tertiary); /* SubtleFillColorTertiary */
+}
+
+.wui-breadcrumb-dropdown-item:disabled {
+  color: var(--wui-text-fill-color-disabled); /* …DropDownItemForegroundDisabled = TextFillColorDisabled */
+  background: var(--wui-subtle-fill-color-transparent); /* …DropDownItemBackgroundDisabled */
 }
 
 /* 系统焦点视觉:省略号下拉项 PART_LayoutRoot.FocusVisualMargin=-3(BreadcrumbBar.xaml L33)
