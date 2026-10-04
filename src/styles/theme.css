@@ -1972,6 +1972,10 @@
   /* TextFill* */
   --wui-text-fill-color-disabled: #0000005c;
   --wui-text-fill-color-inverse: #ffffff;
+  /* TemporaryTextFillColorDisabled(Color):源 TextBox_themeresources.xaml Light L129 #5C010101
+     → #RRGGBBAA #0101015C;TextControlForegroundDisabled 指向它,而非 TextFillColorDisabled。
+     差异 1/255(RGB=1 vs 0),PL6 单独补 token 以求逐条一致。 */
+  --wui-temporary-text-fill-color-disabled: #0101015c;
 
   /* ControlOnImageFill* */
   --wui-control-on-image-fill-color-default: #ffffffc9;
@@ -2042,6 +2046,27 @@
     to bottom,
     var(--wui-control-stroke-color-on-accent-default) 0%,
     var(--wui-control-stroke-color-on-accent-secondary) 67%
+  );
+
+  /* ==========================================================================
+   * 文本控件立体描边(TextControlElevationBorderBrush;PL6 增量,手工维护)
+   * 源: CK/WinUI-Reference/controls/dev/CommonStyles/TextBox_themeresources.xaml
+   *     L48-56(Default/深色)、L155-163(Light/浅色)。
+   * 结构: MappingMode=Absolute、StartPoint=0,0 EndPoint=0,2(竖向 2px 轴),
+   *       GradientStop Offset=0.5 → ControlStrongStrokeColorDefault、
+   *       Offset=1.0 → ControlStrokeColorDefault。
+   * 方向: **Default 与 Light 两字典均带 RelativeTransform
+   *       ScaleTransform ScaleY=-1 CenterY=0.5**(L50 / L157;与 PL5 的
+   *       ControlElevationBorder 深浅方向不同,后者仅 Light 带 ScaleY=-1)。
+   *       ScaleY=-1 把 stop 偏移做 1-o 映射(0.5→0.5、1.0→0.0),排序后
+   *       顶上 ControlStrokeColorDefault、50% 处 ControlStrongStrokeColorDefault。
+   * CSS 换算: 取等价的两停百分比写法(与 PL5 同法)
+   *       `to bottom, default 0%, strong 50%`;两主题同向。
+   * ========================================================================== */
+  --wui-text-control-elevation-border: linear-gradient(
+    to bottom,
+    var(--wui-control-stroke-color-default) 0%,
+    var(--wui-control-strong-stroke-color-default) 50%
   );
 
   /* SubtleFill* */
@@ -4075,6 +4100,9 @@
   /* TextFill* */
   --wui-text-fill-color-disabled: #ffffff5d;
   --wui-text-fill-color-inverse: #000000e4;
+  /* TemporaryTextFillColorDisabled(Color):源 TextBox_themeresources.xaml Default L22 #5DFEFEFE
+     → #RRGGBBAA #FEFEFE5D(与 TextFillColorDisabled 深色 #FFFFFF5D 差 1/255)。 */
+  --wui-temporary-text-fill-color-disabled: #fefefe5d;
 
   /* ControlOnImageFill* */
   --wui-control-on-image-fill-color-default: #1c1c1cb3;
@@ -4138,6 +4166,18 @@
     to bottom,
     var(--wui-control-stroke-color-on-accent-default) 0%,
     var(--wui-control-stroke-color-on-accent-secondary) 67%
+  );
+
+  /* ==========================================================================
+   * 文本控件立体描边(TextControlElevationBorderBrush;PL6 增量,手工维护)
+   * 源: 同上文件 Default(深色)字典 L48-56;结构/方向见 Light 段注释
+   *     (Default 与 Light 两字典均带 ScaleY=-1 → 两主题同向)。
+   * 停色: default 0% → strong 50%;深色 default #FFFFFF12、strong #FFFFFF8B。
+   * ========================================================================== */
+  --wui-text-control-elevation-border: linear-gradient(
+    to bottom,
+    var(--wui-control-stroke-color-default) 0%,
+    var(--wui-control-strong-stroke-color-default) 50%
   );
 
   /* SubtleFill* */

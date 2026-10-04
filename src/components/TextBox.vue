@@ -190,48 +190,83 @@ const rootClass = computed(() => ({
 /* —— BorderElement:TextControlBorderThemeThickness = 2(四周),MinHeight 32 ——
    XAML 的 MinHeight 计入边框(BorderElement 外缘 32、内容区 28,ContentElement 以
    Margin=BorderThickness 内缩 2px),CSS 对应 border-box:总高 32 含 2px 边框
-   (content-box 会撑成 36px,VR-B7 F-B7-1;修法同 FIX6 ComboBox)。 */
+   (content-box 会撑成 36px,VR-B7 F-B7-1;修法同 FIX6 ComboBox)。
+   PL6:状态色重定向到 Fluent 画刷族(值 = controls/dev 权威):
+   Normal Background = ControlFillColorDefaultBrush;边框权威为渐变
+   TextControlElevationBorderBrush → 由下方 ::before 描边环呈现(border 保持透明)。 */
 .wui-text-box-border {
   position: relative;
   display: flex;
   align-items: stretch;
   box-sizing: border-box;
   min-height: 32px; /* TextControlThemeMinHeight(含边框) */
-  background: var(--wui-text-control-background);
-  border: 2px solid var(--wui-text-control-border);
+  background: var(--wui-control-fill-color-default);
+  border: 2px solid var(--wui-control-fill-color-transparent);
   border-radius: var(--wui-control-corner-radius); /* ControlCornerRadius = 4(V3 QA 打回项) */
+  /* Normal / PointerOver 边框 = TextControlElevationBorderBrush(渐变) */
+  --tb-elevation-border: var(--wui-text-control-elevation-border);
+}
+
+/* ======================================================================
+ * PL6 文本控件立体描边环(TextControlElevationBorderBrush):
+ * XAML 的 TextControlBorderBrush 是 LinearGradientBrush(竖向渐变),单色 border-color
+ * 无法表达 → 用「内嵌 mask 环」复刻(同 PL5 Button 方案):绝对定位伪元素铺满,
+ * background 取渐变,再用 mask 差集(mask-composite:exclude)挖空中心,只留边框厚度一圈。
+ * 几何:环厚 = 宿主 border 2px,inset:-2px 把环外缘推回 border-box 边缘;绝对定位不参与
+ *       布局 → 尺寸/圆角/边框宽/内边距全部不变。不采用 border-image(不随圆角裁切,4px
+ *       圆角会方角外溢)。
+ * 状态:纯色状态(Disabled / Focused)把 --tb-elevation-border 置 none,由 border-color
+ *       呈现,不为纯色状态套渐变(严格执行权威矩阵)。
+ * ====================================================================== */
+.wui-text-box-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: var(--tb-elevation-border, none);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 /* —— PointerOver 状态:VSM 优先级 Focused > PointerOver > Disabled 思路的 CSS 映射 ——
    hover 规则加 :not(:focus-within)(QA F1):聚焦时 hover 规则整体不命中,
    Focused 实底背景 + 强调色边框不再被 pointer-over 灰遮蔽;
-   :not(.is-disabled) 保证 Disabled 仍优先于 PointerOver(禁用态不可聚焦,focus-within 恒不命中)。 */
+   :not(.is-disabled) 保证 Disabled 仍优先于 PointerOver(禁用态不可聚焦,focus-within 恒不命中)。
+   PL6:PointerOver Background = ControlFillColorSecondaryBrush;边框仍为
+   TextControlElevationBorderBrush(渐变,与 Normal 同键);前景权威与 Normal 同值。 */
 .wui-text-box:not(.is-disabled) .wui-text-box-border:not(:focus-within):hover {
-  background: var(--wui-text-control-background-pointer-over);
-  border-color: var(--wui-text-control-border-brush-pointer-over);
+  background: var(--wui-control-fill-color-secondary);
+  --tb-elevation-border: var(--wui-text-control-elevation-border);
 }
 
 .wui-text-box:not(.is-disabled) .wui-text-box-border:not(:focus-within):hover .wui-text-box-input {
-  color: var(--wui-text-control-foreground-pointer-over);
+  color: var(--wui-text-fill-color-primary);
 }
 
 .wui-text-box:not(.is-disabled) .wui-text-box-border:not(:focus-within):hover .wui-text-box-input::placeholder {
-  color: var(--wui-text-control-placeholder-foreground-pointer-over);
+  color: var(--wui-text-fill-color-secondary);
 }
 
-/* —— Focused 状态:实底背景 + 强调色边框(UseSystemFocusVisuals 默认关闭,
-      模板 Focused 态即键盘焦点指示,无需额外 outline) —— */
+/* —— Focused 状态:PL6 权威 Background = ControlFillColorInputActiveBrush(浅 #FFFFFF /
+      深 #1E1E1EB3),BorderBrush = TextControlBorderBrushFocused(= TextControlElevation-
+      FocusedBrush,两停同为 accent,视觉等价 accent 实色)→ 实色强调边框(纯色,环置 none)。
+      UseSystemFocusVisuals 默认关闭,模板 Focused 态即键盘焦点指示,无需额外 outline。 —— */
 .wui-text-box-border:focus-within {
-  background: var(--wui-text-control-background-focused);
-  border-color: var(--wui-text-control-border-brush-focused, var(--wui-system-accent-color));
+  background: var(--wui-control-fill-color-input-active);
+  border-color: var(--wui-system-accent-color);
+  --tb-elevation-border: none;
 }
 
 .wui-text-box-border:focus-within .wui-text-box-input {
-  color: var(--wui-text-control-foreground-focused);
+  color: var(--wui-text-fill-color-primary);
 }
 
 .wui-text-box-border:focus-within .wui-text-box-input::placeholder {
-  color: var(--wui-text-control-placeholder-foreground-focused);
+  color: var(--wui-text-fill-color-secondary);
 }
 
 /* —— 内容元素(ContentElement):TextControlThemePadding = 10,3,6,6 —— */
@@ -241,15 +276,15 @@ const rootClass = computed(() => ({
   padding: 3px 6px 6px 10px;
   font-family: inherit;
   font-size: var(--wui-control-content-theme-font-size); /* ControlContentThemeFontSize */
-  color: var(--wui-text-control-foreground);
-  caret-color: var(--wui-text-control-foreground);
+  color: var(--wui-text-fill-color-primary);
+  caret-color: var(--wui-text-fill-color-primary);
   background: transparent;
   border: none;
   outline: none;
 }
 
 .wui-text-box-input::placeholder {
-  color: var(--wui-text-control-placeholder-foreground);
+  color: var(--wui-text-fill-color-secondary);
   opacity: 1;
 }
 
@@ -258,23 +293,26 @@ const rootClass = computed(() => ({
   background: var(--wui-text-control-selection-highlight-color, var(--wui-system-accent-color));
 }
 
-/* —— Disabled 状态 —— */
+/* —— Disabled 状态:Background = ControlFillColorDisabledBrush;
+      BorderBrush = ControlStrokeColorDefaultBrush(纯色 → 环 none);
+      Foreground = TemporaryTextFillColorDisabled;占位符 = TextFillColorDisabledBrush。 —— */
 .wui-text-box.is-disabled .wui-text-box-header {
   color: var(--wui-text-control-header-foreground-disabled);
 }
 
 .wui-text-box.is-disabled .wui-text-box-border {
-  background: var(--wui-text-control-background-disabled);
-  border-color: var(--wui-text-control-border-brush-disabled);
+  background: var(--wui-control-fill-color-disabled);
+  border-color: var(--wui-control-stroke-color-default);
+  --tb-elevation-border: none;
 }
 
 .wui-text-box.is-disabled .wui-text-box-input {
-  color: var(--wui-text-control-foreground-disabled);
+  color: var(--wui-temporary-text-fill-color-disabled);
   cursor: default;
 }
 
 .wui-text-box.is-disabled .wui-text-box-input::placeholder {
-  color: var(--wui-text-control-placeholder-foreground-disabled);
+  color: var(--wui-text-fill-color-disabled);
 }
 
 /* —— 只读:保持常态配色(源模板无只读视觉状态),仅不可编辑 —— */
@@ -282,10 +320,13 @@ const rootClass = computed(() => ({
   cursor: default;
 }
 
-/* —— DeleteButton(清除按钮):TextControlButton* 画刷族;
+/* —— DeleteButton(清除按钮):PL6 重定向到 TextControlButton* Fluent 画刷
+      (Foreground=TextFillColorSecondaryBrush、PointerOver/Pressed=同键、
+      Background PointerOver=SubtleFillColorSecondaryBrush、Pressed=SubtleFillColorTertiaryBrush、
+      BorderBrush 三态=ControlFillColorTransparent)。
       HelperButtonThemePadding = 0,0,-2,0(覆盖右边界 2px)。
-      Normal 前景用 helper 专用 token:源 TextControlButtonForeground 两字典同 ChromeBlackMedium
-      (#000000cc),按钮只在聚焦白底出现,不吃 theme.css 的暗色语境覆写(FIX12 F-B7-2) —— */
+      按钮仅在聚焦(ControlFillColorInputActive)底上出现;浅色底白/深色底 #1E1E1E 下
+      TextFillColorSecondary 两主题均可见,故不再需要 FIX12 的 ChromeBlackMedium 覆写。 —— */
 .wui-text-box-delete-button {
   flex: none;
   width: 34px; /* DeleteButton MinWidth = 34 */
@@ -296,19 +337,19 @@ const rootClass = computed(() => ({
   padding: 0;
   font-family: var(--wui-symbol-theme-font-family);
   font-size: var(--wui-tool-tip-content-theme-font-size); /* GlyphElement FontSize = 12,取同值 token */
-  color: var(--wui-text-control-helper-button-foreground);
-  background: var(--wui-text-control-button-background);
+  color: var(--wui-text-fill-color-secondary);
+  background: var(--wui-control-fill-color-transparent);
   border: none;
   cursor: pointer;
 }
 
 .wui-text-box-delete-button:hover {
-  color: var(--wui-text-control-button-foreground-pointer-over);
-  background: var(--wui-text-control-button-background-pointer-over);
+  color: var(--wui-text-fill-color-secondary);
+  background: var(--wui-subtle-fill-color-secondary);
 }
 
 .wui-text-box-delete-button:active {
-  color: var(--wui-text-control-button-foreground-pressed);
-  background: var(--wui-text-control-button-background-pressed);
+  color: var(--wui-text-fill-color-tertiary);
+  background: var(--wui-subtle-fill-color-tertiary);
 }
 </style>

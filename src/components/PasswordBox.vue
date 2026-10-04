@@ -209,48 +209,67 @@ const rootClass = computed(() => ({
 
 /* —— BorderElement:TextControlBorderThemeThickness = 2(四周),MinHeight 32 ——
    XAML 的 MinHeight 计入边框(外缘 32、内容区 28),CSS 对应 border-box:总高 32 含
-   2px 边框(content-box 会撑成 36px,VR-B7 F-B7-3;修法同 FIX6 ComboBox/TextBox)。 */
+   2px 边框(content-box 会撑成 36px,VR-B7 F-B7-3;修法同 FIX6 ComboBox/TextBox)。
+   PL6:状态色重定向到 Fluent 画刷族(同 TextBox,权威见 TextBox_themeresources.xaml)。 */
 .wui-password-box-border {
   position: relative;
   display: flex;
   align-items: stretch;
   box-sizing: border-box;
   min-height: 32px; /* TextControlThemeMinHeight(含边框) */
-  background: var(--wui-text-control-background);
-  border: 2px solid var(--wui-text-control-border);
+  background: var(--wui-control-fill-color-default);
+  border: 2px solid var(--wui-control-fill-color-transparent);
   border-radius: var(--wui-control-corner-radius); /* ControlCornerRadius = 4(V3 QA 打回项) */
+  /* Normal / PointerOver 边框 = TextControlElevationBorderBrush(渐变) */
+  --pb-elevation-border: var(--wui-text-control-elevation-border);
+}
+
+/* PL6 立体描边环(TextControlElevationBorderBrush):内嵌 mask 环,原理同 TextBox.vue。 */
+.wui-password-box-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: var(--pb-elevation-border, none);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 /* —— PointerOver 状态:VSM 优先级 Focused > PointerOver > Disabled 思路的 CSS 映射
       (沿用 TextBox 已过 QA 的写法:hover 不命中聚焦态,Disabled 仍优先) —— */
 .wui-password-box:not(.is-disabled) .wui-password-box-border:not(:focus-within):hover {
-  background: var(--wui-text-control-background-pointer-over);
-  border-color: var(--wui-text-control-border-brush-pointer-over);
+  background: var(--wui-control-fill-color-secondary);
+  --pb-elevation-border: var(--wui-text-control-elevation-border);
 }
 
 .wui-password-box:not(.is-disabled) .wui-password-box-border:not(:focus-within):hover .wui-password-box-input {
-  color: var(--wui-text-control-foreground-pointer-over);
+  color: var(--wui-text-fill-color-primary);
 }
 
 .wui-password-box:not(.is-disabled)
   .wui-password-box-border:not(:focus-within):hover
   .wui-password-box-input::placeholder {
-  color: var(--wui-text-control-placeholder-foreground-pointer-over);
+  color: var(--wui-text-fill-color-secondary);
 }
 
-/* —— Focused 状态:实底背景 + 强调色边框(UseSystemFocusVisuals 默认关闭,
-      模板 Focused 态即键盘焦点指示,无需额外 outline) —— */
+/* —— Focused 状态:Background = ControlFillColorInputActiveBrush,
+      BorderBrush = TextControlBorderBrushFocused(视觉等价 accent 实色 → 环 none)。 —— */
 .wui-password-box-border:focus-within {
-  background: var(--wui-text-control-background-focused);
-  border-color: var(--wui-text-control-border-brush-focused, var(--wui-system-accent-color));
+  background: var(--wui-control-fill-color-input-active);
+  border-color: var(--wui-system-accent-color);
+  --pb-elevation-border: none;
 }
 
 .wui-password-box-border:focus-within .wui-password-box-input {
-  color: var(--wui-text-control-foreground-focused);
+  color: var(--wui-text-fill-color-primary);
 }
 
 .wui-password-box-border:focus-within .wui-password-box-input::placeholder {
-  color: var(--wui-text-control-placeholder-foreground-focused);
+  color: var(--wui-text-fill-color-secondary);
 }
 
 /* —— 内容元素(ContentElement):TextControlThemePadding = 10,3,6,6 —— */
@@ -260,15 +279,15 @@ const rootClass = computed(() => ({
   padding: 3px 6px 6px 10px;
   font-family: inherit;
   font-size: var(--wui-control-content-theme-font-size); /* ControlContentThemeFontSize */
-  color: var(--wui-text-control-foreground);
-  caret-color: var(--wui-text-control-foreground);
+  color: var(--wui-text-fill-color-primary);
+  caret-color: var(--wui-text-fill-color-primary);
   background: transparent;
   border: none;
   outline: none;
 }
 
 .wui-password-box-input::placeholder {
-  color: var(--wui-text-control-placeholder-foreground);
+  color: var(--wui-text-fill-color-secondary);
   opacity: 1;
 }
 
@@ -277,30 +296,30 @@ const rootClass = computed(() => ({
   background: var(--wui-text-control-selection-highlight-color, var(--wui-system-accent-color));
 }
 
-/* —— Disabled 状态 —— */
+/* —— Disabled 状态:ControlFillColorDisabled / ControlStrokeColorDefault /
+      TemporaryTextFillColorDisabled / TextFillColorDisabled(占位符)。 —— */
 .wui-password-box.is-disabled .wui-password-box-header {
   color: var(--wui-text-control-header-foreground-disabled);
 }
 
 .wui-password-box.is-disabled .wui-password-box-border {
-  background: var(--wui-text-control-background-disabled);
-  border-color: var(--wui-text-control-border-brush-disabled);
+  background: var(--wui-control-fill-color-disabled);
+  border-color: var(--wui-control-stroke-color-default);
+  --pb-elevation-border: none;
 }
 
 .wui-password-box.is-disabled .wui-password-box-input {
-  color: var(--wui-text-control-foreground-disabled);
+  color: var(--wui-temporary-text-fill-color-disabled);
   cursor: default;
 }
 
 .wui-password-box.is-disabled .wui-password-box-input::placeholder {
-  color: var(--wui-text-control-placeholder-foreground-disabled);
+  color: var(--wui-text-fill-color-disabled);
 }
 
-/* —— RevealButton(揭示按钮):TextControlButton* 画刷族;
-      HelperButtonThemePadding = 0,0,-2,0(覆盖右边界 2px);Disabled 态源模板 Opacity=0,
-      本实现直接不渲染(v-if 已排除 disabled)。
-      Normal 前景用 helper 专用 token:源 TextControlButtonForeground 两字典同 ChromeBlackMedium
-      (#000000cc),按钮只在聚焦白底出现,不吃 theme.css 的暗色语境覆写(FIX12 F-B7-4) —— */
+/* —— RevealButton(揭示按钮):PL6 重定向到 TextControlButton* Fluent 画刷
+      (同 TextBox DeleteButton);HelperButtonThemePadding = 0,0,-2,0。
+      Disabled 态源模板 Opacity=0,本实现直接不渲染(v-if 已排除 disabled)。 —— */
 .wui-password-box-reveal-button {
   flex: none;
   width: 34px; /* RevealButton MinWidth = 34 */
@@ -311,19 +330,19 @@ const rootClass = computed(() => ({
   padding: 0;
   font-family: var(--wui-symbol-theme-font-family);
   font-size: var(--wui-tool-tip-content-theme-font-size); /* GlyphElement FontSize = 12,取同值 token */
-  color: var(--wui-text-control-helper-button-foreground);
-  background: var(--wui-text-control-button-background);
+  color: var(--wui-text-fill-color-secondary);
+  background: var(--wui-control-fill-color-transparent);
   border: none;
   cursor: pointer;
 }
 
 .wui-password-box-reveal-button:hover {
-  color: var(--wui-text-control-button-foreground-pointer-over);
-  background: var(--wui-text-control-button-background-pointer-over);
+  color: var(--wui-text-fill-color-secondary);
+  background: var(--wui-subtle-fill-color-secondary);
 }
 
 .wui-password-box-reveal-button:active {
-  color: var(--wui-text-control-button-foreground-pressed);
-  background: var(--wui-text-control-button-background-pressed);
+  color: var(--wui-text-fill-color-tertiary);
+  background: var(--wui-subtle-fill-color-tertiary);
 }
 </style>

@@ -388,7 +388,10 @@ const rootClass = computed(() => ({
 
 /* —— BorderElement ——
    XAML 的 MinHeight 计入边框(外缘 32、内容区 28),CSS 对应 border-box:总高 32 含
-   2px 边框(content-box 会撑成 36px,VR-B7 F-B7-6;修法同 FIX6 ComboBox/TextBox)。 */
+   2px 边框(content-box 会撑成 36px,VR-B7 F-B7-6;修法同 FIX6 ComboBox/TextBox)。
+   PL6:状态色重定向到 Fluent 画刷族(RichEditBox 与 TextBox 共用 TextControl* 键,
+   权威 = CommonStyles/RichEditBox_themeresources.xaml 的状态机 + TextBox_themeresources.xaml
+   的键定义)。 */
 .wui-rich-edit-box-border {
   position: relative;
   display: flex;
@@ -396,37 +399,57 @@ const rootClass = computed(() => ({
   align-items: stretch;
   box-sizing: border-box;
   min-height: 32px; /* TextControlThemeMinHeight(含边框) */
-  background: var(--wui-text-control-background);
-  border: 2px solid var(--wui-text-control-border);
+  background: var(--wui-control-fill-color-default);
+  border: 2px solid var(--wui-control-fill-color-transparent);
   border-radius: var(--wui-control-corner-radius); /* ControlCornerRadius = 4(BorderElement CornerRadius 模板绑定;T9 补修批次) */
+  /* Normal / PointerOver 边框 = TextControlElevationBorderBrush(渐变) */
+  --reb-elevation-border: var(--wui-text-control-elevation-border);
+}
+
+/* PL6 立体描边环(TextControlElevationBorderBrush):内嵌 mask 环,原理同 TextBox.vue。 */
+.wui-rich-edit-box-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: var(--reb-elevation-border, none);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* —— PointerOver:与 TextBox 家族一致 —— */
 .wui-rich-edit-box:not(.is-disabled) .wui-rich-edit-box-border:not(:focus-within):hover {
-  background: var(--wui-text-control-background-pointer-over);
-  border-color: var(--wui-text-control-border-brush-pointer-over);
+  background: var(--wui-control-fill-color-secondary);
+  --reb-elevation-border: var(--wui-text-control-elevation-border);
 }
 
 .wui-rich-edit-box:not(.is-disabled) .wui-rich-edit-box-border:not(:focus-within):hover .wui-rich-edit-box-editor {
-  color: var(--wui-text-control-foreground-pointer-over);
+  color: var(--wui-text-fill-color-primary);
 }
 
 .wui-rich-edit-box:not(.is-disabled) .wui-rich-edit-box-border:not(:focus-within):hover .wui-rich-edit-box-placeholder {
-  color: var(--wui-text-control-placeholder-foreground-pointer-over);
+  color: var(--wui-text-fill-color-secondary);
 }
 
-/* —— Focused 状态:实底背景 + 强调色边框 —— */
+/* —— Focused 状态:Background = ControlFillColorInputActiveBrush,
+      BorderBrush = TextControlBorderBrushFocused(视觉等价 accent 实色 → 环 none)。 —— */
 .wui-rich-edit-box-border:focus-within {
-  background: var(--wui-text-control-background-focused);
-  border-color: var(--wui-text-control-border-brush-focused, var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme)));
+  background: var(--wui-control-fill-color-input-active);
+  border-color: var(--wui-system-accent-color);
+  --reb-elevation-border: none;
 }
 
 .wui-rich-edit-box-border:focus-within .wui-rich-edit-box-editor {
-  color: var(--wui-text-control-foreground-focused);
+  color: var(--wui-text-fill-color-primary);
 }
 
 .wui-rich-edit-box-border:focus-within .wui-rich-edit-box-placeholder {
-  color: var(--wui-text-control-placeholder-foreground-focused);
+  color: var(--wui-text-fill-color-secondary);
 }
 
 /* —— 内容元素:TextControlThemePadding = 10,3,6,6;ScrollViewer 竖向 Auto —— */
@@ -444,8 +467,8 @@ const rootClass = computed(() => ({
      空盒恰为 32)。Chromium 空行 strut(line-height normal)为 20px,会把单行空盒撑到 33
      (VR-B7 F-B7-6 连带),故锁定 19px = 源行距;多行仍随内容增高(源 ScrollViewer Auto)。 */
   line-height: 19px;
-  color: var(--wui-text-control-foreground);
-  caret-color: var(--wui-text-control-foreground);
+  color: var(--wui-text-fill-color-primary);
+  caret-color: var(--wui-text-fill-color-primary);
   outline: none;
   /* TextWrapping = Wrap(模板 Setter) */
   overflow-wrap: break-word;
@@ -480,30 +503,32 @@ const rootClass = computed(() => ({
   padding: 3px 6px 6px 10px;
   overflow: hidden;
   font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-text-control-placeholder-foreground);
+  color: var(--wui-text-fill-color-secondary);
   pointer-events: none;
   white-space: pre-wrap;
 }
 
-/* —— Disabled 状态 —— */
+/* —— Disabled 状态:ControlFillColorDisabled / ControlStrokeColorDefault /
+      TemporaryTextFillColorDisabled / TextFillColorDisabled(占位符)。 —— */
 .wui-rich-edit-box.is-disabled .wui-rich-edit-box-header {
   color: var(--wui-text-control-header-foreground-disabled);
 }
 
 .wui-rich-edit-box.is-disabled .wui-rich-edit-box-border {
-  background: var(--wui-text-control-background-disabled);
-  border-color: var(--wui-text-control-border-brush-disabled);
+  background: var(--wui-control-fill-color-disabled);
+  border-color: var(--wui-control-stroke-color-default);
+  --reb-elevation-border: none;
 }
 
 .wui-rich-edit-box.is-disabled .wui-rich-edit-box-editor {
-  color: var(--wui-text-control-foreground-disabled);
+  color: var(--wui-temporary-text-fill-color-disabled);
   cursor: default;
   user-select: text;
   -webkit-user-select: text;
 }
 
 .wui-rich-edit-box.is-disabled .wui-rich-edit-box-placeholder {
-  color: var(--wui-text-control-placeholder-foreground-disabled);
+  color: var(--wui-text-fill-color-disabled);
 }
 
 /* —— 只读:保持常态配色(源模板无只读视觉状态),仅不可编辑 —— */
@@ -511,9 +536,8 @@ const rootClass = computed(() => ({
   cursor: default;
 }
 
-/* —— DeleteButton:TextControlButton* 画刷族;HelperButtonThemePadding。
-      Normal 前景用 helper 专用 token:源 TextControlButtonForeground 两字典同 ChromeBlackMedium
-      (#000000cc),按钮只在聚焦白底出现,不吃 theme.css 的暗色语境覆写(FIX12 F-B7-7) —— */
+/* —— DeleteButton:PL6 重定向到 TextControlButton* Fluent 画刷(同 TextBox DeleteButton);
+      HelperButtonThemePadding。 —— */
 .wui-rich-edit-box-delete-button {
   position: relative;
   z-index: 2;
@@ -526,19 +550,19 @@ const rootClass = computed(() => ({
   padding: 0;
   font-family: var(--wui-symbol-theme-font-family);
   font-size: var(--wui-tool-tip-content-theme-font-size); /* GlyphElement FontSize = 12 */
-  color: var(--wui-text-control-helper-button-foreground);
-  background: var(--wui-text-control-button-background);
+  color: var(--wui-text-fill-color-secondary);
+  background: var(--wui-control-fill-color-transparent);
   border: none;
   cursor: pointer;
 }
 
 .wui-rich-edit-box-delete-button:hover {
-  color: var(--wui-text-control-button-foreground-pointer-over);
-  background: var(--wui-text-control-button-background-pointer-over);
+  color: var(--wui-text-fill-color-secondary);
+  background: var(--wui-subtle-fill-color-secondary);
 }
 
 .wui-rich-edit-box-delete-button:active {
-  color: var(--wui-text-control-button-foreground-pressed);
-  background: var(--wui-text-control-button-background-pressed);
+  color: var(--wui-text-fill-color-tertiary);
+  background: var(--wui-subtle-fill-color-tertiary);
 }
 </style>

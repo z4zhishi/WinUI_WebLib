@@ -550,45 +550,65 @@ const rootClass = computed(() => ({
 
 /* ======================================================================
  * 文本框(AutoSuggestBoxTextBoxStyle:Border 2、MinHeight 32、TextControl* 族)
+ * PL6:状态色重定向到 Fluent 画刷族(与 TextBox 同源四态)。
  * ====================================================================== */
 .wui-auto-suggest-box-border {
   position: relative;
   display: flex;
   align-items: stretch;
   min-height: 32px; /* TextControlThemeMinHeight */
-  background: var(--wui-text-control-background);
-  border: 2px solid var(--wui-text-control-border);
+  background: var(--wui-control-fill-color-default);
+  border: 2px solid var(--wui-control-fill-color-transparent);
   /* 圆角:源模板闭合态即内嵌 TextBox(x:Name="TextBox"),随 ControlCornerRadius = 4(T9 补修批次) */
   border-radius: var(--wui-control-corner-radius);
+  /* Normal / PointerOver 边框 = TextControlElevationBorderBrush(渐变) */
+  --asb-elevation-border: var(--wui-text-control-elevation-border);
+}
+
+/* PL6 立体描边环(TextControlElevationBorderBrush):内嵌 mask 环,原理同 TextBox.vue。 */
+.wui-auto-suggest-box-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: var(--asb-elevation-border, none);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 /* —— PointerOver / Focused / Disabled:与 TextBox 同源四态(hover 规则加
       :not(:focus-within)(QA F1 同款),Disabled 恒优先) —— */
 .wui-auto-suggest-box:not(.is-disabled) .wui-auto-suggest-box-border:not(:focus-within):hover {
-  background: var(--wui-text-control-background-pointer-over);
-  border-color: var(--wui-text-control-border-brush-pointer-over);
+  background: var(--wui-control-fill-color-secondary);
+  --asb-elevation-border: var(--wui-text-control-elevation-border);
 }
 
 .wui-auto-suggest-box:not(.is-disabled) .wui-auto-suggest-box-border:not(:focus-within):hover .wui-auto-suggest-box-input {
-  color: var(--wui-text-control-foreground-pointer-over);
+  color: var(--wui-text-fill-color-primary);
 }
 
 .wui-auto-suggest-box:not(.is-disabled) .wui-auto-suggest-box-border:not(:focus-within):hover .wui-auto-suggest-box-input::placeholder {
-  color: var(--wui-text-control-placeholder-foreground-pointer-over);
+  color: var(--wui-text-fill-color-secondary);
 }
 
-/* Focused:实底背景 + 强调色边框 */
+/* Focused:Background = ControlFillColorInputActiveBrush,
+   BorderBrush = TextControlBorderBrushFocused(视觉等价 accent 实色 → 环 none)。 */
 .wui-auto-suggest-box-border:focus-within {
-  background: var(--wui-text-control-background-focused);
-  border-color: var(--wui-text-control-border-brush-focused, var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme)));
+  background: var(--wui-control-fill-color-input-active);
+  border-color: var(--wui-system-accent-color);
+  --asb-elevation-border: none;
 }
 
 .wui-auto-suggest-box-border:focus-within .wui-auto-suggest-box-input {
-  color: var(--wui-text-control-foreground-focused);
+  color: var(--wui-text-fill-color-primary);
 }
 
 .wui-auto-suggest-box-border:focus-within .wui-auto-suggest-box-input::placeholder {
-  color: var(--wui-text-control-placeholder-foreground-focused);
+  color: var(--wui-text-fill-color-secondary);
 }
 
 /* 内容元素:TextControlThemePadding = 10,3,6,6 */
@@ -598,15 +618,15 @@ const rootClass = computed(() => ({
   padding: 3px 6px 6px 10px;
   font-family: inherit;
   font-size: var(--wui-control-content-theme-font-size); /* ControlContentThemeFontSize */
-  color: var(--wui-text-control-foreground);
-  caret-color: var(--wui-text-control-foreground);
+  color: var(--wui-text-fill-color-primary);
+  caret-color: var(--wui-text-fill-color-primary);
   background: transparent;
   border: none;
   outline: none;
 }
 
 .wui-auto-suggest-box-input::placeholder {
-  color: var(--wui-text-control-placeholder-foreground);
+  color: var(--wui-text-fill-color-secondary);
   opacity: 1;
 }
 
@@ -614,28 +634,30 @@ const rootClass = computed(() => ({
   background: var(--wui-text-control-selection-highlight-color, var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme)));
 }
 
-/* —— Disabled —— */
+/* —— Disabled:ControlFillColorDisabled / ControlStrokeColorDefault /
+      TemporaryTextFillColorDisabled / TextFillColorDisabled(占位符)。 —— */
 .wui-auto-suggest-box.is-disabled .wui-auto-suggest-box-header {
   color: var(--wui-text-control-header-foreground-disabled);
 }
 
 .wui-auto-suggest-box.is-disabled .wui-auto-suggest-box-border {
-  background: var(--wui-text-control-background-disabled);
-  border-color: var(--wui-text-control-border-brush-disabled);
+  background: var(--wui-control-fill-color-disabled);
+  border-color: var(--wui-control-stroke-color-default);
+  --asb-elevation-border: none;
 }
 
 .wui-auto-suggest-box.is-disabled .wui-auto-suggest-box-input {
-  color: var(--wui-text-control-foreground-disabled);
+  color: var(--wui-temporary-text-fill-color-disabled);
   cursor: default;
 }
 
 .wui-auto-suggest-box.is-disabled .wui-auto-suggest-box-input::placeholder {
-  color: var(--wui-text-control-placeholder-foreground-disabled);
+  color: var(--wui-text-fill-color-disabled);
 }
 
 /* ======================================================================
- * DeleteButton / QueryButton:TextControlButton* 画刷族,MinWidth 34,
- * glyph 字号 AutoSuggestBoxIconFontSize = 12(token --wui-auto-suggest-box-icon-font-size)
+ * DeleteButton / QueryButton:PL6 重定向到 TextControlButton* Fluent 画刷,
+ * MinWidth 34,glyph 字号 AutoSuggestBoxIconFontSize = 12(token --wui-auto-suggest-box-icon-font-size)
  * ====================================================================== */
 .wui-auto-suggest-box-delete-button,
 .wui-auto-suggest-box-query-button {
@@ -648,34 +670,36 @@ const rootClass = computed(() => ({
   font-family: var(--wui-symbol-theme-font-family);
   font-size: var(--wui-auto-suggest-box-icon-font-size); /* AutoSuggestBoxIconFontSize = 12 */
   line-height: 1;
-  color: var(--wui-text-control-button-foreground);
-  background: var(--wui-text-control-button-background);
+  color: var(--wui-text-fill-color-secondary);
+  background: var(--wui-control-fill-color-transparent);
   border: none;
   cursor: pointer;
 }
 
 .wui-auto-suggest-box-delete-button:hover,
 .wui-auto-suggest-box-query-button:hover {
-  color: var(--wui-text-control-button-foreground-pointer-over);
-  background: var(--wui-text-control-button-background-pointer-over);
+  color: var(--wui-text-fill-color-secondary);
+  background: var(--wui-subtle-fill-color-secondary);
 }
 
 .wui-auto-suggest-box-delete-button:active,
 .wui-auto-suggest-box-query-button:active {
-  color: var(--wui-text-control-button-foreground-pressed);
-  background: var(--wui-text-control-button-background-pressed);
+  color: var(--wui-text-fill-color-tertiary);
+  background: var(--wui-subtle-fill-color-tertiary);
 }
 
 /* ======================================================================
  * 建议面板(SuggestionsContainer/SuggestionsList):
- * Background = AutoSuggestBoxSuggestionsListBackground、Border 1px、
+ * Background = AutoSuggestBoxSuggestionsListBackground(= AcrylicBackgroundFillColorDefaultBrush,
+ * 材质;web 无原生亚克力,沿用既有近似底色,未决项见报告)、Border 1px、
+ * PL6:BorderBrush 重定向到 SurfaceStrokeColorFlyoutBrush(AutoSuggestBoxSuggestionsListBorderBrush);
  * 列表外边距 AutoSuggestListMargin = 0,2,0,2;MaxHeight 由组件 prop 控制;
  * 圆角/阴影来自 .wui-popup-layer(ThemeShadow 的 Web 近似)
  * ====================================================================== */
 .wui-auto-suggest-box-dropdown {
   box-sizing: border-box;
   background: var(--wui-auto-suggest-box-suggestions-list-background);
-  border: 1px solid var(--wui-auto-suggest-box-suggestions-list-border);
+  border: 1px solid var(--wui-surface-stroke-color-flyout);
 }
 
 .wui-auto-suggest-box-list {

@@ -520,49 +520,74 @@ const rootClass = computed(() => ({
 /* —— 输入区:TextControl* 画刷族;Border 2、MinHeight 32、CornerRadius = ControlCornerRadius(4px,
       theme.css 无该 token,按源默认值写死,差异见 wiki) ——
    XAML 的 MinHeight 计入边框(外缘 32、内容区 28),CSS 对应 border-box:总高 32 含 2px 边框
-   (content-box 会撑成 36px 并连带 Inline 步进按钮 28px,VR-B7 F-B7-5;修法同 FIX6 ComboBox)。 */
+   (content-box 会撑成 36px 并连带 Inline 步进按钮 28px,VR-B7 F-B7-5;修法同 FIX6 ComboBox)。
+   PL6:状态色重定向到 Fluent 画刷族(NumberBox 内嵌输入区与 TextBox 共用 TextControl* 键)。 */
 .wui-number-box-field {
   display: flex;
   align-items: stretch;
   box-sizing: border-box;
   min-height: 32px; /* TextControlThemeMinHeight(含边框) */
-  background: var(--wui-text-control-background);
-  border: 2px solid var(--wui-text-control-border);
+  background: var(--wui-control-fill-color-default);
+  border: 2px solid var(--wui-control-fill-color-transparent);
   border-radius: 4px;
+  /* 描边环(::before)的定位基准;position 不产生偏移,几何不变 */
+  position: relative;
+  /* Normal / PointerOver 边框 = TextControlElevationBorderBrush(渐变) */
+  --nb-elevation-border: var(--wui-text-control-elevation-border);
+}
+
+/* PL6 立体描边环(TextControlElevationBorderBrush):内嵌 mask 环,原理同 TextBox.vue。 */
+.wui-number-box-field::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: var(--nb-elevation-border, none);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* —— PointerOver:沿用 TextBox 已过 QA 的写法 —— hover 不与聚焦态叠加(源 VSM 优先级)、
       Disabled 经 :not(.is-disabled) 恒排除 —— */
 .wui-number-box:not(.is-disabled) .wui-number-box-field:not(:focus-within):hover {
-  background: var(--wui-text-control-background-pointer-over);
-  border-color: var(--wui-text-control-border-brush-pointer-over);
+  background: var(--wui-control-fill-color-secondary);
+  --nb-elevation-border: var(--wui-text-control-elevation-border);
 }
 
 .wui-number-box:not(.is-disabled) .wui-number-box-field:not(:focus-within):hover .wui-number-box-input {
-  color: var(--wui-text-control-foreground-pointer-over);
+  color: var(--wui-text-fill-color-primary);
 }
 
 .wui-number-box:not(.is-disabled) .wui-number-box-field:not(:focus-within):hover .wui-number-box-input::placeholder {
-  color: var(--wui-text-control-placeholder-foreground-pointer-over);
+  color: var(--wui-text-fill-color-secondary);
 }
 
-/* —— Focused:实底背景 + 强调色边框(UseSystemFocusVisuals 默认关闭,不叠加 outline) —— */
+/* —— Focused:Background = ControlFillColorInputActiveBrush,
+      BorderBrush = TextControlBorderBrushFocused(视觉等价 accent 实色 → 环 none)。 —— */
 .wui-number-box-field:focus-within {
-  background: var(--wui-text-control-background-focused);
-  border-color: var(--wui-text-control-border-brush-focused, var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme)));
+  background: var(--wui-control-fill-color-input-active);
+  border-color: var(--wui-system-accent-color);
+  --nb-elevation-border: none;
 }
 
 .wui-number-box-field:focus-within .wui-number-box-input {
-  color: var(--wui-text-control-foreground-focused);
+  color: var(--wui-text-fill-color-primary);
 }
 
 .wui-number-box-field:focus-within .wui-number-box-input::placeholder {
-  color: var(--wui-text-control-placeholder-foreground-focused);
+  color: var(--wui-text-fill-color-secondary);
 }
 
-/* —— 错误旗标态(任务「小红旗」;置于 Focused 规则之后,聚焦时仍保持错误描边) —— */
+/* —— 错误旗标态(任务「小红旗」;置于 Focused 规则之后,聚焦时仍保持错误描边。
+      错误描边为纯色系统错误色 → 描边环置 none,不与渐变争用) —— */
 .wui-number-box.is-error .wui-number-box-field {
   border-color: var(--wui-system-control-error-text-foreground);
+  --nb-elevation-border: none;
 }
 
 /* —— 内容元素:TextControlThemePadding = 10,3,6,6 —— */
@@ -572,15 +597,15 @@ const rootClass = computed(() => ({
   padding: 3px 6px 6px 10px;
   font-family: inherit;
   font-size: var(--wui-control-content-theme-font-size); /* ControlContentThemeFontSize */
-  color: var(--wui-text-control-foreground);
-  caret-color: var(--wui-text-control-foreground);
+  color: var(--wui-text-fill-color-primary);
+  caret-color: var(--wui-text-fill-color-primary);
   background: transparent;
   border: none;
   outline: none;
 }
 
 .wui-number-box-input::placeholder {
-  color: var(--wui-text-control-placeholder-foreground);
+  color: var(--wui-text-fill-color-secondary);
   opacity: 1;
 }
 
@@ -600,18 +625,19 @@ const rootClass = computed(() => ({
 }
 
 /* —— Compact 指示符(源 PopupIndicator):Margin 0,0,8,0、FontSize 12;
-      色取占位符 token 近似 NumberBoxPopupIndicatorForeground(TextFillColorSecondaryBrush,见 wiki) —— */
+      PL6:色重定向 NumberBoxPopupIndicatorForeground = TextFillColorSecondaryBrush。 —— */
 .wui-number-box-indicator {
   flex: none;
   align-self: center;
   margin-right: 8px; /* NumberBoxPopupIndicatorMargin */
   font-family: var(--wui-symbol-theme-font-family);
   font-size: var(--wui-tool-tip-content-theme-font-size);
-  color: var(--wui-text-control-placeholder-foreground);
+  color: var(--wui-text-fill-color-secondary);
 }
 
-/* —— Inline 步进按钮(源 NumberBoxSpinButtonStyle,画刷按模板 ThemeDictionaries 映射到
-      TextControlButton* 族):MinWidth 32、Padding 0、FontSize 12、Border 0,1,1,1 —— */
+/* —— Inline 步进按钮(源 NumberBoxSpinButtonStyle:画刷经 NumberBox.xaml L65-98 映射到
+      TextControlButton* 族;PL6 重定向到 Fluent):MinWidth 32、Padding 0、FontSize 12、
+      Border 0,1,1,1 —— */
 .wui-number-box-spin {
   flex: none;
   min-width: 32px;
@@ -621,9 +647,9 @@ const rootClass = computed(() => ({
   padding: 0;
   font-family: var(--wui-symbol-theme-font-family);
   font-size: 12px; /* NumberBoxSpinButtonStyle FontSize = 12 */
-  color: var(--wui-text-control-button-foreground);
-  background: var(--wui-text-control-button-background);
-  border: solid var(--wui-text-control-button-border);
+  color: var(--wui-text-fill-color-secondary);
+  background: var(--wui-control-fill-color-transparent);
+  border: solid var(--wui-control-fill-color-transparent);
   border-width: 0 1px 1px 0; /* NumberBoxSpinButtonBorderThickness = 0,1,1,1 */
   border-radius: 4px; /* CornerRadius = ControlCornerRadius(见 wiki) */
   cursor: pointer;
@@ -640,30 +666,31 @@ const rootClass = computed(() => ({
 }
 
 .wui-number-box-spin:hover {
-  color: var(--wui-text-control-button-foreground-pointer-over);
-  background: var(--wui-text-control-button-background-pointer-over);
-  border-color: var(--wui-text-control-button-border-brush-pointer-over);
+  color: var(--wui-text-fill-color-secondary);
+  background: var(--wui-subtle-fill-color-secondary);
+  border-color: var(--wui-control-fill-color-transparent);
 }
 
 .wui-number-box-spin:active {
-  color: var(--wui-text-control-button-foreground-pressed);
-  background: var(--wui-text-control-button-background-pressed);
-  border-color: var(--wui-text-control-button-border-brush-pressed);
+  color: var(--wui-text-fill-color-tertiary);
+  background: var(--wui-subtle-fill-color-tertiary);
+  border-color: var(--wui-control-fill-color-transparent);
 }
 
-/* 禁用(源 UpSpinButtonDisabled/DownSpinButtonDisabled 状态):前景禁用色取
-   --wui-repeat-button-foreground-disabled(theme.css 无 text-control-button-foreground-disabled,见 wiki) */
+/* 禁用(源 UpSpinButtonDisabled/DownSpinButtonDisabled 状态):前景禁用色 = TextFillColorDisabled。 */
 .wui-number-box-spin:disabled,
 .wui-number-box-popup-spin:disabled {
-  color: var(--wui-repeat-button-foreground-disabled);
-  background: var(--wui-text-control-button-background);
-  border-color: var(--wui-text-control-button-border);
+  color: var(--wui-text-fill-color-disabled);
+  background: var(--wui-control-fill-color-transparent);
+  border-color: var(--wui-control-fill-color-transparent);
   cursor: default;
 }
 
 /* —— Compact 弹层(源 UpDownPopup / PopupContentRoot):Padding 6、Border 1、
       CornerRadius = OverlayCornerRadius(取弹层基建 token 8px);
-      背景近似 NumberBoxPopupBackground(AcrylicBackgroundFillColorDefaultBrush → flyout 底色) —— */
+      PL6:BorderBrush 重定向 NumberBoxPopupBorderBrush = SurfaceStrokeColorFlyoutBrush;
+      背景 NumberBoxPopupBackground = AcrylicBackgroundFillColorDefaultBrush(材质,
+      web 无原生亚克力,沿用 flyout 底色近似,未决项见报告)。 —— */
 .wui-number-box-popup {
   position: absolute;
   right: 0;
@@ -673,7 +700,7 @@ const rootClass = computed(() => ({
   gap: 4px; /* PopupUpSpinButton Margin 0,0,0,4 */
   padding: 6px; /* PopupContentRoot Padding = 6 */
   background: var(--wui-flyout-presenter-background);
-  border: 1px solid var(--wui-flyout-border-theme);
+  border: 1px solid var(--wui-surface-stroke-color-flyout);
   border-radius: var(--wui-popup-corner-radius, 8px);
   box-shadow: var(--wui-popup-shadow);
   z-index: var(--wui-z-popup-base, 10000);
@@ -689,8 +716,8 @@ const rootClass = computed(() => ({
   padding: 0;
   font-family: var(--wui-symbol-theme-font-family);
   font-size: 16px; /* NumberBoxPopupSpinButtonStyle FontSize = 16 */
-  color: var(--wui-text-control-button-foreground);
-  background: transparent; /* NumberBoxPopupSpinButtonBackground = SubtleFillColorTransparentBrush */
+  color: var(--wui-text-fill-color-secondary);
+  background: var(--wui-subtle-fill-color-transparent); /* NumberBoxPopupSpinButtonBackground = SubtleFillColorTransparentBrush */
   border: none;
   border-radius: 4px; /* CornerRadius = ControlCornerRadius,见 wiki */
   cursor: pointer;
@@ -699,13 +726,13 @@ const rootClass = computed(() => ({
 }
 
 .wui-number-box-popup-spin:hover {
-  color: var(--wui-text-control-button-foreground-pointer-over);
-  background: var(--wui-text-control-button-background-pointer-over);
+  color: var(--wui-text-fill-color-secondary);
+  background: var(--wui-subtle-fill-color-secondary);
 }
 
 .wui-number-box-popup-spin:active {
-  color: var(--wui-text-control-button-foreground-pressed);
-  background: var(--wui-text-control-button-background-pressed);
+  color: var(--wui-text-fill-color-tertiary);
+  background: var(--wui-subtle-fill-color-tertiary);
 }
 
 /* —— Description(SystemControlDescriptionTextForegroundBrush) —— */
@@ -715,22 +742,24 @@ const rootClass = computed(() => ({
   color: var(--wui-system-control-description-text-foreground);
 }
 
-/* —— Disabled 状态 —— */
+/* —— Disabled 状态:ControlFillColorDisabled / ControlStrokeColorDefault(纯色 → 环 none)/
+      TemporaryTextFillColorDisabled / TextFillColorDisabled(占位符)。 —— */
 .wui-number-box.is-disabled .wui-number-box-header {
   color: var(--wui-text-control-header-foreground-disabled);
 }
 
 .wui-number-box.is-disabled .wui-number-box-field {
-  background: var(--wui-text-control-background-disabled);
-  border-color: var(--wui-text-control-border-brush-disabled);
+  background: var(--wui-control-fill-color-disabled);
+  border-color: var(--wui-control-stroke-color-default);
+  --nb-elevation-border: none;
 }
 
 .wui-number-box.is-disabled .wui-number-box-input {
-  color: var(--wui-text-control-foreground-disabled);
+  color: var(--wui-temporary-text-fill-color-disabled);
   cursor: default;
 }
 
 .wui-number-box.is-disabled .wui-number-box-input::placeholder {
-  color: var(--wui-text-control-placeholder-foreground-disabled);
+  color: var(--wui-text-fill-color-disabled);
 }
 </style>
