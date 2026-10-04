@@ -459,7 +459,14 @@ function onListKeydown(event: KeyboardEvent): void {
   --wui-list-box-bar-size: 12px;
 }
 
-/* 滚动条:WinUI 细拇指观感(与 ScrollViewer / ListView 公共样式同语言) */
+/* 滚动条:WinUI 细拇指观感(与 ScrollView / ScrollViewer 同口径)。
+   PL17 权威重定向:thumb 静置/悬停/按下在 controls/dev/CommonStyles/
+   ScrollBar_themeresources.xaml 同指 ControlStrongFillColorDefaultBrush
+   (ScrollBarThumbBackground L26/L37、ScrollBarThumbFillPointerOver L27/L139、
+   ScrollBarThumbFillPressed L28/L140),轨道悬停显形取 ScrollBarTrackFill
+   (L31/L143 = AcrylicInAppFillColorDefaultBrush);原 legacy --wui-scroll-bar-*
+   引用改指 PL2 已落地 Fluent 语义 token(theme.css 定义只增不删)。几何与时长未动
+   (border-radius 8px 沿用本组件口径,与 ScrollView 的 999px 差异见 wiki)。 */
 .wui-list-box-scroller::-webkit-scrollbar {
   width: var(--wui-list-box-bar-size);
   height: var(--wui-list-box-bar-size);
@@ -471,23 +478,23 @@ function onListKeydown(event: KeyboardEvent): void {
 }
 
 .wui-list-box-scroller:hover::-webkit-scrollbar-track {
-  background: var(--wui-scroll-bar-track-fill);
+  background: var(--wui-acrylic-in-app-fill-color-default);
 }
 
 .wui-list-box-scroller::-webkit-scrollbar-thumb {
-  background: var(--wui-scroll-bar-thumb-background);
+  background: var(--wui-control-strong-fill-color-default);
   border: 4px solid transparent;
   background-clip: padding-box;
   border-radius: 8px;
 }
 
 .wui-list-box-scroller:hover::-webkit-scrollbar-thumb {
-  background: var(--wui-scroll-bar-thumb-fill-pointer-over);
+  background: var(--wui-control-strong-fill-color-default);
   border: 3px solid transparent;
 }
 
 .wui-list-box-scroller:active::-webkit-scrollbar-thumb {
-  background: var(--wui-scroll-bar-thumb-fill-pressed);
+  background: var(--wui-control-strong-fill-color-default);
 }
 
 .wui-list-box-scroller::-webkit-scrollbar-corner {

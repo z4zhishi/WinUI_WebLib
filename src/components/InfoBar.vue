@@ -353,7 +353,15 @@ const severityGlyph = computed(() => SEVERITY_GLYPHS[props.severity] ?? '\uF13F'
   grid-row: 1;
 }
 
-/* —— 关闭按钮(InfoBarCloseButtonStyle:38x38 / Margin 5 / 顶对齐;AppBarButton 系配色)—— */
+/* —— 关闭按钮(InfoBarCloseButtonStyle:38x38 / Margin 5 / 顶对齐)——
+   PL17 权威重定向:样式 BasedOn DefaultButtonStyle 只供模板/几何,画刷族由模板内联
+   Button.Resources 的 ThemeDictionaries(InfoBar.xaml L128-171,Default/Light/HC 三档)
+   逐键覆写为 AppBarButton* —— ButtonBackground→AppBarButtonBackground(透明)、
+   ButtonBackgroundPointerOver/Pressed→AppBarButtonBackgroundPointerOver/Pressed、
+   ButtonForeground→AppBarButtonForeground。权威 AppBarButton_themeresources.xaml
+   Default L5-16 / Light L75-86:底 = SubtleFillColor Transparent/Secondary/Tertiary,
+   前景 = TextFillColorPrimary。故此处按该族 Fluent 语义 token 重定向(原 legacy
+   --wui-app-bar-button-* 见 theme.css)。 */
 .wui-infobar-close {
   display: inline-flex;
   grid-column: 3;
@@ -367,8 +375,8 @@ const severityGlyph = computed(() => SEVERITY_GLYPHS[props.severity] ?? '\uF13F'
   margin: 5px;
   padding: 0;
   font: inherit;
-  color: var(--wui-app-bar-button-foreground); /* ButtonForeground ← AppBarButtonForeground */
-  background: var(--wui-app-bar-button-background); /* ButtonBackground ← AppBarButtonBackground(透明) */
+  color: var(--wui-text-fill-color-primary); /* ButtonForeground ← AppBarButtonForeground */
+  background: var(--wui-subtle-fill-color-transparent); /* ButtonBackground ← AppBarButtonBackground(透明) */
   border: none; /* ButtonBorderBrush ← AppBarButtonBorderBrush(透明) */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius); /* ControlCornerRadius */
   cursor: pointer;
@@ -376,11 +384,11 @@ const severityGlyph = computed(() => SEVERITY_GLYPHS[props.severity] ?? '\uF13F'
 
 /* PointerOver / Pressed(Button.Resources 覆写 AppBarButtonBackgroundPointerOver/Pressed) */
 .wui-infobar-close:hover {
-  background: var(--wui-app-bar-button-background-pointer-over);
+  background: var(--wui-subtle-fill-color-secondary);
 }
 
 .wui-infobar-close:active {
-  background: var(--wui-app-bar-button-background-pressed);
+  background: var(--wui-subtle-fill-color-tertiary);
 }
 
 .wui-infobar-close:focus {
