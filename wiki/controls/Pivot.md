@@ -124,7 +124,7 @@ function addPage() {
 | `LeftHeader` / `RightHeader` / `HeaderTemplate` / `ItemTemplate` / `ItemsSource` | Pivot 的附加标题区与模板化数据绑定 API | 未实现;声明式 `WuiPivotItem` 子项即等价用法,`#title` slot 覆盖 `TitleTemplate` |
 | `SelectedItem` 双向 | 单向读取(SelectedItem 由选中态派生) | 读取一致;额外支持写入定位 —— 默认 slot 模式下 VNode 每次父组件重渲染都会重建,故写入按「引用 → `key`」匹配,匹配不到忽略(建议以 `selectedIndex` 为主绑定) |
 | `PivotItem` 内容保活 | 非选中页 `Visibility` 收起而非销毁(`UpdateItemVisibility`),内容状态保留 | 一致:所有页保持挂载,非选中 `v-show` 收起,组件状态切换间不丢失 |
-| 焦点视觉 | 标题项 `UseSystemFocusVisuals=False`,焦点矩形由 Pivot `FocusFollower` 承载 | 简化为标题按钮 `:focus-visible` 单环 outline(`--wui-system-control-focus-visual-primary`),roving tabindex 符合 WAI-ARIA tabs 模式 |
+| 焦点视觉 | 标题项 `UseSystemFocusVisuals=False`,焦点矩形由 Pivot `FocusFollower` 承载 | 标题按钮 `:focus-visible` 双环:`box-shadow: inset 0 0 0 2px var(--wui-system-control-focus-visual-primary)` + `outline: 1px solid var(--wui-system-control-focus-visual-secondary)`(全内描,见 `src/styles/focus-visual.css`),roving tabindex 符合 WAI-ARIA tabs 模式 |
 | 游戏板按键 | GamepadLeft/RightShoulder 翻页 | 未实现(桌面 Web 场景不适用) |
 
 ## 相关链接

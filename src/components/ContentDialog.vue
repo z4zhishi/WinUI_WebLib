@@ -463,32 +463,43 @@ function onPanelKeydown(event: KeyboardEvent): void {
 }
 
 /*
- * defaultButton 强调色(AccentButtonStyle):复用 theme.css 的 --wui-accent-button-* token,
- * 状态值与 Button.vue 的实现一一对应;选择器带 .wui-content-dialog__commands 前缀,
- * 保证覆盖子组件(WuiButton)自身 scoped 状态规则。
+ * defaultButton 强调色(AccentButtonStyle):与 Button.vue 的 accent 口径一致,改用
+ * theme.css 的 Fluent accent 画刷族(权威 = controls/dev/CommonStyles/Button_themeresources.xaml
+ * L5-16 Default 字典 / L103-114 Light 字典的 AccentButton* 键):
+ *   Background  Normal=AccentFillColorDefault / PointerOver=Secondary / Pressed=Tertiary / Disabled=Disabled;
+ *   Foreground  Normal=PointerOver=TextOnAccentFillColorPrimary / Pressed=Secondary / Disabled=Disabled;
+ *   BorderBrush Normal=PointerOver=AccentControlElevationBorderBrush(渐变立体描边环)
+ *               / Pressed=Disabled=ControlFillColorTransparent(纯色透明 → 描边环撤除)。
+ * 状态经 WuiButton 的 --btn-* 中间变量注入(与 Button.vue 的 ::before 立体描边环同款),
+ * 选择器叠加 .wui-content-dialog__commands + .wui-content-dialog__btn 双重前缀,特异度高于
+ * 子组件自身状态规则(含 :hover/:active 的 --btn-* 声明)。
  */
-.wui-content-dialog__commands .wui-content-dialog__btn--accent {
-  color: var(--wui-accent-button-foreground);
-  background: var(--wui-accent-button-background);
-  border-color: var(--wui-accent-button-border);
+.wui-content-dialog__commands .wui-content-dialog__btn.wui-content-dialog__btn--accent {
+  --btn-fg: var(--wui-text-on-accent-fill-color-primary);
+  --btn-bg: var(--wui-accent-fill-color-default);
+  --btn-border: var(--wui-control-fill-color-transparent);
+  --btn-elevation-border: var(--wui-accent-control-elevation-border);
 }
 
-.wui-content-dialog__commands .wui-content-dialog__btn--accent:hover:not(:disabled) {
-  color: var(--wui-accent-button-foreground-pointer-over);
-  background: var(--wui-accent-button-background-pointer-over);
-  border-color: var(--wui-accent-button-border-brush-pointer-over);
+.wui-content-dialog__commands .wui-content-dialog__btn.wui-content-dialog__btn--accent:hover:not(:disabled) {
+  --btn-fg: var(--wui-text-on-accent-fill-color-primary);
+  --btn-bg: var(--wui-accent-fill-color-secondary);
+  --btn-border: var(--wui-control-fill-color-transparent);
+  --btn-elevation-border: var(--wui-accent-control-elevation-border);
 }
 
-.wui-content-dialog__commands .wui-content-dialog__btn--accent:active:not(:disabled) {
-  color: var(--wui-accent-button-foreground-pressed);
-  background: var(--wui-accent-button-background-pressed);
-  border-color: var(--wui-accent-button-border-brush-pressed);
+.wui-content-dialog__commands .wui-content-dialog__btn.wui-content-dialog__btn--accent:active:not(:disabled) {
+  --btn-fg: var(--wui-text-on-accent-fill-color-secondary);
+  --btn-bg: var(--wui-accent-fill-color-tertiary);
+  --btn-border: var(--wui-control-fill-color-transparent);
+  --btn-elevation-border: none;
 }
 
-.wui-content-dialog__commands .wui-content-dialog__btn--accent:disabled {
-  color: var(--wui-accent-button-foreground-disabled);
-  background: var(--wui-accent-button-background-disabled);
-  border-color: var(--wui-accent-button-border-brush-disabled);
+.wui-content-dialog__commands .wui-content-dialog__btn.wui-content-dialog__btn--accent:disabled {
+  --btn-fg: var(--wui-text-on-accent-fill-color-disabled);
+  --btn-bg: var(--wui-accent-fill-color-disabled);
+  --btn-border: var(--wui-control-fill-color-transparent);
+  --btn-elevation-border: none;
 }
 
 /*

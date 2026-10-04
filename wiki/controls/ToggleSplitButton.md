@@ -90,7 +90,7 @@ Checked 全族(源 `controls/dev/SplitButton/SplitButton.xaml` L131-L207;状态�
 
 ## 与 WinUI 的差异(视觉与行为对照)
 
-SplitButton 的全部差异项(边框渐变简化、圆角 / 内边距资源写死、焦点框单环近似、chevron SVG 等价、弹层载体、命令层简化、属性命名等)**原样继承**,见 [SplitButton 差异节](./SplitButton.md#与-winui-的差异视觉与行为对照)。Checked 分支特有:
+SplitButton 的全部差异项(边框渐变简化、圆角 / 内边距资源写死、焦点框双环、chevron SVG 等价、弹层载体、命令层简化、属性命名等)**原样继承**,见 [SplitButton 差异节](./SplitButton.md#与-winui-的差异视觉与行为对照)。Checked 分支特有:
 
 | 组件中间变量(`.is-checked` 覆写) | 源资源(解析链) | 直引的 Fluent token |
 | --- | --- | --- |

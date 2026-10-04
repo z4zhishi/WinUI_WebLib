@@ -83,7 +83,7 @@ function onButtonClick(): void {
 | `IsEnabled` | `disabled` 属性 | Web 原生禁用语义(同时获得 `aria-disabled` 与不可聚焦行为) |
 | FontWeight 枚举 | CSS `font-weight` 数值 | `Normal`→400、`SemiBold`→600、`Bold`→700 等,组件内建映射表 |
 | 视觉状态切换(DiscreteObjectKeyFrame + PointerUp/DownThemeAnimation) | 无过渡动画,即时切换 | 与源一致(源状态切换本身无 Duration);按压主题动画为平台内部实现,未复刻 |
-| 系统焦点视觉(双环:FocusVisualPrimary 内环 + FocusVisualSecondary 外环,`FocusVisualMargin` = -3) | `:focus-visible` 单环 `outline: 2px solid --wui-system-control-focus-visual-primary`,`outline-offset: 1px` | 双环简化为单环;-3 外扩近似为 1px 偏移 |
+| 系统焦点视觉(双环:FocusVisualPrimary 内环 + FocusVisualSecondary 外环,`FocusVisualMargin` = -3) | `:focus-visible` 双环:primary 外环 `outline: 2px solid var(--wui-system-control-focus-visual-primary)`(`outline-offset: 1px`)+ secondary 内环 `box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary)` | 按双环实现(颜色/厚度与源一致,见 `src/styles/focus-visual.css`);-3 外扩近似为 1px 偏移 |
 | 覆盖 `Background` 后悬停仍变主题状态色(VSM 动画覆盖本地值) | 行为一致 | 覆盖色经 CSS 变量仅作用于 Normal 态规则 |
 | 光标 | `cursor: default` | WinUI 按钮悬停保持箭头,不用 pointer |
 

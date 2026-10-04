@@ -85,7 +85,7 @@ const clicks = ref(0)
 | 键盘:Space 按下开始重复、抬起停止(`m_keyboardCausingRepeat`);Enter 单击 | Space 按下触发并按住重复,抬起停止;Enter 沿 keydown 触发(按住随 OS 键重复逐次触发) | 两者均对 keydown `preventDefault`,抑制浏览器补发的原生 click(Space 原生 click 在 keyup 触发),避免与组件发出的 click 重复计数 |
 | 失焦停止重复(`OnLostFocus`) | `focusout` 停止重复 | 无差异 |
 | `IsEnabled` | `disabled` 属性 | Web 原生禁用语义;变化时立即停止重复(源 `OnIsEnabledChanged` 同款) |
-| 系统焦点视觉(双环,`FocusVisualMargin` = -3) | `:focus-visible` 单环 `outline: 2px solid --wui-system-control-focus-visual-primary`,`outline-offset: 1px` | 双环简化为单环;-3 外扩近似为 1px 偏移 |
+| 系统焦点视觉(双环,`FocusVisualMargin` = -3) | `:focus-visible` 双环:primary 外环 `outline: 2px solid var(--wui-system-control-focus-visual-primary)`(`outline-offset: 1px`)+ secondary 内环 `box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary)` | 按双环实现(见 `src/styles/focus-visual.css`);-3 外扩近似为 1px 偏移 |
 | 视觉状态切换(DiscreteObjectKeyFrame) | 无过渡动画,即时切换 | 与源一致(源状态切换本身无 Duration) |
 | click 路由事件参数(`RoutedEventArgs`) | `(event: MouseEvent)` | 重复滴答沿用按下时的 PointerEvent 作为参数;键盘 Space / Enter 触发传合成 MouseEvent |
 

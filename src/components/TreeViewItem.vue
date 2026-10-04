@@ -441,7 +441,7 @@ const ariaSelected = computed(() => (selectable.value ? selected.value : undefin
   box-sizing: border-box;
   width: 20px;
   height: 20px;
-  border: 1px solid var(--wui-check-box-check-background-stroke-unchecked); /* 未选边框:来自 CheckBox 默认样式(非 TreeView 权威键),保留原 token */
+  border: 1px solid var(--wui-control-strong-stroke-color-default); /* 未选边框:来自 CheckBox 默认样式 CheckBoxBorderBrushUnchecked = ControlStrongStrokeColorDefaultBrush(与 PL9 CheckBox 同族一致) */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
   color: var(--wui-text-fill-color-secondary); /* TreeViewItemCheckGlyphSelected ← TextFillColorSecondaryBrush */
   background: var(--wui-subtle-fill-color-transparent); /* TreeViewItemCheckBoxBackgroundSelected ← SubtleFillColorTransparentBrush */

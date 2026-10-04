@@ -36,7 +36,7 @@ Web 版做「本库无障碍规范 + 自测工具」:规范文案照搬 + 可交
 | `AutomationProperties.AcceleratorKey` | `aria-keyshortcuts` | 向辅助技术暴露快捷键 |
 | `AccessKey` + Key Tips | `accesskey` 属性 | 浏览器触发键不一(Windows 常为 Alt+键)且无 Key Tips 气泡;本库 MenuBar 以 F2/Alt 自实现(见 [MenuBar](./MenuBar.md)) |
 | `XYFocusKeyboardNavigation` | 无原生等价 | 方向键 2D 焦点需自行实现;线性组建议 roving tabindex |
-| 系统焦点视觉(双环:FocusVisualPrimary 内环 + FocusVisualSecondary 外环) | `:focus-visible` 单环 `outline` | 本库:2px `--wui-system-control-focus-visual-primary` + 1px offset(双环简化,各控件 wiki 有记录) |
+| 系统焦点视觉(双环:FocusVisualPrimary 内环 + FocusVisualSecondary 外环) | `:focus-visible` 双环(primary 外环 `outline` + secondary 内环 `box-shadow`) | 本库:primary 2px `--wui-system-control-focus-visual-primary` + secondary 1px `--wui-system-control-focus-visual-secondary`(见 `src/styles/focus-visual.css`,各控件 wiki 有记录) |
 
 ## 各控件键盘行为速查(已实现,与源码一致)
 
@@ -66,7 +66,7 @@ Web 版做「本库无障碍规范 + 自测工具」:规范文案照搬 + 可交
 
 - `XYFocusKeyboardNavigation` 的 2D 方向键焦点无等价物;自由布局(如按钮组横排)如需方向键,须消费侧自行实现;
 - Web 原生 `accesskey` 因浏览器而异且无 Key Tips 气泡,本库未统一封装;MenuBar 已自实现 F2/Alt 进入,其余控件的 Access key 支持为待办;
-- 焦点环为单环(源为双环 + FocusVisualMargin 外扩),高对比模式下未提供更强的双环视觉。
+- 焦点环按双环实现(primary 外环 2px + secondary 内环 1px,颜色取 `FocusStrokeColorOuter`/`Inner`,见 `src/styles/focus-visual.css`);高对比模式下未提供更强的双环视觉。
 
 ## 相关链接
 

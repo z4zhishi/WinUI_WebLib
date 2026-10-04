@@ -74,7 +74,7 @@ WinUI 的 `ToggleButton.IsChecked` 是 `Nullable<bool>`:`true` / `false` / `null
 1. **圆角 token 未提取**:WinUI 3 默认 `ControlCornerRadius = 4` 未在 theme.css 生成同名 token,以同值 4px 的 `--wui-hyperlink-focus-rect-corner-radius` 承载,视觉无损。
 2. **内边距 token 未提取**:`ButtonPadding = 8,4,8,5`(XAML Thickness 顺序:左,上,右,下)是 `Thickness` 资源,theme.css 未生成 token,按值硬编码为 CSS `padding: 4px 8px 5px`,与 Button 组件同款处理。
 3. **边框厚度 token 未提取**:`ToggleButtonBorderThemeThickness = 2` 为 `Thickness` 资源,按值固定 `border: 2px solid`;描边色见上(PL3/PL5 重定向),Checked 系为强调渐变环。
-4. **焦点框**:WinUI 系统焦点框为双层(2px 主色内环 + 1px 次色外环,`FocusVisualMargin=-3`)。Web 侧以单层 `outline: 2px solid var(--wui-system-control-focus-visual-primary)`(偏移 1px)近似。
+4. **焦点框**:WinUI 系统焦点框为双层(2px 主色内环 + 1px 次色外环,`FocusVisualMargin=-3`)。Web 侧按双环实现:primary 外环 `outline: 2px solid var(--wui-system-control-focus-visual-primary)`(`outline-offset: 1px`)+ secondary 内环 `box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary)`(见 `src/styles/focus-visual.css`)。
 5. **属性命名**:`IsEnabled` → `disabled`(沿用原生语义);`IsThreeState` → `isThreeState`;`Content` → `content` + 默认 slot。
 6. **事件触发面**:WinUI 的 `Checked`/`Unchecked` 在程序化赋值时同样触发;本组件仅用户交互触发,程序化变化请监听 `v-model:checked`。
 7. **主题动画**:源模板 `PointerOver`/`Pressed` 等态附带 `PointerUp/DownThemeAnimation`(指针起落的微缩放动画),Web 侧未复刻该主题动画,状态色切换本身即时,视觉基本无损。

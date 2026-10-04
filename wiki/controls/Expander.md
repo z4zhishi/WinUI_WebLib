@@ -105,7 +105,7 @@ function onExpanded() { console.log('Expanded') }
 5. **展开 / 收起动画**:源以 RenderTransform 平移 + composition clip 实现(展开 333ms / KeySpline 0,0,0,1,收起 167ms / KeySpline 1,1,0,1);本组件以 `grid-template-rows` 的 0fr↔1fr 过渡等价实现高度动画(Left/Right 为 `grid-template-columns` 宽度过渡),时长与缓动取 animations.css 的 `--wui-duration-slow`(350ms ≈ 333ms)+ `--wui-easing-standard`、`--wui-duration-fast`(167ms)+ `--wui-easing-accelerate` 最近似组合。收起完成后内容区 `visibility: hidden`(源为 `Visibility = Collapsed`)。
 6. **属性命名**:`Header` → `header` + `#header` slot;`ExpandDirection` → `expandDirection`;`IsExpanded` → `v-model:is-expanded`;`IsEnabled` → `disabled`。
 7. **事件触发面**:WinUI 的 Expanding/Expanded/Collapsing/Collapsed 在程序化赋值时同样触发;本组件仅用户交互触发(见事件节)。源头部按钮态机含 Checked 组合态,但 Checked 系与 Normal 系取键完全相同(仅 AnimatedIcon 状态不同),故视觉上合并实现。
-8. **焦点框**:源模板未定义焦点视觉(落在 ToggleButton 默认样式);按项目惯例以单层 `outline: 2px solid var(--wui-system-control-focus-visual-primary)`(偏移 1px)实现 `:focus-visible`。
+8. **焦点框**:源模板未定义焦点视觉(落在 ToggleButton 默认样式);按项目惯例以双环实现 `:focus-visible`:primary 外环 `outline: 2px solid var(--wui-system-control-focus-visual-primary)`(`outline-offset: 1px`)+ secondary 内环 `box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary)`(见 `src/styles/focus-visual.css`)。
 
 ---
 

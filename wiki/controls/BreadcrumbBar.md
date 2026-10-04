@@ -83,7 +83,7 @@ function onItemClicked({ index }: { item: unknown; index: number }) {
 5. **`selected-item` 为 Web 增补**:WinUI BreadcrumbBar 的 IDL 只有 `ItemsSource` / `ItemTemplate` / `ItemClicked`,无选中概念;`v-model:selected-item` 是 Web 侧便利(点击任一节点时写入该项),WinUI 行为不受影响,不需要可不监听。
 6. **`disabled` / `ellipsis-aria-label` 为 Web 增补**:前者对应 WinUI `Control.IsEnabled`(模板存在 Disabled 视觉态),后者为省略号字形提供可本地化的无障碍名称(WinUI 由自动化对等项内部命名)。
 7. **RTL / 分隔符字形**:WinUI 模板含 `DefaultRTL/EllipsisRTL` 态(chevron 换字形 E973);Web 版仅按 LTR 实现,未随 `dir` 切换。LTR 字形按源 Default 视觉态取 E974(ChevronRightSmall,`BreadcrumbBarChevronLeftToRight`)—— 模板 `PART_ChevronTextBlock` 的字面初值 E76C 会被 `UpdateInlineItemTypeVisualState` 置换;Web 版曾误用初值 E76C,已订正(VR-B20 → FIX21)。
-8. **系统焦点框 / HighContrast**:WinUI 双环焦点视觉(`FocusVisualMargin=1/-3`)近似为 primary 色单环 `outline`(同 MenuBarItem);HighContrast 主题字典未适配。
+8. **系统焦点框 / HighContrast**:WinUI 双环焦点视觉(`FocusVisualMargin=1/-3`)按双环实现(primary 2px + secondary 1px,见 `src/styles/focus-visual.css`;项按钮与当前项内缩、下拉项外描,同 MenuBarItem);HighContrast 主题字典未适配。
 
 ---
 

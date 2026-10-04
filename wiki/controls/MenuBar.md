@@ -108,7 +108,7 @@ function onNew() { /* ... */ }
 7. **acceleratorKeys 作用域**:WinUI 的 `KeyboardAccelerators` 为全局加速键(菜单未开也生效);本组件快捷键仅在**所在菜单层打开期间**生效(与 MenuFlyout 族同一实现,见其 wiki 差异节第 5 条),演示页第二例按此语义回显。
 8. **点击已展开项**:WinUI `PointerPressed` 在栏内已有 flyout 打开时一律短路(点击项不动作);本组件对「点击的就是当前已展开项且为点击展开」按 Web 惯例 toggle 收起(与 WinUI `Invoke` 语义一致),hover 切换打开的保持 WinUI 短路(亦规避触屏 `pointerenter`→`click` 串扰导致的「开了又关」)。
 9. **hover 切换无延迟**:`PointerEntered` 即切换(WinUI 同为立即切换,无定时器);指针移出栏不收起,与 WinUI `OverlayInputPassThroughElement(LayoutRoot)` 行为一致。
-10. **HighContrast / 系统焦点框**:WinUI 双环焦点视觉(`FocusVisualMargin=-3`)近似为 primary 色单环 `outline`(同 DropDownButton);HC 主题字典未适配。
+10. **HighContrast / 系统焦点框**:WinUI 双环焦点视觉(`FocusVisualMargin=-3`)按双环实现(primary 外环 2px `outline` + secondary 内环 1px `box-shadow`,见 `src/styles/focus-visual.css`);HC 主题字典未适配。
 
 ---
 

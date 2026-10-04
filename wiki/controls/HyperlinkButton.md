@@ -94,7 +94,7 @@ function onHyperlinkButtonClick(event: MouseEvent): void {
 | `ContentControlThemeFontFamily` | `--wui-content-control-theme-font-family`(XamlAutoFontFamily 占位) | 浏览器回退到默认字体,应用层可按需映射 |
 | `ControlContentThemeFontSize` = 14px | `--wui-control-content-theme-font-size` | 无差异 |
 | 视觉状态切换(DiscreteObjectKeyFrame) | 无过渡动画,即时切换 | 与源一致(源状态切换本身无 Duration) |
-| 系统焦点视觉(双环,`FocusVisualMargin` = -3) | `:focus-visible` 单环 `outline: 2px solid --wui-system-control-focus-visual-primary`,`outline-offset: 1px` | 双环简化为单环;-3 外扩近似为 1px 偏移 |
+| 系统焦点视觉(双环,`FocusVisualMargin` = -3) | `:focus-visible` 双环:primary 外环 `outline: 2px solid var(--wui-system-control-focus-visual-primary)`(`outline-offset: 1px`)+ secondary 内环 `box-shadow: 0 0 0 1px var(--wui-system-control-focus-visual-secondary)` | 按双环实现(见 `src/styles/focus-visual.css`);-3 外扩近似为 1px 偏移 |
 | 光标 | 启用时 `cursor: pointer`、禁用 `default` | WinUI 超链接悬停为手型光标(区别于普通 Button 的箭头) |
 
 ## 相关链接

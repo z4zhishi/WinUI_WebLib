@@ -118,8 +118,8 @@
   --wui-system-control-disabled-chrome-medium-low: #f2f2f2;
   --wui-system-control-disabled-list-medium: #00000033;
   --wui-system-control-disabled-transparent: transparent;
-  --wui-system-control-focus-visual-primary: #000000;
-  --wui-system-control-focus-visual-secondary: #ffffff99;
+  --wui-system-control-focus-visual-primary: var(--wui-focus-stroke-color-outer);
+  --wui-system-control-focus-visual-secondary: var(--wui-focus-stroke-color-inner);
   --wui-system-control-reveal-focus-visual: var(--wui-system-accent-color);
   --wui-system-control-foreground-accent: var(--wui-system-accent-color);
   --wui-system-control-foreground-alt-high: #ffffff;
@@ -842,8 +842,8 @@
   --wui-grid-view-item-foreground: #000000;
   --wui-grid-view-item-foreground-pointer-over: #000000;
   --wui-grid-view-item-foreground-selected: #000000;
-  --wui-grid-view-item-focus-visual-primary: #000000;
-  --wui-grid-view-item-focus-visual-secondary: #ffffff99;
+  --wui-grid-view-item-focus-visual-primary: var(--wui-focus-stroke-color-outer);
+  --wui-grid-view-item-focus-visual-secondary: var(--wui-focus-stroke-color-inner);
   --wui-grid-view-item-focus-border: #ffffff;
   --wui-grid-view-item-focus-secondary-border: #000000;
   --wui-grid-view-item-check: #000000cc;
@@ -1749,8 +1749,8 @@
   --wui-list-view-item-foreground: #000000;
   --wui-list-view-item-foreground-pointer-over: #000000;
   --wui-list-view-item-foreground-selected: #000000;
-  --wui-list-view-item-focus-visual-primary: #000000;
-  --wui-list-view-item-focus-visual-secondary: #ffffff99;
+  --wui-list-view-item-focus-visual-primary: var(--wui-focus-stroke-color-outer);
+  --wui-list-view-item-focus-visual-secondary: var(--wui-focus-stroke-color-inner);
   --wui-list-view-item-focus-border: #ffffff;
   --wui-list-view-item-focus-secondary-border: #000000;
   --wui-list-view-item-check: #000000cc;
@@ -2268,8 +2268,8 @@
   --wui-system-control-disabled-chrome-medium-low: #2b2b2b;
   --wui-system-control-disabled-list-medium: #ffffff33;
   --wui-system-control-disabled-transparent: transparent;
-  --wui-system-control-focus-visual-primary: #ffffff;
-  --wui-system-control-focus-visual-secondary: #00000099;
+  --wui-system-control-focus-visual-primary: var(--wui-focus-stroke-color-outer);
+  --wui-system-control-focus-visual-secondary: var(--wui-focus-stroke-color-inner);
   --wui-system-control-reveal-focus-visual: var(--wui-system-accent-color);
   --wui-system-control-foreground-accent: var(--wui-system-accent-color);
   --wui-system-control-foreground-alt-high: #000000;
@@ -3001,8 +3001,8 @@
   --wui-grid-view-item-foreground: #ffffff;
   --wui-grid-view-item-foreground-pointer-over: #ffffff;
   --wui-grid-view-item-foreground-selected: #ffffff;
-  --wui-grid-view-item-focus-visual-primary: #ffffff;
-  --wui-grid-view-item-focus-visual-secondary: #00000099;
+  --wui-grid-view-item-focus-visual-primary: var(--wui-focus-stroke-color-outer);
+  --wui-grid-view-item-focus-visual-secondary: var(--wui-focus-stroke-color-inner);
   --wui-grid-view-item-focus-border: #000000;
   --wui-grid-view-item-focus-secondary-border: #ffffff;
   --wui-grid-view-item-check: #ffffffcc;
@@ -3900,8 +3900,8 @@
   --wui-list-view-item-foreground: #ffffff;
   --wui-list-view-item-foreground-pointer-over: #ffffff;
   --wui-list-view-item-foreground-selected: #ffffff;
-  --wui-list-view-item-focus-visual-primary: #ffffff;
-  --wui-list-view-item-focus-visual-secondary: #00000099;
+  --wui-list-view-item-focus-visual-primary: var(--wui-focus-stroke-color-outer);
+  --wui-list-view-item-focus-visual-secondary: var(--wui-focus-stroke-color-inner);
   --wui-list-view-item-focus-border: #000000;
   --wui-list-view-item-focus-secondary-border: #ffffff;
   --wui-list-view-item-check: #ffffffcc;
