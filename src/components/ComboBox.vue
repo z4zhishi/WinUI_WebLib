@@ -673,22 +673,24 @@ const rootClass = computed(() => ({
   margin: 0 0 4px;
   font-size: var(--wui-control-content-theme-font-size); /* ControlContentThemeFontSize */
   font-weight: 400; /* ComboBoxHeaderThemeFontWeight = Normal */
-  color: var(--wui-combo-box-foreground);
+  /* ComboBoxHeaderForeground = TextFillColorPrimary(PL3 Fluent) */
+  color: var(--wui-text-fill-color-primary);
 }
 
 /* ======================================================================
  * 关闭态输入框(源模板 Background border):BorderThickness = 2、Padding = 12,5,0,7
  * ====================================================================== */
 .wui-combo-box-input {
-  /* 关闭态边框色(源 Background Border 的 BorderBrush);各状态只覆写本变量 */
-  --cb-input-border: var(--wui-combo-box-border);
+  /* 关闭态边框色(源 Background Border 的 BorderBrush);各状态只覆写本变量。
+     Normal 权威 = ControlElevationBorderBrush(渐变,PL2 无对应 token,P1 未决)→ 透明占位 */
+  --cb-input-border: var(--wui-control-fill-color-transparent);
   position: relative;
   display: flex;
   align-items: stretch;
   min-width: 64px; /* ComboBoxThemeMinWidth */
   min-height: 32px; /* 源未给 MinHeight:内容行(内边距 5+7 + 14px 文本行)自然高度 = 32 */
   box-sizing: border-box;
-  background: var(--wui-combo-box-background);
+  background: var(--wui-control-fill-color-default); /* ComboBoxBackground = ControlFillColorDefault */
   /* 源模板里 Border x:Name="Background"(BorderThickness 2)与 ContentPresenter 是
      LayoutRoot Grid **同一格的兄弟节点**(generic.xaml L9168-9193):2px 边框与内容重叠,
      Padding 12,5,0,7 自控件**外缘**量起。故边框不能算进内容盒高度
@@ -720,11 +722,12 @@ const rootClass = computed(() => ({
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-combo-box-foreground);
+  color: var(--wui-text-fill-color-primary); /* ComboBoxForeground = TextFillColorPrimary */
 }
 
 .wui-combo-box-placeholder {
-  color: var(--wui-combo-box-place-holder-foreground); /* ComboBoxPlaceHolderForeground */
+  /* ComboBoxPlaceHolderForeground = TextFillColorSecondary(PL3 Fluent) */
+  color: var(--wui-text-fill-color-secondary);
 }
 
 /* —— DropDownGlyph:32px 列 + Margin 0,10,10,10 + FontSize 12 → 视觉居中 —— */
@@ -738,7 +741,8 @@ const rootClass = computed(() => ({
   font-family: var(--wui-symbol-theme-font-family);
   font-size: var(--wui-tool-tip-content-theme-font-size); /* GlyphElement FontSize = 12,取同值 token */
   line-height: 1;
-  color: var(--wui-combo-box-drop-down-glyph-foreground);
+  /* ComboBoxDropDownGlyphForeground = TextFillColorSecondary(PL3 Fluent) */
+  color: var(--wui-text-fill-color-secondary);
   user-select: none;
   -webkit-user-select: none;
 }
@@ -748,59 +752,67 @@ const rootClass = computed(() => ({
    故排除/命中均走 .wui-combo-box:not(.is-open) / .wui-combo-box.is-open;
    :active 为按住瞬间,松开后由打开态接管(WinUI 开着即 pressed 底)。 */
 .wui-combo-box:not(.is-disabled):not(.is-open) .wui-combo-box-input:not(:focus):hover {
-  background: var(--wui-combo-box-background-pointer-over);
-  --cb-input-border: var(--wui-combo-box-border-brush-pointer-over);
+  /* PointerOver:ControlFillColorSecondary;边框 ControlElevationBorderBrush(渐变,占位透明) */
+  background: var(--wui-control-fill-color-secondary);
+  --cb-input-border: var(--wui-control-fill-color-transparent);
 }
 
 .wui-combo-box:not(.is-disabled):not(.is-open) .wui-combo-box-input:not(:focus):active {
-  background: var(--wui-combo-box-background-pressed);
-  --cb-input-border: var(--wui-combo-box-border-brush-pressed);
+  /* Pressed:ControlFillColorTertiary / ControlStrokeColorDefault */
+  background: var(--wui-control-fill-color-tertiary);
+  --cb-input-border: var(--wui-control-stroke-color-default);
+}
+
+/* Pressed 文本色:ComboBoxForegroundPressed = TextFillColorSecondary */
+.wui-combo-box:not(.is-disabled):not(.is-open) .wui-combo-box-input:not(:focus):active .wui-combo-box-content {
+  color: var(--wui-text-fill-color-secondary);
 }
 
 /* 打开态(WinUI FocusedDropDown / Pressed 语义):pressed 底色 */
 .wui-combo-box:not(.is-disabled).is-open .wui-combo-box-input {
-  background: var(--wui-combo-box-background-pressed);
-  --cb-input-border: var(--wui-combo-box-border-brush-pressed);
+  background: var(--wui-control-fill-color-tertiary); /* ComboBoxBackgroundPressed */
+  --cb-input-border: var(--wui-control-stroke-color-default);
 }
 
-/* 聚焦态:HighlightBackground(强调色低透明度)+ 透明边框(Focused storyboard)。
+/* 聚焦态:HighlightBackground 层 = ControlFillColorDefault 底 + FocusStrokeColorOuter 边框
+   (源为 Margin -4 的外扩环,本实现只取色、不改既有几何)。
    非可编辑 :focus;可编辑 :focus-within(焦点在内部 input)。置于 last 覆盖同权重的 .is-open */
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input:focus,
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input:focus-within {
-  background: var(--wui-combo-box-background-unfocused); /* ComboBoxBackgroundUnfocused */
-  --cb-input-border: var(--wui-combo-box-background-border-brush-focused); /* 透明 */
+  background: var(--wui-control-fill-color-default); /* ComboBoxBackgroundFocused */
+  --cb-input-border: var(--wui-focus-stroke-color-outer); /* ComboBoxBackgroundBorderBrushFocused */
 }
 
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input:focus .wui-combo-box-content,
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input:focus-within .wui-combo-box-content {
-  color: var(--wui-combo-box-foreground-focused);
+  color: var(--wui-text-fill-color-primary); /* ComboBoxForegroundFocused */
 }
 
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input:focus .wui-combo-box-glyph {
-  color: var(--wui-combo-box-drop-down-glyph-foreground-focused);
+  color: var(--wui-text-fill-color-secondary); /* ComboBoxDropDownGlyphForegroundFocused */
 }
 
 /* —— Disabled —— */
 .wui-combo-box.is-disabled .wui-combo-box-header {
-  color: var(--wui-combo-box-foreground-disabled);
+  color: var(--wui-text-fill-color-disabled); /* ComboBoxHeaderForegroundDisabled */
 }
 
 .wui-combo-box.is-disabled .wui-combo-box-input {
-  background: var(--wui-combo-box-background-disabled);
-  --cb-input-border: var(--wui-combo-box-border-brush-disabled);
+  background: var(--wui-control-fill-color-disabled); /* ComboBoxBackgroundDisabled */
+  --cb-input-border: var(--wui-control-stroke-color-default); /* ComboBoxBorderBrushDisabled */
   cursor: default;
 }
 
 .wui-combo-box.is-disabled .wui-combo-box-content {
-  color: var(--wui-combo-box-foreground-disabled);
+  color: var(--wui-text-fill-color-disabled); /* ComboBoxForegroundDisabled */
 }
 
 .wui-combo-box.is-disabled .wui-combo-box-placeholder {
-  color: var(--wui-combo-box-foreground-disabled);
+  color: var(--wui-text-fill-color-disabled); /* ComboBoxPlaceHolderForegroundDisabled */
 }
 
 .wui-combo-box.is-disabled .wui-combo-box-glyph {
-  color: var(--wui-combo-box-drop-down-glyph-foreground-disabled);
+  color: var(--wui-text-fill-color-disabled); /* ComboBoxDropDownGlyphForegroundDisabled */
 }
 
 /* ======================================================================
@@ -812,20 +824,20 @@ const rootClass = computed(() => ({
   padding: 3px 30px 5px 10px; /* EditableText Padding = 10,3,30,5(右 30 让位箭头区) */
   font-family: inherit;
   font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-combo-box-foreground);
-  caret-color: var(--wui-combo-box-foreground);
+  color: var(--wui-text-fill-color-primary); /* ComboBoxForeground */
+  caret-color: var(--wui-text-fill-color-primary);
   background: transparent;
   border: none; /* EditableText BorderBrush = Transparent */
   outline: none;
 }
 
 .wui-combo-box.is-disabled .wui-combo-box-edit-text {
-  color: var(--wui-combo-box-foreground-disabled);
+  color: var(--wui-text-fill-color-disabled);
   cursor: default;
 }
 
 .wui-combo-box-edit-text::placeholder {
-  color: var(--wui-combo-box-place-holder-foreground);
+  color: var(--wui-text-fill-color-secondary); /* ComboBoxPlaceHolderForeground */
   opacity: 1;
 }
 
@@ -845,24 +857,24 @@ const rootClass = computed(() => ({
 }
 
 .wui-combo-box:not(.is-disabled) .wui-combo-box-edit-overlay:hover {
-  background: var(--wui-combo-box-drop-down-background-pointer-over);
+  background: var(--wui-subtle-fill-color-secondary); /* ComboBoxDropDownBackgroundPointerOver */
 }
 
 .wui-combo-box:not(.is-disabled) .wui-combo-box-edit-overlay:active {
-  background: var(--wui-combo-box-drop-down-background-pointer-pressed);
+  background: var(--wui-subtle-fill-color-tertiary); /* ComboBoxDropDownBackgroundPointerPressed */
 }
 
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input:focus-within .wui-combo-box-edit-overlay:hover {
-  background: var(--wui-combo-box-focused-drop-down-background-pointer-over);
+  background: var(--wui-control-fill-color-tertiary); /* ComboBoxFocusedDropDownBackgroundPointerOver */
 }
 
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input:focus-within .wui-combo-box-edit-overlay:active {
-  background: var(--wui-combo-box-focused-drop-down-background-pointer-pressed);
+  background: var(--wui-control-alt-fill-color-quarternary); /* ComboBoxFocusedDropDownBackgroundPointerPressed */
 }
 
-/* 可编辑聚焦时箭头换色(TextBoxFocused → ComboBoxEditableDropDownGlyphForeground) */
+/* 可编辑聚焦时箭头换色(TextBoxFocused → ComboBoxEditableDropDownGlyphForeground = TextFillColorSecondary) */
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input:focus-within .wui-combo-box-glyph {
-  color: var(--wui-combo-box-editable-drop-down-glyph-foreground);
+  color: var(--wui-text-fill-color-secondary);
 }
 
 /* ======================================================================
@@ -872,9 +884,11 @@ const rootClass = computed(() => ({
 .wui-combo-box-dropdown {
   min-width: 80px; /* ComboBoxPopupThemeMinWidth */
   box-sizing: border-box;
+  /* ComboBoxDropDownBackground = AcrylicInAppFillColorDefaultBrush(材质;PL2 无对应
+     token,P1 未决,保留既有 fallback 近似) */
   background: var(--wui-combo-box-drop-down-background);
-  border: 1px solid var(--wui-combo-box-drop-down-border);
-  color: var(--wui-combo-box-drop-down-foreground);
+  border: 1px solid var(--wui-surface-stroke-color-flyout); /* ComboBoxDropDownBorderBrush = SurfaceStrokeColorFlyoutBrush */
+  color: var(--wui-text-fill-color-primary); /* ComboBoxDropDownForeground = TextFillColorPrimary */
 }
 
 .wui-combo-box-list {
@@ -888,29 +902,19 @@ const rootClass = computed(() => ({
   /* ComboBoxItemPillFillBrush(controls/dev/ComboBox/ComboBox_themeresources.xaml
      L106/L316)= AccentFillColorDefaultBrush:Light = SystemAccentColorDark1、
      Default(深) = SystemAccentColorLight2(Common_themeresources_any.xaml L329/L125)。
+     PL2 token --wui-accent-fill-color-default 已按主题给出上述两值。
      下拉面板 Teleport 到 body,不继承 .wui-combo-box 上的变量 → token 落在项自身。 */
-  --cb-item-pill-fill: var(
-    --wui-system-accent-color-dark-1,
-    var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme))
-  );
+  --cb-item-pill-fill: var(--wui-accent-fill-color-default);
   position: relative; /* Pill 绝对定位锚点(源 LayoutRoot 同格兄弟) */
   padding: 4px 10px 7px;
   border: 1px solid transparent; /* ComboBoxItemRevealBorderThemeThickness = 1 */
-  color: var(--wui-combo-box-item-foreground);
+  color: var(--wui-text-fill-color-primary); /* ComboBoxItemForeground = TextFillColorPrimary */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
-}
-
-/* 深色主题源值覆盖(AccentFillColorDefaultBrush = SystemAccentColorLight2) */
-html[data-theme='dark'] .wui-combo-box-item {
-  --cb-item-pill-fill: var(
-    --wui-system-accent-color-light-2,
-    var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme))
-  );
 }
 
 /* —— Pill(MR14 新增;权威 controls/dev/ComboBox/ComboBox_themeresources.xaml)——
@@ -973,24 +977,30 @@ html[data-theme='dark'] .wui-combo-box-item {
 
 .wui-combo-box-item:hover,
 .wui-combo-box-item.is-active {
-  background: var(--wui-combo-box-item-reveal-background-pointer-over);
+  background: var(--wui-subtle-fill-color-secondary); /* ComboBoxItemBackgroundPointerOver */
 }
 
 .wui-combo-box-item:active {
-  background: var(--wui-combo-box-item-reveal-background-pressed);
+  background: var(--wui-subtle-fill-color-tertiary); /* ComboBoxItemBackgroundPressed */
 }
 
 .wui-combo-box-item.is-selected {
-  background: var(--wui-combo-box-item-reveal-background-selected);
+  background: var(--wui-subtle-fill-color-secondary); /* ComboBoxItemBackgroundSelected */
 }
 
 .wui-combo-box-item.is-selected:hover,
 .wui-combo-box-item.is-selected.is-active {
-  background: var(--wui-combo-box-item-reveal-background-selected-pointer-over);
+  background: var(--wui-subtle-fill-color-tertiary); /* ComboBoxItemBackgroundSelectedPointerOver */
 }
 
 .wui-combo-box-item.is-selected:active {
-  background: var(--wui-combo-box-item-reveal-background-selected-pressed);
+  background: var(--wui-subtle-fill-color-secondary); /* ComboBoxItemBackgroundSelectedPressed */
+}
+
+/* Pressed 文本色:ComboBoxItemForegroundPressed = TextFillColorSecondary
+   (SelectedPressed 同值,同一规则覆盖;须置于 .is-selected 之后) */
+.wui-combo-box-item:active {
+  color: var(--wui-text-fill-color-secondary);
 }
 
 /* —— 下拉开合(SplitOpenThemeAnimation / SplitCloseThemeAnimation;关键帧见

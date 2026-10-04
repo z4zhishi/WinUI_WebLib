@@ -231,10 +231,12 @@ const revealHandlers = useReveal(() => props.reveal === true)
 
 <style scoped>
 .wui-repeat-button {
-  /* 状态色中间变量(Normal 态);reveal 变体经同名变量整体切换,见文末 */
-  --rb-fg: var(--wui-repeat-button-foreground);
-  --rb-bg: var(--wui-repeat-button-background);
-  --rb-border: var(--wui-repeat-button-border);
+  /* PL3:状态色重定向到 Fluent 画刷族(PL2 token;权威同 Button)。
+     Normal:TextFillColorPrimary / ControlFillColorDefault;
+     边框权威为渐变 ControlElevationBorderBrush(PL2 无对应 token,P1 未决),占位透明。 */
+  --rb-fg: var(--wui-text-fill-color-primary);
+  --rb-bg: var(--wui-control-fill-color-default);
+  --rb-border: var(--wui-control-fill-color-transparent);
 
   /* ButtonPadding="8,4,8,5"(RepeatButton 样式复用同一 StaticResource) */
   padding: 4px 8px 5px;
@@ -262,21 +264,24 @@ const revealHandlers = useReveal(() => props.reveal === true)
    背景色经上面的 BrushTransition 83ms 线性过渡 */
 
 .wui-repeat-button:hover:not(:disabled) {
-  --rb-fg: var(--wui-repeat-button-foreground-pointer-over);
-  --rb-bg: var(--wui-repeat-button-background-pointer-over);
-  --rb-border: var(--wui-repeat-button-border-brush-pointer-over);
+  /* PointerOver:TextFillColorPrimary / ControlFillColorSecondary;边框渐变(P1 未决)占位透明 */
+  --rb-fg: var(--wui-text-fill-color-primary);
+  --rb-bg: var(--wui-control-fill-color-secondary);
+  --rb-border: var(--wui-control-fill-color-transparent);
 }
 
 .wui-repeat-button:active:not(:disabled) {
-  --rb-fg: var(--wui-repeat-button-foreground-pressed);
-  --rb-bg: var(--wui-repeat-button-background-pressed);
-  --rb-border: var(--wui-repeat-button-border-brush-pressed);
+  /* Pressed:TextFillColorSecondary / ControlFillColorTertiary / ControlStrokeColorDefault */
+  --rb-fg: var(--wui-text-fill-color-secondary);
+  --rb-bg: var(--wui-control-fill-color-tertiary);
+  --rb-border: var(--wui-control-stroke-color-default);
 }
 
 .wui-repeat-button:disabled {
-  --rb-fg: var(--wui-repeat-button-foreground-disabled);
-  --rb-bg: var(--wui-repeat-button-background-disabled);
-  --rb-border: var(--wui-repeat-button-border-brush-disabled);
+  /* Disabled:TextFillColorDisabled / ControlFillColorDisabled / ControlStrokeColorDefault */
+  --rb-fg: var(--wui-text-fill-color-disabled);
+  --rb-bg: var(--wui-control-fill-color-disabled);
+  --rb-border: var(--wui-control-stroke-color-default);
   cursor: default;
 }
 

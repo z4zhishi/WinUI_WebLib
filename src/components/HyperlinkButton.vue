@@ -103,14 +103,15 @@ function onClick(event: MouseEvent): void {
   font-family: var(--wui-content-control-theme-font-family);
   /* ControlContentThemeFontSize = 14px */
   font-size: var(--wui-control-content-theme-font-size);
-  /* HyperlinkButtonForeground = AccentTextFillColorPrimaryBrush(主题强调色) */
-  color: var(--wui-hyperlink-button-foreground);
+  /* HyperlinkButtonForeground = AccentTextFillColorPrimaryBrush(PL3 重定向到 Fluent token:
+     浅 = SystemAccentColorDark2,深 = SystemAccentColorLight3) */
+  color: var(--wui-accent-text-fill-color-primary);
   /* 底色/边框四态(HyperlinkButton*Background/BorderBrush 资源):Normal/Disabled
      = SubtleFillColorTransparent;PointerOver = SubtleFillColorSecondary;
-     Pressed = SubtleFillColorTertiary(后两者为半透明叠加,见 theme.css)。
+     Pressed = SubtleFillColorTertiary(后两者为半透明叠加,PL3 直取 Fluent token)。
      边框四态 Brush 均透明(权威 BorderThemeThickness=1,Web 以 border:none 保持
      既有盒尺寸,仅登记差异,见报告)。 */
-  background: var(--wui-hyperlink-button-background);
+  background: var(--wui-subtle-fill-color-transparent);
   border: none;
   /* 圆角:模板根 ContentPresenter CornerRadius={TemplateBinding CornerRadius},
      WinUI 3 默认取 ControlCornerRadius(4px);常态背景透明不可见,
@@ -132,23 +133,23 @@ function onClick(event: MouseEvent): void {
    背景色经上面的 BrushTransition 83ms 线性过渡 */
 
 .wui-hyperlink-button:hover:not(:disabled):not(.is-disabled) {
-  /* 前景:遗留 generic.xaml SystemControlPageTextBaseMedium(灰,未在本次订正范围);
-     底色:权威 SubtleFillColorSecondary(L10/L25),经 83ms BrushTransition 过渡 */
-  color: var(--wui-hyperlink-button-foreground-pointer-over);
-  background: var(--wui-hyperlink-button-background-pointer-over);
+  /* 前景:权威 AccentTextFillColorSecondary;底色:权威 SubtleFillColorSecondary,
+     经 83ms BrushTransition 过渡 */
+  color: var(--wui-accent-text-fill-color-secondary);
+  background: var(--wui-subtle-fill-color-secondary);
 }
 
 .wui-hyperlink-button:active:not(:disabled):not(.is-disabled) {
-  /* 前景:遗留 SystemControlHighlightBaseMediumLow;底色:权威 SubtleFillColorTertiary(L11/L26) */
-  color: var(--wui-hyperlink-button-foreground-pressed);
-  background: var(--wui-hyperlink-button-background-pressed);
+  /* 前景:权威 AccentTextFillColorTertiary;底色:权威 SubtleFillColorTertiary */
+  color: var(--wui-accent-text-fill-color-tertiary);
+  background: var(--wui-subtle-fill-color-tertiary);
 }
 
 .wui-hyperlink-button:disabled,
 .wui-hyperlink-button.is-disabled {
-  /* 前景:遗留 SystemControlDisabledBaseMediumLow;底色:权威 SubtleFillColorTransparent */
-  color: var(--wui-hyperlink-button-foreground-disabled);
-  background: var(--wui-hyperlink-button-background-disabled);
+  /* 前景:权威 AccentTextFillColorDisabled;底色:权威 SubtleFillColorTransparent */
+  color: var(--wui-accent-text-fill-color-disabled);
+  background: var(--wui-subtle-fill-color-disabled);
   cursor: default;
 }
 

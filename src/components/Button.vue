@@ -121,9 +121,13 @@ function onClick(event: MouseEvent): void {
   /* 状态色中间变量(状态规则就地消费;reveal 变体经同名变量整体切换,见文末)。
      Normal 态先经 --wui-button-local-* 透传 background/foreground/borderBrush prop
      (对应 TemplateBinding;交互态仍按 WinUI VSM 用主题状态色覆盖本地值) */
-  --btn-fg: var(--wui-button-local-foreground, var(--wui-button-foreground));
-  --btn-bg: var(--wui-button-local-background, var(--wui-button-background));
-  --btn-border: var(--wui-button-local-border, var(--wui-button-border));
+  /* PL3:状态色重定向到 Fluent 画刷族(PL2 token,值与 controls/dev 权威一致)。
+     Normal 态:前景 TextFillColorPrimary、底 ControlFillColorDefault;
+     边框权威为渐变 ControlElevationBorderBrush(PL2 无对应 token,P1 未决),以
+     ControlFillColorTransparent 占位——与既有 transparent 几何一致。 */
+  --btn-fg: var(--wui-button-local-foreground, var(--wui-text-fill-color-primary));
+  --btn-bg: var(--wui-button-local-background, var(--wui-control-fill-color-default));
+  --btn-border: var(--wui-button-local-border, var(--wui-control-fill-color-transparent));
 
   /* ButtonPadding="8,4,8,5" */
   padding: 4px 8px 5px;
@@ -151,21 +155,25 @@ function onClick(event: MouseEvent): void {
    背景色经上面的 BrushTransition 83ms 线性过渡 */
 
 .wui-button:hover:not(:disabled) {
-  --btn-fg: var(--wui-button-foreground-pointer-over);
-  --btn-bg: var(--wui-button-background-pointer-over);
-  --btn-border: var(--wui-button-border-brush-pointer-over);
+  /* PointerOver:TextFillColorPrimary / ControlFillColorSecondary;
+     边框 ControlElevationBorderBrush(渐变,P1 未决,占位透明) */
+  --btn-fg: var(--wui-text-fill-color-primary);
+  --btn-bg: var(--wui-control-fill-color-secondary);
+  --btn-border: var(--wui-control-fill-color-transparent);
 }
 
 .wui-button:active:not(:disabled) {
-  --btn-fg: var(--wui-button-foreground-pressed);
-  --btn-bg: var(--wui-button-background-pressed);
-  --btn-border: var(--wui-button-border-brush-pressed);
+  /* Pressed:TextFillColorSecondary / ControlFillColorTertiary / ControlStrokeColorDefault */
+  --btn-fg: var(--wui-text-fill-color-secondary);
+  --btn-bg: var(--wui-control-fill-color-tertiary);
+  --btn-border: var(--wui-control-stroke-color-default);
 }
 
 .wui-button:disabled {
-  --btn-fg: var(--wui-button-foreground-disabled);
-  --btn-bg: var(--wui-button-background-disabled);
-  --btn-border: var(--wui-button-border-brush-disabled);
+  /* Disabled:TextFillColorDisabled / ControlFillColorDisabled / ControlStrokeColorDefault */
+  --btn-fg: var(--wui-text-fill-color-disabled);
+  --btn-bg: var(--wui-control-fill-color-disabled);
+  --btn-border: var(--wui-control-stroke-color-default);
   cursor: default;
 }
 

@@ -238,62 +238,39 @@ const severityGlyph = computed(() => SEVERITY_GLYPHS[props.severity] ?? '\uF13F'
  * (theme.css 未提取,源值取 Common_themeresources_any.xaml,对照表见 wiki 差异节)。
  */
 .wui-infobar {
-  /* Informational:背景 SystemFillColorAttentionBackground(light 源 #80F6F6F6,
-     XAML AARRGGBB → CSS RRGGBBAA 写作 #f6f6f680),
-     图标 SystemFillColorAttentionBrush ← SystemAccentColor(theme-hooks token) */
-  --wui-infobar-severity-bg: #f6f6f680;
-  --wui-infobar-severity-icon: var(--wui-system-accent-color);
-  --wui-infobar-icon-inverse: #ffffff; /* TextFillColorInverse(light,#FFFFFF 不透明,无字节序问题) */
+  /* PL3:四档严重级别配色重定向到 PL2 Fluent 系统语义画刷(浅/深由 token 自身切换,
+     无需再写 html[data-theme='dark'] 覆盖段)。
+     Informational:背景 SystemFillColorAttentionBackground,图标 SystemFillColorAttention */
+  --wui-infobar-severity-bg: var(--wui-system-fill-color-attention-background);
+  --wui-infobar-severity-icon: var(--wui-system-fill-color-attention);
+  --wui-infobar-icon-inverse: var(--wui-text-fill-color-inverse); /* InfoBar*SeverityIconForeground = TextFillColorInverse */
 
   box-sizing: border-box;
   font-family: inherit; /* XamlAutoFontFamily 占位,回退浏览器默认 */
   font-size: var(--wui-control-content-theme-font-size);
-  color: var(--wui-default-text-foreground-theme); /* InfoBarTitle/MessageForeground ← TextFillColorPrimary */
+  color: var(--wui-text-fill-color-primary); /* InfoBarTitle/MessageForeground = TextFillColorPrimary */
   background: var(--wui-infobar-severity-bg); /* ContentRoot 背景(SeverityLevels 态 Setter) */
-  border: 1px solid var(--wui-system-control-background-base-low); /* InfoBarBorderBrush ← CardStrokeColorDefault(Expander 同款最近似映射) */
+  /* InfoBarBorderBrush = CardStrokeColorDefaultBrush */
+  border: 1px solid var(--wui-card-stroke-color-default);
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius); /* CornerRadius ← ControlCornerRadius(4px) */
 }
 
 .wui-infobar--success {
-  /* SystemFillColorSuccessBackground #DFF6DD / SystemFillColorSuccess #0F7B0F(light) */
-  --wui-infobar-severity-bg: #dff6dd;
-  --wui-infobar-severity-icon: #0f7b0f;
+  /* SystemFillColorSuccessBackground / SystemFillColorSuccess */
+  --wui-infobar-severity-bg: var(--wui-system-fill-color-success-background);
+  --wui-infobar-severity-icon: var(--wui-system-fill-color-success);
 }
 
 .wui-infobar--warning {
-  /* SystemFillColorCautionBackground #FFF4CE / SystemFillColorCaution #9D5D00(light) */
-  --wui-infobar-severity-bg: #fff4ce;
-  --wui-infobar-severity-icon: #9d5d00;
+  /* SystemFillColorCautionBackground / SystemFillColorCaution */
+  --wui-infobar-severity-bg: var(--wui-system-fill-color-caution-background);
+  --wui-infobar-severity-icon: var(--wui-system-fill-color-caution);
 }
 
 .wui-infobar--error {
-  /* SystemFillColorCriticalBackground #FDE7E9 / SystemFillColorCritical #C42B1C(light) */
-  --wui-infobar-severity-bg: #fde7e9;
-  --wui-infobar-severity-icon: #c42b1c;
-}
-
-/* 深色主题(Default 字典):背景 / 图标填充换档;图标反白字换 TextFillColorInverse(dark)
-   (源 #E4000000,XAML AARRGGBB → CSS RRGGBBAA 写作 #000000e4)。
-   档位规则带主题前缀以保证在深色下稳定压过浅色基线(比源顺序更明确的特异性约定)。 */
-html[data-theme='dark'] .wui-infobar {
-  --wui-infobar-severity-bg: #ffffff08; /* SystemFillColorAttentionBackground(dark),源 #08FFFFFF → RRGGBBAA */
-  --wui-infobar-severity-icon: var(--wui-system-accent-color-light-2); /* ← SystemAccentColorLight2 */
-  --wui-infobar-icon-inverse: #000000e4; /* TextFillColorInverse(dark),源 #E4000000 → RRGGBBAA */
-}
-
-html[data-theme='dark'] .wui-infobar--success {
-  --wui-infobar-severity-bg: #393d1b;
-  --wui-infobar-severity-icon: #6ccb5f;
-}
-
-html[data-theme='dark'] .wui-infobar--warning {
-  --wui-infobar-severity-bg: #433519;
-  --wui-infobar-severity-icon: #fce100;
-}
-
-html[data-theme='dark'] .wui-infobar--error {
-  --wui-infobar-severity-bg: #442726;
-  --wui-infobar-severity-icon: #ff99a4;
+  /* SystemFillColorCriticalBackground / SystemFillColorCritical */
+  --wui-infobar-severity-bg: var(--wui-system-fill-color-critical-background);
+  --wui-infobar-severity-icon: var(--wui-system-fill-color-critical);
 }
 
 /* —— 内层 Grid(MinHeight 48;Padding 16,0,0,0;列:Auto 图标 | * 内容 | Auto 关闭)—— */

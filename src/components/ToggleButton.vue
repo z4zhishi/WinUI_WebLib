@@ -117,73 +117,79 @@ const revealHandlers = useReveal(() => props.reveal === true)
  * 状态色即时切换、无过渡动画)。
  * ====================================================================== */
 .wui-toggle-button {
-  /* Normal */
-  --tb-fg: var(--wui-toggle-button-foreground);
-  --tb-bg: var(--wui-toggle-button-background);
-  --tb-border: var(--wui-toggle-button-border);
+  /* Normal(PL3:重定向到 Fluent 画刷族;边框权威为渐变 ControlElevationBorderBrush,
+     PL2 无对应 token,P1 未决 → 透明占位) */
+  --tb-fg: var(--wui-text-fill-color-primary);
+  --tb-bg: var(--wui-control-fill-color-default);
+  --tb-border: var(--wui-control-fill-color-transparent);
 }
 
 /* PointerOver / CheckedPointerOver / IndeterminatePointerOver */
 .wui-toggle-button:not(.is-disabled):hover {
-  --tb-fg: var(--wui-toggle-button-foreground-pointer-over);
-  --tb-bg: var(--wui-toggle-button-background-pointer-over);
-  --tb-border: var(--wui-toggle-button-border-brush-pointer-over);
+  --tb-fg: var(--wui-text-fill-color-primary);
+  --tb-bg: var(--wui-control-fill-color-secondary);
+  --tb-border: var(--wui-control-fill-color-transparent);
 }
 .wui-toggle-button.is-checked:not(.is-disabled):hover {
-  --tb-fg: var(--wui-toggle-button-foreground-checked-pointer-over);
-  --tb-bg: var(--wui-toggle-button-background-checked-pointer-over);
-  --tb-border: var(--wui-toggle-button-border-brush-checked-pointer-over);
+  /* CheckedPointerOver:TextOnAccentPrimary / AccentFillColorSecondary */
+  --tb-fg: var(--wui-text-on-accent-fill-color-primary);
+  --tb-bg: var(--wui-accent-fill-color-secondary);
+  --tb-border: var(--wui-control-fill-color-transparent);
 }
 .wui-toggle-button.is-indeterminate:not(.is-disabled):hover {
-  --tb-fg: var(--wui-toggle-button-foreground-indeterminate-pointer-over);
-  --tb-bg: var(--wui-toggle-button-background-indeterminate-pointer-over);
-  --tb-border: var(--wui-toggle-button-border-brush-indeterminate-pointer-over);
+  /* IndeterminatePointerOver 同 PointerOver(源指向 ControlFillColorSecondary) */
+  --tb-fg: var(--wui-text-fill-color-primary);
+  --tb-bg: var(--wui-control-fill-color-secondary);
+  --tb-border: var(--wui-control-fill-color-transparent);
 }
 
 /* Pressed / CheckedPressed / IndeterminatePressed */
 .wui-toggle-button:not(.is-disabled):active {
-  --tb-fg: var(--wui-toggle-button-foreground-pressed);
-  --tb-bg: var(--wui-toggle-button-background-pressed);
-  --tb-border: var(--wui-toggle-button-border-brush-pressed);
+  --tb-fg: var(--wui-text-fill-color-secondary);
+  --tb-bg: var(--wui-control-fill-color-tertiary);
+  --tb-border: var(--wui-control-stroke-color-default);
 }
 .wui-toggle-button.is-checked:not(.is-disabled):active {
-  --tb-fg: var(--wui-toggle-button-foreground-checked-pressed);
-  --tb-bg: var(--wui-toggle-button-background-checked-pressed);
-  --tb-border: var(--wui-toggle-button-border-brush-checked-pressed);
+  /* CheckedPressed:TextOnAccentSecondary / AccentFillColorTertiary / ControlFillColorTransparent */
+  --tb-fg: var(--wui-text-on-accent-fill-color-secondary);
+  --tb-bg: var(--wui-accent-fill-color-tertiary);
+  --tb-border: var(--wui-control-fill-color-transparent);
 }
 .wui-toggle-button.is-indeterminate:not(.is-disabled):active {
-  --tb-fg: var(--wui-toggle-button-foreground-indeterminate-pressed);
-  --tb-bg: var(--wui-toggle-button-background-indeterminate-pressed);
-  --tb-border: var(--wui-toggle-button-border-brush-indeterminate-pressed);
+  --tb-fg: var(--wui-text-fill-color-secondary);
+  --tb-bg: var(--wui-control-fill-color-tertiary);
+  --tb-border: var(--wui-control-stroke-color-default);
 }
 
 /* Disabled / CheckedDisabled / IndeterminateDisabled */
 .wui-toggle-button.is-disabled {
-  --tb-fg: var(--wui-toggle-button-foreground-disabled);
-  --tb-bg: var(--wui-toggle-button-background-disabled);
-  --tb-border: var(--wui-toggle-button-border-brush-disabled);
+  --tb-fg: var(--wui-text-fill-color-disabled);
+  --tb-bg: var(--wui-control-fill-color-disabled);
+  --tb-border: var(--wui-control-stroke-color-default);
 }
 .wui-toggle-button.is-disabled.is-checked {
-  --tb-fg: var(--wui-toggle-button-foreground-checked-disabled);
-  --tb-bg: var(--wui-toggle-button-background-checked-disabled);
-  --tb-border: var(--wui-toggle-button-border-brush-checked-disabled);
+  /* CheckedDisabled:TextOnAccentDisabled / AccentFillColorDisabled / ControlFillColorTransparent */
+  --tb-fg: var(--wui-text-on-accent-fill-color-disabled);
+  --tb-bg: var(--wui-accent-fill-color-disabled);
+  --tb-border: var(--wui-control-fill-color-transparent);
 }
 .wui-toggle-button.is-disabled.is-indeterminate {
-  --tb-fg: var(--wui-toggle-button-foreground-indeterminate-disabled);
-  --tb-bg: var(--wui-toggle-button-background-indeterminate-disabled);
-  --tb-border: var(--wui-toggle-button-border-brush-indeterminate-disabled);
+  --tb-fg: var(--wui-text-fill-color-disabled);
+  --tb-bg: var(--wui-control-fill-color-disabled);
+  --tb-border: var(--wui-control-stroke-color-default);
 }
 
 /* CheckedNormal / IndeterminateNormal(须置于交互态之后,保证同优先级下三态色生效) */
 .wui-toggle-button.is-checked {
-  --tb-fg: var(--wui-toggle-button-foreground-checked);
-  --tb-bg: var(--wui-toggle-button-background-checked);
-  --tb-border: var(--wui-toggle-button-border-brush-checked);
+  /* Checked:TextOnAccentPrimary / AccentFillColorDefault / AccentControlElevationBorderBrush(渐变,占位透明) */
+  --tb-fg: var(--wui-text-on-accent-fill-color-primary);
+  --tb-bg: var(--wui-accent-fill-color-default);
+  --tb-border: var(--wui-control-fill-color-transparent);
 }
 .wui-toggle-button.is-indeterminate {
-  --tb-fg: var(--wui-toggle-button-foreground-indeterminate);
-  --tb-bg: var(--wui-toggle-button-background-indeterminate);
-  --tb-border: var(--wui-toggle-button-border-brush-indeterminate);
+  --tb-fg: var(--wui-text-fill-color-primary);
+  --tb-bg: var(--wui-control-fill-color-default);
+  --tb-border: var(--wui-control-fill-color-transparent);
 }
 
 /* ======================================================================
