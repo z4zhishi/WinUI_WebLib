@@ -312,6 +312,9 @@ onScopeDispose(() => {
   --atb-overlay: var(--wui-system-control-transparent); /* HighLightOverlay = 透明 */
   --atb-fg: var(--wui-system-control-foreground-base-high);
   --atb-accel: var(--wui-system-control-foreground-base-medium);
+  /* PL5:AppBarToggleButtonBorderBrush 四态均 ControlFillColorTransparentBrush
+     (Default/Light 字典 L26-29 / L156-159)→ 未选中态不渲染立体描边环 */
+  --atb-elevation-border: none;
 }
 
 /* PointerOver:列表低高亮 + 前景 HighlightAltBaseHigh(CheckedPointerOver 同) */
@@ -338,6 +341,14 @@ onScopeDispose(() => {
 .wui-appbar-toggle-button--checked {
   --atb-highlight-opacity: 1;
   --atb-fg: var(--wui-system-control-highlight-alt-base-high);
+  /* Checked:AppBarToggleButtonBorderBrushChecked = AccentControlElevationBorderBrush(渐变) */
+  --atb-elevation-border: var(--wui-accent-control-elevation-border);
+}
+
+/* CheckedPointerOver 同 Checked 的描边(源 L31 / L161 同一键),按下/禁用回到透明 */
+.wui-appbar-toggle-button--checked:active:not(:disabled) {
+  /* CheckedPressed:BorderBrush = ControlFillColorTransparentBrush */
+  --atb-elevation-border: none;
 }
 
 /* CheckedDisabled:底色 DisabledAccent、前景 BackgroundBaseMediumLow(置后覆盖 Disabled 前景) */
@@ -345,6 +356,38 @@ onScopeDispose(() => {
   --atb-highlight: var(--wui-system-control-disabled-accent);
   --atb-fg: var(--wui-system-control-background-base-medium-low);
   --atb-accel: var(--wui-system-control-disabled-base-medium-low);
+  /* CheckedDisabled:BorderBrush = ControlFillColorTransparentBrush */
+  --atb-elevation-border: none;
+}
+
+/* ======================================================================
+ * PL5 立体描边环(AccentControlElevationBorderBrush):与 Button 同款 mask 环实现
+ * (border-image 不随圆角裁切的取舍见 Button.vue);
+ * 厚度 1:源 AppBarToggleButtonBorderThemeThickness = 1(L200);
+ * 几何:本控件 border: none(未设 CSS border),绝对定位包含块 = border box →
+ *       inset:0 即外缘贴盒边,环厚 1px;不参与布局 → 尺寸/圆角/字号不变。
+ * 注意:源 Checked 态 InnerBorder BackgroundSizing=OuterBorderEdge(L343)→ 强调色底
+ *       铺到外框边,渐变描边正压在其上(与本库 __highlight 层 inset:0 的现状一致)。
+ * 互斥:Reveal 变体(CommandBar 内默认启用)的光照层由 reveal.css 的 ::before/::after
+ *       承载,故仍以 :not(.wui-reveal) 排除,保持「Reveal 变体走 legacy 材料、
+ *       不叠加 Fluent 立体描边」的一致约定(与 Button/RepeatButton/ToggleButton 同规则)。
+ * 层级:本控件有两层 z-index:0 的绝对定位底色(高亮/覆盖),按同层内文档顺序,
+ *       最早出现的 ::before 会先绘制 → 需 z-index:1 才浮在底色层之上;图标/标签
+ *       (position:relative; z-index:1,文档中更晚)仍在其上 → 内容不被遮挡。
+ * ====================================================================== */
+.wui-appbar-toggle-button:not(.wui-reveal)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--atb-elevation-border, none);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 /* ======================================================================

@@ -117,11 +117,33 @@ const revealHandlers = useReveal(() => props.reveal === true)
  * 状态色即时切换、无过渡动画)。
  * ====================================================================== */
 .wui-toggle-button {
-  /* Normal(PL3:重定向到 Fluent 画刷族;边框权威为渐变 ControlElevationBorderBrush,
-     PL2 无对应 token,P1 未决 → 透明占位) */
+  /* Normal(PL3:重定向到 Fluent 画刷族;PL5:边框权威为渐变 ControlElevationBorderBrush,
+     由下方 ::before 描边环呈现) */
   --tb-fg: var(--wui-text-fill-color-primary);
   --tb-bg: var(--wui-control-fill-color-default);
   --tb-border: var(--wui-control-fill-color-transparent);
+  /* Normal:ToggleButtonBorderBrush = ControlElevationBorderBrush(渐变) */
+  --tb-elevation-border: var(--wui-control-elevation-border);
+}
+
+/* ======================================================================
+ * PL5 立体描边环(ControlElevationBorderBrush / AccentControlElevationBorderBrush):
+ * 与 Button 同款 mask 环实现(border-image 不随圆角裁切的取舍、inset:-2px 推回
+ * border-box 边缘的理由见 Button.vue 注释);
+ * 互斥:Reveal 变体走 --wui-toggle-button-reveal-* token 边框 → 排除。
+ * ====================================================================== */
+.wui-toggle-button:not(.wui-toggle-button--reveal)::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: var(--tb-elevation-border, none);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 /* PointerOver / CheckedPointerOver / IndeterminatePointerOver */
@@ -129,18 +151,22 @@ const revealHandlers = useReveal(() => props.reveal === true)
   --tb-fg: var(--wui-text-fill-color-primary);
   --tb-bg: var(--wui-control-fill-color-secondary);
   --tb-border: var(--wui-control-fill-color-transparent);
+  --tb-elevation-border: var(--wui-control-elevation-border);
 }
 .wui-toggle-button.is-checked:not(.is-disabled):hover {
-  /* CheckedPointerOver:TextOnAccentPrimary / AccentFillColorSecondary */
+  /* CheckedPointerOver:TextOnAccentPrimary / AccentFillColorSecondary /
+     AccentControlElevationBorderBrush(强调色立体描边,渐变) */
   --tb-fg: var(--wui-text-on-accent-fill-color-primary);
   --tb-bg: var(--wui-accent-fill-color-secondary);
   --tb-border: var(--wui-control-fill-color-transparent);
+  --tb-elevation-border: var(--wui-accent-control-elevation-border);
 }
 .wui-toggle-button.is-indeterminate:not(.is-disabled):hover {
-  /* IndeterminatePointerOver 同 PointerOver(源指向 ControlFillColorSecondary) */
+  /* IndeterminatePointerOver 同 PointerOver(源指向 ControlFillColorSecondary/渐变) */
   --tb-fg: var(--wui-text-fill-color-primary);
   --tb-bg: var(--wui-control-fill-color-secondary);
   --tb-border: var(--wui-control-fill-color-transparent);
+  --tb-elevation-border: var(--wui-control-elevation-border);
 }
 
 /* Pressed / CheckedPressed / IndeterminatePressed */
@@ -148,17 +174,21 @@ const revealHandlers = useReveal(() => props.reveal === true)
   --tb-fg: var(--wui-text-fill-color-secondary);
   --tb-bg: var(--wui-control-fill-color-tertiary);
   --tb-border: var(--wui-control-stroke-color-default);
+  /* Pressed 权威 BorderBrush = 纯色 ControlStrokeColorDefaultBrush → 不套渐变 */
+  --tb-elevation-border: none;
 }
 .wui-toggle-button.is-checked:not(.is-disabled):active {
   /* CheckedPressed:TextOnAccentSecondary / AccentFillColorTertiary / ControlFillColorTransparent */
   --tb-fg: var(--wui-text-on-accent-fill-color-secondary);
   --tb-bg: var(--wui-accent-fill-color-tertiary);
   --tb-border: var(--wui-control-fill-color-transparent);
+  --tb-elevation-border: none;
 }
 .wui-toggle-button.is-indeterminate:not(.is-disabled):active {
   --tb-fg: var(--wui-text-fill-color-secondary);
   --tb-bg: var(--wui-control-fill-color-tertiary);
   --tb-border: var(--wui-control-stroke-color-default);
+  --tb-elevation-border: none;
 }
 
 /* Disabled / CheckedDisabled / IndeterminateDisabled */
@@ -166,30 +196,37 @@ const revealHandlers = useReveal(() => props.reveal === true)
   --tb-fg: var(--wui-text-fill-color-disabled);
   --tb-bg: var(--wui-control-fill-color-disabled);
   --tb-border: var(--wui-control-stroke-color-default);
+  --tb-elevation-border: none;
 }
 .wui-toggle-button.is-disabled.is-checked {
   /* CheckedDisabled:TextOnAccentDisabled / AccentFillColorDisabled / ControlFillColorTransparent */
   --tb-fg: var(--wui-text-on-accent-fill-color-disabled);
   --tb-bg: var(--wui-accent-fill-color-disabled);
   --tb-border: var(--wui-control-fill-color-transparent);
+  --tb-elevation-border: none;
 }
 .wui-toggle-button.is-disabled.is-indeterminate {
   --tb-fg: var(--wui-text-fill-color-disabled);
   --tb-bg: var(--wui-control-fill-color-disabled);
   --tb-border: var(--wui-control-stroke-color-default);
+  --tb-elevation-border: none;
 }
 
 /* CheckedNormal / IndeterminateNormal(须置于交互态之后,保证同优先级下三态色生效) */
 .wui-toggle-button.is-checked {
-  /* Checked:TextOnAccentPrimary / AccentFillColorDefault / AccentControlElevationBorderBrush(渐变,占位透明) */
+  /* Checked:TextOnAccentPrimary / AccentFillColorDefault /
+     AccentControlElevationBorderBrush(强调色立体描边,渐变) */
   --tb-fg: var(--wui-text-on-accent-fill-color-primary);
   --tb-bg: var(--wui-accent-fill-color-default);
   --tb-border: var(--wui-control-fill-color-transparent);
+  --tb-elevation-border: var(--wui-accent-control-elevation-border);
 }
 .wui-toggle-button.is-indeterminate {
+  /* Indeterminate:ToggleButtonBorderBrushIndeterminate = ControlElevationBorderBrush(渐变) */
   --tb-fg: var(--wui-text-fill-color-primary);
   --tb-bg: var(--wui-control-fill-color-default);
   --tb-border: var(--wui-control-fill-color-transparent);
+  --tb-elevation-border: var(--wui-control-elevation-border);
 }
 
 /* ======================================================================
@@ -216,6 +253,8 @@ const revealHandlers = useReveal(() => props.reveal === true)
   border: 2px solid var(--tb-border);
   /* WinUI 3 默认 ControlCornerRadius = 4;无同名 token,取最近似的圆角 token(见 wiki 差异节) */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);
+  /* 描边环(::before)的定位基准;position 不产生偏移,几何不变 */
+  position: relative;
   text-align: center;
   cursor: default;
   user-select: none;

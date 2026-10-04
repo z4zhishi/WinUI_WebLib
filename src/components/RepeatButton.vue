@@ -233,10 +233,12 @@ const revealHandlers = useReveal(() => props.reveal === true)
 .wui-repeat-button {
   /* PL3:状态色重定向到 Fluent 画刷族(PL2 token;权威同 Button)。
      Normal:TextFillColorPrimary / ControlFillColorDefault;
-     边框权威为渐变 ControlElevationBorderBrush(PL2 无对应 token,P1 未决),占位透明。 */
+     PL5:边框权威为渐变 ControlElevationBorderBrush,由下方 ::before 描边环呈现。 */
   --rb-fg: var(--wui-text-fill-color-primary);
   --rb-bg: var(--wui-control-fill-color-default);
   --rb-border: var(--wui-control-fill-color-transparent);
+  /* Normal:RepeatButtonBorderBrush = ControlElevationBorderBrush(渐变) */
+  --rb-elevation-border: var(--wui-control-elevation-border);
 
   /* ButtonPadding="8,4,8,5"(RepeatButton 样式复用同一 StaticResource) */
   padding: 4px 8px 5px;
@@ -251,6 +253,8 @@ const revealHandlers = useReveal(() => props.reveal === true)
   border: 2px solid var(--rb-border);
   /* WinUI 3 默认 ControlCornerRadius = 4;无同名 token,取最近似的圆角 token(见 wiki 差异节) */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);
+  /* 描边环(::before)的定位基准;position 不产生偏移,几何不变 */
+  position: relative;
   cursor: default;
   user-select: none;
   touch-action: manipulation;
@@ -260,28 +264,52 @@ const revealHandlers = useReveal(() => props.reveal === true)
   transition: background-color 83ms linear;
 }
 
+/* ======================================================================
+ * PL5 立体描边环(ControlElevationBorderBrush):与 Button 同款实现
+ * (mask 环 / border-image 取舍 / inset:-2px 推回 border-box 边缘的理由见 Button.vue)。
+ * 互斥:Reveal 变体走 --wui-repeat-button-reveal-* token 边框,故排除。
+ * ====================================================================== */
+.wui-repeat-button:not(.wui-repeat-button--reveal)::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: var(--rb-elevation-border, none);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
 /* 前景 / 边框状态色即时切换(源各态为 DiscreteObjectKeyFrame,无过渡动画);
    背景色经上面的 BrushTransition 83ms 线性过渡 */
 
 .wui-repeat-button:hover:not(:disabled) {
-  /* PointerOver:TextFillColorPrimary / ControlFillColorSecondary;边框渐变(P1 未决)占位透明 */
+  /* PointerOver:TextFillColorPrimary / ControlFillColorSecondary;边框仍为渐变 */
   --rb-fg: var(--wui-text-fill-color-primary);
   --rb-bg: var(--wui-control-fill-color-secondary);
   --rb-border: var(--wui-control-fill-color-transparent);
+  --rb-elevation-border: var(--wui-control-elevation-border);
 }
 
 .wui-repeat-button:active:not(:disabled) {
-  /* Pressed:TextFillColorSecondary / ControlFillColorTertiary / ControlStrokeColorDefault */
+  /* Pressed:TextFillColorSecondary / ControlFillColorTertiary / ControlStrokeColorDefault
+     (权威 BorderBrush 为纯色 → 描边环置 none) */
   --rb-fg: var(--wui-text-fill-color-secondary);
   --rb-bg: var(--wui-control-fill-color-tertiary);
   --rb-border: var(--wui-control-stroke-color-default);
+  --rb-elevation-border: none;
 }
 
 .wui-repeat-button:disabled {
-  /* Disabled:TextFillColorDisabled / ControlFillColorDisabled / ControlStrokeColorDefault */
+  /* Disabled:TextFillColorDisabled / ControlFillColorDisabled / ControlStrokeColorDefault
+     (同 Pressed:BorderBrush 权威为纯色 → 描边环置 none) */
   --rb-fg: var(--wui-text-fill-color-disabled);
   --rb-bg: var(--wui-control-fill-color-disabled);
   --rb-border: var(--wui-control-stroke-color-default);
+  --rb-elevation-border: none;
   cursor: default;
 }
 

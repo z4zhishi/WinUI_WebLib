@@ -123,11 +123,13 @@ function onClick(event: MouseEvent): void {
      (对应 TemplateBinding;交互态仍按 WinUI VSM 用主题状态色覆盖本地值) */
   /* PL3:状态色重定向到 Fluent 画刷族(PL2 token,值与 controls/dev 权威一致)。
      Normal 态:前景 TextFillColorPrimary、底 ControlFillColorDefault;
-     边框权威为渐变 ControlElevationBorderBrush(PL2 无对应 token,P1 未决),以
-     ControlFillColorTransparent 占位——与既有 transparent 几何一致。 */
+     PL5:边框权威为渐变 ControlElevationBorderBrush,由下方 ::before 描边环呈现
+     (border 自身保持透明/纯色几何不变,见 --btn-elevation-border)。 */
   --btn-fg: var(--wui-button-local-foreground, var(--wui-text-fill-color-primary));
   --btn-bg: var(--wui-button-local-background, var(--wui-control-fill-color-default));
   --btn-border: var(--wui-button-local-border, var(--wui-control-fill-color-transparent));
+  /* Normal:ButtonBorderBrush = ControlElevationBorderBrush(渐变) */
+  --btn-elevation-border: var(--wui-control-elevation-border);
 
   /* ButtonPadding="8,4,8,5" */
   padding: 4px 8px 5px;
@@ -141,6 +143,8 @@ function onClick(event: MouseEvent): void {
   border: 2px solid var(--btn-border);
   /* WinUI 3 默认 ControlCornerRadius = 4;无同名 token,取最近似的圆角 token(见 wiki 差异节) */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);
+  /* 描边环(::before)的定位基准;position 不产生偏移,几何不变 */
+  position: relative;
   cursor: default;
   user-select: none;
   touch-action: manipulation;
@@ -154,26 +158,62 @@ function onClick(event: MouseEvent): void {
 /* 前景 / 边框状态色即时切换(源各态为 DiscreteObjectKeyFrame,无过渡动画);
    背景色经上面的 BrushTransition 83ms 线性过渡 */
 
+/* ======================================================================
+ * PL5 立体描边环(ControlElevationBorderBrush/AccentControlElevationBorderBrush):
+ * XAML 的 BorderBrush 是 LinearGradientBrush,单色 border-color 无法表达 →
+ * 用「内嵌 mask 环」复刻:绝对定位伪元素铺满元素,background 取渐变,再用
+ * mask(border-box 减 content-box 的差集,即 mask-composite:exclude)挖空中心,
+ * 只留下边框厚度的一圈。取舍见报告:border-image 会忽略 border-radius
+ * (CSS Backgrounds 3 明确 border-image 不随圆角裁切,4px 圆角会出现方角外溢),
+ * 故不采用;本方案与公共层 reveal.css 的边框光同款几何,天然贴合圆角。
+ * 几何:环厚 = ButtonBorderThemeThickness(本库 2px),外缘与 border-box 对齐;
+ *       绝对定位不参与布局 → 尺寸/圆角/边框宽/字号全部不变。
+ * 位置:绝对定位元素的包含块是宿主 padding box,本宿主的 border 宽 2px →
+ *       用 inset:-2px 把环外缘推回 border-box 边缘(border 宽 0 的控件则用 inset:0)。
+ * 状态:--btn-elevation-border 见上(Pressed/Disabled 权威为纯色 → none,不套渐变)。
+ * 互斥:Reveal 变体(opt-in legacy 材料)边框走 --wui-button-reveal-* token,
+ *       故描边环以 :not(.wui-button--reveal) 排除,避免与 reveal.css 的
+ *       ::before 底板光/::after 边框光争用同一伪元素。
+ * ====================================================================== */
+.wui-button:not(.wui-button--reveal)::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: var(--btn-elevation-border, none);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
 .wui-button:hover:not(:disabled) {
   /* PointerOver:TextFillColorPrimary / ControlFillColorSecondary;
-     边框 ControlElevationBorderBrush(渐变,P1 未决,占位透明) */
+     边框仍为 ControlElevationBorderBrush(渐变) */
   --btn-fg: var(--wui-text-fill-color-primary);
   --btn-bg: var(--wui-control-fill-color-secondary);
   --btn-border: var(--wui-control-fill-color-transparent);
+  --btn-elevation-border: var(--wui-control-elevation-border);
 }
 
 .wui-button:active:not(:disabled) {
-  /* Pressed:TextFillColorSecondary / ControlFillColorTertiary / ControlStrokeColorDefault */
+  /* Pressed:TextFillColorSecondary / ControlFillColorTertiary / ControlStrokeColorDefault
+     (权威 BorderBrush 为纯色 ControlStrokeColorDefaultBrush → 不套渐变,描边环置 none) */
   --btn-fg: var(--wui-text-fill-color-secondary);
   --btn-bg: var(--wui-control-fill-color-tertiary);
   --btn-border: var(--wui-control-stroke-color-default);
+  --btn-elevation-border: none;
 }
 
 .wui-button:disabled {
-  /* Disabled:TextFillColorDisabled / ControlFillColorDisabled / ControlStrokeColorDefault */
+  /* Disabled:TextFillColorDisabled / ControlFillColorDisabled / ControlStrokeColorDefault
+     (同 Pressed:BorderBrush 权威为纯色 → 描边环置 none) */
   --btn-fg: var(--wui-text-fill-color-disabled);
   --btn-bg: var(--wui-control-fill-color-disabled);
   --btn-border: var(--wui-control-stroke-color-default);
+  --btn-elevation-border: none;
   cursor: default;
 }
 

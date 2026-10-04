@@ -163,6 +163,10 @@ function onClick(event: MouseEvent): void {
   /* AppBarButtonBackground = SystemControlTransparentBrush;BorderBrush 全态透明 */
   color: var(--wui-system-control-foreground-base-high);
   background: var(--wui-system-control-transparent);
+  /* PL5:AppBarButton 四态(Default/Light 字典 L11-14 / L156-159)BorderBrush 均指向
+     ControlFillColorTransparentBrush —— 权威矩阵中 **无任何 ControlElevationBorderBrush/
+     AccentControlElevationBorderBrush 项**(controls/dev 生效层的 AppBarButton 是
+     「无色描边」族),故本控件的立体描边按权威保持「无边框」,不引入渐变环。 */
   border: none;
   /* WinUI 3 默认 ControlCornerRadius = 4;无同名 token,取最近似的圆角 token(见 wiki 差异节) */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);

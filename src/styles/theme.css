@@ -2015,6 +2015,35 @@
   --wui-control-stroke-color-on-accent-tertiary: #00000037;
   --wui-control-stroke-color-secondary: #00000029;
 
+  /* ==========================================================================
+   * 控件立体描边(ControlElevationBorder,LinearGradientBrush;PL5 增量,手工维护)
+   * 源: CK/WinUI-Reference/controls/dev/CommonStyles/Common_themeresources_any.xaml
+   *     Light 字典 L382-390 ControlElevationBorderBrush / L397-405
+   *     AccentControlElevationBorderBrush(行号与结构见
+   *     docs/pages/color/brush-authority.md §4.1)。
+   * 结构: MappingMode=Absolute、StartPoint=0,0 EndPoint=0,3(竖向 3px 轴),
+   *       GradientStop Offset=0.33 → ControlStrokeColorSecondary、
+   *       Offset=1.0 → ControlStrokeColorDefault。
+   * 方向: **本(Light)字典的 ControlElevationBorderBrush 带 RelativeTransform
+   *       ScaleTransform ScaleY=-1 CenterY=0.5**(L383-385);ScaleY=-1 把 stops 的
+   *       偏移做 1-o 映射(0.33→0.67、1.0→0.0),即首末对调 → 顶上淡、下重。
+   *       Accent 版同样带 ScaleY=-1(L398-400),两主题方向一致。
+   * CSS 换算: 取等价的两停百分比写法(CSS 无 Negative Scale 语义,把翻转后的偏移
+   *       直接写成 stop 位置): Default 0% → Secondary 67%,其后至 100% 保持 Secondary。
+   *       与源 Absolute 3px 轴的差别仅在被描边带(本库 2px)完全位于渐变轴两端:
+   *       首 2px 落在首停色区、末 2px 落在末停色区 → 边缘观感与源一致。
+   * ========================================================================== */
+  --wui-control-elevation-border: linear-gradient(
+    to bottom,
+    var(--wui-control-stroke-color-default) 0%,
+    var(--wui-control-stroke-color-secondary) 67%
+  );
+  --wui-accent-control-elevation-border: linear-gradient(
+    to bottom,
+    var(--wui-control-stroke-color-on-accent-default) 0%,
+    var(--wui-control-stroke-color-on-accent-secondary) 67%
+  );
+
   /* SubtleFill* */
   --wui-subtle-fill-color-disabled: #ffffff00;
   --wui-subtle-fill-color-secondary: #00000009;
@@ -4088,6 +4117,28 @@
   --wui-control-stroke-color-on-accent-secondary: #00000023;
   --wui-control-stroke-color-on-accent-tertiary: #00000037;
   --wui-control-stroke-color-secondary: #ffffff18;
+
+  /* ==========================================================================
+   * 控件立体描边(ControlElevationBorder,LinearGradientBrush;PL5 增量,手工维护)
+   * 源: 同文件 Default(深色)字典 L186-191 ControlElevationBorderBrush /
+   *     L198-206 AccentControlElevationBorderBrush;结构同上(Light 段注释)。
+   * 方向: **Default 字典的 ControlElevationBorderBrush 不带 RelativeTransform**
+   *       (L186-191 无 ScaleTransform)→ 0.33 在轴上 0.33 处,即顶重、下淡;
+   *       Accent 版带 ScaleY=-1(L199-201)→ 与 Light 同向(顶淡、下重)。
+   *       (权威表 brush-authority.md §4.1 记「深色 ScaleY=-1 反转方向」,
+   *        经逐行复核:带 ScaleY=-1 的是 **Light** 字典的非 Accent 版与两字典的 Accent 版;
+   *        本表已按源行号修正,详见 PL5 报告。)
+   * ========================================================================== */
+  --wui-control-elevation-border: linear-gradient(
+    to bottom,
+    var(--wui-control-stroke-color-secondary) 33%,
+    var(--wui-control-stroke-color-default) 100%
+  );
+  --wui-accent-control-elevation-border: linear-gradient(
+    to bottom,
+    var(--wui-control-stroke-color-on-accent-default) 0%,
+    var(--wui-control-stroke-color-on-accent-secondary) 67%
+  );
 
   /* SubtleFill* */
   --wui-subtle-fill-color-disabled: #ffffff00;
