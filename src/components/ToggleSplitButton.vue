@@ -20,13 +20,12 @@
 //   无 CheckedDisabled 态:模板 Disabled 分支不含勾选变体,禁用 + 勾选外观同「仅禁用」
 //   (themeresources 的 SplitButton*CheckedDisabled 资源未被模板引用,不复刻)。
 //   配色(SplitButton_themeresources.xaml L9-L32,Light 基线 / Default 深色档):
-//   背景 ← AccentFillColorDefault(悬停 ≈ Dark1 = AccentFillColorSecondary,按压 ≈ Dark2 =
-//   AccentFillColorTertiary);前景 ← TextOnAccentFillColorPrimary(按压族
-//   TextOnAccentFillColorSecondary);边框 ← AccentControlElevationBorderBrush(1px 近似
-//   ControlStrokeColorOnAccentSecondary);分隔线 ← ControlStrokeColorOnAccentTertiary。
-//   WinUI 3 调色板未由 theme.css 提取(同 SplitButton 先例按源值注入组件级 token,对照表见
-//   wiki/controls/ToggleSplitButton.md);accent 系为应用层系统色钩子,未定义时回退
-//   --wui-hyperlink-foreground-theme(demo/components/README.md 约定,钩子定义后自动生效)。
+//   背景 ← AccentFillColorDefault(悬停 AccentFillColorSecondary,按压 AccentFillColorTertiary);
+//   前景 ← TextOnAccentFillColorPrimary(按压族 TextOnAccentFillColorSecondary);边框 ←
+//   AccentControlElevationBorderBrush(1px 近似 ControlStrokeColorOnAccentSecondary);分隔线 ←
+//   ControlStrokeColorOnAccentTertiary。PL16:全部直引 PL2 Fluent token(--wui-accent-fill-color-* /
+//   --wui-text-on-accent-fill-color-* / --wui-control-stroke-color-on-accent-*),token 自身随主题换档;
+//   此前组件内字面量 + 系统色钩子回退已删除(对照表见 wiki/controls/ToggleSplitButton.md)。
 //
 // 行为规格(ToggleSplitButton.cpp):
 //   - OnClickPrimary(L53):先 Toggle() 翻转 IsChecked,后 __super(发 Click)——Web 侧即
@@ -170,7 +169,14 @@ defineExpose({
   </WuiSplitButton>
 </template>
 
-<style scoped>
+<!-- PL16 修复(缺陷,非本批引入):本块的规则全部作用于根元素 .wui-togglesplitbutton,
+     而该根元素是 SplitButton.vue 模板的片段根(span + Teleport),Vue 的 scoped 机制无法把
+     ToggleSplitButton 的 data-v 作用域 id 传到片段根 → 原先 `<style scoped>` 编译出的
+     `.wui-togglesplitbutton.is-checked[data-v-…]` 在真实客户端从不命中(实测 DOM 只含
+     SplitButton 的 data-v-7674976a,查无本组件 data-v-4e690b4a),Checked 全族覆写失效。
+     因作用域 id 结构上无法落位,改为非 scoped(全局)样式块:类名唯一,无泄漏风险;
+     SSR 场景曾「恰好」输出双 scope id(T3 报告结论),客户端不成立,故按实测修正。 -->
+<style>
 /* ======================================================================
  * Checked 全族状态(SplitButton.xaml L131-L207 的 Checked 分支):
  * SplitButton.vue 的全部状态规则消费根元素 --wui-splitbutton-* token,本组件经 attrs 透传在
@@ -193,46 +199,28 @@ defineExpose({
  *   #RRGGBBAA(Common_themeresources_any.xaml Light / Default 字典)。
  * ====================================================================== */
 .wui-togglesplitbutton.is-checked:not(.is-disabled) {
-  /* 背景:AccentFillColorDefault / Secondary(≈SystemAccentColorDark1)/ Tertiary(≈Dark2)。
-     accent 为应用层系统色钩子,未定义时回退超链色(README 约定,钩子定义后自动生效) */
-  --wui-splitbutton-fill: var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  --wui-splitbutton-fill-pointer-over: var(
-    --wui-system-accent-color-dark-1,
-    var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme))
-  );
-  --wui-splitbutton-fill-pressed: var(
-    --wui-system-accent-color-dark-2,
-    var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme))
-  );
+  /* 背景:AccentFillColorDefaultBrush / Secondary / Tertiary(PL16 直引 Fluent token;
+     token 自身随主题换档:Light dark-1 #0067C0 / Dark light-2 #4CC2FF) */
+  --wui-splitbutton-fill: var(--wui-accent-fill-color-default);
+  --wui-splitbutton-fill-pointer-over: var(--wui-accent-fill-color-secondary);
+  --wui-splitbutton-fill-pressed: var(--wui-accent-fill-color-tertiary);
 
-  /* 前景:TextOnAccentFillColorPrimary(Light #FFFFFF / Default #000000)、
-     TextOnAccentFillColorSecondary(Light #B3FFFFFF / Default #80000000) */
-  --wui-splitbutton-foreground: #ffffff;
-  --wui-splitbutton-foreground-pointer-over: #ffffff; /* CheckedPointerOver 前景 = Checked 同值(TextOnAccentPrimary) */
-  --wui-splitbutton-foreground-pressed: #ffffffb3;
-  --wui-splitbutton-foreground-secondary: #ffffff;
-  --wui-splitbutton-foreground-secondary-pressed: #ffffffb3;
+  /* 前景:TextOnAccentFillColorPrimaryBrush(Light #FFFFFF / Default #000000)、
+     TextOnAccentFillColorSecondaryBrush(Light #B3FFFFFF / Default #80000000) */
+  --wui-splitbutton-foreground: var(--wui-text-on-accent-fill-color-primary);
+  --wui-splitbutton-foreground-pointer-over: var(--wui-text-on-accent-fill-color-primary); /* CheckedPointerOver 前景 = Checked 同值 */
+  --wui-splitbutton-foreground-pressed: var(--wui-text-on-accent-fill-color-secondary);
+  --wui-splitbutton-foreground-secondary: var(--wui-text-on-accent-fill-color-primary);
+  --wui-splitbutton-foreground-secondary-pressed: var(--wui-text-on-accent-fill-color-secondary);
 
   /* 边框:AccentControlElevationBorderBrush 1px 近似 ControlStrokeColorOnAccentSecondary
-     (Light #66000000 / Default #23000000);按压族色:Primary/SecondaryPressed 保留 accent
-     边框(下方 :has 规则恢复),FlyoutOpen / TouchPressed = ControlFillColorTransparent */
-  --wui-splitbutton-stroke: #00000066;
+     (Light #66000000 / Default #23000000);FlyoutOpen / TouchPressed = ControlFillColorTransparent */
+  --wui-splitbutton-stroke: var(--wui-control-stroke-color-on-accent-secondary);
   --wui-splitbutton-stroke-pressed: transparent;
 
   /* 分隔线:SplitButtonBorderBrushCheckedDivider = ControlStrokeColorOnAccentTertiary
      (Light / Default 同值 #37000000) */
-  --wui-splitbutton-divider: #00000037;
-}
-
-/* 深色档(Default 字典):TextOnAccent / OnAccentStroke 换值;accent 钩子由应用层换档 */
-html[data-theme='dark'] .wui-togglesplitbutton.is-checked:not(.is-disabled) {
-  --wui-splitbutton-foreground: #000000;
-  --wui-splitbutton-foreground-pointer-over: #000000;
-  --wui-splitbutton-foreground-pressed: #00000080;
-  --wui-splitbutton-foreground-secondary: #000000;
-  --wui-splitbutton-foreground-secondary-pressed: #00000080;
-  --wui-splitbutton-stroke: #00000023;
-  --wui-splitbutton-divider: #00000037;
+  --wui-splitbutton-divider: var(--wui-control-stroke-color-on-accent-tertiary);
 }
 
 /* CheckedPrimaryPressed / CheckedSecondaryPressed:源边框保留 SplitButtonBorderBrushChecked

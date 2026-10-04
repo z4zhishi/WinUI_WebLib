@@ -14,8 +14,9 @@
 //      Padding=CommandBarMoreButtonMargin 14,19,14,0)+ OverflowPopup(Teleport 弹层)。
 //      MoreButton 内容 = EllipsisIcon FontIcon(Glyph=E712(WinUI 3;UWP 为 E10C)、FontSize=20、
 //      SymbolThemeFontFamily);
-//    - EllipsisButton 样式:Background/Foreground/BorderBrush = AppBarEllipsisButton* 系列
-//      (theme.css 已有 --wui-app-bar-ellipsis-button-* token),各交互态 DiscreteObjectKeyFrame
+//    - EllipsisButton 样式:Background/Foreground/BorderBrush = AppBarButton 资源族(源
+//      EllipsisButton 样式 L947-951 Background=AppBarButtonBackground 等);PL16 重定向到
+//      Fluent SubtleFillColor / TextFillColor token,各交互态 DiscreteObjectKeyFrame
 //      即时切换,系统焦点视觉(FocusVisualMargin=-3);
 //    - CommandBarOverflowPresenter(溢出区):MinWidth=CommandBarOverflowMinWidth(160)、
 //      MaxWidth=CommandBarOverflowMaxWidth(480)、MaxHeight=CommandBarOverflowMaxHeight(198,
@@ -23,7 +24,8 @@
 //      ItemsPresenter Margin=CommandBarOverflowPresenterMargin(0,4,0,4)、
 //      BorderThickness Down=0,0,0,1 / Up=1,0,0,0(CommandBarOverflowPresenterBorderDown/UpThickness);
 //      Background=CommandBarOverflowPresenterBackground(WinUI3 = AcrylicInAppFillColorDefaultBrush,
-//      无对应 token,取 MenuFlyoutPresenter 同款 --wui-menu-flyout-presenter-background,
+//      PL16 直引 --wui-acrylic-in-app-fill-color-default;描边 SystemControlTransientBorderBrush
+//      无 Fluent 对应 → --wui-system-control-transient-border,
 //      差异记录 wiki);
 //    - 溢出项(AppBarButtonOverflowStyle):HorizontalAlignment=Stretch、Width=NaN(拉伸满宽),
 //      Overflow 视觉态:ContentViewbox/TextLabel 折叠,改由 OverflowTextLabel 呈现
@@ -62,8 +64,9 @@
 //   MoreButton 硬挂 EllipsisButtonRevealStyle(L16961)。故本组件:provide('wuiCommandBarReveal')
 //   供槽内 AppBarButton/AppBarToggleButton 注入(等价源隐式样式的作用域,主命令区与溢出层
 //   同受),EllipsisButton 直挂公共层光照。EllipsisButtonRevealStyle 底色透明 → 悬停
-//   #00000019 → 按压 #00000033(L1450-1453),与既有 --wui-app-bar-ellipsis-button-background*
-//   token 同值,无状态色切换;光环厚度 = AppBarEllipsisButtonRevealBorderThemeThickness 1
+//   #00000019 → 按压 #00000033(L1450-1453,legacy reveal 材料);PL16 起非 reveal 路径的
+//   状态底色改用 Fluent SubtleFillColorSecondary/Tertiary,reveal 仅叠加光照层;光环厚度 =
+//   AppBarEllipsisButtonRevealBorderThemeThickness 1
 //   (G.xaml L1396);光照本体=公共层(reveal.css + useReveal)。
 import { Comment, Fragment, computed, nextTick, provide, watch } from 'vue'
 import type { VNode } from 'vue'
@@ -422,8 +425,8 @@ watch(isOpen, (value) => {
   min-height: 48px; /* AppBarThemeCompactHeight(WinUI 3 = 48;CommandBar_themeresources L72) */
   padding: 0 0 0 4px; /* DefaultCommandBarStyle Padding=4,0,0,0 */
   font-family: var(--wui-content-control-theme-font-family);
-  color: var(--wui-system-control-foreground-base-high);
-  background: var(--wui-command-bar-background);
+  color: var(--wui-text-fill-color-primary);
+  background: var(--wui-control-fill-color-transparent);
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px); /* ControlCornerRadius */
 }
 
@@ -462,8 +465,8 @@ watch(isOpen, (value) => {
   align-self: flex-start; /* VerticalAlignment=Top */
   padding: 0 14px; /* CommandBarMoreButtonMargin 14,19,14,0 的水平分量 */
   font-family: var(--wui-content-control-theme-font-family);
-  color: var(--wui-app-bar-ellipsis-button-foreground);
-  background: var(--wui-app-bar-ellipsis-button-background);
+  color: var(--wui-text-fill-color-primary);
+  background: var(--wui-subtle-fill-color-transparent);
   border: none;
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px); /* ControlCornerRadius */
   cursor: default;
@@ -478,18 +481,18 @@ watch(isOpen, (value) => {
 }
 
 .wui-commandbar__more:hover:not(:disabled) {
-  color: var(--wui-app-bar-ellipsis-button-foreground-pointer-over);
-  background: var(--wui-app-bar-ellipsis-button-background-pointer-over);
+  color: var(--wui-text-fill-color-primary);
+  background: var(--wui-subtle-fill-color-secondary);
 }
 
 .wui-commandbar__more:active:not(:disabled) {
-  color: var(--wui-app-bar-ellipsis-button-foreground-pressed);
-  background: var(--wui-app-bar-ellipsis-button-background-pressed);
+  color: var(--wui-text-fill-color-secondary);
+  background: var(--wui-subtle-fill-color-tertiary);
 }
 
 .wui-commandbar__more:disabled {
-  color: var(--wui-app-bar-ellipsis-button-foreground-disabled);
-  background: var(--wui-app-bar-ellipsis-button-background-disabled);
+  color: var(--wui-text-fill-color-disabled);
+  background: var(--wui-subtle-fill-color-disabled);
   cursor: default;
 }
 
@@ -509,8 +512,8 @@ watch(isOpen, (value) => {
  * generic.xaml L16961;公共层 reveal.css):底板光半径由 useReveal 按源公式
  * Clamp(Max(W,H)+12,16,512) 在进入时写入;边框光半径取源 narrow 配置 ≈ 39px
  * (RevealBorderLight.cpp L24-35,48px 小按钮);光环厚度 =
- * AppBarEllipsisButtonRevealBorderThemeThickness 1(G.xaml L1396)。底色各态与既有
- * --wui-app-bar-ellipsis-button-background* token 同值(L1450-1453),无状态色切换。
+ * AppBarEllipsisButtonRevealBorderThemeThickness 1(G.xaml L1396)。状态底色 = 非 reveal
+ * 同一 Fluent 状态色(PL16),reveal 仅叠加光照层,不再另取 legacy ListLow/ListMedium。
  * ====================================================================== */
 .wui-commandbar__more.wui-reveal {
   --wui-reveal-border-width: 1px;
@@ -569,8 +572,13 @@ watch(isOpen, (value) => {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 4px 0; /* CommandBarOverflowPresenterMargin 0,4,0,4 */
-  background: var(--wui-menu-flyout-presenter-background);
-  border: 1px solid var(--wui-menu-flyout-presenter-border);
+  /* PL16:溢出层底重定向 CommandBarOverflowPresenterBackground =
+     AcrylicInAppFillColorDefaultBrush(CommandBar_themeresources.xaml L16/L60;web 取
+     AcrylicInAppFillColorDefaultBrush Fallback 不透明近似 #F9F9F9/#2C2C2C);描边
+     CommandBarOverflowPresenterBorderBrush = SystemControlTransientBorderBrush(源内 legacy
+     引用,无 Fluent 对应 → 直引同名 legacy token,值 #00000024/#0000005C 不变) */
+  background: var(--wui-acrylic-in-app-fill-color-default);
+  border: 1px solid var(--wui-system-control-transient-border);
   border-width: 0 0 1px; /* BorderDownThickness:向下展开时只留下边(与命令栏贴合) */
   outline: none;
 }

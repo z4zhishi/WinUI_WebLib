@@ -8,8 +8,10 @@
 //   - 尺寸 token:Min 4x4、MaxHeight 16、值字号 11、图标盒 12x(8/9)、三态内边距(见样式注释);
 //   - 胶囊圆角:源 OnSizeChanged 以 ActualHeight/2 动态计算,Web 以 9999px 等价(cap 到半高)。
 // 非交互控件:源 IsTabStop=False、模板无 PointerOver/Pressed/Disabled/Focus 状态,故无事件、无交互态;
-// 四档配色(success/informational/warning/critical)与 InfoBar 对齐,映射源
-// SystemFillColor* 画刷(定义于 Common_themeresources_any.xaml,theme.css 未生成,详见 wiki 差异节)。
+// 四档配色(success/informational/warning/critical)与 InfoBar 对齐,PL16 起直引
+// SystemFillColor* 语义 token(--wui-system-fill-color-*);默认 accent 底/前景直引
+// AccentFillColorDefaultBrush / TextOnAccentFillColorPrimaryBrush(--wui-accent-fill-color-default /
+// --wui-text-on-accent-fill-color-primary),token 自身随主题换档。
 import { computed, useSlots, watchEffect } from 'vue'
 import type { CSSProperties } from 'vue'
 
@@ -103,20 +105,22 @@ const isValueKind = computed(() => kind.value === 'value')
 
 <style scoped>
 .wui-info-badge {
-  /* —— 四档配色默认值层(theme.css 未生成 SystemFillColor* token,值取自源
-     Common_themeresources_any.xaml 的 Light/Default 字典;调用方可用同名变量覆盖)—— */
-  --wui-info-badge-color-informational: #8a8a8a; /* SystemFillColorSolidNeutral(Light) */
-  --wui-info-badge-color-success: #0f7b0f; /* SystemFillColorSuccess(Light) */
-  --wui-info-badge-color-warning: #9d5d00; /* SystemFillColorCaution(Light,InfoBar warning 档) */
-  --wui-info-badge-color-critical: #c42b1c; /* SystemFillColorCritical(Light) */
+  /* —— 配色层(PL16:全部重定向到 PL2 Fluent 画刷族;权威 =
+     controls/dev/InfoBadge/InfoBadge_themeresources.xaml Default L5-6 / Light L16-17:
+     InfoBadgeBackground = AccentFillColorDefaultBrush、InfoBadgeForeground =
+     TextOnAccentFillColorPrimaryBrush;severity 档位按源 Attention/Informational/Success/
+     Caution/Critical 的 SystemFill 语义色)。token 自身随主题换档,故删除原
+     html[data-theme='dark'] 覆写块(值等价)。调用方仍可用同名变量覆盖。 —— */
+  --wui-info-badge-color-informational: var(--wui-system-fill-color-solid-neutral); /* SystemFillColorSolidNeutralBrush */
+  --wui-info-badge-color-success: var(--wui-system-fill-color-success); /* SystemFillColorSuccessBrush */
+  --wui-info-badge-color-warning: var(--wui-system-fill-color-caution); /* SystemFillColorCautionBrush */
+  --wui-info-badge-color-critical: var(--wui-system-fill-color-critical); /* SystemFillColorCriticalBrush */
   --wui-info-badge-icon-height: 9px; /* InfoBadgeIconHeight(Light) */
   --wui-info-badge-value-font-size: 11px; /* InfoBadgeValueFontSize */
-  /* InfoBadgeBackground = AccentFillColorDefaultBrush(Light)= SystemAccentColorDark1,
-     经 theme-hooks.css 的系统色钩子取值,未定义时回退源值 #0067C0 */
-  --wui-info-badge-background: var(--wui-system-accent-color-dark-1, #0067c0);
-  /* InfoBadgeForeground = TextOnAccentFillColorPrimaryBrush(Light):theme.css 无同名 token,
-     按源值在组件内承载 */
-  --wui-info-badge-foreground: #ffffff;
+  /* InfoBadgeBackground = AccentFillColorDefaultBrush(Light = SystemAccentColorDark1) */
+  --wui-info-badge-background: var(--wui-accent-fill-color-default);
+  /* InfoBadgeForeground = TextOnAccentFillColorPrimaryBrush(Light #FFFFFF / Default #000000) */
+  --wui-info-badge-foreground: var(--wui-text-on-accent-fill-color-primary);
 
   box-sizing: border-box;
   display: inline-flex;
@@ -128,9 +132,9 @@ const isValueKind = computed(() => kind.value === 'value')
   padding: 0; /* InfoBadgePadding */
   /* 源以 ActualHeight/2 动态计算胶囊圆角;border-radius 会自动 cap 到半边长,效果等价 */
   border-radius: 9999px;
-  /* InfoBadgeForeground = TextOnAccentFillColorPrimaryBrush(按主题经局部 token 取源值) */
+  /* InfoBadgeForeground = TextOnAccentFillColorPrimaryBrush(经局部 token 覆盖优先) */
   color: var(--wui-info-badge-local-foreground, var(--wui-info-badge-foreground));
-  /* InfoBadgeBackground = AccentFillColorDefaultBrush(按主题经局部 token 取源值) */
+  /* InfoBadgeBackground = AccentFillColorDefaultBrush(经局部 token 覆盖优先) */
   background: var(--wui-info-badge-local-background, var(--wui-info-badge-background));
   font-family: var(--wui-content-control-theme-font-family);
   line-height: 1;
@@ -139,17 +143,9 @@ const isValueKind = computed(() => kind.value === 'value')
   -webkit-user-select: none;
 }
 
-/* 深色主题的档位色与图标盒高(Default 字典值) */
+/* 深色主题:仅图标盒高为几何差异(Light 9 → Default 8),其余着色 token 自身换档 */
 html[data-theme='dark'] .wui-info-badge {
-  --wui-info-badge-color-informational: #9d9d9d;
-  --wui-info-badge-color-success: #6ccb5f;
-  --wui-info-badge-color-warning: #fce100;
-  --wui-info-badge-color-critical: #ff99a4;
-  --wui-info-badge-icon-height: 8px;
-  /* AccentFillColorDefaultBrush(Default)= SystemAccentColorLight2,未定义时回退源值 #4CC2FF */
-  --wui-info-badge-background: var(--wui-system-accent-color-light-2, #4cc2ff);
-  /* TextOnAccentFillColorPrimaryBrush(Default)= #000000 */
-  --wui-info-badge-foreground: #000000;
+  --wui-info-badge-icon-height: 8px; /* InfoBadgeIconHeight(Default) */
 }
 
 /* —— 档位底色(源 Attention/Informational/Success/Caution/Critical …DotInfoBadgeStyle 的 Background);

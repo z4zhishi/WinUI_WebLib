@@ -3,10 +3,10 @@
 //
 // 视觉规格:CK/WinUI-Reference/controls/dev/SplitButton/SplitButton.xaml(即
 //   generic.xaml 中 TargetType="SplitButton" 模板段的 mux 源,dxaml/generic.xaml 无此控件)
-//   + SplitButton_themeresources.xaml(状态画刷)。WinUI 3 调色板(ControlFillColor* /
-//   TextFillColor* / ControlStrokeColor* 等)未由 theme.css 提取(dxaml 源只有 UWP 时代
-//   SystemControl* 系),按 InfoBar 波次先例以源值注入组件级 token --wui-splitbutton-*,
-//   对照表见 wiki/controls/SplitButton.md 差异节;主题切换用 html[data-theme] 前缀档位。
+//   + SplitButton_themeresources.xaml(状态画刷)。PL16 起状态色直引 WinUI 3 生效层
+//   Fluent 画刷族(ControlFillColor* / TextFillColor* / ControlStrokeColor* 等,PL2 token 层),
+//   权威对照表见 wiki/controls/SplitButton.md;此前组件内字面量与 html[data-theme] 覆写已删除
+//   (解析值等价,字节序修正结果保留)。
 //   模板结构:三列 Grid(主区 * | 分隔线 1px | 次区 35)+ 背景/分隔线/双区边框叠层;
 //   Padding ← SplitButtonPadding 11,6,11,7;次区列宽 ← SplitButtonSecondaryButtonSize 35;
 //   圆角 ← ControlCornerRadius(4,取 --wui-hyperlink-focus-rect-corner-radius 同款最近似)。
@@ -490,25 +490,28 @@ const layerClass = computed(() =>
 
 <style scoped>
 /* ======================================================================
- * 组件级状态 token(InfoBar 先例:WinUI 3 调色板无 theme.css token,按源值注入;
- * XAML AARRGGBB → CSS RRGGBBAA 字节序。来源:Common_themeresources_any.xaml +
- * SplitButton_themeresources.xaml,浅色为基线、深色用 html[data-theme] 档位覆盖)
+ * 组件级状态 token(PL16:全部重定向到 WinUI 3 生效层 Fluent 画刷族,PL2 token 层)
+ * 权威:controls/dev/SplitButton/SplitButton_themeresources.xaml + Common_themeresources_any.xaml。
+ * 此前为组件内字面量(值与权威一致,PL16 改为直引 token;解析值不变,字节序修正结果保留)。
  * ====================================================================== */
 .wui-splitbutton {
-  --wui-splitbutton-fill: #ffffffb3; /* ControlFillColorDefault(Light #B3FFFFFF → 70% 白) */
-  --wui-splitbutton-fill-pointer-over: #f9f9f980; /* ControlFillColorSecondary(#80F9F9F9 → 50% #F9F9F9) */
-  --wui-splitbutton-fill-pressed: #f9f9f94d; /* ControlFillColorTertiary(#4DF9F9F9 → 30% #F9F9F9) */
-  --wui-splitbutton-fill-disabled: #f9f9f94d; /* ControlFillColorDisabled(#4DF9F9F9 = Tertiary 同值 → 30% #F9F9F9) */
-  --wui-splitbutton-foreground: #000000e4; /* TextFillColorPrimary(Light #E4000000) */
-  --wui-splitbutton-foreground-pointer-over: #000000e4; /* SplitButtonForegroundPointerOver = TextFillColorPrimary */
-  --wui-splitbutton-foreground-pressed: #0000009e; /* SplitButtonForegroundPressed = TextFillColorSecondary */
-  --wui-splitbutton-foreground-disabled: #0000005c; /* SplitButtonForegroundDisabled = TextFillColorDisabled */
-  --wui-splitbutton-foreground-secondary: #0000009e; /* SplitButtonForegroundSecondary = TextFillColorSecondary */
-  --wui-splitbutton-foreground-secondary-pressed: #00000072; /* SplitButtonForegroundSecondaryPressed = TextFillColorTertiary */
-  --wui-splitbutton-stroke: #00000029; /* SplitButtonBorderBrush = ControlElevationBorderBrush(3px 渐变,
-     1px 边框仅呈现顶部 ≈ ControlStrokeColorSecondary Light #29000000 的近似平色) */
-  --wui-splitbutton-stroke-pressed: #0000000f; /* BorderBrushPressed/Disabled = ControlStrokeColorDefault #0F000000 */
-  --wui-splitbutton-divider: #0000000f; /* SplitButtonBorderBrushDivider = ControlStrokeColorDefault */
+  --wui-splitbutton-fill: var(--wui-control-fill-color-default); /* ControlFillColorDefaultBrush */
+  --wui-splitbutton-fill-pointer-over: var(--wui-control-fill-color-secondary); /* ControlFillColorSecondaryBrush */
+  --wui-splitbutton-fill-pressed: var(--wui-control-fill-color-tertiary); /* ControlFillColorTertiaryBrush */
+  --wui-splitbutton-fill-disabled: var(--wui-control-fill-color-disabled); /* ControlFillColorDisabledBrush */
+  --wui-splitbutton-foreground: var(--wui-text-fill-color-primary); /* TextFillColorPrimaryBrush */
+  --wui-splitbutton-foreground-pointer-over: var(--wui-text-fill-color-primary); /* SplitButtonForegroundPointerOver = TextFillColorPrimary */
+  --wui-splitbutton-foreground-pressed: var(--wui-text-fill-color-secondary); /* SplitButtonForegroundPressed = TextFillColorSecondary */
+  --wui-splitbutton-foreground-disabled: var(--wui-text-fill-color-disabled); /* SplitButtonForegroundDisabled = TextFillColorDisabled */
+  --wui-splitbutton-foreground-secondary: var(--wui-text-fill-color-secondary); /* SplitButtonForegroundSecondary = TextFillColorSecondary */
+  --wui-splitbutton-foreground-secondary-pressed: var(--wui-text-fill-color-tertiary); /* SplitButtonForegroundSecondaryPressed = TextFillColorTertiary */
+  /* 描边:Normal/PointerOver 权威为渐变 ControlElevationBorderBrush(3px 竖向轴,0.33 Secondary → 1.0 Default)。
+     本组件为 1px 描边带,无法在同一条边上呈现竖向渐变 → 取渐变**顶部停色**
+     ControlStrokeColorSecondary 作 1px 平色近似(与权威顶部边缘同色;此前注释同法,PL16 改直引 token)。
+     Pressed/Disabled/FlyoutOpen 权威为纯色 ControlStrokeColorDefaultBrush。 */
+  --wui-splitbutton-stroke: var(--wui-control-stroke-color-secondary);
+  --wui-splitbutton-stroke-pressed: var(--wui-control-stroke-color-default);
+  --wui-splitbutton-divider: var(--wui-control-stroke-color-default); /* SplitButtonBorderBrushDivider = ControlStrokeColorDefault */
   --wui-splitbutton-corner-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);
 
   display: inline-flex;
@@ -710,8 +713,11 @@ const layerClass = computed(() =>
   align-items: stretch;
   min-height: 32px;
   padding: 5px 1px;
-  background: var(--wui-menu-flyout-presenter-background);
-  border: 1px solid var(--wui-menu-flyout-presenter-border);
+  /* PL16:MenuFlyoutPresenter 底统一到 PL12 亚克力回退 token(MenuFlyout.vue 同源;权威
+     MenuFlyoutPresenterBackground 为 DesktopAcrylicTransparentBrush + AcrylicBackdrop,
+     web 无原生亚克力 → 取 AcrylicInAppFillColorDefaultBrush Fallback #F9F9F9/#2C2C2C 近似)。 */
+  background: var(--wui-menu-flyout-presenter-surface);
+  border: 1px solid var(--wui-surface-stroke-color-flyout);
 }
 
 .wui-splitbutton-layer--flyout {
@@ -727,24 +733,11 @@ const layerClass = computed(() =>
    由上方 Transition 的 enter/leave-active-class 挂接,此处不再有 scoped 规则) */
 
 /* ======================================================================
- * 深色主题(Default 字典,html[data-theme] 档位保证压过浅色基线):
- * ControlFillColor 系 / TextFillColor 系 / ControlStrokeColor 系的 Default 值换档。
+ * 深色主题:PL16 起状态色全部直引 Fluent token(--wui-control-fill-color-* /
+ * --wui-text-fill-color-* / --wui-control-stroke-color-*),token 自身随
+ * :root[data-theme="dark"] 换档 → 原有的 html[data-theme='dark'] 覆写块已删除
+ * (值等价:ControlFillColor Default Light #FFFFFFB3 ↔ Dark #FFFFFF0F 等)。
  * ====================================================================== */
-html[data-theme='dark'] .wui-splitbutton {
-  --wui-splitbutton-fill: #ffffff0f; /* ControlFillColorDefault(Default #0FFFFFFF → 6% 白) */
-  --wui-splitbutton-fill-pointer-over: #ffffff15; /* ControlFillColorSecondary(#15FFFFFF → 8% 白) */
-  --wui-splitbutton-fill-pressed: #ffffff08; /* ControlFillColorTertiary(#08FFFFFF → 3% 白) */
-  --wui-splitbutton-fill-disabled: #ffffff0b; /* ControlFillColorDisabled(#0BFFFFFF → 4% 白) */
-  --wui-splitbutton-foreground: #ffffff; /* TextFillColorPrimary */
-  --wui-splitbutton-foreground-pointer-over: #ffffff;
-  --wui-splitbutton-foreground-pressed: #ffffffc5; /* TextFillColorSecondary #C5FFFFFF */
-  --wui-splitbutton-foreground-disabled: #ffffff5d; /* TextFillColorDisabled #5DFFFFFF */
-  --wui-splitbutton-foreground-secondary: #ffffffc5;
-  --wui-splitbutton-foreground-secondary-pressed: #ffffff87; /* TextFillColorTertiary #87FFFFFF */
-  --wui-splitbutton-stroke: #ffffff18; /* ControlElevationBorderBrush 1px 近似(顶部 ≈ Secondary #18FFFFFF) */
-  --wui-splitbutton-stroke-pressed: #ffffff12; /* ControlStrokeColorDefault #12FFFFFF */
-  --wui-splitbutton-divider: #ffffff12;
-}
 
 /*
  * ============================== ToggleSplitButton 扩展预留 ==============================
@@ -757,14 +750,14 @@ html[data-theme='dark'] .wui-splitbutton {
  * 2. 状态类:is-checked,对应源 CommonStates 的 Checked / CheckedPointerOver(=
  *    CheckedPrimaryPointerOver)/ CheckedPressed / CheckedFlyoutOpen / CheckedTouchPressed /
  *    CheckedPrimary* / CheckedSecondary* 全族;
- * 3. 状态 token 覆写(theme resources 已对照,SplitButton_themeresources.xaml L131-L207):
- *    背景 ← AccentFillColorDefault(--wui-system-accent-color,悬停用 Dark1 近似
- *    AccentFillColorSecondary,按压用 Dark2 近似 Tertiary);
- *    前景 ← TextOnAccentFillColorPrimary(Light #FFFFFF / Default #000000);
- *    边框 ← AccentControlElevationBorderBrush(1px 近似 ControlStrokeColorOnAccentSecondary:
- *    Light #66000000 / Default #23000000);
+ * 3. 状态 token 覆写(theme resources 已对照,SplitButton_themeresources.xaml L131-L207;
+ *    PL16 起直引 Fluent token,见 ToggleSplitButton.vue):
+ *    背景 ← AccentFillColorDefault(--wui-accent-fill-color-default,悬停 -secondary,
+ *    按压 -tertiary);
+ *    前景 ← TextOnAccentFillColorPrimary(--wui-text-on-accent-fill-color-primary / -secondary);
+ *    边框 ← AccentControlElevationBorderBrush(1px 近似 --wui-control-stroke-color-on-accent-secondary);
  *    分隔线 ← SplitButtonBorderBrushCheckedDivider = ControlStrokeColorOnAccentTertiary
- *    (Light #37000000 / Default #37000000)—— 在 .is-checked 下覆写
+ *    (--wui-control-stroke-color-on-accent-tertiary)—— 在 .is-checked 下覆写
  *    --wui-splitbutton-divider;
  * 4. 无障碍:role=button 叠加 aria-pressed 开关语义(参照 ToggleButton.vue);
  * 5. chevron 与弹层逻辑不变(CheckedFlyoutOpen = is-checked + is-flyout-open,

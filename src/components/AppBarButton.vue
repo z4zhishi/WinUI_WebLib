@@ -10,18 +10,24 @@
 //     TextLabel FontSize=12、Margin={AppBarButtonTextLabelMargin=2,0,2,8}、TextAlignment=Center、TextWrapping=Wrap;
 //     KeyboardAcceleratorTextLabel 用 CaptionTextBlockStyle(FontSize=12)、Grid.Column=1、Margin=24,0,12,0、
 //     右对齐、VerticalAlignment=Center、默认 Visibility=Collapsed、前景
-//     AppBarButtonKeyboardAcceleratorTextForeground(= SystemControlForegroundBaseMediumBrush);
+//     AppBarButtonKeyboardAcceleratorTextForeground(= TextFillColorSecondaryBrush;PL16);
 //   - 加速键角标只在「溢出菜单」内呈现:默认样式设 KeyboardAcceleratorPlacementMode=Hidden
 //     (AppBarButton_themeresources.xaml L138;generic.xaml L19137 同),
 //     运行期仅当 useOverflowStyle(按钮位于溢出区)且键盘存在时才切 KeyboardAcceleratorTextVisible
 //     (dxaml/xcp/dxaml/lib/AppBarButtonHelpers.h L201-206),主命令区恒 Collapsed(仅以 Tooltip 提示)。
 //     故本组件默认不呈现内联角标;由 CommandBar 溢出层置 --wui-app-bar-accelerator-display:block 后呈现。
-//   - 颜色(generic.xaml L1667-L1677 / L1894-L1897,Light 与 Dark 主题同名键):
-//     Background/AppBarButtonBackground=SystemControlTransparentBrush(全透明,悬停按下列表高亮),
-//     PointerOver=SystemControlHighlightListLowBrush、Pressed=SystemControlHighlightListMediumBrush、
-//     Disabled=透明;Foreground=SystemControlForegroundBaseHighBrush,PointerOver/Pressed=SystemControlHighlightAltBaseHighBrush,
-//     Disabled=SystemControlDisabledBaseMediumLowBrush;BorderBrush 各态均为透明(模板内
-//     AppBarButtonInnerBorder Rectangle Stroke 恒透明,不产生可见描边);
+//   - 颜色(PL16 重定向到 WinUI 3 生效层 Fluent 画刷族;权威 =
+//     controls/dev/CommonStyles/AppBarButton_themeresources.xaml Default L5-L16 / Light L156-L167):
+//     Background/AppBarButtonBackground=SubtleFillColorTransparentBrush(全透明),
+//     PointerOver=SubtleFillColorSecondaryBrush、Pressed=SubtleFillColorTertiaryBrush、
+//     Disabled=SubtleFillColorDisabledBrush(透明);Foreground=TextFillColorPrimaryBrush,
+//     PointerOver=TextFillColorPrimaryBrush、Pressed=TextFillColorSecondaryBrush、
+//     Disabled=TextFillColorDisabledBrush;BorderBrush 各态均为 ControlFillColorTransparentBrush
+//     (模板内 InnerBorder Stroke 恒透明,不产生可见描边);
+//     KeyboardAcceleratorTextForeground 各态 = TextFillColor Secondary/Secondary/Tertiary/Disabled;
+//     (此前为 legacy generic.xaml 的 SystemControl* 近似,值偏离权威,PL16 收口)。
+//     源另含 SubMenuOpened 态(Background=SubtleFillColorSecondaryBrush 等):本组件无子菜单开合
+//     视觉,未实现,登记未决(见 wiki 差异节)。
 //   - 五态 Normal/PointerOver/Pressed/Disabled/Focus:前四态经 VisualState.Setters 即时切换,无过渡动画。
 // 焦点视觉:任务规格要求旧版「EllipsisFocusVisual」下划线聚焦视觉的近似(旧 UWP 命令栏省略号按钮的
 //   虚线下划线焦点矩形;WinUI 3 参照源中已无该资源,改用 UseSystemFocusVisuals 系统双环),本组件按任务
@@ -40,9 +46,10 @@
 //   CommandBarRevealStyle 模板 Grid.Resources 的隐式样式挂接(L16221-16222),而
 //   CommandBar 自身默认即 CommandBarRevealStyle(L20206,WinUI 3 无第二种 CommandBar 样式)。
 //   故:独立使用默认无光照(reveal prop 缺省关闭),CommandBar 内默认启用(inject,
-//   等价源隐式样式作用域);悬停/按压底色 ListLow/ListMedium 与 reveal 系画刷
-//   (AppBarButtonRevealBackgroundPointerOver → SystemControlHighlightListLowRevealBackgroundBrush,
-//   L1459-1461)同源值,无需状态色切换。光照本体=公共层(reveal.css + useReveal):
+//   等价源隐式样式作用域);悬停/按压底色由 PL16 统一重定向 Fluent
+//   (SubtleFillColorSecondary/Tertiary),reveal 变体不再单独走 legacy ListLow/ListMedium
+//   (AppBarButtonRevealBackground* 仅存在于 legacy;WinUI 3 生效层为 Fluent 键)。
+//   光照本体=公共层(reveal.css + useReveal):
 //   底板光半径 Clamp(Max(W,H)+12,16,512)(RevealHoverLight.cpp L141-149/L163)、
 //   边框光半径 39px(RevealBorderLight.cpp narrow 配置 L24-35)、光环厚度 =
 //   AppBarButtonRevealBorderThemeThickness 1(G.xaml L1397)。
@@ -160,9 +167,11 @@ function onClick(event: MouseEvent): void {
   padding: 0;
   font-family: var(--wui-content-control-theme-font-family);
   font-weight: 400;
-  /* AppBarButtonBackground = SystemControlTransparentBrush;BorderBrush 全态透明 */
-  color: var(--wui-system-control-foreground-base-high);
-  background: var(--wui-system-control-transparent);
+  /* PL16:底色/前景重定向 Fluent 画刷族(权威 AppBarButton_themeresources.xaml
+     Default L5-L16 / Light L156-L167):
+     AppBarButtonBackground = SubtleFillColorTransparentBrush;BorderBrush 全态透明 */
+  color: var(--wui-text-fill-color-primary);
+  background: var(--wui-subtle-fill-color-transparent);
   /* PL5:AppBarButton 四态(Default/Light 字典 L11-14 / L156-159)BorderBrush 均指向
      ControlFillColorTransparentBrush —— 权威矩阵中 **无任何 ControlElevationBorderBrush/
      AccentControlElevationBorderBrush 项**(controls/dev 生效层的 AppBarButton 是
@@ -201,7 +210,7 @@ function onClick(event: MouseEvent): void {
    KeyboardAcceleratorPlacementMode=Hidden;仅溢出区切 KeyboardAcceleratorTextVisible,
    见 AppBarButtonHelpers.h L201-206)。主命令区不占列宽、不压标签:
    默认 display:none 退出网格;父级(CommandBar 溢出层)把 --wui-app-bar-accelerator-display 置为 block 后呈现。
-   前景 AppBarButtonKeyboardAcceleratorTextForeground = SystemControlForegroundBaseMediumBrush */
+   前景 AppBarButtonKeyboardAcceleratorTextForeground = TextFillColorSecondaryBrush */
 .wui-appbar-button__accelerator {
   display: var(--wui-app-bar-accelerator-display, none);
   grid-column: 2;
@@ -211,7 +220,7 @@ function onClick(event: MouseEvent): void {
   font-size: 12px; /* CaptionTextBlockStyle FontSize=12 */
   line-height: 1;
   text-align: right;
-  color: var(--wui-system-control-foreground-base-medium);
+  color: var(--wui-text-fill-color-secondary);
 }
 
 /* 标签:TextLabel FontSize=12 + AppBarButtonTextLabelMargin=2,0,2,8、居中、可换行。
@@ -233,32 +242,41 @@ function onClick(event: MouseEvent): void {
   display: none;
 }
 
-/* 前景/边框状态色即时切换(generic.xaml 各态经 VisualState.Setters 直接改属性,无过渡动画);
+/* 前景/边框状态色即时切换(源各态经 VisualState.Setters 直接改属性,无过渡动画);
    背景色经根元素上的 BrushTransition 83ms 线性过渡(L352-354):
-   PointerOver 背景 = SystemControlHighlightListLowBrush,前景 = SystemControlHighlightAltBaseHighBrush */
+   PointerOver 背景 = SubtleFillColorSecondaryBrush,前景 = TextFillColorPrimaryBrush */
 .wui-appbar-button:hover:not(:disabled) {
-  color: var(--wui-system-control-highlight-alt-base-high);
-  background: var(--wui-system-control-highlight-list-low);
+  color: var(--wui-text-fill-color-primary);
+  background: var(--wui-subtle-fill-color-secondary);
 }
 
-/* Pressed 背景 = SystemControlHighlightListMediumBrush,前景同 PointerOver */
+/* Pressed 背景 = SubtleFillColorTertiaryBrush,前景 = TextFillColorSecondaryBrush */
 .wui-appbar-button:active:not(:disabled) {
-  color: var(--wui-system-control-highlight-alt-base-high);
-  background: var(--wui-system-control-highlight-list-medium);
+  color: var(--wui-text-fill-color-secondary);
+  background: var(--wui-subtle-fill-color-tertiary);
 }
 
-/* Disabled:背景透明、前景 SystemControlDisabledBaseMediumLowBrush(图标/标签随 currentColor 继承) */
+/* Disabled:背景透明、前景 TextFillColorDisabledBrush(图标/标签随 currentColor 继承) */
 .wui-appbar-button:disabled {
-  color: var(--wui-system-control-disabled-base-medium-low);
-  background: var(--wui-system-control-transparent);
+  color: var(--wui-text-fill-color-disabled);
+  background: var(--wui-subtle-fill-color-disabled);
   cursor: default;
 }
 
-/* Disabled 角标前景单独覆盖:角标不随 currentColor 继承,源 L1897 显式设
-   KeyboardAcceleratorTextLabel.Foreground =
-   AppBarButtonKeyboardAcceleratorTextForegroundDisabled(SystemControlDisabledBaseMediumLowBrush) */
+/* 加速键角标前景各态(源 AppBarButtonKeyboardAcceleratorTextForeground* 资源;
+   角标不随 currentColor 继承,源在各态显式设 KeyboardAcceleratorTextLabel.Foreground):
+   PointerOver = TextFillColorSecondaryBrush、Pressed = TextFillColorTertiaryBrush、
+   Disabled = TextFillColorDisabledBrush。 */
+.wui-appbar-button:hover:not(:disabled) .wui-appbar-button__accelerator {
+  color: var(--wui-text-fill-color-secondary);
+}
+
+.wui-appbar-button:active:not(:disabled) .wui-appbar-button__accelerator {
+  color: var(--wui-text-fill-color-tertiary);
+}
+
 .wui-appbar-button:disabled .wui-appbar-button__accelerator {
-  color: var(--wui-system-control-disabled-base-medium-low);
+  color: var(--wui-text-fill-color-disabled);
 }
 
 /* 焦点视觉:旧 UWP「EllipsisFocusVisual」下划线聚焦视觉近似 —— 虚线下划线,取系统焦点色
@@ -287,9 +305,8 @@ function onClick(event: MouseEvent): void {
  * 边框光在 __reveal 层的 ::after(mask 环)。边框光半径取源 narrow 配置 ≈ 39px
  * (RevealBorderLight.cpp L24-35:128·tan(16.94532°),小尺寸控件同 Button 系口径);
  * 光环厚度 = AppBarButtonRevealBorderThemeThickness 1(G.xaml L1397)。
- * 悬停/按压底色保持 ListLow/ListMedium token:源 reveal 系画刷解析到同源值
- * (AppBarButtonRevealBackgroundPointerOver → SystemControlHighlightListLow*Reveal*,
- * L1459-1461),故无状态色切换。
+ * 悬停/按压底色 = 非 reveal 同一 Fluent 状态色(SubtleFillColorSecondary/Tertiary,PL16);
+ * reveal 只叠加光照层,不再另取 legacy ListLow/ListMedium(该族仅存在于 legacy 层)。
  * ====================================================================== */
 .wui-appbar-button.wui-reveal {
   --wui-reveal-border-width: 1px;

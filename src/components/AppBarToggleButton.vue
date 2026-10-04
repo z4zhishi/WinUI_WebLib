@@ -17,16 +17,21 @@
 //     (AppBarToggleButton_themeresources.xaml L226;generic.xaml L19479 同),
 //     运行期仅当 useOverflowStyle(按钮位于溢出区)且键盘存在时才切 KeyboardAcceleratorTextVisible
 //     (dxaml/xcp/dxaml/lib/AppBarButtonHelpers.h L201-206);主命令区恒 Collapsed(仅 Tooltip 提示)。
-//   - CommonStates 组合态(Checked × 四交互态,DiscreteObjectKeyFrame 即时切换):
-//     Normal/PointerOver/Pressed → 前景 SystemControlForegroundBaseHighBrush,悬停/按下
-//     切 SystemControlHighlightAltBaseHighBrush,AccentOverlayBackground 悬停
-//     SystemControlHighlightListLowBrush、按下 SystemControlHighlightListMediumBrush;
-//     Checked → CheckedHighlightBackground.Opacity=1(Fill=AppBarToggleButtonBackgroundChecked=
-//     SystemControlHighlightAccentBrush),前景 SystemControlHighlightAltBaseHighBrush;
-//     CheckedPointerOver/CheckedPressed → 底色不变(仍 SystemControlHighlightAccentBrush),
-//     叠加列表高亮同未选中悬停/按下;Disabled → 前景 SystemControlDisabledBaseMediumLowBrush;
-//     CheckedDisabled → 底色 SystemControlDisabledAccentBrush、前景
-//     SystemControlBackgroundBaseMediumLowBrush;BorderBrush 全态透明(InnerBorder 无可见描边)。
+//   - CommonStates 组合态(Checked × 四交互态,DiscreteObjectKeyFrame 即时切换;PL16 重定向到
+//     WinUI 3 生效层 Fluent 画刷族,权威 =
+//     controls/dev/CommonStyles/AppBarToggleButton_themeresources.xaml Default L5-L67):
+//     未选中 Normal Background=SubtleFillColorTransparentBrush、PointerOver=SubtleFillColorSecondaryBrush、
+//     Pressed=SubtleFillColorTertiaryBrush、Disabled=SubtleFillColorDisabledBrush(透明);
+//     前景 Normal/PointerOver=TextFillColorPrimaryBrush、Pressed=TextFillColorSecondaryBrush、
+//     Disabled=TextFillColorDisabledBrush;
+//     Checked → 底色 AccentFillColorDefaultBrush、前景 TextOnAccentFillColorPrimaryBrush;
+//     CheckedPointerOver → 底色 AccentFillColorSecondaryBrush、前景 TextOnAccentFillColorPrimaryBrush;
+//     CheckedPressed → 底色 AccentFillColorTertiaryBrush、前景 TextOnAccentFillColorSecondaryBrush;
+//     CheckedDisabled → 底色 AccentFillColorDisabledBrush、前景 TextOnAccentFillColorDisabled;
+//     BorderBrush 未选中各态 ControlFillColorTransparentBrush,Checked/CheckedPointerOver
+//     AccentControlElevationBorderBrush(渐变,PL5),CheckedPressed/CheckedDisabled 透明;
+//     角标 KeyboardAcceleratorTextForeground = TextFillColor Secondary/Secondary/Tertiary/Disabled
+//     (Checked 族同映射:Secondary/Secondary/Tertiary/Disabled)。
 //   - 注意:源模板没有 Indeterminate 视觉分支 —— AppBarToggleButton 的不确定态外观与未选中
 //     相同(强调色底只在 IsChecked == true 时点亮),无障碍语义用 aria-pressed="mixed" 表达。
 // 行为规格:ToggleButton 基类(ToggleButton_Partial.cpp)—— OnClick() 先 OnToggleProtected()
@@ -40,9 +45,10 @@
 //   (L19468)用 AppBarToggleButtonBackground 系非 reveal token;reveal 仅在 CommandBar 内经
 //   CommandBarRevealStyle 模板 Grid.Resources 隐式样式挂接(L16222),而 CommandBar 自身
 //   默认即 CommandBarRevealStyle(L20206)。故独立使用默认无光照(reveal 缺省关闭),
-//   CommandBar 内默认启用(inject,等价源隐式样式作用域);悬停/按压高亮 ListLow/ListMedium
-//   与 reveal HighLightOverlay 系画刷(L1468-1480,→ SystemControlHighlightListLow/Medium*)
-//   同源值,无状态色切换。光照本体=公共层(reveal.css + useReveal):底板光半径
+//   CommandBar 内默认启用(inject,等价源隐式样式作用域);悬停/按压高亮由 PL16 统一
+//   重定向 Fluent(未选中 SubtleFillColorSecondary/Tertiary;Checked 族 AccentFillColor
+//   Secondary/Tertiary),reveal 变体不再单独走 legacy ListLow/ListMedium。光照本体=公共层
+//   (reveal.css + useReveal):底板光半径
 //   Clamp(Max(W,H)+12,16,512)(RevealHoverLight.cpp L141-149/L163)、边框光半径 39px
 //   (RevealBorderLight.cpp narrow 配置 L24-35)、光环厚度 =
 //   AppBarToggleButtonRevealBorderThemeThickness 1(G.xaml L1398)。
@@ -306,57 +312,80 @@ onScopeDispose(() => {
  * = BrushTransition 83ms,见 __highlight/__overlay 规则)。
  * ====================================================================== */
 .wui-appbar-toggle-button {
-  /* Normal(未选中):底色未点亮、高亮透明、前景 BaseHigh */
-  --atb-highlight: var(--wui-system-control-highlight-accent); /* AppBarToggleButtonBackgroundChecked */
+  /* Normal(未选中):底色层未点亮(CheckedHighlightBackground Opacity=0)、HighLightOverlay 底透明、
+     前景 TextFillColorPrimaryBrush。PL16:全部重定向 Fluent 画刷族
+     (权威 AppBarToggleButton_themeresources.xaml Default L5-L67)。 */
+  --atb-highlight: var(--wui-accent-fill-color-default); /* BackgroundChecked(仅 Checked 态点亮) */
   --atb-highlight-opacity: 0;
-  --atb-overlay: var(--wui-system-control-transparent); /* HighLightOverlay = 透明 */
-  --atb-fg: var(--wui-system-control-foreground-base-high);
-  --atb-accel: var(--wui-system-control-foreground-base-medium);
-  /* PL5:AppBarToggleButtonBorderBrush 四态均 ControlFillColorTransparentBrush
-     (Default/Light 字典 L26-29 / L156-159)→ 未选中态不渲染立体描边环 */
+  --atb-overlay: var(--wui-subtle-fill-color-transparent); /* BackgroundHighLightOverlay = 透明 */
+  --atb-fg: var(--wui-text-fill-color-primary);
+  --atb-accel: var(--wui-text-fill-color-secondary);
+  /* AppBarToggleButtonBorderBrush 四态均 ControlFillColorTransparentBrush
+     (Default/Light 字典 L26-29)→ 未选中态不渲染立体描边环 */
   --atb-elevation-border: none;
 }
 
-/* PointerOver:列表低高亮 + 前景 HighlightAltBaseHigh(CheckedPointerOver 同) */
+/* PointerOver(未选中):底 SubtleFillColorSecondaryBrush + 前景 TextFillColorPrimaryBrush */
 .wui-appbar-toggle-button:hover:not(:disabled) {
-  --atb-overlay: var(--wui-system-control-highlight-list-low);
-  --atb-fg: var(--wui-system-control-highlight-alt-base-high);
-  --atb-accel: var(--wui-system-control-highlight-alt-base-medium);
+  --atb-overlay: var(--wui-subtle-fill-color-secondary);
+  --atb-fg: var(--wui-text-fill-color-primary);
+  --atb-accel: var(--wui-text-fill-color-secondary);
 }
 
-/* Pressed:列表中高亮(CheckedPressed 同) */
+/* Pressed(未选中):底 SubtleFillColorTertiaryBrush + 前景 TextFillColorSecondaryBrush */
 .wui-appbar-toggle-button:active:not(:disabled) {
-  --atb-overlay: var(--wui-system-control-highlight-list-medium);
-  --atb-fg: var(--wui-system-control-highlight-alt-base-high);
-  --atb-accel: var(--wui-system-control-highlight-alt-base-medium);
+  --atb-overlay: var(--wui-subtle-fill-color-tertiary);
+  --atb-fg: var(--wui-text-fill-color-secondary);
+  --atb-accel: var(--wui-text-fill-color-tertiary);
 }
 
-/* Disabled(未选中):背景透明、前景 DisabledBaseMediumLow */
+/* Disabled(未选中):底 SubtleFillColorDisabledBrush(透明)、前景 TextFillColorDisabledBrush */
 .wui-appbar-toggle-button:disabled {
-  --atb-fg: var(--wui-system-control-disabled-base-medium-low);
-  --atb-accel: var(--wui-system-control-disabled-base-medium-low);
+  --atb-fg: var(--wui-text-fill-color-disabled);
+  --atb-accel: var(--wui-text-fill-color-disabled);
 }
 
-/* Checked:强调色底点亮(Opacity 0→1),前景 HighlightAltBaseHigh(Checked 视觉态) */
+/* Checked:强调色底点亮(Opacity 0→1;Fill=AccentFillColorDefaultBrush)、
+   前景 TextOnAccentFillColorPrimaryBrush;描边 AccentControlElevationBorderBrush(渐变,PL5) */
 .wui-appbar-toggle-button--checked {
+  --atb-highlight: var(--wui-accent-fill-color-default);
   --atb-highlight-opacity: 1;
-  --atb-fg: var(--wui-system-control-highlight-alt-base-high);
-  /* Checked:AppBarToggleButtonBorderBrushChecked = AccentControlElevationBorderBrush(渐变) */
+  --atb-overlay: var(--wui-subtle-fill-color-transparent);
+  --atb-fg: var(--wui-text-on-accent-fill-color-primary);
+  --atb-accel: var(--wui-text-fill-color-secondary);
   --atb-elevation-border: var(--wui-accent-control-elevation-border);
 }
 
-/* CheckedPointerOver 同 Checked 的描边(源 L31 / L161 同一键),按下/禁用回到透明 */
+/* CheckedPointerOver:底 AccentFillColorSecondaryBrush、前景 TextOnAccentFillColorPrimaryBrush;
+   描边同 Checked(源 CheckedPointerOver 仍指向 AccentControlElevationBorderBrush) */
+.wui-appbar-toggle-button--checked:hover:not(:disabled) {
+  --atb-highlight: var(--wui-accent-fill-color-secondary);
+  --atb-highlight-opacity: 1;
+  --atb-overlay: var(--wui-subtle-fill-color-transparent);
+  --atb-fg: var(--wui-text-on-accent-fill-color-primary);
+  --atb-accel: var(--wui-text-fill-color-secondary);
+  --atb-elevation-border: var(--wui-accent-control-elevation-border);
+}
+
+/* CheckedPressed:底 AccentFillColorTertiaryBrush、前景 TextOnAccentFillColorSecondaryBrush;
+   BorderBrush=ControlFillColorTransparentBrush(透明) */
 .wui-appbar-toggle-button--checked:active:not(:disabled) {
-  /* CheckedPressed:BorderBrush = ControlFillColorTransparentBrush */
+  --atb-highlight: var(--wui-accent-fill-color-tertiary);
+  --atb-highlight-opacity: 1;
+  --atb-overlay: var(--wui-subtle-fill-color-transparent);
+  --atb-fg: var(--wui-text-on-accent-fill-color-secondary);
+  --atb-accel: var(--wui-text-fill-color-tertiary);
   --atb-elevation-border: none;
 }
 
-/* CheckedDisabled:底色 DisabledAccent、前景 BackgroundBaseMediumLow(置后覆盖 Disabled 前景) */
+/* CheckedDisabled:底 AccentFillColorDisabledBrush、前景 TextOnAccentFillColorDisabled;
+   BorderBrush 透明(置后覆盖 Disabled 前景) */
 .wui-appbar-toggle-button--checked:disabled {
-  --atb-highlight: var(--wui-system-control-disabled-accent);
-  --atb-fg: var(--wui-system-control-background-base-medium-low);
-  --atb-accel: var(--wui-system-control-disabled-base-medium-low);
-  /* CheckedDisabled:BorderBrush = ControlFillColorTransparentBrush */
+  --atb-highlight: var(--wui-accent-fill-color-disabled);
+  --atb-highlight-opacity: 1;
+  --atb-overlay: var(--wui-subtle-fill-color-transparent);
+  --atb-fg: var(--wui-text-on-accent-fill-color-disabled);
+  --atb-accel: var(--wui-text-fill-color-disabled);
   --atb-elevation-border: none;
 }
 
@@ -404,8 +433,8 @@ onScopeDispose(() => {
   padding: 0;
   font-family: var(--wui-content-control-theme-font-family);
   font-weight: 400;
-  /* AppBarToggleButtonBackground = SystemControlTransparentBrush;BorderBrush 全态透明 */
-  background: var(--wui-system-control-transparent);
+  /* AppBarToggleButtonBackground = SubtleFillColorTransparentBrush;BorderBrush 各态见上方状态变量 */
+  background: var(--wui-subtle-fill-color-transparent);
   border: none;
   /* WinUI 3 默认 ControlCornerRadius = 4;无同名 token,取最近似的圆角 token(见 wiki 差异节) */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius, 4px);
@@ -433,9 +462,9 @@ onScopeDispose(() => {
   transition: background-color 83ms linear;
 }
 
-/* 悬停/按下列表高亮(AccentOverlayBackground Rectangle)。背景色隐式过渡:
-   源 InnerBorder.BackgroundTransition(L470-472)的 PointerOver/Pressed 底色切换
-   (ListLow/ListMedium)映射到本层 → 83ms 线性(源无缓动参数 → 平台线性)。 */
+/* 悬停/按下列表高亮层(未选中态承载 SubtleFillColorSecondary/Tertiary;Checked 态置透明,
+   强调色底改由 __highlight 层按 AccentFillColor* 换档)。背景色隐式过渡:
+   源 InnerBorder.BackgroundTransition(L470-472)的状态底色切换映射到本层 → 83ms 线性。 */
 .wui-appbar-toggle-button__overlay {
   position: absolute;
   inset: 0;
@@ -524,8 +553,8 @@ onScopeDispose(() => {
  * ::before 底板光 + ::after 边框光(根未占用,双类直挂)。边框光半径取源 narrow
  * 配置 ≈ 39px(RevealBorderLight.cpp L24-35,小尺寸控件同 Button 系口径);光环
  * 厚度 = AppBarToggleButtonRevealBorderThemeThickness 1(G.xaml L1398)。悬停/按压
- * 高亮保持 ListLow/ListMedium:源 reveal HighLightOverlay 系画刷解析到同源值
- * (L1468-1480),无状态色切换。
+ * 高亮 = 非 reveal 同一 Fluent 状态色(PL16);reveal 只叠加光照层,不再另取 legacy
+ * ListLow/ListMedium。
  * ====================================================================== */
 .wui-appbar-toggle-button.wui-reveal {
   --wui-reveal-border-width: 1px;
