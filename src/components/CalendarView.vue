@@ -67,7 +67,8 @@ function shortenWeekDay(label: string): string {
 // 箭头 glyph U+E0E4/U+E0E5);行为对照官方示例 CK/WinUI-Gallery/.../CalendarView/(SelectionMode /
 // IsGroupLabelVisible / IsOutOfScopeEnabled / Language)与 CalendarView_Partial_*.cpp(三视图层级:
 // 头部按钮下钻 Month→Year→Decade、单元点击回退、前后翻页、键盘方向键/Enter)。
-// 颜色/字号一律 --wui-* token(theme.css 已含 --wui-calendar-view-* 全族,明暗主题自动跟随)。
+// 颜色一律直取 PL2 Fluent 画刷族 token(--wui-<brush-kebab>,权威键见 CSS 行内注释与
+// docs/pages/color/control-brush-matrix.md §1.13);字号仍用 theme.css 既有 token。
 // 动效(权威 = controls/dev,generic.xaml 为 UWP 遗留):
 //   模式切换 = CK/WinUI-Reference/controls/dev/CommonStyles/CalendarView_themeresources.xaml
 //   L495-666(及 L910-1080 同值第二模板)DisplayModeStates Transitions:下钻(Month→Year、
@@ -123,27 +124,27 @@ const props = withDefaults(
     ariaLabelPrevious?: string
     /** 后翻按钮无障碍名。 */
     ariaLabelNext?: string
-    /** 单元格描边色(WinUI CalendarItemBorderBrush);缺省用 --wui-calendar-view-calendar-item-reveal-border。 */
+    /** 单元格描边色(WinUI CalendarItemBorderBrush);缺省 SubtleFillColorTransparent。 */
     calendarItemBorderBrush?: string | undefined
-    /** 单元格底色(WinUI CalendarItemBackground);缺省用 --wui-calendar-view-calendar-item-background。 */
+    /** 单元格底色(WinUI CalendarItemBackground);缺省 SubtleFillColorTransparent。 */
     calendarItemBackground?: string | undefined
-    /** 今日文字色(WinUI TodayForeground);缺省用 --wui-calendar-view-today-foreground。 */
+    /** 今日文字色(WinUI TodayForeground);缺省 TextOnAccentFillColorPrimary。 */
     todayForeground?: string | undefined
-    /** 今日圆底色(WinUI 今日圆为强调色);缺省用 --wui-system-accent-color。 */
+    /** 今日圆底色(WinUI TodayBackground);缺省 AccentFillColorDefault。 */
     todayBackground?: string | undefined
-    /** 选中描边色(WinUI SelectedBorderBrush);缺省用 --wui-calendar-view-selected-border。 */
+    /** 选中描边色(WinUI SelectedBorderBrush);缺省 AccentFillColorDefault。 */
     selectedBorderBrush?: string | undefined
-    /** 选中文字色(WinUI SelectedForeground);缺省用 --wui-calendar-view-selected-foreground。 */
+    /** 选中文字色(WinUI SelectedForeground);缺省 AccentTextFillColorPrimary。 */
     selectedForeground?: string | undefined
-    /** 悬停描边色(WinUI HoverBorderBrush);缺省用 --wui-calendar-view-hover-border。 */
+    /** 悬停描边色(WinUI HoverBorderBrush);缺省 SubtleFillColorSecondary。 */
     hoverBorderBrush?: string | undefined
-    /** 按下描边色(WinUI PressedBorderBrush);缺省用 --wui-calendar-view-pressed-border。 */
+    /** 按下描边色(WinUI PressedBorderBrush);缺省 SubtleFillColorTertiary。 */
     pressedBorderBrush?: string | undefined
-    /** 禁选文字色(WinUI BlackoutForeground);缺省用 --wui-calendar-view-blackout-foreground。 */
+    /** 禁选文字色(WinUI BlackoutForeground);缺省 TextFillColorPrimary。 */
     blackoutForeground?: string | undefined
-    /** 范围外文字色(WinUI OutOfScopeForeground);缺省用 --wui-calendar-view-out-of-scope-foreground。 */
+    /** 范围外文字色(WinUI OutOfScopeForeground);缺省 TextFillColorSecondary。 */
     outOfScopeForeground?: string | undefined
-    /** 范围外底色(WinUI OutOfScopeBackground);缺省用 --wui-calendar-view-out-of-scope-background。 */
+    /** 范围外底色(WinUI OutOfScopeBackground);缺省 SubtleFillColorTransparent。 */
     outOfScopeBackground?: string | undefined
   }>(),
   {
@@ -741,24 +742,34 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   display: inline-flex;
   flex-direction: column;
   min-width: 300px;
-  color: var(--wui-calendar-view-foreground);
-  background: var(--wui-calendar-view-background);
-  border: 1px solid var(--wui-calendar-view-border);
+  color: var(--wui-text-fill-color-primary); /* CalendarViewForeground */
+  background: var(--wui-control-fill-color-input-active); /* CalendarViewBackground */
+  border: 1px solid var(--wui-control-stroke-color-default); /* CalendarViewBorderBrush */
 }
 
-/* 视觉画刷 prop 覆盖点(缺省值即 token 本身,prop 传入时由 :style 覆盖) */
+/* 视觉画刷 prop 覆盖点(缺省值即 token 本身,prop 传入时由 :style 覆盖)。
+   PL4:全部缺省值直取 PL2 Fluent 画刷族(权威键见每行注释;矩阵 §1.13)。 */
 .wui-calendar-view {
-  --wui-cv-item-border: var(--wui-calendar-view-calendar-item-reveal-border);
-  --wui-cv-item-background: var(--wui-calendar-view-calendar-item-background);
-  --wui-cv-today-foreground: var(--wui-calendar-view-today-foreground);
-  --wui-cv-today-background: var(--wui-system-accent-color, var(--wui-hyperlink-foreground-theme));
-  --wui-cv-selected-border: var(--wui-calendar-view-selected-border);
-  --wui-cv-selected-foreground: var(--wui-calendar-view-selected-foreground);
-  --wui-cv-hover-border: var(--wui-calendar-view-hover-border);
-  --wui-cv-pressed-border: var(--wui-calendar-view-pressed-border);
-  --wui-cv-blackout-foreground: var(--wui-calendar-view-blackout-foreground);
-  --wui-cv-out-of-scope-foreground: var(--wui-calendar-view-out-of-scope-foreground);
-  --wui-cv-out-of-scope-background: var(--wui-calendar-view-out-of-scope-background);
+  --wui-cv-item-border: var(--wui-subtle-fill-color-transparent); /* CalendarViewCalendarItemBorderBrush */
+  --wui-cv-item-background: var(--wui-subtle-fill-color-transparent); /* CalendarViewCalendarItemBackground */
+  --wui-cv-today-foreground: var(--wui-text-on-accent-fill-color-primary); /* CalendarViewTodayForeground */
+  --wui-cv-today-background: var(--wui-accent-fill-color-default); /* CalendarViewTodayBackground */
+  --wui-cv-selected-border: var(--wui-accent-fill-color-default); /* CalendarViewSelectedBorderBrush */
+  --wui-cv-selected-foreground: var(--wui-accent-text-fill-color-primary); /* CalendarViewSelectedForeground */
+  --wui-cv-hover-border: var(--wui-subtle-fill-color-secondary); /* CalendarViewHoverBorderBrush */
+  --wui-cv-pressed-border: var(--wui-subtle-fill-color-tertiary); /* CalendarViewPressedBorderBrush */
+  --wui-cv-blackout-foreground: var(--wui-text-fill-color-primary); /* CalendarViewBlackoutForeground */
+  --wui-cv-out-of-scope-foreground: var(--wui-text-fill-color-secondary); /* CalendarViewOutOfScopeForeground */
+  --wui-cv-out-of-scope-background: var(--wui-subtle-fill-color-transparent); /* CalendarViewOutOfScopeBackground */
+  --wui-cv-calendar-item-foreground: var(--wui-text-fill-color-primary); /* CalendarViewCalendarItemForeground */
+  /* 以下为无 prop 的派生态键(源 chrome GetItemBorder/TextBlockForegroundBrush 的状态分支) */
+  --wui-cv-selected-hover-border: var(--wui-accent-fill-color-secondary); /* CalendarViewSelectedHoverBorderBrush */
+  --wui-cv-selected-pressed-border: var(--wui-subtle-fill-color-tertiary); /* CalendarViewSelectedPressedBorderBrush */
+  --wui-cv-pressed-foreground: var(--wui-text-fill-color-secondary); /* CalendarViewPressedForeground */
+  --wui-cv-selected-hover-foreground: var(--wui-accent-text-fill-color-primary); /* CalendarViewSelectedHoverForeground */
+  --wui-cv-selected-pressed-foreground: var(--wui-accent-text-fill-color-tertiary); /* CalendarViewSelectedPressedForeground */
+  --wui-cv-out-of-scope-hover-foreground: var(--wui-text-fill-color-primary); /* CalendarViewOutOfScopeHoverForeground */
+  --wui-cv-out-of-scope-pressed-foreground: var(--wui-text-fill-color-tertiary); /* CalendarViewOutOfScopePressedForeground */
 }
 
 /* —— 头部行(40px):下钻按钮 5* + 前后箭头各 *;NavigationButtonStyle FontSize 20 —— */
@@ -776,9 +787,9 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   padding: 0 0 0 12px; /* HeaderButton Padding = 12,0,0,0 */
   font-family: inherit;
   font-size: 20px; /* NavigationButtonStyle FontSize = 20,theme.css 无对应字号 token(见 wiki) */
-  color: var(--wui-calendar-view-foreground);
+  color: var(--wui-text-fill-color-primary); /* CalendarViewHeaderNavigationButtonForeground */
   text-align: left;
-  background: var(--wui-calendar-view-navigation-button-background);
+  background: var(--wui-subtle-fill-color-transparent); /* CalendarViewNavigationButtonBackground */
   border: none;
   cursor: pointer;
   overflow: hidden;
@@ -792,11 +803,13 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
 }
 
 .cv-header-button:hover:not(:disabled) {
-  color: var(--wui-calendar-view-navigation-button-foreground-pointer-over);
+  color: var(--wui-text-fill-color-primary); /* HeaderNavigationButtonForegroundPointerOver */
+  background: var(--wui-subtle-fill-color-secondary); /* NavigationButtonBackgroundPointerOver */
 }
 
 .cv-header-button:active:not(:disabled) {
-  color: var(--wui-calendar-view-navigation-button-foreground-pressed);
+  color: var(--wui-text-fill-color-secondary); /* HeaderNavigationButtonForegroundPressed */
+  background: var(--wui-subtle-fill-color-tertiary); /* NavigationButtonBackgroundPressed */
 }
 
 .cv-nav-button {
@@ -808,24 +821,30 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   padding: 1px; /* 源 PreviousButton/NextButton Padding = 1 */
   font-family: var(--wui-symbol-theme-font-family);
   font-size: 20px; /* NavigationButtonStyle FontSize = 20 */
-  color: var(--wui-calendar-view-foreground);
-  background: var(--wui-calendar-view-navigation-button-background);
+  color: var(--wui-text-fill-color-primary); /* 继承 CalendarViewForeground(TemplateBinding Foreground) */
+  background: var(--wui-subtle-fill-color-transparent); /* CalendarViewNavigationButtonBackground */
   border: none;
   cursor: pointer;
   user-select: none;
 }
 
 .cv-nav-button:hover:not(:disabled) {
-  color: var(--wui-calendar-view-navigation-button-foreground-pointer-over);
+  color: var(--wui-control-strong-fill-color-default); /* CalendarViewNavigationButtonForegroundPointerOver */
+  background: var(--wui-subtle-fill-color-secondary); /* CalendarViewNavigationButtonBackgroundPointerOver */
 }
 
 .cv-nav-button:active:not(:disabled) {
-  color: var(--wui-calendar-view-navigation-button-foreground-pressed);
+  color: var(--wui-control-strong-fill-color-default); /* CalendarViewNavigationButtonForegroundPressed */
+  background: var(--wui-subtle-fill-color-tertiary); /* CalendarViewNavigationButtonBackgroundPressed */
 }
 
-.cv-header-button:disabled,
+.cv-header-button:disabled {
+  color: var(--wui-text-fill-color-disabled); /* HeaderNavigationButtonForegroundDisabled */
+  cursor: default;
+}
+
 .cv-nav-button:disabled {
-  color: var(--wui-calendar-view-navigation-button-foreground-disabled);
+  color: var(--wui-control-strong-fill-color-disabled); /* NavigationButtonForegroundDisabled */
   cursor: default;
 }
 
@@ -861,7 +880,7 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
 .cv-backdrop {
   position: absolute;
   inset: 0;
-  background: var(--wui-calendar-view-border);
+  background: var(--wui-control-stroke-color-default); /* CalendarViewBorderBrush(背景层垫底) */
 }
 
 .cv-backdrop--animate {
@@ -959,7 +978,7 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   height: 38px;
-  background: var(--wui-calendar-view-background);
+  background: var(--wui-control-fill-color-input-active); /* CalendarViewBackground */
 }
 
 .cv-weekday {
@@ -968,7 +987,7 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   justify-content: center;
   font-size: var(--wui-tool-tip-content-theme-font-size); /* CaptionTextBlockStyle ≈ 12px(见 wiki) */
   font-weight: 600;
-  color: var(--wui-calendar-view-calendar-item-foreground);
+  color: var(--wui-text-fill-color-primary); /* CalendarViewCalendarItemForeground */
 }
 
 /* —— 日格网:6 行 × 7 列,DayItem MinHeight 40 + Margin 1(格线由 .cv-views 底色透出);
@@ -998,8 +1017,8 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   padding: 0 0 4px; /* CalendarViewDayItem Padding = 0,0,0,4(组标签/禁用线的下留白) */
   font-family: inherit;
   font-size: var(--wui-control-content-theme-font-size); /* DayItem = ControlContentThemeFontSize */
-  color: var(--wui-calendar-view-calendar-item-foreground);
-  background: var(--wui-cv-item-background);
+  color: var(--wui-cv-calendar-item-foreground); /* CalendarViewCalendarItemForeground */
+  background: var(--wui-cv-item-background); /* CalendarViewCalendarItemBackground */
   border: none;
   cursor: pointer;
   user-select: none;
@@ -1019,40 +1038,55 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
 }
 
 /* 交互描边用 inset 阴影,避免边框参与布局(源 chrome 的 2px 内描边语义);
-   文字色切换不作用于今日格(今日文字恒为 TodayForeground,源 Today×Hover/Pressed 语义) */
+   悬停/按下描边取 HoverBorderBrush / PressedBorderBrush(圆角 chrome 以同值的
+   CalendarItemHover/PressedBackground 底色表达,本实现沿用描边模型 —— 见报告未决 §)。
+   文字色按源 chrome GetItemTextBlockForegroundBrush 的状态优先级切换:
+   禁用 > 今日 > 禁选 > 选中 > 按下 > 范围外 > 普通;今日文字恒为 TodayForeground。 */
 .wui-calendar-view:not(.is-disabled) .cv-day:not(.is-blackout):hover {
   box-shadow: inset 0 0 0 2px var(--wui-cv-hover-border);
 }
 
-.wui-calendar-view:not(.is-disabled) .cv-day:not(.is-blackout):not(.is-today):hover {
-  color: var(--wui-cv-selected-foreground); /* 源 PointerOver 文字切 SelectedForeground */
+.wui-calendar-view:not(.is-disabled) .cv-day:not(.is-blackout):not(.is-today):not(.is-selected):not(.is-out-of-scope):hover {
+  color: var(--wui-cv-calendar-item-foreground); /* 普通格悬停 = CalendarItemForeground */
+}
+
+.wui-calendar-view:not(.is-disabled) .cv-day.is-out-of-scope:not(.is-blackout):not(.is-selected):hover {
+  color: var(--wui-cv-out-of-scope-hover-foreground); /* CalendarViewOutOfScopeHoverForeground */
+}
+
+.wui-calendar-view:not(.is-disabled) .cv-day.is-selected:not(.is-blackout):not(.is-today):hover {
+  color: var(--wui-cv-selected-hover-foreground); /* CalendarViewSelectedHoverForeground */
 }
 
 .wui-calendar-view:not(.is-disabled) .cv-day:not(.is-blackout):active {
   box-shadow: inset 0 0 0 2px var(--wui-cv-pressed-border);
 }
 
-.wui-calendar-view:not(.is-disabled) .cv-day:not(.is-blackout):not(.is-today):active {
-  color: var(--wui-calendar-view-pressed-foreground);
+.wui-calendar-view:not(.is-disabled) .cv-day:not(.is-blackout):not(.is-today):not(.is-selected):not(.is-out-of-scope):active {
+  color: var(--wui-cv-pressed-foreground); /* CalendarViewPressedForeground */
+}
+
+.wui-calendar-view:not(.is-disabled) .cv-day.is-out-of-scope:not(.is-blackout):not(.is-selected):active {
+  color: var(--wui-cv-out-of-scope-pressed-foreground); /* CalendarViewOutOfScopePressedForeground */
 }
 
 .cv-day.is-selected {
-  box-shadow: inset 0 0 0 2px var(--wui-cv-selected-border);
-  color: var(--wui-cv-selected-foreground);
+  box-shadow: inset 0 0 0 2px var(--wui-cv-selected-border); /* CalendarViewSelectedBorderBrush */
+  color: var(--wui-cv-selected-foreground); /* CalendarViewSelectedForeground */
 }
 
 .wui-calendar-view:not(.is-disabled) .cv-day.is-selected:hover {
-  box-shadow: inset 0 0 0 2px var(--wui-calendar-view-selected-hover-border);
+  box-shadow: inset 0 0 0 2px var(--wui-cv-selected-hover-border); /* CalendarViewSelectedHoverBorderBrush */
 }
 
-.wui-calendar-view:not(.is-disabled) .cv-day.is-selected:active:not(.is-today) {
-  box-shadow: inset 0 0 0 2px var(--wui-calendar-view-selected-pressed-border);
-  color: var(--wui-calendar-view-pressed-foreground);
+.wui-calendar-view:not(.is-disabled) .cv-day.is-selected:not(.is-blackout):not(.is-today):active {
+  box-shadow: inset 0 0 0 2px var(--wui-cv-selected-pressed-border); /* CalendarViewSelectedPressedBorderBrush */
+  color: var(--wui-cv-selected-pressed-foreground); /* CalendarViewSelectedPressedForeground */
 }
 
-/* 今日:强调色圆底 + TodayForeground(源 chrome Today 椭圆) */
+/* 今日:强调色圆底 + TodayForeground(源 chrome Today 椭圆;今日文字优先级高于选中/按下/范围外) */
 .cv-day.is-today {
-  color: var(--wui-cv-today-foreground);
+  color: var(--wui-cv-today-foreground); /* CalendarViewTodayForeground */
 }
 
 .cv-day-today {
@@ -1060,6 +1094,21 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   inset: 2px;
   border-radius: 50%;
   background: var(--wui-cv-today-background);
+}
+
+/* 今日×悬停/按下:TodayHoverBackground / TodayPressedBackground(源 chrome 背景分支;
+   今日圆随之加深,今日文字与「今日无边框」语义不变) */
+.wui-calendar-view:not(.is-disabled) .cv-day.is-today:not(.is-blackout):hover .cv-day-today {
+  background: var(--wui-accent-fill-color-secondary);
+}
+
+.wui-calendar-view:not(.is-disabled) .cv-day.is-today:not(.is-blackout):active .cv-day-today {
+  background: var(--wui-accent-fill-color-tertiary);
+}
+
+/* 今日×禁选:TodayBlackoutBackground = AccentFillColorTertiary(今日优先级高于禁选的底座) */
+.cv-day.is-today.is-blackout .cv-day-today {
+  background: var(--wui-accent-fill-color-tertiary);
 }
 
 .cv-day-number {
@@ -1121,8 +1170,8 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   padding: 0;
   font-family: inherit;
   font-size: var(--wui-control-content-theme-font-size); /* MonthYearItem = ControlContentThemeFontSize */
-  color: var(--wui-calendar-view-calendar-item-foreground);
-  background: var(--wui-cv-item-background);
+  color: var(--wui-cv-calendar-item-foreground); /* CalendarViewCalendarItemForeground */
+  background: var(--wui-cv-item-background); /* CalendarViewCalendarItemBackground */
   border: none;
   cursor: pointer;
   user-select: none;
@@ -1130,12 +1179,12 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
 
 .wui-calendar-view:not(.is-disabled) .cv-unit:not(.is-blackout):hover {
   box-shadow: inset 0 0 0 2px var(--wui-cv-hover-border);
-  color: var(--wui-cv-selected-foreground);
+  color: var(--wui-cv-calendar-item-foreground); /* 悬停前景同 CalendarItemForeground */
 }
 
 .wui-calendar-view:not(.is-disabled) .cv-unit:not(.is-blackout):active {
   box-shadow: inset 0 0 0 2px var(--wui-cv-pressed-border);
-  color: var(--wui-calendar-view-pressed-foreground);
+  color: var(--wui-cv-pressed-foreground); /* CalendarViewPressedForeground */
 }
 
 /* 当前「今天所在」月份/年份单元:强调色描边(源 CalendarViewItem IsToday 圆环的近似) */
@@ -1149,9 +1198,20 @@ const dayRevealHandlers = useReveal(() => props.dayItemReveal === true && !props
   cursor: default;
 }
 
-/* —— 禁用整控件:星期行变灰(源 CommonStates.Disabled)+ 关闭交互 —— */
+/* —— 禁用整控件:星期行变灰(源 CommonStates.Disabled)+ 关闭交互 ——
+   源 chrome CommonStates.Disabled → DisabledForeground = TextFillColorDisabled 作用于
+   全部日格/年十年单元;今日圆切 TodayDisabledBackground = AccentFillColorDisabled。 */
 .wui-calendar-view.is-disabled .cv-weekday {
-  color: var(--wui-calendar-view-week-day-foreground-disabled);
+  color: var(--wui-text-fill-color-disabled); /* CalendarViewWeekDayForegroundDisabled */
+}
+
+.wui-calendar-view.is-disabled .cv-day,
+.wui-calendar-view.is-disabled .cv-unit {
+  color: var(--wui-text-fill-color-disabled); /* CalendarViewDisabledForeground */
+}
+
+.wui-calendar-view.is-disabled .cv-day .cv-day-today {
+  background: var(--wui-accent-fill-color-disabled); /* CalendarViewTodayDisabledBackground */
 }
 
 .wui-calendar-view.is-disabled .cv-days,

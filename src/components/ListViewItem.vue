@@ -7,14 +7,16 @@
 //   PointerOverPressed/PressedSelected 七态),Web 侧以 CSS 状态类 + 伪类等价表达:
 //   - 容器:MinHeight = ListViewItemMinHeight = 40、MinWidth = 88、Padding = 12,0,12,0、
 //     DisabledOpacity = 0.55(只作用于内容,容器底色保留);
-//   - 底色四层(叠加优先级 Pressed > PointerOver > Selected > Normal,选中态取更深的
-//     selected-pointer-over / selected-pressed 档,非 selected* 桥接态):
-//       Normal      = ListViewItemBackground               (透明)
-//       PointerOver = ListViewItemBackgroundPointerOver    (ListLow,#00000019)
-//       Pressed     = ListViewItemBackgroundPressed        (ListMedium,#00000033)
-//       Selected    = ListViewItemBackgroundSelected       (ListAccentLow,强调色 40%)
-//       Selected×hover  = ListViewItemBackgroundSelectedPointerOver  (强调色 60%)
-//       Selected×pressed= ListViewItemBackgroundSelectedPressed      (强调色 70%)
+//   - 底色四层(叠加优先级 Pressed > PointerOver > Selected > Normal;PL4 起直取 WinUI 3
+//     Fluent 画刷族 —— 权威 = ListViewItem_themeresources.xaml L16-22 的 StaticResource 别名):
+//       Normal      = ListViewItemBackground               → SubtleFillColorTransparent
+//       PointerOver = ListViewItemBackgroundPointerOver    → SubtleFillColorSecondary
+//       Pressed     = ListViewItemBackgroundPressed        → SubtleFillColorTertiary
+//       Selected    = ListViewItemBackgroundSelected       → SubtleFillColorSecondary
+//       Selected×hover  = ListViewItemBackgroundSelectedPointerOver → SubtleFillColorTertiary
+//       Selected×pressed= ListViewItemBackgroundSelectedPressed     → SubtleFillColorSecondary
+//       (WinUI 3 选中标识由勾选框承担,故 Selected 与 PointerOver 同档、SelectedPointerOver
+//        与 Pressed 同档 —— 与源一致,非缺陷)
 //   - Reveal 揭示光照(默认启用:WinUI 3 默认项样式即 ListViewItemRevealStyle,L20595
 //     keyless BasedOn):源 RevealBackground=ListViewItemRevealBackground(退役为透明回退色,
 //     即 WinUI 2 时代被 pointer 光照点亮的底板层)、RevealBorderBrush(VSM 按 hover/pressed
@@ -24,11 +26,11 @@
 //     (RevealBorderLight.cpp wide 配置 L37-48)、光环厚度 = RevealBorderThemeThickness 1
 //     (G.xaml L1399);静态 1px 揭示边框结构由 .reveal-border span 消费
 //     --wui-list-view-item-reveal-* token(theme.css L1290-1292,各态透明,逐点对齐源)。
-//   - 前景:ListViewItemForeground / -PointerOver / -Selected(SystemControlForegroundBaseHigh
-//     与 SystemControlHighlightAltBaseHigh 族);
+//   - 前景:ListViewItemForeground / -PointerOver / -Selected → TextFillColorPrimary(四态同键,L23-28);
 //   - 多重选择勾选框(CheckMode = Inline,SelectionCheckMarkVisualEnabled = True):
-//     Multiple 模式下每项左侧常驻勾选框;选中时 accent 铺底 + 白色对勾
-//     (CheckBrush / CheckBoxBrush = SystemControlForegroundBaseMediumHigh 族);
+//     Multiple 模式下每项左侧常驻勾选框;未选底 ControlAltFillColorSecondary + 边
+//     ControlStrongStrokeColorDefault,选中 accent 铺底(AccentFillColorDefault)+ 对勾
+//     TextOnAccentFillColorPrimary(CheckBrush / CheckBoxBrush / CheckBoxBorderBrush,L33-34/L66-73);
 //   - 焦点框:UseSystemFocusVisuals 系统双线焦点框(外 2px primary + 内 1px secondary),
 //     选中项取反色(FocusBorderBrush / FocusSecondaryBorderBrush)。
 // 行为:本组件只承载「容器视觉 + 勾选框 + 内容呈现」,选择逻辑(点选/区间/键盘)由
@@ -122,8 +124,10 @@ function onRootClick(event: MouseEvent): void {
   padding: 0 12px; /* ListViewItem Padding = 12,0,12,0 */
   box-sizing: border-box;
   font-size: var(--wui-control-content-theme-font-size); /* ControlContentThemeFontSize */
-  color: var(--wui-list-view-item-foreground); /* ListViewItemForeground */
-  background: var(--wui-list-view-item-background); /* ListViewItemBackground(透明) */
+  /* ListViewItemForeground = TextFillColorPrimary(PL4 重定向至 Fluent 画刷族) */
+  color: var(--wui-text-fill-color-primary);
+  /* ListViewItemBackground = SubtleFillColorTransparent */
+  background: var(--wui-subtle-fill-color-transparent);
   cursor: default;
   user-select: none;
   -webkit-user-select: none;
@@ -142,36 +146,37 @@ function onRootClick(event: MouseEvent): void {
  * 状态叠加(对照 VSM CommonStates;优先级 Pressed > PointerOver > Selected > Normal)
  * ====================================================================== */
 
-/* Normal → PointerOver(ListViewItemBackgroundPointerOver = ListLow) */
+/* Normal → PointerOver(ListViewItemBackgroundPointerOver = SubtleFillColorSecondary) */
 .wui-list-view-item:not(.is-disabled):hover {
-  color: var(--wui-list-view-item-foreground-pointer-over);
-  background: var(--wui-list-view-item-background-pointer-over);
+  color: var(--wui-text-fill-color-primary); /* ListViewItemForegroundPointerOver */
+  background: var(--wui-subtle-fill-color-secondary);
 }
 
-/* Pressed(ListViewItemBackgroundPressed = ListMedium;选中与否同档,源 Pressed 与
-   PointerOverPressed / PressedSelected 在 reveal 层才有差异,平色层 ListMedium 同值) */
+/* Pressed(ListViewItemBackgroundPressed = SubtleFillColorTertiary;选中与否同档,源 Pressed 与
+   PointerOverPressed / PressedSelected 在 reveal 层才有差异,平色层同值) */
 .wui-list-view-item:not(.is-disabled):active {
-  background: var(--wui-list-view-item-background-pressed);
+  background: var(--wui-subtle-fill-color-tertiary);
 }
 
-/* Selected(ListViewItemBackgroundSelected = ListAccentLow,强调色 40%) */
+/* Selected(ListViewItemBackgroundSelected = SubtleFillColorSecondary;WinUI 3 选中标识由
+   勾选框承担,底色与 PointerOver 同档 —— 权威即如此,非缺陷) */
 .wui-list-view-item.is-selected {
-  color: var(--wui-list-view-item-foreground-selected);
-  background: var(--wui-list-view-item-background-selected);
+  color: var(--wui-text-fill-color-primary); /* ListViewItemForegroundSelected */
+  background: var(--wui-subtle-fill-color-secondary);
 }
 
-/* Selected × PointerOver(ListViewItemBackgroundSelectedPointerOver = 强调色 60%)。
-   :active 未单独加深选中悬停按压(源 SelectedPressed 仅按压瞬间,由下一档覆盖) */
+/* Selected × PointerOver(ListViewItemBackgroundSelectedPointerOver = SubtleFillColorTertiary) */
 .wui-list-view-item.is-selected:not(.is-disabled):hover {
-  background: var(--wui-list-view-item-background-selected-pointer-over);
+  background: var(--wui-subtle-fill-color-tertiary);
 }
 
-/* Selected × Pressed(ListViewItemBackgroundSelectedPressed = 强调色 70%) */
+/* Selected × Pressed(ListViewItemBackgroundSelectedPressed = SubtleFillColorSecondary) */
 .wui-list-view-item.is-selected:not(.is-disabled):active {
-  background: var(--wui-list-view-item-background-selected-pressed);
+  background: var(--wui-subtle-fill-color-secondary);
 }
 
-/* Disabled(DisabledStates:DisabledOpacity = 0.55,只衰减内容,底色不衰减) */
+/* Disabled(DisabledStates:DisabledOpacity = 0.55,只衰减内容,底色不衰减;
+   禁用底色 ListViewItemBackground = SubtleFillColorTransparent,由上方基础规则持有) */
 .wui-list-view-item.is-disabled {
   cursor: default;
 }
@@ -250,14 +255,28 @@ function onRootClick(event: MouseEvent): void {
   width: 20px;
   height: 20px;
   margin-right: 12px;
-  border: 1px solid var(--wui-list-view-item-check-box); /* ListViewItemCheckBoxBrush */
+  /* ListViewItemCheckBoxBorderBrush = ControlStrongStrokeColorDefault */
+  border: 1px solid var(--wui-control-strong-stroke-color-default);
   border-radius: 4px;
-  background: transparent;
+  /* ListViewItemCheckBoxBrush = ControlAltFillColorSecondary */
+  background: var(--wui-control-alt-fill-color-secondary);
 }
 
+/* 选中:ListViewItemCheckBoxSelectedBrush = AccentFillColorDefault */
 .wui-list-view-item.is-selected .wui-list-view-item-check {
-  background: var(--wui-system-accent-color);
-  border-color: var(--wui-system-accent-color);
+  background: var(--wui-accent-fill-color-default);
+  border-color: var(--wui-accent-fill-color-default);
+}
+
+/* 选中 × 悬停/按压:AccentFillColorSecondary / Tertiary(源 VSM SelectedPointerOver/Pressed) */
+.wui-list-view-item.is-selected:not(.is-disabled):hover .wui-list-view-item-check {
+  background: var(--wui-accent-fill-color-secondary);
+  border-color: var(--wui-accent-fill-color-secondary);
+}
+
+.wui-list-view-item.is-selected:not(.is-disabled):active .wui-list-view-item-check {
+  background: var(--wui-accent-fill-color-tertiary);
+  border-color: var(--wui-accent-fill-color-tertiary);
 }
 
 .wui-list-view-item-check-glyph {
@@ -267,8 +286,9 @@ function onRootClick(event: MouseEvent): void {
   color: transparent; /* 未选:框内无字形 */
 }
 
+/* ListViewItemCheckBrush = TextOnAccentFillColorPrimary(选中白对勾;深色主题为黑) */
 .wui-list-view-item.is-selected .wui-list-view-item-check-glyph {
-  color: var(--wui-check-box-check-glyph-foreground-checked); /* 选中白对勾(同 CheckBox) */
+  color: var(--wui-text-on-accent-fill-color-primary);
 }
 
 /* ======================================================================

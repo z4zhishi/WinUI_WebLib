@@ -4,14 +4,15 @@
 //   <Style TargetType="GridViewItem" x:Key="GridViewItemRevealStyle">(L17835 起,默认项样式
 //   即基于它,L22885)。它以 ListViewItemPresenter 承载,关键视觉:
 //   - Normal/PointerOver/Pressed/Selected(+PointerOver/Pressed 组合)背景与前景,
-//     颜色取 --wui-grid-view-item-* token(L817 起 / 暗色 L2712 起);
+//     PL4 起直取 WinUI 3 Fluent 画刷族(权威 = GridViewItem_themeresources.xaml L5-13);
 //   - Reveal 边框:RevealBorderThickness=1 + RevealBorderBrush(源 token 解析为透明 ——
 //     WinUI 3 已退役 reveal 高光),此处保留 1px 揭示边框结构,enableReveal 时以公共层
 //     (src/styles/reveal.css + useReveal)的「跟随指针光照」复刻 WinUI 2 reveal:
 //     底板光半径 = Clamp(Max(W,H)+12,16,512)(RevealHoverLight.cpp L141-149/L163)、
 //     边框光半径 77px(RevealBorderLight.cpp wide 配置 L37-48)、光色白;
 //   - 选择勾选标记:CheckMode=Overlay —— 选中项左上角叠加圆形勾选标记,
-//     勾字形色 CheckBrush = --wui-grid-view-item-check,圆底 CheckBoxBrush = --wui-grid-view-item-check-box;
+//     圆底 = ControlOnImageFillColorDefault / 选中切 AccentFillColorDefault,
+//     勾字形色 = TextOnAccentFillColorPrimary(CheckBrush / CheckBoxBrush 族,L19/L37-40);
 //   - ContentMargin = TemplateBinding Padding(XAML Thickness 顺序:左,上,右,下)。
 // 模型设计:无自身状态,selected/disabled 由父级(GridView)下发;click 上抛由 GridView
 //   统一做选择逻辑(与 WinUI GridViewItem 的容器职责一致)。
@@ -130,8 +131,9 @@ function onClick(event: MouseEvent): void {
  * Normal / PointerOver / Pressed / Selected / SelectedPointerOver / SelectedPressed
  * ====================================================================== */
 .wui-grid-view-item {
-  --gvi-bg: var(--wui-grid-view-item-background);
-  --gvi-fg: var(--wui-grid-view-item-foreground);
+  /* PL4:直取 WinUI 3 Fluent 画刷族(权威 = GridViewItem_themeresources.xaml L5-13) */
+  --gvi-bg: var(--wui-subtle-fill-color-transparent); /* GridViewItemBackground */
+  --gvi-fg: var(--wui-text-fill-color-primary); /* GridViewItemForeground */
   position: relative;
   box-sizing: border-box;
   display: flex;
@@ -150,26 +152,38 @@ function onClick(event: MouseEvent): void {
   cursor: default;
 }
 
+/* GridViewItemBackgroundPointerOver = SubtleFillColorSecondary;
+   ForegroundPointerOver = TextFillColorSecondary(源 L6/L12) */
 .wui-grid-view-item:not(.is-disabled):hover {
-  --gvi-bg: var(--wui-grid-view-item-background-pointer-over);
-  --gvi-fg: var(--wui-grid-view-item-foreground-pointer-over);
+  --gvi-bg: var(--wui-subtle-fill-color-secondary);
+  --gvi-fg: var(--wui-text-fill-color-secondary);
 }
 
+/* GridViewItemBackgroundPressed = SubtleFillColorTertiary(L7) */
 .wui-grid-view-item:not(.is-disabled):active {
-  --gvi-bg: var(--wui-grid-view-item-background-pressed);
+  --gvi-bg: var(--wui-subtle-fill-color-tertiary);
 }
 
+/* GridViewItemBackgroundSelected = SubtleFillColorTertiary;ForegroundSelected = TextFillColorPrimary(L8/L13)。
+   WinUI 3 选中的显性标识是左上角勾选圈,底色仅 Subtle 层 —— 与源一致 */
 .wui-grid-view-item.is-selected {
-  --gvi-bg: var(--wui-grid-view-item-background-selected);
-  --gvi-fg: var(--wui-grid-view-item-foreground-selected);
+  --gvi-bg: var(--wui-subtle-fill-color-tertiary);
+  --gvi-fg: var(--wui-text-fill-color-primary);
 }
 
+/* GridViewItemBackgroundSelectedPointerOver = SubtleFillColorTertiary(L9) */
 .wui-grid-view-item.is-selected:not(.is-disabled):hover {
-  --gvi-bg: var(--wui-grid-view-item-background-selected-pointer-over);
+  --gvi-bg: var(--wui-subtle-fill-color-tertiary);
 }
 
+/* GridViewItemBackgroundSelectedPressed = SubtleFillColorSecondary(L10) */
 .wui-grid-view-item.is-selected:not(.is-disabled):active {
-  --gvi-bg: var(--wui-grid-view-item-background-selected-pressed);
+  --gvi-bg: var(--wui-subtle-fill-color-secondary);
+}
+
+/* GridViewItemBackgroundSelectedDisabled = SubtleFillColorSecondary(L45) */
+.wui-grid-view-item.is-selected.is-disabled {
+  --gvi-bg: var(--wui-subtle-fill-color-secondary);
 }
 
 /* Disabled(DisabledStates:RevealBorderThickness→0 + ListViewItemDisabledThemeOpacity) */
@@ -216,7 +230,9 @@ function onClick(event: MouseEvent): void {
   opacity: 0;
 }
 
-/* —— 选择勾选标记(Overlay:左上角圆 + 勾字形)—— */
+/* —— 选择勾选标记(Overlay:左上角圆 + 勾字形;GridViewItemCheckBoxBrush =
+   ControlOnImageFillColorDefault,勾字形 GridViewItemCheckBrush = TextOnAccentFillColorPrimary,
+   选中底 GridViewItemCheckBoxSelectedBrush = AccentFillColorDefault,L19/L37-40)—— */
 .check-mark {
   position: absolute;
   top: 6px;
@@ -227,8 +243,8 @@ function onClick(event: MouseEvent): void {
   justify-content: center;
   width: 20px;
   height: 20px;
-  background: var(--wui-grid-view-item-check-box);
-  border: 1px solid var(--wui-grid-view-item-check-box);
+  background: var(--wui-control-on-image-fill-color-default);
+  border: 1px solid var(--wui-control-on-image-fill-color-default);
   border-radius: 50%;
   pointer-events: none;
   /* 多选方块 fade(audit A10;G.xaml L9693-9705 MultiSelectStates):
@@ -251,26 +267,41 @@ function onClick(event: MouseEvent): void {
 
 .check-mark svg path {
   fill: none;
-  stroke: var(--wui-grid-view-item-check);
+  stroke: var(--wui-text-on-accent-fill-color-primary);
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
-/* 选中:显示实心勾选圈(出现方向 visibility 立即、opacity 333ms 淡入) */
+/* 选中:显示实心勾选圈(出现方向 visibility 立即、opacity 333ms 淡入)。
+   圆底切 AccentFillColorDefault(CheckBoxSelectedBrush) */
 .wui-grid-view-item.is-selected .check-mark {
   opacity: 1;
   visibility: visible;
+  background: var(--wui-accent-fill-color-default);
+  border-color: var(--wui-accent-fill-color-default);
   transition-delay: 0s, 0s;
 }
 
-/* 多选(Multiple 模式):未选中项显示空心圈 */
+/* 选中 × 悬停/按压:AccentFillColorSecondary / Tertiary(L38/L39) */
+.wui-grid-view-item.is-selected:not(.is-disabled):hover .check-mark {
+  background: var(--wui-accent-fill-color-secondary);
+  border-color: var(--wui-accent-fill-color-secondary);
+}
+
+.wui-grid-view-item.is-selected:not(.is-disabled):active .check-mark {
+  background: var(--wui-accent-fill-color-tertiary);
+  border-color: var(--wui-accent-fill-color-tertiary);
+}
+
+/* 多选(Multiple 模式):未选中项显示空心圈,环取 CheckBoxBorderBrush =
+   ControlStrongStrokeColorDefault(L41;源未给 halo 专用画刷,即未填充勾选圈的描边) */
 .wui-grid-view-item.multi-halo:not(.is-selected) .check-mark {
   opacity: 1;
   visibility: visible;
   transition-delay: 0s, 0s;
   background: transparent;
-  border-color: var(--wui-grid-view-item-check);
+  border-color: var(--wui-control-strong-stroke-color-default);
 }
 
 /* —— 内容(ContentMargin = TemplateBinding Padding)—— */

@@ -725,13 +725,14 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
 /*
  * 结构对照 TabView.xaml DefaultTabViewStyle ControlTemplate:
  * Grid(两行)> TabContainerGrid(标签条四列)+ TabContentPresenter(内容)。
- * 颜色一律 --wui-* token;源资源无同名 token 的按最近似映射(见行内注释与 wiki 差异节)。
+ * 颜色一律直取 PL2 Fluent 画刷族 token(--wui-<brush-kebab>,权威键见行内注释与
+ * docs/pages/color/control-brush-matrix.md §1.21);焦点视觉仍用系统焦点色钩子。
  */
 .wui-tab-view {
   display: block;
   min-width: 0;
   font-family: inherit; /* XamlAutoFontFamily 占位,回退浏览器默认 */
-  background: transparent; /* TabViewBackground(SubtleFillColorTransparent) */
+  background: var(--wui-subtle-fill-color-transparent); /* TabViewBackground */
 }
 
 /* —— 标签条(TabViewHeaderPadding 0,8,0,0;底线 TabViewBorderBrush 1px)—— */
@@ -740,7 +741,7 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
   align-items: flex-end;
   min-height: 32px;
   padding: 8px 0 0;
-  border-bottom: 1px solid var(--wui-system-control-background-base-low); /* TabViewBorderBrush(CardStrokeColorDefault 最近似) */
+  border-bottom: 1px solid var(--wui-card-stroke-color-default); /* TabViewBorderBrush = CardStrokeColorDefault */
 }
 
 .wui-tab-view-header-left,
@@ -780,9 +781,9 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
   min-height: 32px; /* TabViewItemMinHeight */
   padding: 3px 4px 3px 8px; /* TabViewItemHeaderPaddingWithCloseButton(8,3,4,3) */
   font-size: 12px; /* TabViewItemHeaderFontSize */
-  color: var(--wui-application-secondary-foreground-theme); /* TabViewItemHeaderForeground(TextFillColorSecondary 最近似) */
+  color: var(--wui-text-fill-color-secondary); /* TabViewItemHeaderForeground */
   cursor: pointer;
-  background: transparent; /* TabViewItemHeaderBackground(LayerOnMicaBaseAltFillColorTransparent) */
+  background: var(--wui-layer-on-mica-base-alt-fill-color-transparent); /* TabViewItemHeaderBackground */
   border: 1px solid transparent; /* TabViewItemBorderThickness 1(TabViewItemBorderBrush 透明) */
   border-bottom: none;
   border-radius: var(--wui-popup-corner-radius, 8px) var(--wui-popup-corner-radius, 8px) 0 0; /* OverlayCornerRadius 仅上两角 */
@@ -835,13 +836,13 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
 }
 
 .wui-tab-view-item:hover:not(.wui-tab-view-item--selected):not(.wui-tab-view--disabled *) {
-  color: var(--wui-application-secondary-foreground-theme); /* PointerOver = TextFillColorSecondary */
-  background: var(--wui-grid-view-item-background-pointer-over); /* TabViewItemHeaderBackgroundPointerOver(SubtleFillColorSecondary 最近似) */
+  color: var(--wui-text-fill-color-secondary); /* TabViewItemHeaderForegroundPointerOver */
+  background: var(--wui-layer-on-mica-base-alt-fill-color-secondary); /* TabViewItemHeaderBackgroundPointerOver */
 }
 
 .wui-tab-view-item:active:not(.wui-tab-view-item--selected):not(.wui-tab-view--disabled *) {
-  color: var(--wui-application-secondary-foreground-theme); /* Pressed = TextFillColorTertiary(最近似 Secondary 同值) */
-  background: var(--wui-grid-view-item-background-pressed); /* TabViewItemHeaderBackgroundPressed(SubtleFillColorTertiary 最近似) */
+  color: var(--wui-text-fill-color-tertiary); /* TabViewItemHeaderForegroundPressed */
+  background: var(--wui-layer-on-mica-base-alt-fill-color-default); /* TabViewItemHeaderBackgroundPressed */
 }
 
 /* 选中态(源 Selected:SelectedBackgroundPath + 边框 1,1,1,0 + Margin -1,0,-1,1 + Primary 前景 + SemiBold) */
@@ -849,15 +850,16 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
   z-index: 1;
   margin-bottom: -1px; /* TabViewSelectedItemHeaderMargin -1,0,-1,1:下沿盖住标签条底线 */
   font-weight: 600; /* SemiBold */
-  color: var(--wui-default-text-foreground-theme); /* TabViewItemHeaderForegroundSelected(TextFillColorPrimary) */
+  color: var(--wui-text-fill-color-primary); /* TabViewItemHeaderForegroundSelected */
   cursor: default;
-  background: var(--wui-flyout-presenter-background); /* TabViewItemHeaderBackgroundSelected(SolidBackgroundFillColorTertiary 最近似) */
-  border-color: var(--wui-system-control-background-base-low); /* TabViewSelectedItemBorderBrush(CardStrokeColorDefault 渐变下沿,取同值实线) */
+  background: var(--wui-solid-background-fill-color-tertiary); /* TabViewItemHeaderBackgroundSelected */
+  border-color: var(--wui-card-stroke-color-default); /* TabViewSelectedItemBorderBrush(见报告未决 §:渐变退化) */
 }
 
 /* 禁用(源 Disabled:背景透明 + 前景 Disabled 色) */
 .wui-tab-view--disabled .wui-tab-view-item {
-  color: var(--wui-toggle-switch-content-foreground-disabled); /* TabViewItemHeaderForegroundDisabled(TextFillColorDisabled 最近似) */
+  color: var(--wui-text-fill-color-disabled); /* TabViewItemHeaderForegroundDisabled */
+  background: var(--wui-layer-on-mica-base-alt-fill-color-transparent); /* TabViewItemHeaderBackgroundDisabled */
   cursor: default;
 }
 
@@ -875,11 +877,19 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
   flex: none;
   align-items: center;
   margin-right: 10px; /* TabViewItemHeaderIconMargin(0,0,10,0) */
-  color: var(--wui-application-secondary-foreground-theme); /* TabViewItemIconForeground(TextFillColorSecondary) */
+  color: var(--wui-text-fill-color-secondary); /* TabViewItemIconForeground */
+}
+
+.wui-tab-view-item:active:not(.wui-tab-view-item--selected):not(.wui-tab-view--disabled *) .wui-tab-view-item-icon {
+  color: var(--wui-text-fill-color-tertiary); /* TabViewItemIconForegroundPressed */
 }
 
 .wui-tab-view-item--selected .wui-tab-view-item-icon {
-  color: var(--wui-default-text-foreground-theme); /* TabViewItemIconForegroundSelected(TextFillColorPrimary) */
+  color: var(--wui-text-fill-color-primary); /* TabViewItemIconForegroundSelected */
+}
+
+.wui-tab-view--disabled .wui-tab-view-item-icon {
+  color: var(--wui-text-fill-color-disabled); /* TabViewItemIconForegroundDisabled */
 }
 
 /* 标题(源 ContentPresenter:单行,溢出裁剪) */
@@ -899,7 +909,7 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
   right: 0;
   bottom: 8px;
   width: 1px;
-  background: var(--wui-system-control-background-base-low); /* TabViewItemSeparator(DividerStrokeColorDefault 最近似) */
+  background: var(--wui-divider-stroke-color-default); /* TabViewItemSeparator */
   pointer-events: none;
 }
 
@@ -919,25 +929,25 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
   height: 24px; /* TabViewItemHeaderCloseButtonHeight */
   margin-left: 4px; /* TabViewItemHeaderCloseMargin(4,0,0,0) */
   padding: 0;
-  color: var(--wui-default-text-foreground-theme); /* TabViewItemHeaderCloseButtonForeground(TextFillColorPrimary) */
-  background: transparent; /* TabViewItemHeaderCloseButtonBackground(SubtleFillColorTransparent) */
+  color: var(--wui-text-fill-color-primary); /* TabViewItemHeaderCloseButtonForeground */
+  background: var(--wui-subtle-fill-color-transparent); /* TabViewItemHeaderCloseButtonBackground */
   border: none; /* TabViewItemHeaderCloseButtonBorderThickness 0 */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius); /* ControlCornerRadius */
   cursor: pointer;
 }
 
 .wui-tab-view-item-close:hover:not(:disabled) {
-  color: var(--wui-default-text-foreground-theme); /* CloseButtonForegroundPointerOver(TextFillColorPrimary) */
-  background: var(--wui-grid-view-item-background-pointer-over); /* CloseButtonBackgroundPointerOver(SubtleFillColorSecondary) */
+  color: var(--wui-text-fill-color-primary); /* CloseButtonForegroundPointerOver */
+  background: var(--wui-subtle-fill-color-secondary); /* CloseButtonBackgroundPointerOver */
 }
 
 .wui-tab-view-item-close:active:not(:disabled) {
-  color: var(--wui-application-secondary-foreground-theme); /* CloseButtonForegroundPressed(TextFillColorSecondary) */
-  background: var(--wui-grid-view-item-background-pressed); /* CloseButtonBackgroundPressed(SubtleFillColorTertiary) */
+  color: var(--wui-text-fill-color-secondary); /* CloseButtonForegroundPressed */
+  background: var(--wui-subtle-fill-color-tertiary); /* CloseButtonBackgroundPressed */
 }
 
 .wui-tab-view-item-close:disabled {
-  color: var(--wui-toggle-switch-content-foreground-disabled); /* CloseButtonForegroundDisabled(TextFillColorDisabled) */
+  color: var(--wui-text-fill-color-disabled); /* CloseButtonForegroundDisabled */
   cursor: default;
 }
 
@@ -972,23 +982,23 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
   height: 24px; /* TabViewItemScrollButtonHeight */
   margin-bottom: 3px;
   padding: 0;
-  color: var(--wui-application-secondary-foreground-theme); /* TabViewScrollButtonForeground(TextFillColorSecondary) */
-  background: transparent; /* TabViewScrollButtonBackground(SubtleFillColorTransparent) */
+  color: var(--wui-text-fill-color-secondary); /* TabViewScrollButtonForeground */
+  background: var(--wui-subtle-fill-color-transparent); /* TabViewScrollButtonBackground */
   border: none;
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius); /* ControlCornerRadius */
   cursor: pointer;
 }
 
 .wui-tab-view-scroll-button:hover:not(:disabled) {
-  background: var(--wui-grid-view-item-background-pointer-over); /* ScrollButtonBackgroundPointerOver(SubtleFillColorSecondary) */
+  background: var(--wui-subtle-fill-color-secondary); /* ScrollButtonBackgroundPointerOver */
 }
 
 .wui-tab-view-scroll-button:active:not(:disabled) {
-  background: var(--wui-grid-view-item-background-pressed); /* ScrollButtonBackgroundPressed(SubtleFillColorTertiary) */
+  background: var(--wui-subtle-fill-color-tertiary); /* ScrollButtonBackgroundPressed */
 }
 
 .wui-tab-view-scroll-button:disabled {
-  color: var(--wui-toggle-switch-content-foreground-disabled);
+  color: var(--wui-text-fill-color-disabled); /* TabViewScrollButtonForegroundDisabled */
   cursor: default;
 }
 
@@ -1014,25 +1024,25 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
   width: 32px; /* TabViewItemAddButtonWidth */
   height: 24px; /* TabViewItemAddButtonHeight */
   padding: 0;
-  color: var(--wui-default-text-foreground-theme); /* TabViewButtonForeground(TextFillColorPrimary) */
-  background: transparent; /* TabViewButtonBackground(SubtleFillColorTransparent) */
+  color: var(--wui-text-fill-color-primary); /* TabViewButtonForeground */
+  background: var(--wui-subtle-fill-color-transparent); /* TabViewButtonBackground */
   border: none; /* TabViewButtonBorderThickness 0 */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius); /* ControlCornerRadius */
   cursor: pointer;
 }
 
 .wui-tab-view-add-button:hover:not(:disabled) {
-  color: var(--wui-default-text-foreground-theme); /* TabViewButtonForegroundPointerOver(TextFillColorPrimary) */
-  background: var(--wui-grid-view-item-background-pointer-over); /* TabViewButtonBackgroundPointerOver(SubtleFillColorSecondary) */
+  color: var(--wui-text-fill-color-primary); /* TabViewButtonForegroundPointerOver */
+  background: var(--wui-subtle-fill-color-secondary); /* TabViewButtonBackgroundPointerOver */
 }
 
 .wui-tab-view-add-button:active:not(:disabled) {
-  color: var(--wui-application-secondary-foreground-theme); /* TabViewButtonForegroundPressed(TextFillColorSecondary) */
-  background: var(--wui-grid-view-item-background-pressed); /* TabViewButtonBackgroundPressed(SubtleFillColorTertiary) */
+  color: var(--wui-text-fill-color-secondary); /* TabViewButtonForegroundPressed */
+  background: var(--wui-subtle-fill-color-tertiary); /* TabViewButtonBackgroundPressed */
 }
 
 .wui-tab-view-add-button:disabled {
-  color: var(--wui-toggle-switch-content-foreground-disabled); /* TabViewButtonForegroundDisabled(TextFillColorDisabled) */
+  color: var(--wui-text-fill-color-disabled); /* TabViewButtonForegroundDisabled */
   cursor: default;
 }
 
@@ -1055,8 +1065,10 @@ const panelId = (index: number): string => `${baseId}-panel-${index}`
 /* —— 拖拽重排视觉(源 DragStates / ReorderHintStates,TabView.xaml L411-473;逐键对照见 MR5 报告)—— */
 
 /* Reordering(L449-453):被拖标签 Opacity → ListViewItemReorderThemeOpacity 0.80,
-   Duration 0:0:0.240(源 DoubleAnimation 未指定缓动 → 线性) */
+   Duration 0:0:0.240(源 DoubleAnimation 未指定缓动 → 线性);
+   底色切 TabViewItemHeaderDragBackground = SolidBackgroundFillColorTertiary(只改色,动效不变) */
 .wui-tab-view-item--dragging {
+  background: var(--wui-solid-background-fill-color-tertiary);
   opacity: 0.8;
   transition: opacity 240ms linear;
 }
