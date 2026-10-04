@@ -3,8 +3,10 @@
 // 视觉规格:CK/WinUI-Reference/controls/dev/Expander/Expander.xaml + Expander_themeresources.xaml
 //   (头部按钮四交互态 Normal/PointerOver/Pressed/Disabled、 chevron 32x32/边距 20,0,8,0/字形 12px、
 //   头部 MinHeight 48、内边距 头部 16,0,0,0 / 内容 16、边框厚度 Down 1,0,1,1 / Up 1,1,1,0、圆角按
-//   Top/BottomCornerRadiusFilterConverter 语义裁切)。颜色取 src/styles/theme.css 最近似 --wui-* token
-//   (Card*/Subtle*/TextFill* 系列 token 未生成,映射表见 wiki/controls/Expander.md 差异节);
+//   Top/BottomCornerRadiusFilterConverter 语义裁切)。PL9:颜色重定向到 PL2 Fluent 画刷族
+//   (--wui-card-background-fill-color-*/--wui-card-stroke-color-default/--wui-text-fill-color-*/
+//   --wui-subtle-fill-color-*;权威键见矩阵 §1.14,替换原「最近似 token」);几何与
+//   展开 333ms / 收起 167ms、chevron 433.33ms 动效不变。
 //   Left/Right 展开方向为任务规格要求的 Web 扩展(参照源枚举仅 Down/Up,见 Expander.idl L46-L49)。
 // 动效:展开 / 收起按 Expander.xaml Expand*/Collapse* 故事板逐键复刻 —— 展开 333ms +
 //   KeySpline (0.0,0.0,0.0,1.0)(L44/L85)、收起 167ms + KeySpline (1.0,1.0,0.0,1.0)(L57);
@@ -231,10 +233,10 @@ const hasHeaderText = computed(() => props.header !== '')
   margin: 0;
   padding: 0 0 0 16px; /* ExpanderHeaderPadding = 16,0,0,0 */
   font: inherit;
-  color: var(--wui-default-text-foreground-theme); /* ExpanderHeaderForeground(TextFillColorPrimary 最近似) */
+  color: var(--wui-text-fill-color-primary); /* ExpanderHeaderForeground = TextFillColorPrimaryBrush(PL9) */
   text-align: left;
-  background: var(--wui-flyout-presenter-background); /* ExpanderHeaderBackground(CardBackgroundFillColorDefault 最近似) */
-  border: 1px solid var(--wui-system-control-background-base-low); /* ExpanderHeaderBorderBrush(CardStrokeColorDefault 最近似) */
+  background: var(--wui-card-background-fill-color-default); /* ExpanderHeaderBackground = CardBackgroundFillColorDefaultBrush(PL9) */
+  border: 1px solid var(--wui-card-stroke-color-default); /* ExpanderHeaderBorderBrush = CardStrokeColorDefaultBrush(PL9) */
   /* 收起态 = 模板默认整圆角(TemplateBinding CornerRadius);展开态按方向裁切半侧(见下) */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
   cursor: pointer;
@@ -288,14 +290,14 @@ const hasHeaderText = computed(() => props.header !== '')
   width: 32px; /* ExpanderChevronButtonSize */
   height: 32px;
   margin: 0 8px 0 20px; /* ExpanderChevronMargin = 20,0,8,0 */
-  background: transparent; /* ExpanderChevronBackground(SubtleFillColorTransparent) */
+  background: var(--wui-subtle-fill-color-transparent); /* ExpanderChevronBackground = SubtleFillColorTransparentBrush(PL9) */
   border: 0 solid transparent; /* ExpanderChevronBorderThickness = 0 */
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius); /* ControlCornerRadius 最近似 */
 }
 
 .wui-expander-chevron-icon {
   display: flex;
-  color: var(--wui-default-text-foreground-theme); /* ExpanderChevronForeground(TextFillColorPrimary 最近似) */
+  color: var(--wui-text-fill-color-primary); /* ExpanderChevronForeground = TextFillColorPrimaryBrush(PL9) */
   transform: rotate(var(--wui-chevron-rot, 0deg));
   /* 源 ExpandCollapseChevron = controls:AnimatedIcon + AnimatedChevronUpDownSmallVisualSource
      (State NormalOff 收起 / NormalOn 展开;资产总时长 433.33ms,c_durationTicks=43333333,
@@ -307,21 +309,21 @@ const hasHeaderText = computed(() => props.header !== '')
 
 /* —— PointerOver:头部前景 / 边框与 Normal 同色(源 themeresources 同键),chevron 底色变 Subtle 次级 —— */
 .wui-expander-header:hover:not(:disabled) .wui-expander-chevron {
-  background: var(--wui-grid-view-item-background-pointer-over); /* ExpanderChevronPointerOverBackground(SubtleFillColorSecondary 最近似) */
+  background: var(--wui-subtle-fill-color-secondary); /* ExpanderChevronPointerOverBackground = SubtleFillColorSecondaryBrush(PL9) */
 }
 
 /* —— Pressed:chevron 底色变 Subtle 三级 —— */
 .wui-expander-header:active:not(:disabled) .wui-expander-chevron {
-  background: var(--wui-grid-view-item-background-pressed); /* ExpanderChevronPressedBackground(SubtleFillColorTertiary 最近似) */
+  background: var(--wui-subtle-fill-color-tertiary); /* ExpanderChevronPressedBackground = SubtleFillColorTertiaryBrush(PL9) */
 }
 
 /* —— Disabled:头部 / chevron 前景同变 TextFillColorDisabled(边框与 Normal 同键,源 Disabled 态一致)—— */
 .wui-expander-header:disabled {
-  color: var(--wui-toggle-switch-content-foreground-disabled); /* ExpanderHeaderDisabledForeground(TextFillColorDisabled 最近似) */
+  color: var(--wui-text-fill-color-disabled); /* ExpanderHeaderDisabledForeground = TextFillColorDisabledBrush(PL9) */
 }
 
 .wui-expander-header:disabled .wui-expander-chevron-icon {
-  color: var(--wui-toggle-switch-content-foreground-disabled);
+  color: var(--wui-text-fill-color-disabled); /* ExpanderHeaderDisabledForeground(chevron 同键;PL9) */
 }
 
 /* —— 内容裁剪区:0fr/1fr 网格过渡(Expander.xaml Expand / Collapse 故事板逐键值)——
@@ -377,9 +379,9 @@ const hasHeaderText = computed(() => props.header !== '')
   min-height: 48px; /* MinHeight TemplateBinding */
   box-sizing: border-box;
   padding: 16px; /* ExpanderContentPadding = 16 */
-  color: var(--wui-default-text-foreground-theme);
-  background: var(--wui-combo-box-drop-down-background); /* ExpanderContentBackground(CardBackgroundFillColorSecondary 最近似) */
-  border: 1px solid var(--wui-system-control-background-base-low); /* ExpanderContentBorderBrush(CardStrokeColorDefault 最近似) */
+  color: var(--wui-text-fill-color-primary); /* ExpanderContentForeground(继承 TextFillColorPrimary;PL9) */
+  background: var(--wui-card-background-fill-color-secondary); /* ExpanderContentBackground = CardBackgroundFillColorSecondaryBrush(PL9) */
+  border: 1px solid var(--wui-card-stroke-color-default); /* ExpanderContentBorderBrush = CardStrokeColorDefaultBrush(PL9) */
   border-radius: 0 0 var(--wui-hyperlink-focus-rect-corner-radius) var(--wui-hyperlink-focus-rect-corner-radius); /* Down:BottomCornerRadiusFilter */
 }
 
@@ -390,21 +392,21 @@ const hasHeaderText = computed(() => props.header !== '')
 }
 
 .wui-expander--up .wui-expander-content {
-  border-top: 1px solid var(--wui-system-control-background-base-low); /* 1,1,1,0 */
+  border-top: 1px solid var(--wui-card-stroke-color-default); /* 1,1,1,0 */
   border-bottom: 0;
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius) var(--wui-hyperlink-focus-rect-corner-radius) 0 0;
 }
 
 .wui-expander--right .wui-expander-content {
-  border-top: 1px solid var(--wui-system-control-background-base-low); /* 1,1,1,1 减左侧(贴头部) */
-  border-bottom: 1px solid var(--wui-system-control-background-base-low);
+  border-top: 1px solid var(--wui-card-stroke-color-default); /* 1,1,1,1 减左侧(贴头部) */
+  border-bottom: 1px solid var(--wui-card-stroke-color-default);
   border-left: 0;
   border-radius: 0 var(--wui-hyperlink-focus-rect-corner-radius) var(--wui-hyperlink-focus-rect-corner-radius) 0;
 }
 
 .wui-expander--left .wui-expander-content {
-  border-top: 1px solid var(--wui-system-control-background-base-low); /* 1,1,1,1 减右侧(贴头部) */
-  border-bottom: 1px solid var(--wui-system-control-background-base-low);
+  border-top: 1px solid var(--wui-card-stroke-color-default); /* 1,1,1,1 减右侧(贴头部) */
+  border-bottom: 1px solid var(--wui-card-stroke-color-default);
   border-right: 0;
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius) 0 0 var(--wui-hyperlink-focus-rect-corner-radius);
 }

@@ -2,9 +2,10 @@
 // ToggleSwitch —— WinUI ToggleSwitch 的 Web 复刻。
 // 视觉规格:CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml L11174-L11510
 //   (轨道 44x20 圆角 10 / 滑块 20x20 / On 态位移 24 / 内容列间距 12 / MinWidth 154);
-// 颜色取 src/styles/theme.css 的 --wui-toggle-switch-* token(Off 描边 2px、On 填充为强调色,
-//   各状态 Normal/PointerOver/Pressed/Disabled 一一对照);
-// 动效取 src/styles/animations.css 的时长/缓动 token(近似源模板 RepositionThemeAnimation)。
+//   PL9:状态色重定向到 PL2 Fluent 画刷族(--wui-control-alt-fill-* / --wui-control-strong-stroke-* /
+//   --wui-accent-fill-color-* / --wui-text-fill-* / --wui-text-on-accent-fill-color-*;权威键见矩阵 §1.38),
+//   滑块 On 态描边(渐变 CircleElevationBorderBrush)按 PL5 mask 环;几何与 240ms 位移动效不变;
+//   动效取 src/styles/animations.css 的时长/缓动 token(近似源模板 RepositionThemeAnimation)。
 import { computed, ref, useAttrs } from 'vue'
 import '../styles/animations.css'
 
@@ -202,7 +203,7 @@ function onButtonClick(): void {
   margin: 0;
   padding: 0;
   font: inherit;
-  color: var(--wui-toggle-switch-content-foreground);
+  color: var(--wui-text-fill-color-primary); /* ToggleSwitchContentForeground = TextFillColorPrimaryBrush */
   background: none;
   border: none;
   cursor: pointer;
@@ -221,7 +222,7 @@ function onButtonClick(): void {
 .wui-switch-header {
   display: block;
   margin: 0 0 4px;
-  color: var(--wui-toggle-switch-header-foreground);
+  color: var(--wui-text-fill-color-primary); /* ToggleSwitchHeaderForeground = TextFillColorPrimaryBrush */
 }
 
 /* —— 主体网格 —— */
@@ -245,13 +246,13 @@ function onButtonClick(): void {
   grid-column: 1;
   width: 44px;
   height: 20px;
-  background: var(--wui-toggle-switch-fill-off);
-  border: 2px solid var(--wui-toggle-switch-stroke-off);
+  background: var(--wui-control-alt-fill-color-secondary); /* ToggleSwitchFillOff = ControlAltFillColorSecondaryBrush */
+  border: 2px solid var(--wui-control-strong-stroke-color-default); /* ToggleSwitchStrokeOff = ControlStrongStrokeColorDefaultBrush */
   border-radius: 10px; /* RadiusX/Y=10:胶囊结构尺寸(全圆角) */
 }
 
 .wui-switch--on .wui-switch-track {
-  background: var(--wui-toggle-switch-fill-on);
+  background: var(--wui-accent-fill-color-default); /* ToggleSwitchFillOn = AccentFillColorDefaultBrush */
   border-color: transparent; /* ToggleSwitchOnStrokeThickness = 0(L108) */
 }
 
@@ -282,11 +283,34 @@ function onButtonClick(): void {
   position: absolute;
   inset: 5px;
   border-radius: 50%;
-  background: var(--wui-toggle-switch-knob-fill-off);
+  background: var(--wui-text-fill-color-secondary); /* ToggleSwitchKnobFillOff = TextFillColorSecondaryBrush */
+  z-index: 0;
 }
 
 .wui-switch--on .wui-switch-knob::after {
-  background: var(--wui-toggle-switch-knob-fill-on);
+  background: var(--wui-text-on-accent-fill-color-primary); /* ToggleSwitchKnobFillOn = TextOnAccentFillColorPrimaryBrush */
+}
+
+/* PL9 滑块渐变描边环(权威键 ToggleSwitchKnobStrokeOn = CircleElevationBorderBrush,静止不随状态切换)。
+   几何:环厚 1px,外缘与圆点 10x10 盒对齐(inset:5px 同圆点);绝对定位/不参与布局 → 几何与
+   240ms 位移过渡不变。z-index 置 1 使其叠在圆点填充(::after)之上,呈 border 观感。 */
+.wui-switch-knob::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  padding: 1px;
+  background: none;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.wui-switch--on .wui-switch-knob::before {
+  background: var(--wui-circle-elevation-border);
 }
 
 /* —— On/Off 槽内容:同格叠加,Opacity 切换(源 ContentStates Duration=0,无淡入淡出)—— */
@@ -295,7 +319,7 @@ function onButtonClick(): void {
   grid-row: 1 / 4;
   grid-column: 3;
   align-items: center;
-  color: var(--wui-toggle-switch-content-foreground);
+  color: var(--wui-text-fill-color-primary); /* ToggleSwitchContentForeground */
   opacity: 0;
   pointer-events: none;
 }
@@ -310,65 +334,66 @@ function onButtonClick(): void {
 
 /* —— PointerOver(源 CommonStates/PointerOver,DiscreteObjectKeyFrame 即时切换)—— */
 .wui-switch-button:hover:not(:disabled) .wui-switch-track {
-  border-color: var(--wui-toggle-switch-stroke-off-pointer-over);
+  background: var(--wui-control-alt-fill-color-tertiary); /* ToggleSwitchFillOffPointerOver = ControlAltFillColorTertiary */
+  border-color: var(--wui-control-strong-stroke-color-default); /* ToggleSwitchStrokeOffPointerOver = ControlStrongStrokeColorDefault */
 }
 
 .wui-switch--on:hover:not(:disabled) .wui-switch-track {
-  background: var(--wui-toggle-switch-fill-on-pointer-over);
+  background: var(--wui-accent-fill-color-secondary); /* ToggleSwitchFillOnPointerOver = AccentFillColorSecondaryBrush */
   border-color: transparent;
 }
 
 .wui-switch-button:hover:not(:disabled) .wui-switch-knob::after {
-  background: var(--wui-toggle-switch-knob-fill-off-pointer-over);
+  background: var(--wui-text-fill-color-secondary); /* ToggleSwitchKnobFillOffPointerOver = TextFillColorSecondaryBrush */
 }
 
 .wui-switch--on:hover:not(:disabled) .wui-switch-knob::after {
-  background: var(--wui-toggle-switch-knob-fill-on-pointer-over);
+  background: var(--wui-text-on-accent-fill-color-primary); /* ToggleSwitchKnobFillOnPointerOver */
 }
 
 /* —— Pressed(描边厚度归 0 + 填充按压色);拖拽中不套用按压配色 —— */
 .wui-switch-button:active:not(:disabled):not(.wui-switch--dragging) .wui-switch-track {
-  background: var(--wui-toggle-switch-fill-off-pressed);
-  border-color: transparent;
+  background: var(--wui-control-alt-fill-color-quarternary); /* ToggleSwitchFillOffPressed = ControlAltFillColorQuarternary */
+  border-color: var(--wui-control-strong-stroke-color-default); /* ToggleSwitchStrokeOffPressed = ControlStrongStrokeColorDefault */
 }
 
 .wui-switch--on:active:not(:disabled):not(.wui-switch--dragging) .wui-switch-track {
-  background: var(--wui-toggle-switch-fill-on-pressed);
+  background: var(--wui-accent-fill-color-tertiary); /* ToggleSwitchFillOnPressed = AccentFillColorTertiaryBrush */
 }
 
 .wui-switch-button:active:not(:disabled):not(.wui-switch--dragging) .wui-switch-knob::after {
-  background: var(--wui-toggle-switch-knob-fill-off-pressed);
+  background: var(--wui-text-fill-color-secondary); /* ToggleSwitchKnobFillOffPressed */
 }
 
 .wui-switch--on:active:not(:disabled):not(.wui-switch--dragging) .wui-switch-knob::after {
-  background: var(--wui-toggle-switch-knob-fill-on-pressed);
+  background: var(--wui-text-on-accent-fill-color-primary); /* ToggleSwitchKnobFillOnPressed */
 }
 
 /* —— Disabled —— */
 .wui-switch-button:disabled .wui-switch-header {
-  color: var(--wui-toggle-switch-header-foreground-disabled);
+  color: var(--wui-text-fill-color-disabled); /* ToggleSwitchHeaderForegroundDisabled = TextFillColorDisabledBrush */
 }
 
 .wui-switch-button:disabled .wui-switch-text {
-  color: var(--wui-toggle-switch-content-foreground-disabled);
+  color: var(--wui-text-fill-color-disabled); /* ToggleSwitchContentForegroundDisabled */
 }
 
 .wui-switch-button:disabled .wui-switch-track {
-  background: var(--wui-toggle-switch-fill-off-disabled);
-  border-color: var(--wui-toggle-switch-stroke-off-disabled);
+  background: var(--wui-control-alt-fill-color-disabled); /* ToggleSwitchFillOffDisabled = ControlAltFillColorDisabled */
+  border-color: var(--wui-control-strong-stroke-color-disabled); /* ToggleSwitchStrokeOffDisabled = ControlStrongStrokeColorDisabled */
 }
 
 .wui-switch--on:disabled .wui-switch-track {
-  background: var(--wui-toggle-switch-fill-on-disabled);
+  background: var(--wui-accent-fill-color-disabled); /* ToggleSwitchFillOnDisabled = AccentFillColorDisabledBrush */
   border-color: transparent;
 }
 
 .wui-switch-button:disabled .wui-switch-knob::after {
-  background: var(--wui-toggle-switch-knob-fill-off-disabled);
+  background: var(--wui-text-fill-color-disabled); /* ToggleSwitchKnobFillOffDisabled = TextFillColorDisabledBrush */
 }
 
 .wui-switch--on:disabled .wui-switch-knob::after {
-  background: var(--wui-toggle-switch-knob-fill-on-disabled);
+  background: var(--wui-text-on-accent-fill-color-disabled); /* ToggleSwitchKnobFillOnDisabled = TextOnAccentFillColorDisabledBrush */
 }
 
 /* —— Focus:系统焦点主色(源 UseSystemFocusVisuals + FocusVisualMargin=-7,-3,-7,-3,

@@ -2049,6 +2049,24 @@
   );
 
   /* ==========================================================================
+   * 圆形立体描边(CircleElevationBorderBrush;PL9 增量,手工维护)
+   * 源: Common_themeresources_any.xaml L192-197(Light 字典 L391-396 同构)。
+   * 结构: MappingMode=RelativeToBoundingBox、StartPoint=0,0 EndPoint=0,1,
+   *       GradientStop Offset=0.70 → ControlStrokeColorSecondary、
+   *       Offset=0.50 → ControlStrokeColorDefault(XAML 按 Offset 排序:0.5 在前)。
+   * CSS 换算: 取等价四停写法 `to bottom, default 0%, default 50%,
+   *       secondary 70%, secondary 100%`(0→0.5 取首停色,其后渐变到 secondary)。
+   * 引用者: RadioButton CheckGlyph Stroke、ToggleSwitch SwitchKnobOn BorderBrush。
+   * ========================================================================== */
+  --wui-circle-elevation-border: linear-gradient(
+    to bottom,
+    var(--wui-control-stroke-color-default) 0%,
+    var(--wui-control-stroke-color-default) 50%,
+    var(--wui-control-stroke-color-secondary) 70%,
+    var(--wui-control-stroke-color-secondary) 100%
+  );
+
+  /* ==========================================================================
    * 文本控件立体描边(TextControlElevationBorderBrush;PL6 增量,手工维护)
    * 源: CK/WinUI-Reference/controls/dev/CommonStyles/TextBox_themeresources.xaml
    *     L48-56(Default/深色)、L155-163(Light/浅色)。
@@ -4166,6 +4184,19 @@
     to bottom,
     var(--wui-control-stroke-color-on-accent-default) 0%,
     var(--wui-control-stroke-color-on-accent-secondary) 67%
+  );
+
+  /* ==========================================================================
+   * 圆形立体描边(CircleElevationBorderBrush;PL9 增量,手工维护)
+   * 源: 同上文件 Default(深色)字典 L192-197;结构与停色语义见 Light 段注释。
+   * 引用者: RadioButton CheckGlyph Stroke、ToggleSwitch SwitchKnobOn BorderBrush。
+   * ========================================================================== */
+  --wui-circle-elevation-border: linear-gradient(
+    to bottom,
+    var(--wui-control-stroke-color-default) 0%,
+    var(--wui-control-stroke-color-default) 50%,
+    var(--wui-control-stroke-color-secondary) 70%,
+    var(--wui-control-stroke-color-secondary) 100%
   );
 
   /* ==========================================================================

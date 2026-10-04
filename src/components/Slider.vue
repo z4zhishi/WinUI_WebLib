@@ -22,8 +22,10 @@ export interface SliderValueChangedEventArgs {
 // ControlSolidFillColorDefault 底 + 1px ControlElevationBorderBrush 描边 + 12×12 内圆
 // (SliderInnerThumb L198-199;内圆缩放 Normal 0.86 / PointerOver 1.167 / Pressed 0.71,
 // 呈现 12/14/10,L208-253)、容器高 32(SliderHorizontalHeight)、刻度条高 4 间距 4
-// (SliderOutsideTickBarThemeHeight)。颜色一律走 --wui-slider-* token(现行 Fluent 色阶,
-// theme.css 生成值为 legacy,故组件局部携带,见样式段注)。
+// (SliderOutsideTickBarThemeHeight)。PL9:颜色一律经本地 --wui-slider-* 别名指向 PL2
+// Fluent 画刷族(--wui-control-strong-fill-* / --wui-accent-fill-color-* / --wui-text-fill-* /
+// --wui-control-solid-fill-color-default / --wui-control-elevation-border 等;权威键见矩阵 §1.37),
+// 明暗两态由 theme.css 两字典给出;拇指渐变描边按 PL5 mask 环。几何与 250ms 缩放动效不变。
 // 交互:原生 input[type=range] 承载指针/焦点,自绘轨道/填充/刻度/拇指(pointer-events:none,
 // 透过 input 的 :hover/:active/:focus-visible/:disabled 伪类驱动 PointerOver/Pressed/Focus/Disabled
 // 视觉状态);方向键按 stepFrequency(或 snapsTo=Ticks 时的 tickFrequency)步进,拖动中实时
@@ -295,53 +297,37 @@ function tickLeft(r: number): string {
   width: 100%;
 
   /* ==================================================================
-   * FIX9 色阶定案(现行 WinUI 3 Fluent,theme.css 生成的 --wui-slider-* 为
-   * legacy SystemControl 值,按 RatingControl V7 先例在此局部携带现行值):
-   * 源:controls/dev/CommonStyles/Slider_themeresources.xaml(资源映射)+
-   * CommonStyles/Common_themeresources_any.xaml(色值;light 字典 L209-243 / dark 字典 L5-39)。
-   * 字节序:XAML #AARRGGBB → CSS #RRGGBBAA(alpha 移末位)。
-   * AccentFillColorSecondary/Tertiary = SystemAccentColor Dark1(light, L330-331)/
-   * Light2(dark, L126-127)@ Opacity 0.9 / 0.8 → color-mix 等价。
+   * PL9:色阶重定向到 PL2 Fluent 画刷族(明暗由 theme.css 两字典给出,
+   * 不再在本组件局部携带硬编码值)。权威映射:
+   * SliderTrackFill = ControlStrongFillColorDefaultBrush(四态同键;
+   *   PointerOver/Pressed 源同值 L20-22)、SliderTrackFillDisabled =
+   *   ControlStrongFillColorDisabledBrush;SliderTrackValueFill 与
+   *   SliderThumbBackground = AccentFillColorDefault/Secondary/Tertiary/Disabled;
+   * SliderHeaderForeground = TextFillColorPrimaryBrush、Disabled = TextFillColorDisabledBrush;
+   * SliderTickBarFill = ControlStrongFillColorDefault/Disabled、InlineTickBarFill =
+   *   ControlFillColorInputActiveBrush、SliderOuterThumbBackground =
+   *   ControlSolidFillColorDefaultBrush。权威键见矩阵 §1.37。
+   * SliderThumbBorderBrush = ControlElevationBorderBrush 为渐变 → 由下方 ::before
+   *   描边环呈现(border 保持 1px 透明,几何不变;PL5 同款 mask 环)。
    * ================================================================== */
-  --wui-slider-track-fill: #00000072; /* SliderTrackFill = ControlStrongFillColorDefaultBrush(light #72000000,L226) */
-  --wui-slider-track-fill-pointer-over: #00000072; /* PointerOver 同值(L24-25 映射) */
-  --wui-slider-track-fill-pressed: #00000072; /* Pressed 同值 */
-  --wui-slider-track-fill-disabled: #00000051; /* ControlStrongFillColorDisabled(light #51000000,L227) */
-  --wui-slider-track-value-fill: var(--wui-system-accent-color); /* AccentFillColorDefaultBrush */
-  --wui-slider-track-value-fill-pointer-over: color-mix(in srgb, var(--wui-system-accent-color-dark-1) 90%, transparent); /* AccentFillColorSecondary(Dark1 @0.9) */
-  --wui-slider-track-value-fill-pressed: color-mix(in srgb, var(--wui-system-accent-color-dark-1) 80%, transparent); /* AccentFillColorTertiary(Dark1 @0.8) */
-  --wui-slider-track-value-fill-disabled: #00000037; /* AccentFillColorDisabled(light #37000000,L242) */
-  --wui-slider-thumb-background: var(--wui-system-accent-color); /* SliderThumbBackground = AccentFillColorDefaultBrush */
-  --wui-slider-thumb-background-pointer-over: color-mix(in srgb, var(--wui-system-accent-color-dark-1) 90%, transparent); /* AccentFillColorSecondaryBrush */
-  --wui-slider-thumb-background-pressed: color-mix(in srgb, var(--wui-system-accent-color-dark-1) 80%, transparent); /* AccentFillColorTertiaryBrush */
-  --wui-slider-thumb-background-disabled: #00000037; /* AccentFillColorDisabledBrush */
-  --wui-slider-header-foreground: #000000e4; /* SliderHeaderForeground = TextFillColorPrimaryBrush(light #E4000000,L209) */
-  --wui-slider-header-foreground-disabled: #0000005c; /* TextFillColorDisabled(light #5C000000,L212) */
-  --wui-slider-tick-bar-fill: #00000072; /* SliderTickBarFill = ControlStrongFillColorDefaultBrush */
-  --wui-slider-tick-bar-fill-disabled: #00000051; /* SliderTickBarFillDisabled = ControlStrongFillColorDisabledBrush */
-  --wui-slider-inline-tick-bar-fill: #ffffff; /* SliderInlineTickBarFill = ControlFillColorInputActiveBrush(light #FFFFFF,L225) */
-  --wui-slider-outer-thumb-background: #ffffff; /* SliderOuterThumbBackground = ControlSolidFillColorDefaultBrush(light #FFFFFF,L228) */
-  --wui-slider-thumb-border-brush: #0000000f; /* SliderThumbBorderBrush = ControlElevationBorderBrush(基色 ControlStrokeColorDefault #0F000000,L243) */
-}
-
-html[data-theme='dark'] .wui-slider {
-  --wui-slider-track-fill: #ffffff8b; /* ControlStrongFillColorDefault(dark #8BFFFFFF,L22) */
-  --wui-slider-track-fill-pointer-over: #ffffff8b;
-  --wui-slider-track-fill-pressed: #ffffff8b;
-  --wui-slider-track-fill-disabled: #ffffff3f; /* ControlStrongFillColorDisabled(dark #3FFFFFFF,L23) */
-  --wui-slider-track-value-fill-pointer-over: color-mix(in srgb, var(--wui-system-accent-color-light-2) 90%, transparent); /* AccentFillColorSecondary(dark = Light2 @0.9,L126) */
-  --wui-slider-track-value-fill-pressed: color-mix(in srgb, var(--wui-system-accent-color-light-2) 80%, transparent); /* AccentFillColorTertiary(Light2 @0.8,L127) */
-  --wui-slider-track-value-fill-disabled: #ffffff28; /* AccentFillColorDisabled(dark #28FFFFFF,L38) */
-  --wui-slider-thumb-background-pointer-over: color-mix(in srgb, var(--wui-system-accent-color-light-2) 90%, transparent);
-  --wui-slider-thumb-background-pressed: color-mix(in srgb, var(--wui-system-accent-color-light-2) 80%, transparent);
-  --wui-slider-thumb-background-disabled: #ffffff28;
-  --wui-slider-header-foreground: #ffffff; /* TextFillColorPrimary dark #FFFFFF(L5) */
-  --wui-slider-header-foreground-disabled: #ffffff5d; /* TextFillColorDisabled(dark #5DFFFFFF,L8) */
-  --wui-slider-tick-bar-fill: #ffffff8b;
-  --wui-slider-tick-bar-fill-disabled: #ffffff3f;
-  --wui-slider-inline-tick-bar-fill: #1e1e1eb3; /* ControlFillColorInputActive(dark #B31E1E1E,L21)→ #1E1E1E + alpha B3 */
-  --wui-slider-outer-thumb-background: #454545; /* ControlSolidFillColorDefault(dark #454545,L24) */
-  --wui-slider-thumb-border-brush: #ffffff12; /* ControlStrokeColorDefault(dark #12FFFFFF,L39) */
+  --wui-slider-track-fill: var(--wui-control-strong-fill-color-default);
+  --wui-slider-track-fill-pointer-over: var(--wui-control-strong-fill-color-default);
+  --wui-slider-track-fill-pressed: var(--wui-control-strong-fill-color-default);
+  --wui-slider-track-fill-disabled: var(--wui-control-strong-fill-color-disabled);
+  --wui-slider-track-value-fill: var(--wui-accent-fill-color-default);
+  --wui-slider-track-value-fill-pointer-over: var(--wui-accent-fill-color-secondary);
+  --wui-slider-track-value-fill-pressed: var(--wui-accent-fill-color-tertiary);
+  --wui-slider-track-value-fill-disabled: var(--wui-accent-fill-color-disabled);
+  --wui-slider-thumb-background: var(--wui-accent-fill-color-default);
+  --wui-slider-thumb-background-pointer-over: var(--wui-accent-fill-color-secondary);
+  --wui-slider-thumb-background-pressed: var(--wui-accent-fill-color-tertiary);
+  --wui-slider-thumb-background-disabled: var(--wui-accent-fill-color-disabled);
+  --wui-slider-header-foreground: var(--wui-text-fill-color-primary);
+  --wui-slider-header-foreground-disabled: var(--wui-text-fill-color-disabled);
+  --wui-slider-tick-bar-fill: var(--wui-control-strong-fill-color-default);
+  --wui-slider-tick-bar-fill-disabled: var(--wui-control-strong-fill-color-disabled);
+  --wui-slider-inline-tick-bar-fill: var(--wui-control-fill-color-input-active);
+  --wui-slider-outer-thumb-background: var(--wui-control-solid-fill-color-default);
 }
 
 /* 标题:SliderHeaderForeground + SliderTopHeaderMargin(0,0,0,4)+ ControlContentThemeFontSize */
@@ -351,11 +337,11 @@ html[data-theme='dark'] .wui-slider {
   color: var(--wui-slider-header-foreground);
 }
 
-/* 容器:SliderHorizontalHeight = 32;背景 SliderContainerBackground(透明) */
+/* 容器:SliderHorizontalHeight = 32;背景 SliderContainerBackground(透明,ControlFillColorTransparentBrush) */
 .wui-slider__container {
   position: relative;
   min-height: 32px;
-  background: var(--wui-slider-container-background);
+  background: var(--wui-control-fill-color-transparent);
 }
 
 /* —— 交互层(原生 range,视觉全透明) —— */
@@ -407,7 +393,7 @@ html[data-theme='dark'] .wui-slider {
 
 /* —— 拇指:现行 18×18 圆旋钮(FIX9,定案见样式段首注):外圈
       SliderOuterThumbBackground(ControlSolidFillColorDefault)底 + 1px
-      SliderThumbBorderBrush(ControlElevationBorderBrush)描边 +
+      SliderThumbBorderBrush(ControlElevationBorderBrush,渐变,PL9 由 ::before 环呈现)描边 +
       CornerRadius = SliderThumbCornerRadius 10(18px 盒即整圆) —— */
 .wui-slider__thumb {
   position: absolute;
@@ -415,10 +401,28 @@ html[data-theme='dark'] .wui-slider {
   width: 18px;
   height: 18px;
   box-sizing: border-box;
-  border: 1px solid var(--wui-slider-thumb-border-brush);
+  border: 1px solid transparent; /* 几何占位;渐变描边见 ::before(PL9) */
   border-radius: 50%;
   background: var(--wui-slider-outer-thumb-background);
   transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* PL9 拇指渐变描边环(权威键 SliderThumbBorderBrush = ControlElevationBorderBrush):
+   环厚 = 1px(thumb 的 border 宽),外缘与 18px border-box 对齐;
+   inset:-1px 抵消宿主 border(绝对定位包含块为 padding box);
+   绝对定位不参与布局 → 尺寸/圆角/焦点双环(在宿主上)全部不变。 */
+.wui-slider__thumb::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--wui-control-elevation-border);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
   pointer-events: none;
 }
 

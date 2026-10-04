@@ -3,7 +3,9 @@
 // 视觉规格:CK/WinUI-Reference/dxaml/xcp/dxaml/themes/generic.xaml
 //   <Style TargetType="CheckBox">(L6743 起):20x20 勾选框 + 勾/减字形 + 左对齐内容,
 //   CombinedStates(Unchecked/Checked/Indeterminate × Normal/PointerOver/Pressed/Disabled),
-//   颜色一律取 theme.css 的 --wui-check-box-* token(无对应 token 的尺寸值在 wiki 记录差异)。
+//   PL9:状态色重定向到 PL2 Fluent 画刷族(--wui-text-fill-* / --wui-control-*-fill-* /
+//   --wui-accent-fill-color-* / --wui-text-on-accent-fill-color-*;权威键见矩阵 §1.5),
+//   几何与 266.67ms 字形描绘动效不变。
 // 模型设计:checked 以 boolean | 'indeterminate' 哨兵值对应 WinUI IsChecked(Nullable<bool>),
 //   null → 'indeterminate';IsThreeState 仅约束用户点击是否经过不确定态。详见 wiki/controls/CheckBox.md。
 import { computed } from 'vue'
@@ -92,7 +94,7 @@ function onToggle(event: MouseEvent): void {
       <!-- 勾/减字形:源 CheckGlyph 为 controls:AnimatedIcon + AnimatedAcceptVisualSource
            (NormalOff 默认 / NormalOn 勾选 / NormalIndeterminate 三态;资产时长 266.67ms,
            c_durationTicks=26666666)。字形本身以内联 SVG 等形复刻(勾 E001 / 减 E73C),
-           颜色取 --wui-check-box-check-glyph-foreground-* token;绘制过渡见样式注。 -->
+           颜色取 --wui-text-on-accent-fill-color-* token(PL9);绘制过渡见样式注。 -->
       <svg class="glyph glyph-check" viewBox="0 0 20 20" focusable="false">
         <path d="M4.5 10.5 L8.5 14.5 L15.5 6.5" />
       </svg>
@@ -110,85 +112,86 @@ function onToggle(event: MouseEvent): void {
  * 后代元素统一消费,对应 generic.xaml 各 VisualState 的 ObjectAnimation。
  * ====================================================================== */
 .wui-check-box {
-  /* UncheckedNormal */
-  --cb-fg: var(--wui-check-box-foreground-unchecked);
-  --cb-stroke: var(--wui-check-box-check-background-stroke-unchecked);
-  --cb-fill: var(--wui-check-box-check-background-fill-unchecked);
-  --cb-glyph: var(--wui-check-box-check-glyph-foreground-unchecked);
+  /* UncheckedNormal —— PL9:状态色重定向到 PL2 Fluent 画刷族
+     (权威键见 docs/pages/color/control-brush-matrix.md §1.5) */
+  --cb-fg: var(--wui-text-fill-color-primary); /* CheckBoxForegroundUnchecked = TextFillColorPrimaryBrush */
+  --cb-stroke: var(--wui-control-strong-stroke-color-default); /* CheckBoxCheckBackgroundStrokeUnchecked = ControlStrongStrokeColorDefaultBrush */
+  --cb-fill: var(--wui-control-alt-fill-color-secondary); /* CheckBoxCheckBackgroundFillUnchecked = ControlAltFillColorSecondaryBrush */
+  --cb-glyph: var(--wui-text-on-accent-fill-color-primary); /* CheckBoxCheckGlyphForegroundUnchecked = TextOnAccentFillColorPrimaryBrush */
 }
 
 /* UncheckedPointerOver / CheckedPointerOver / IndeterminatePointerOver */
 .wui-check-box:not(.is-disabled):hover {
-  --cb-fg: var(--wui-check-box-foreground-unchecked-pointer-over);
-  --cb-stroke: var(--wui-check-box-check-background-stroke-unchecked-pointer-over);
-  --cb-fill: var(--wui-check-box-check-background-fill-unchecked-pointer-over);
-  --cb-glyph: var(--wui-check-box-check-glyph-foreground-unchecked-pointer-over);
+  --cb-fg: var(--wui-text-fill-color-primary);
+  --cb-stroke: var(--wui-control-strong-stroke-color-default); /* StrokeUncheckedPointerOver = ControlStrongStrokeColorDefaultBrush */
+  --cb-fill: var(--wui-control-alt-fill-color-tertiary); /* FillUncheckedPointerOver = ControlAltFillColorTertiaryBrush */
+  --cb-glyph: var(--wui-text-on-accent-fill-color-primary);
 }
 .wui-check-box.is-checked:not(.is-disabled):hover {
-  --cb-fg: var(--wui-check-box-foreground-checked-pointer-over);
-  --cb-stroke: var(--wui-check-box-check-background-stroke-checked-pointer-over);
-  --cb-fill: var(--wui-check-box-check-background-fill-checked-pointer-over);
-  --cb-glyph: var(--wui-check-box-check-glyph-foreground-checked-pointer-over);
+  --cb-fg: var(--wui-text-fill-color-primary);
+  --cb-stroke: var(--wui-accent-fill-color-secondary); /* StrokeCheckedPointerOver = AccentFillColorSecondaryBrush */
+  --cb-fill: var(--wui-accent-fill-color-secondary); /* FillCheckedPointerOver = AccentFillColorSecondaryBrush */
+  --cb-glyph: var(--wui-text-on-accent-fill-color-primary);
 }
 .wui-check-box.is-indeterminate:not(.is-disabled):hover {
-  --cb-fg: var(--wui-check-box-foreground-indeterminate-pointer-over);
-  --cb-stroke: var(--wui-check-box-check-background-stroke-indeterminate-pointer-over);
-  --cb-fill: var(--wui-check-box-check-background-fill-indeterminate-pointer-over);
-  --cb-glyph: var(--wui-check-box-check-glyph-foreground-indeterminate-pointer-over);
+  --cb-fg: var(--wui-text-fill-color-primary);
+  --cb-stroke: var(--wui-accent-fill-color-secondary); /* StrokeIndeterminatePointerOver = AccentFillColorSecondaryBrush */
+  --cb-fill: var(--wui-accent-fill-color-secondary); /* FillIndeterminatePointerOver = AccentFillColorSecondaryBrush */
+  --cb-glyph: var(--wui-text-on-accent-fill-color-primary);
 }
 
 /* UncheckedPressed / CheckedPressed / IndeterminatePressed */
 .wui-check-box:not(.is-disabled):active {
-  --cb-fg: var(--wui-check-box-foreground-unchecked-pressed);
-  --cb-stroke: var(--wui-check-box-check-background-stroke-unchecked-pressed);
-  --cb-fill: var(--wui-check-box-check-background-fill-unchecked-pressed);
-  --cb-glyph: var(--wui-check-box-check-glyph-foreground-unchecked-pressed);
+  --cb-fg: var(--wui-text-fill-color-primary);
+  --cb-stroke: var(--wui-control-strong-stroke-color-disabled); /* StrokeUncheckedPressed = ControlStrongStrokeColorDisabledBrush */
+  --cb-fill: var(--wui-control-alt-fill-color-quarternary); /* FillUncheckedPressed = ControlAltFillColorQuarternaryBrush */
+  --cb-glyph: var(--wui-text-on-accent-fill-color-primary);
 }
 .wui-check-box.is-checked:not(.is-disabled):active {
-  --cb-fg: var(--wui-check-box-foreground-checked-pressed);
-  --cb-stroke: var(--wui-check-box-check-background-stroke-checked-pressed);
-  --cb-fill: var(--wui-check-box-check-background-fill-checked-pressed);
-  --cb-glyph: var(--wui-check-box-check-glyph-foreground-checked-pressed);
+  --cb-fg: var(--wui-text-fill-color-primary);
+  --cb-stroke: var(--wui-accent-fill-color-tertiary); /* StrokeCheckedPressed = AccentFillColorTertiaryBrush */
+  --cb-fill: var(--wui-accent-fill-color-tertiary); /* FillCheckedPressed = AccentFillColorTertiaryBrush */
+  --cb-glyph: var(--wui-text-on-accent-fill-color-secondary); /* GlyphForegroundCheckedPressed = TextOnAccentFillColorSecondaryBrush */
 }
 .wui-check-box.is-indeterminate:not(.is-disabled):active {
-  --cb-fg: var(--wui-check-box-foreground-indeterminate-pressed);
-  --cb-stroke: var(--wui-check-box-check-background-stroke-indeterminate-pressed);
-  --cb-fill: var(--wui-check-box-check-background-fill-indeterminate-pressed);
-  --cb-glyph: var(--wui-check-box-check-glyph-foreground-indeterminate-pressed);
+  --cb-fg: var(--wui-text-fill-color-primary);
+  --cb-stroke: var(--wui-accent-fill-color-tertiary); /* StrokeIndeterminatePressed = AccentFillColorTertiaryBrush */
+  --cb-fill: var(--wui-accent-fill-color-tertiary); /* FillIndeterminatePressed = AccentFillColorTertiaryBrush */
+  --cb-glyph: var(--wui-text-on-accent-fill-color-secondary); /* GlyphForegroundIndeterminatePressed = TextOnAccentFillColorSecondaryBrush */
 }
 
 /* UncheckedDisabled / CheckedDisabled / IndeterminateDisabled */
 .wui-check-box.is-disabled {
-  --cb-fg: var(--wui-check-box-foreground-unchecked-disabled);
-  --cb-stroke: var(--wui-check-box-check-background-stroke-unchecked-disabled);
-  --cb-fill: var(--wui-check-box-check-background-fill-unchecked-disabled);
-  --cb-glyph: var(--wui-check-box-check-glyph-foreground-unchecked-disabled);
+  --cb-fg: var(--wui-text-fill-color-disabled); /* ForegroundUncheckedDisabled = TextFillColorDisabledBrush */
+  --cb-stroke: var(--wui-control-strong-stroke-color-disabled);
+  --cb-fill: var(--wui-control-alt-fill-color-disabled); /* FillUncheckedDisabled = ControlAltFillColorDisabledBrush */
+  --cb-glyph: var(--wui-text-on-accent-fill-color-disabled); /* GlyphForegroundUncheckedDisabled = TextOnAccentFillColorDisabledBrush */
 }
 .wui-check-box.is-disabled.is-checked {
-  --cb-fg: var(--wui-check-box-foreground-checked-disabled);
-  --cb-stroke: var(--wui-check-box-check-background-stroke-checked-disabled);
-  --cb-fill: var(--wui-check-box-check-background-fill-checked-disabled);
-  --cb-glyph: var(--wui-check-box-check-glyph-foreground-checked-disabled);
+  --cb-fg: var(--wui-text-fill-color-disabled);
+  --cb-stroke: var(--wui-control-strong-stroke-color-disabled); /* StrokeCheckedDisabled = ControlStrongStrokeColorDisabledBrush */
+  --cb-fill: var(--wui-accent-fill-color-disabled); /* FillCheckedDisabled = AccentFillColorDisabledBrush */
+  --cb-glyph: var(--wui-text-on-accent-fill-color-disabled);
 }
 .wui-check-box.is-disabled.is-indeterminate {
-  --cb-fg: var(--wui-check-box-foreground-indeterminate-disabled);
-  --cb-stroke: var(--wui-check-box-check-background-stroke-indeterminate-disabled);
-  --cb-fill: var(--wui-check-box-check-background-fill-indeterminate-disabled);
-  --cb-glyph: var(--wui-check-box-check-glyph-foreground-indeterminate-disabled);
+  --cb-fg: var(--wui-text-fill-color-disabled);
+  --cb-stroke: var(--wui-control-strong-stroke-color-disabled); /* StrokeIndeterminateDisabled = ControlStrongStrokeColorDisabledBrush */
+  --cb-fill: var(--wui-accent-fill-color-disabled); /* FillIndeterminateDisabled = AccentFillColorDisabledBrush */
+  --cb-glyph: var(--wui-text-on-accent-fill-color-disabled);
 }
 
 /* CheckedNormal / IndeterminateNormal(须置于交互态之后,保证同优先级下三态色生效) */
 .wui-check-box.is-checked {
-  --cb-fg: var(--wui-check-box-foreground-checked);
-  --cb-stroke: var(--wui-check-box-check-background-stroke-checked);
-  --cb-fill: var(--wui-check-box-check-background-fill-checked);
-  --cb-glyph: var(--wui-check-box-check-glyph-foreground-checked);
+  --cb-fg: var(--wui-text-fill-color-primary); /* ForegroundChecked = TextFillColorPrimaryBrush */
+  --cb-stroke: var(--wui-accent-fill-color-default); /* StrokeChecked = AccentFillColorDefaultBrush */
+  --cb-fill: var(--wui-accent-fill-color-default); /* FillChecked = AccentFillColorDefaultBrush */
+  --cb-glyph: var(--wui-text-on-accent-fill-color-primary);
 }
 .wui-check-box.is-indeterminate {
-  --cb-fg: var(--wui-check-box-foreground-indeterminate);
-  --cb-stroke: var(--wui-check-box-check-background-stroke-indeterminate);
-  --cb-fill: var(--wui-check-box-check-background-fill-indeterminate);
-  --cb-glyph: var(--wui-check-box-check-glyph-foreground-indeterminate);
+  --cb-fg: var(--wui-text-fill-color-primary); /* ForegroundIndeterminate = TextFillColorPrimaryBrush */
+  --cb-stroke: var(--wui-accent-fill-color-default); /* StrokeIndeterminate = AccentFillColorDefaultBrush */
+  --cb-fill: var(--wui-accent-fill-color-default); /* FillIndeterminate = AccentFillColorDefaultBrush */
+  --cb-glyph: var(--wui-text-on-accent-fill-color-primary);
 }
 
 /* ======================================================================
@@ -211,8 +214,8 @@ function onToggle(event: MouseEvent): void {
      <Style TargetType="CheckBox">(generic.xaml L6743 段)**未设置** BorderThickness →
      Control 默认 0,即控件盒本身没有边框(盒高 = 模板 32px 行 = MinHeight 32)。
      故此处厚度必须为 0:写入 1px 会把 32px 内容顶到 34px,并使矩形/文字整体 +1px(VR-B3 §1.2)。 */
-  background: var(--wui-check-box-background-unchecked);
-  border: 0 solid var(--wui-check-box-border-brush-unchecked);
+  background: var(--wui-subtle-fill-color-transparent); /* CheckBoxBackgroundUnchecked = SubtleFillColorTransparentBrush */
+  border: 0 solid var(--wui-subtle-fill-color-transparent); /* CheckBoxBorderBrushUnchecked = SubtleFillColorTransparentBrush */
   border-radius: 0;
   text-align: left;
   cursor: pointer;
