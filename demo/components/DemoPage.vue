@@ -169,15 +169,21 @@ const darkChecked = computed<boolean>({
   color: var(--wui-application-foreground-theme);
 }
 
-/* WinUI 风格演示容器 */
+/* WinUI 风格演示容器:
+   底色原取 legacy `--wui-application-page-background-theme`(UWP 经典 #FFFFFF/#000000),
+   其暗色值比页面基色(#202020)更暗,与 WinUI 3 卡片层次(卡片亮于基底)相反,且使
+   重定向后的 Fluent 控件底色(ControlFillColorDefault 浅 #B3FFFFFF)在纯白上不可辨。
+   改取 Fluent 卡片画刷 CardBackgroundFillColorDefault(controls/dev/CommonStyles/
+   Common_themeresources_any.xaml Light #B3FFFFFF / Default #0DFFFFFF),与
+   WinUI 3 Gallery 示例卡一致;边框同步改 CardStrokeColorDefault。 */
 .demo-canvas {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 160px;
   padding: 32px 24px;
-  background: var(--wui-application-page-background-theme);
-  border: 1px solid var(--wui-system-control-background-base-low);
+  background: var(--wui-card-background-fill-color-default, #ffffffb3);
+  border: 1px solid var(--wui-card-stroke-color-default, #0000000f);
   border-radius: var(--wui-hyperlink-focus-rect-corner-radius);
 }
 
