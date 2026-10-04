@@ -517,10 +517,12 @@ const rootClass = computed(() => ({
   min-width: 120px;
 }
 
-/* —— 输入区:TextControl* 画刷族;Border 2、MinHeight 32、CornerRadius = ControlCornerRadius(4px,
+/* —— 输入区:TextControl* 画刷族;Border 1、MinHeight 32、CornerRadius = ControlCornerRadius(4px,
       theme.css 无该 token,按源默认值写死,差异见 wiki) ——
-   XAML 的 MinHeight 计入边框(外缘 32、内容区 28),CSS 对应 border-box:总高 32 含 2px 边框
-   (content-box 会撑成 36px 并连带 Inline 步进按钮 28px,VR-B7 F-B7-5;修法同 FIX6 ComboBox)。
+   XAML 的 MinHeight 计入边框(外缘 32、内容区 30),CSS 对应 border-box:总高 32 含 1px 边框
+   (content-box 会撑成 34px 并连带 Inline 步进按钮,VR-B7 F-B7-5;修法同 FIX6 ComboBox)。
+   PL7:厚度取 WinUI 3 权威(Common_themeresources.xaml L10/L24 = 1;legacy dxaml
+   generic.xaml L173 的 2 已替换);Focused = L11/L25 = 1,1,1,2(施加点 NumberBox.xaml L310)。
    PL6:状态色重定向到 Fluent 画刷族(NumberBox 内嵌输入区与 TextBox 共用 TextControl* 键)。 */
 .wui-number-box-field {
   display: flex;
@@ -528,7 +530,7 @@ const rootClass = computed(() => ({
   box-sizing: border-box;
   min-height: 32px; /* TextControlThemeMinHeight(含边框) */
   background: var(--wui-control-fill-color-default);
-  border: 2px solid var(--wui-control-fill-color-transparent);
+  border: 1px solid var(--wui-control-fill-color-transparent);
   border-radius: 4px;
   /* 描边环(::before)的定位基准;position 不产生偏移,几何不变 */
   position: relative;
@@ -536,13 +538,14 @@ const rootClass = computed(() => ({
   --nb-elevation-border: var(--wui-text-control-elevation-border);
 }
 
-/* PL6 立体描边环(TextControlElevationBorderBrush):内嵌 mask 环,原理同 TextBox.vue。 */
+/* PL6 立体描边环(TextControlElevationBorderBrush):内嵌 mask 环,原理同 TextBox.vue;
+   PL7 环厚随宿主 border 改为 1px(inset / padding 同步改 1px)。 */
 .wui-number-box-field::before {
   content: '';
   position: absolute;
-  inset: -2px;
+  inset: -1px;
   border-radius: inherit;
-  padding: 2px;
+  padding: 1px;
   background: var(--nb-elevation-border, none);
   mask:
     linear-gradient(#000 0 0) content-box,
@@ -568,10 +571,12 @@ const rootClass = computed(() => ({
 }
 
 /* —— Focused:Background = ControlFillColorInputActiveBrush,
-      BorderBrush = TextControlBorderBrushFocused(视觉等价 accent 实色 → 环 none)。 —— */
+      BorderBrush = TextControlBorderBrushFocused(视觉等价 accent 实色 → 环 none);
+      PL7 厚度 = TextControlBorderThemeThicknessFocused = 1,1,1,2(下边 2px 强调色)。 —— */
 .wui-number-box-field:focus-within {
   background: var(--wui-control-fill-color-input-active);
   border-color: var(--wui-system-accent-color);
+  border-width: 1px 1px 2px 1px; /* TextControlBorderThemeThicknessFocused = 1,1,1,2 */
   --nb-elevation-border: none;
 }
 
@@ -590,7 +595,9 @@ const rootClass = computed(() => ({
   --nb-elevation-border: none;
 }
 
-/* —— 内容元素:TextControlThemePadding = 10,3,6,6 —— */
+/* —— 内容元素:TextControlThemePadding ——
+   现值 10,3,6,6 = legacy dxaml generic.xaml L175;WinUI 3 权威(Common_themeresources
+   L12/L26)为 10,5,6,6。PL7 只改边框厚度,未改本值(差异见 PL7 报告未决项 1)。 —— */
 .wui-number-box-input {
   flex: 1;
   min-width: 0;

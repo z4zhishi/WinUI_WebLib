@@ -706,11 +706,14 @@ function optionId(key: ColumnKey, index: number): string {
 }
 
 /* ======================================================================
- * 收起字段(FlyoutButton):Border 2、MinHeight 32(XAML MinHeight 含边框,故 border-box)、
+ * 收起字段(FlyoutButton):Border 1、MinHeight 32(XAML MinHeight 含边框,故 border-box)、
  * MinWidth 242(TimePickerThemeMinWidth)、MaxWidth 456(TimePickerThemeMaxWidth)、圆角 4
+ * 厚度权威:TimePicker_themeresources.xaml L34/L71/L106 `TimePickerBorderThemeThickness` = 1
+ * (legacy dxaml generic.xaml 的 2 已被 PL7 替换;FlyoutButton 的 BorderThickness 模板绑定同值,
+ *  FocusStates.Focused 为空态 → 聚焦不改厚度,焦点由系统焦点视觉承担)。
  * ====================================================================== */
 .wui-time-picker-field {
-  box-sizing: border-box; /* 源 MinHeight 32 含 2px 边框 */
+  box-sizing: border-box; /* 源 MinHeight 32 含 1px 边框 */
   display: block;
   min-width: 242px; /* TimePickerThemeMinWidth */
   max-width: 456px; /* TimePickerThemeMaxWidth */
@@ -720,7 +723,7 @@ function optionId(key: ColumnKey, index: number): string {
   color: var(--wui-time-picker-button-foreground);
   text-align: inherit;
   background: var(--wui-time-picker-button-background);
-  border: 2px solid var(--wui-time-picker-button-border); /* ContentPresenter BorderThickness 2 */
+  border: 1px solid var(--wui-time-picker-button-border); /* TimePickerBorderThemeThickness = 1 */
   border-radius: 4px; /* CornerRadius = ControlCornerRadius(theme.css 无同名 token) */
   cursor: pointer;
   outline: none;
@@ -749,15 +752,18 @@ function optionId(key: ColumnKey, index: number): string {
 /* —— 三段文本 + 2px 分割线(FlyoutButtonContentGrid)—— */
 .wui-time-picker-field-grid {
   display: grid;
-  align-items: center;
-  height: 28px; /* 32 - 2×2 边框 */
+  /* 源 FlyoutButtonContentGrid 随 VerticalContentAlignment=Stretch 撑满内容盒,
+     其 TextBlock 默认 Stretch + 顶对齐 → 文字自内边距顶起算(PL7:1px 边框 → 文字顶距外缘
+     1+3 = 4px)。 */
+  align-items: start;
+  height: 30px; /* 32 - 2×1 边框(PL7:边框 2→1) */
 }
 
 .wui-time-picker-seg {
   min-width: 0;
   padding: 3px 0 6px; /* TimePickerFlyoutPresenterItemPadding 0,3,0,6 */
   overflow: hidden;
-  line-height: 19px; /* 19 + 3 + 6 = 28 = 32 - 2×2 边框 */
+  line-height: 19px; /* 19 + 3 + 6 = 28,顶对齐于 30px 内容盒 */
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;

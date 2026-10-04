@@ -4,7 +4,9 @@
 //   <Style TargetType="AutoSuggestBox">(L22040 起)+ AutoSuggestBoxTextBoxStyle(L21672 起,
 //   内嵌 DeleteButtonStyle / QueryButtonStyle):
 //   - 文本框族:AutoSuggestBoxTextBoxStyle 与 TextBox 同源(TextControl* 画刷;
-//     TextControlThemeMinWidth 64、MinHeight 32、BorderThickness 2、Padding 10,3,6,6),
+//     TextControlThemeMinWidth 64、MinHeight 32、BorderThickness 1(PL7,WinUI 3 权威
+//     controls/dev/CommonStyles/Common_themeresources.xaml L10/L24;Focused = 1,1,1,2 见 L11/L25)、
+//     内容 Padding 10,3,6,6(legacy 值,权威 10,5,6,6 见 PL7 报告未决项)),
 //     Normal / PointerOver / Focused / Disabled 四态同 TextBox 做法;
 //   - DeleteButton(清除按钮):glyph U+E10A、MinWidth 34、AutoSuggestBoxIconFontSize 12
 //     (token --wui-auto-suggest-box-icon-font-size)、TextControlButton* 四态;
@@ -549,29 +551,35 @@ const rootClass = computed(() => ({
 }
 
 /* ======================================================================
- * 文本框(AutoSuggestBoxTextBoxStyle:Border 2、MinHeight 32、TextControl* 族)
+ * 文本框(AutoSuggestBoxTextBoxStyle:Border 1、MinHeight 32、TextControl* 族)
+ * PL7:厚度取 WinUI 3 权威(Common_themeresources.xaml L10/L24 = 1;legacy dxaml
+ *      generic.xaml L173 的 2 已替换);Focused = L11/L25 = 1,1,1,2
+ *      (施加点 AutoSuggestBox_themeresources.xaml L200)。并补 box-sizing: border-box
+ *      —— 源 MinHeight 计入边框,缺 border-box 会使外盒成 34px(PL6 实测 36px 的成因)。
  * PL6:状态色重定向到 Fluent 画刷族(与 TextBox 同源四态)。
  * ====================================================================== */
 .wui-auto-suggest-box-border {
   position: relative;
   display: flex;
   align-items: stretch;
+  box-sizing: border-box; /* MinHeight 32 计入边框(源 MinHeight 语义) */
   min-height: 32px; /* TextControlThemeMinHeight */
   background: var(--wui-control-fill-color-default);
-  border: 2px solid var(--wui-control-fill-color-transparent);
+  border: 1px solid var(--wui-control-fill-color-transparent);
   /* 圆角:源模板闭合态即内嵌 TextBox(x:Name="TextBox"),随 ControlCornerRadius = 4(T9 补修批次) */
   border-radius: var(--wui-control-corner-radius);
   /* Normal / PointerOver 边框 = TextControlElevationBorderBrush(渐变) */
   --asb-elevation-border: var(--wui-text-control-elevation-border);
 }
 
-/* PL6 立体描边环(TextControlElevationBorderBrush):内嵌 mask 环,原理同 TextBox.vue。 */
+/* PL6 立体描边环(TextControlElevationBorderBrush):内嵌 mask 环,原理同 TextBox.vue;
+   PL7 环厚随宿主 border 改为 1px(inset / padding 同步改 1px)。 */
 .wui-auto-suggest-box-border::before {
   content: '';
   position: absolute;
-  inset: -2px;
+  inset: -1px;
   border-radius: inherit;
-  padding: 2px;
+  padding: 1px;
   background: var(--asb-elevation-border, none);
   mask:
     linear-gradient(#000 0 0) content-box,
@@ -596,10 +604,12 @@ const rootClass = computed(() => ({
 }
 
 /* Focused:Background = ControlFillColorInputActiveBrush,
-   BorderBrush = TextControlBorderBrushFocused(视觉等价 accent 实色 → 环 none)。 */
+   BorderBrush = TextControlBorderBrushFocused(视觉等价 accent 实色 → 环 none);
+   PL7 厚度 = TextControlBorderThemeThicknessFocused = 1,1,1,2(下边 2px 强调色)。 */
 .wui-auto-suggest-box-border:focus-within {
   background: var(--wui-control-fill-color-input-active);
   border-color: var(--wui-system-accent-color);
+  border-width: 1px 1px 2px 1px; /* TextControlBorderThemeThicknessFocused = 1,1,1,2 */
   --asb-elevation-border: none;
 }
 
@@ -611,7 +621,9 @@ const rootClass = computed(() => ({
   color: var(--wui-text-fill-color-secondary);
 }
 
-/* 内容元素:TextControlThemePadding = 10,3,6,6 */
+/* 内容元素:TextControlThemePadding ——
+   现值 10,3,6,6 = legacy dxaml generic.xaml L175;WinUI 3 权威(Common_themeresources
+   L12/L26)为 10,5,6,6。PL7 只改边框厚度,未改本值(差异见 PL7 报告未决项 1)。 */
 .wui-auto-suggest-box-input {
   flex: 1;
   min-width: 0;

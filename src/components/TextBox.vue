@@ -187,10 +187,15 @@ const rootClass = computed(() => ({
   color: var(--wui-text-control-header-foreground);
 }
 
-/* —— BorderElement:TextControlBorderThemeThickness = 2(四周),MinHeight 32 ——
-   XAML 的 MinHeight 计入边框(BorderElement 外缘 32、内容区 28,ContentElement 以
-   Margin=BorderThickness 内缩 2px),CSS 对应 border-box:总高 32 含 2px 边框
-   (content-box 会撑成 36px,VR-B7 F-B7-1;修法同 FIX6 ComboBox)。
+/* —— BorderElement:TextControlBorderThemeThickness = 1(四周),MinHeight 32 ——
+   XAML 的 MinHeight 计入边框(BorderElement 外缘 32、内容区 30,ContentElement 以
+   Margin=BorderThickness 内缩 1px),CSS 对应 border-box:总高 32 含 1px 边框
+   (content-box 会撑成 34px,VR-B7 F-B7-1;修法同 FIX6 ComboBox)。
+   PL7:厚度取 WinUI 3 权威 —— controls/dev/CommonStyles/Common_themeresources.xaml
+   L10/L24(Normal+Light)`TextControlBorderThemeThickness` = 1(legacy dxaml generic.xaml
+   L173 的 2 已被本批替换);Focused = L11/L25 `TextControlBorderThemeThicknessFocused`
+   = 1,1,1,2(上/左/右 1、下边 2),施加点 TextBox_themeresources.xaml L303(DiscreteObject
+   KeyFrame → BorderElement.BorderThickness)。
    PL6:状态色重定向到 Fluent 画刷族(值 = controls/dev 权威):
    Normal Background = ControlFillColorDefaultBrush;边框权威为渐变
    TextControlElevationBorderBrush → 由下方 ::before 描边环呈现(border 保持透明)。 */
@@ -201,7 +206,7 @@ const rootClass = computed(() => ({
   box-sizing: border-box;
   min-height: 32px; /* TextControlThemeMinHeight(含边框) */
   background: var(--wui-control-fill-color-default);
-  border: 2px solid var(--wui-control-fill-color-transparent);
+  border: 1px solid var(--wui-control-fill-color-transparent);
   border-radius: var(--wui-control-corner-radius); /* ControlCornerRadius = 4(V3 QA 打回项) */
   /* Normal / PointerOver 边框 = TextControlElevationBorderBrush(渐变) */
   --tb-elevation-border: var(--wui-text-control-elevation-border);
@@ -212,7 +217,8 @@ const rootClass = computed(() => ({
  * XAML 的 TextControlBorderBrush 是 LinearGradientBrush(竖向渐变),单色 border-color
  * 无法表达 → 用「内嵌 mask 环」复刻(同 PL5 Button 方案):绝对定位伪元素铺满,
  * background 取渐变,再用 mask 差集(mask-composite:exclude)挖空中心,只留边框厚度一圈。
- * 几何:环厚 = 宿主 border 2px,inset:-2px 把环外缘推回 border-box 边缘;绝对定位不参与
+ * 几何:环厚 = 宿主 border 1px(PL7 起,权威 TextControlBorderThemeThickness=1),
+ *       inset:-1px 把环外缘推回 border-box 边缘;绝对定位不参与
  *       布局 → 尺寸/圆角/边框宽/内边距全部不变。不采用 border-image(不随圆角裁切,4px
  *       圆角会方角外溢)。
  * 状态:纯色状态(Disabled / Focused)把 --tb-elevation-border 置 none,由 border-color
@@ -221,9 +227,9 @@ const rootClass = computed(() => ({
 .wui-text-box-border::before {
   content: '';
   position: absolute;
-  inset: -2px;
+  inset: -1px;
   border-radius: inherit;
-  padding: 2px;
+  padding: 1px;
   background: var(--tb-elevation-border, none);
   mask:
     linear-gradient(#000 0 0) content-box,
@@ -254,10 +260,14 @@ const rootClass = computed(() => ({
 /* —— Focused 状态:PL6 权威 Background = ControlFillColorInputActiveBrush(浅 #FFFFFF /
       深 #1E1E1EB3),BorderBrush = TextControlBorderBrushFocused(= TextControlElevation-
       FocusedBrush,两停同为 accent,视觉等价 accent 实色)→ 实色强调边框(纯色,环置 none)。
+      PL7 厚度 = TextControlBorderThemeThicknessFocused(Common_themeresources L11/L25)
+      = 1,1,1,2 → CSS `border-width: 1px 1px 2px 1px`(上/右/下/左;下边 2px 强调色)。
+      border-box 语义下总外盒仍 32px,内容盒 32-1-2 = 29。
       UseSystemFocusVisuals 默认关闭,模板 Focused 态即键盘焦点指示,无需额外 outline。 —— */
 .wui-text-box-border:focus-within {
   background: var(--wui-control-fill-color-input-active);
   border-color: var(--wui-system-accent-color);
+  border-width: 1px 1px 2px 1px; /* TextControlBorderThemeThicknessFocused = 1,1,1,2 */
   --tb-elevation-border: none;
 }
 
@@ -269,7 +279,13 @@ const rootClass = computed(() => ({
   color: var(--wui-text-fill-color-secondary);
 }
 
-/* —— 内容元素(ContentElement):TextControlThemePadding = 10,3,6,6 —— */
+/* —— 内容元素(ContentElement):TextControlThemePadding ——
+   现值 10,3,6,6 = legacy dxaml generic.xaml L175;WinUI 3 权威(Common_themeresources
+   L12/L26)为 10,5,6,6。PL7 只改边框厚度(权威 TextControlBorderThemeThickness=1),
+   未改本内边距值(PL6 已声明冻结;改动会使单行基线再下移 1px)→ 差异登记见
+   .superpowers/.../PL7-text-border-geometry-report.md 未决项 1。
+   内容总内缩 = 宿主 border(1px) + 本 padding,CSS 由 border-box + flex stretch 自动成立
+   (对应源 ContentElement 的 Margin="{TemplateBinding BorderThickness}" + Padding)。 —— */
 .wui-text-box-input {
   flex: 1;
   min-width: 0;
@@ -324,13 +340,14 @@ const rootClass = computed(() => ({
       (Foreground=TextFillColorSecondaryBrush、PointerOver/Pressed=同键、
       Background PointerOver=SubtleFillColorSecondaryBrush、Pressed=SubtleFillColorTertiaryBrush、
       BorderBrush 三态=ControlFillColorTransparent)。
-      HelperButtonThemePadding = 0,0,-2,0(覆盖右边界 2px)。
+      HelperButtonThemePadding = 0,0,-2,0(dxaml generic.xaml L176,controls/dev 未覆写,
+      与边框厚度无关的固定值,PL7 保留)。
       按钮仅在聚焦(ControlFillColorInputActive)底上出现;浅色底白/深色底 #1E1E1E 下
       TextFillColorSecondary 两主题均可见,故不再需要 FIX12 的 ChromeBlackMedium 覆写。 —— */
 .wui-text-box-delete-button {
   flex: none;
   width: 34px; /* DeleteButton MinWidth = 34 */
-  margin-right: -2px; /* HelperButtonThemePadding */
+  margin-right: -2px; /* HelperButtonThemePadding = 0,0,-2,0 */
   display: flex;
   align-items: center;
   justify-content: center;

@@ -207,9 +207,12 @@ const rootClass = computed(() => ({
   color: var(--wui-text-control-header-foreground);
 }
 
-/* —— BorderElement:TextControlBorderThemeThickness = 2(四周),MinHeight 32 ——
-   XAML 的 MinHeight 计入边框(外缘 32、内容区 28),CSS 对应 border-box:总高 32 含
-   2px 边框(content-box 会撑成 36px,VR-B7 F-B7-3;修法同 FIX6 ComboBox/TextBox)。
+/* —— BorderElement:TextControlBorderThemeThickness = 1(四周),MinHeight 32 ——
+   XAML 的 MinHeight 计入边框(外缘 32、内容区 30),CSS 对应 border-box:总高 32 含
+   1px 边框(content-box 会撑成 34px,VR-B7 F-B7-3;修法同 FIX6 ComboBox/TextBox)。
+   PL7:厚度取 WinUI 3 权威(Common_themeresources.xaml L10/L24 = 1;legacy dxaml
+   generic.xaml L173 的 2 已替换);Focused = L11/L25 = 1,1,1,2(施加点
+   PasswordBox_themeresources.xaml L157)。
    PL6:状态色重定向到 Fluent 画刷族(同 TextBox,权威见 TextBox_themeresources.xaml)。 */
 .wui-password-box-border {
   position: relative;
@@ -218,19 +221,20 @@ const rootClass = computed(() => ({
   box-sizing: border-box;
   min-height: 32px; /* TextControlThemeMinHeight(含边框) */
   background: var(--wui-control-fill-color-default);
-  border: 2px solid var(--wui-control-fill-color-transparent);
+  border: 1px solid var(--wui-control-fill-color-transparent);
   border-radius: var(--wui-control-corner-radius); /* ControlCornerRadius = 4(V3 QA 打回项) */
   /* Normal / PointerOver 边框 = TextControlElevationBorderBrush(渐变) */
   --pb-elevation-border: var(--wui-text-control-elevation-border);
 }
 
-/* PL6 立体描边环(TextControlElevationBorderBrush):内嵌 mask 环,原理同 TextBox.vue。 */
+/* PL6 立体描边环(TextControlElevationBorderBrush):内嵌 mask 环,原理同 TextBox.vue;
+   PL7 环厚随宿主 border 改为 1px(inset / padding 同步改 1px)。 */
 .wui-password-box-border::before {
   content: '';
   position: absolute;
-  inset: -2px;
+  inset: -1px;
   border-radius: inherit;
-  padding: 2px;
+  padding: 1px;
   background: var(--pb-elevation-border, none);
   mask:
     linear-gradient(#000 0 0) content-box,
@@ -257,10 +261,12 @@ const rootClass = computed(() => ({
 }
 
 /* —— Focused 状态:Background = ControlFillColorInputActiveBrush,
-      BorderBrush = TextControlBorderBrushFocused(视觉等价 accent 实色 → 环 none)。 —— */
+      BorderBrush = TextControlBorderBrushFocused(视觉等价 accent 实色 → 环 none);
+      PL7 厚度 = TextControlBorderThemeThicknessFocused = 1,1,1,2(下边 2px 强调色)。 —— */
 .wui-password-box-border:focus-within {
   background: var(--wui-control-fill-color-input-active);
   border-color: var(--wui-system-accent-color);
+  border-width: 1px 1px 2px 1px; /* TextControlBorderThemeThicknessFocused = 1,1,1,2 */
   --pb-elevation-border: none;
 }
 
@@ -272,7 +278,9 @@ const rootClass = computed(() => ({
   color: var(--wui-text-fill-color-secondary);
 }
 
-/* —— 内容元素(ContentElement):TextControlThemePadding = 10,3,6,6 —— */
+/* —— 内容元素(ContentElement):TextControlThemePadding ——
+   现值 10,3,6,6 = legacy dxaml generic.xaml L175;WinUI 3 权威(Common_themeresources
+   L12/L26)为 10,5,6,6。PL7 只改边框厚度,未改本值(差异见 PL7 报告未决项 1)。 —— */
 .wui-password-box-input {
   flex: 1;
   min-width: 0;
@@ -318,12 +326,13 @@ const rootClass = computed(() => ({
 }
 
 /* —— RevealButton(揭示按钮):PL6 重定向到 TextControlButton* Fluent 画刷
-      (同 TextBox DeleteButton);HelperButtonThemePadding = 0,0,-2,0。
+      (同 TextBox DeleteButton);HelperButtonThemePadding = 0,0,-2,0
+      (dxaml generic.xaml L176,controls/dev 未覆写,与边框厚度无关的固定值,PL7 保留)。
       Disabled 态源模板 Opacity=0,本实现直接不渲染(v-if 已排除 disabled)。 —— */
 .wui-password-box-reveal-button {
   flex: none;
   width: 34px; /* RevealButton MinWidth = 34 */
-  margin-right: -2px; /* HelperButtonThemePadding */
+  margin-right: -2px; /* HelperButtonThemePadding = 0,0,-2,0 */
   display: flex;
   align-items: center;
   justify-content: center;

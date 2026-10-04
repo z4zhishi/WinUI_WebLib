@@ -387,8 +387,11 @@ const rootClass = computed(() => ({
 }
 
 /* —— BorderElement ——
-   XAML 的 MinHeight 计入边框(外缘 32、内容区 28),CSS 对应 border-box:总高 32 含
-   2px 边框(content-box 会撑成 36px,VR-B7 F-B7-6;修法同 FIX6 ComboBox/TextBox)。
+   XAML 的 MinHeight 计入边框(外缘 32、内容区 30),CSS 对应 border-box:总高 32 含
+   1px 边框(content-box 会撑成 34px,VR-B7 F-B7-6;修法同 FIX6 ComboBox/TextBox)。
+   PL7:厚度取 WinUI 3 权威(Common_themeresources.xaml L10/L24 = 1;legacy dxaml
+   generic.xaml L173 的 2 已替换);Focused = L11/L25 = 1,1,1,2(施加点
+   RichEditBox_themeresources.xaml L78)。
    PL6:状态色重定向到 Fluent 画刷族(RichEditBox 与 TextBox 共用 TextControl* 键,
    权威 = CommonStyles/RichEditBox_themeresources.xaml 的状态机 + TextBox_themeresources.xaml
    的键定义)。 */
@@ -400,19 +403,20 @@ const rootClass = computed(() => ({
   box-sizing: border-box;
   min-height: 32px; /* TextControlThemeMinHeight(含边框) */
   background: var(--wui-control-fill-color-default);
-  border: 2px solid var(--wui-control-fill-color-transparent);
+  border: 1px solid var(--wui-control-fill-color-transparent);
   border-radius: var(--wui-control-corner-radius); /* ControlCornerRadius = 4(BorderElement CornerRadius 模板绑定;T9 补修批次) */
   /* Normal / PointerOver 边框 = TextControlElevationBorderBrush(渐变) */
   --reb-elevation-border: var(--wui-text-control-elevation-border);
 }
 
-/* PL6 立体描边环(TextControlElevationBorderBrush):内嵌 mask 环,原理同 TextBox.vue。 */
+/* PL6 立体描边环(TextControlElevationBorderBrush):内嵌 mask 环,原理同 TextBox.vue;
+   PL7 环厚随宿主 border 改为 1px(inset / padding 同步改 1px)。 */
 .wui-rich-edit-box-border::before {
   content: '';
   position: absolute;
-  inset: -2px;
+  inset: -1px;
   border-radius: inherit;
-  padding: 2px;
+  padding: 1px;
   background: var(--reb-elevation-border, none);
   mask:
     linear-gradient(#000 0 0) content-box,
@@ -437,10 +441,12 @@ const rootClass = computed(() => ({
 }
 
 /* —— Focused 状态:Background = ControlFillColorInputActiveBrush,
-      BorderBrush = TextControlBorderBrushFocused(视觉等价 accent 实色 → 环 none)。 —— */
+      BorderBrush = TextControlBorderBrushFocused(视觉等价 accent 实色 → 环 none);
+      PL7 厚度 = TextControlBorderThemeThicknessFocused = 1,1,1,2(下边 2px 强调色)。 —— */
 .wui-rich-edit-box-border:focus-within {
   background: var(--wui-control-fill-color-input-active);
   border-color: var(--wui-system-accent-color);
+  border-width: 1px 1px 2px 1px; /* TextControlBorderThemeThicknessFocused = 1,1,1,2 */
   --reb-elevation-border: none;
 }
 
@@ -452,7 +458,10 @@ const rootClass = computed(() => ({
   color: var(--wui-text-fill-color-secondary);
 }
 
-/* —— 内容元素:TextControlThemePadding = 10,3,6,6;ScrollViewer 竖向 Auto —— */
+/* —— 内容元素:TextControlThemePadding ——
+   现值 10,3,6,6 = legacy dxaml generic.xaml L175;WinUI 3 权威(Common_themeresources
+   L12/L26)为 10,5,6,6。PL7 只改边框厚度,未改本值(差异见 PL7 报告未决项 1)。
+   ScrollViewer 竖向 Auto。 —— */
 .wui-rich-edit-box-editor {
   position: relative;
   z-index: 1;
@@ -463,9 +472,10 @@ const rootClass = computed(() => ({
   overflow-y: auto;
   font-family: var(--wui-content-control-theme-font-family, inherit);
   font-size: var(--wui-control-content-theme-font-size); /* ControlContentThemeFontSize */
-  /* 源行距:Segoe UI 14px 行高 ≈ 19(源 MinHeight 32 = 边框 2×2 + 内边距 3+6 + 一行 19,
-     空盒恰为 32)。Chromium 空行 strut(line-height normal)为 20px,会把单行空盒撑到 33
-     (VR-B7 F-B7-6 连带),故锁定 19px = 源行距;多行仍随内容增高(源 ScrollViewer Auto)。 */
+  /* 源行距:Segoe UI 14px 行高 ≈ 19(PL7 起外盒 32 = 边框 1×2 + 内边距 3+6 + 一行 19 需
+     flex stretch 补足 2px;空盒仍锁 32)。Chromium 空行 strut(line-height normal)为 20px,
+     会把单行空盒撑到 33(VR-B7 F-B7-6 连带),故锁定 19px = 源行距;多行仍随内容增高
+     (源 ScrollViewer Auto)。 */
   line-height: 19px;
   color: var(--wui-text-fill-color-primary);
   caret-color: var(--wui-text-fill-color-primary);
@@ -495,7 +505,9 @@ const rootClass = computed(() => ({
   color: var(--wui-hyperlink-foreground-theme);
 }
 
-/* —— 占位文本覆盖层:同内容内边距,不拦截指针 —— */
+/* —— 占位文本覆盖层:同内容内边距(inset:0 定位在 border 内缘,自动随 border 厚度变化,
+      与源 PlaceholderTextContentPresenter 的 Margin=BorderThickness + Padding 同义),
+      不拦截指针 —— */
 .wui-rich-edit-box-placeholder {
   position: absolute;
   inset: 0;
@@ -543,7 +555,7 @@ const rootClass = computed(() => ({
   z-index: 2;
   flex: none;
   width: 34px; /* DeleteButton MinWidth = 34 */
-  margin-right: -2px; /* HelperButtonThemePadding */
+  margin-right: -2px; /* HelperButtonThemePadding = 0,0,-2,0(dxaml generic.xaml L176) */
   display: flex;
   align-items: center;
   justify-content: center;

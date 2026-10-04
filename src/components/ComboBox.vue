@@ -678,12 +678,17 @@ const rootClass = computed(() => ({
 }
 
 /* ======================================================================
- * 关闭态输入框(源模板 Background border):BorderThickness = 2、Padding = 12,5,0,7
+ * 关闭态输入框(源模板 Background border):BorderThickness = 1、Padding = 12,5,0,7
  * ====================================================================== */
 .wui-combo-box-input {
   /* 关闭态边框色(源 Background Border 的 BorderBrush);各状态只覆写本变量。
      Normal 权威 = ControlElevationBorderBrush(渐变,PL2 无对应 token,P1 未决)→ 透明占位 */
   --cb-input-border: var(--wui-control-fill-color-transparent);
+  /* 关闭态边框厚度 = ComboBoxBorderThemeThickness(ComboBox_themeresources.xaml L331 = 1;
+     legacy dxaml generic.xaml 的 2 已被 PL7 替换)。
+     聚焦态为 HighlightBackground 层的 FocusStrokeColorOuter 环,其厚度权威
+     = ComboBoxBackgroundBorderThicknessFocused(同文件 L338 = 2)→ 聚焦时覆写为 2px。 */
+  --cb-input-border-width: 1px;
   position: relative;
   display: flex;
   align-items: stretch;
@@ -691,10 +696,10 @@ const rootClass = computed(() => ({
   min-height: 32px; /* 源未给 MinHeight:内容行(内边距 5+7 + 14px 文本行)自然高度 = 32 */
   box-sizing: border-box;
   background: var(--wui-control-fill-color-default); /* ComboBoxBackground = ControlFillColorDefault */
-  /* 源模板里 Border x:Name="Background"(BorderThickness 2)与 ContentPresenter 是
-     LayoutRoot Grid **同一格的兄弟节点**(generic.xaml L9168-9193):2px 边框与内容重叠,
+  /* 源模板里 Border x:Name="Background"(BorderThickness 1)与 ContentPresenter 是
+     LayoutRoot Grid **同一格的兄弟节点**(generic.xaml L9168-9193):边框与内容重叠,
      Padding 12,5,0,7 自控件**外缘**量起。故边框不能算进内容盒高度
-     (写 2px 边框于本元素会把关闭态撑到 32 + 2×2 = 36px,文字/箭头整体 +2/+2;VR-B3 §2.2)。
+     (写 1px 边框于本元素会把关闭态撑到 32 + 2×1 = 34px,文字/箭头整体 +1/+1;VR-B3 §2.2)。
      这里用绝对定位的 ::before 复刻「同格兄弟边框」——不参与布局,只覆盖绘制。 */
   border: 0;
   border-radius: var(--wui-control-corner-radius); /* ControlCornerRadius = 4,仅闭合/聚焦态盒(V3 QA 打回项;下拉面板 8px 见弹层基建) */
@@ -702,13 +707,13 @@ const rootClass = computed(() => ({
   outline: none;
 }
 
-/* 边框层(源 Background Border):覆盖整个控件盒、自外缘 2px 内缩,不撑高控件 */
+/* 边框层(源 Background Border):覆盖整个控件盒、自外缘 1px 内缩,不撑高控件 */
 .wui-combo-box-input::before {
   content: '';
   position: absolute;
   inset: 0;
   box-sizing: border-box;
-  border: 2px solid var(--cb-input-border); /* ComboBoxBorderThemeThickness */
+  border: var(--cb-input-border-width, 1px) solid var(--cb-input-border);
   border-radius: inherit;
   pointer-events: none;
 }
@@ -775,12 +780,14 @@ const rootClass = computed(() => ({
 }
 
 /* 聚焦态:HighlightBackground 层 = ControlFillColorDefault 底 + FocusStrokeColorOuter 边框
-   (源为 Margin -4 的外扩环,本实现只取色、不改既有几何)。
+   (源为 Margin -4 的外扩环,本实现只取色、不改既有几何;环厚取权威
+   ComboBoxBackgroundBorderThicknessFocused = 2,与基底 1px 边框层区分)。
    非可编辑 :focus;可编辑 :focus-within(焦点在内部 input)。置于 last 覆盖同权重的 .is-open */
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input:focus,
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input:focus-within {
   background: var(--wui-control-fill-color-default); /* ComboBoxBackgroundFocused */
   --cb-input-border: var(--wui-focus-stroke-color-outer); /* ComboBoxBackgroundBorderBrushFocused */
+  --cb-input-border-width: 2px; /* ComboBoxBackgroundBorderThicknessFocused */
 }
 
 .wui-combo-box:not(.is-disabled) .wui-combo-box-input:focus .wui-combo-box-content,
