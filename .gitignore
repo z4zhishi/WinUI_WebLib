@@ -4,7 +4,6 @@
 /.tools/
 
 # 根目录元文件不入库(仅本地保留)
-/README.md
 /agent.md
 /claude.md
 
